@@ -1,0 +1,9 @@
+/docs
+build/
+cim
+cim_test
+data/
+*.png
+__pycache__/
+.DS_Store
+.venv/
