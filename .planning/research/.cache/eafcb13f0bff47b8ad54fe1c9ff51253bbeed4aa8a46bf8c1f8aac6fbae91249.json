@@ -1,0 +1,1 @@
+{"content":"PBC neighbor distance must use minimum-image convention (dx -= L*round(dx/L)); cutoff rc must be <= L/2 under minimum image; positions must be re-wrapped into [0,L) after integration before next neighbor search.","source":"web","provider":"websearch","confidence":"MEDIUM","fetched_at":"2026-08-18T23:39:10.366Z","ttl":86400000,"kind":"web"}
