@@ -65,7 +65,7 @@ Requirements para la entrega del 04/09/2026. Cada uno mapea a fases del roadmap.
 ### Entregables (DELIV)
 
 - [x] **DELIV-01**: Informe en PDF con el formato de `docs/GuiaInformes.pdf`
-- [ ] **DELIV-02**: Presentación en PDF (≤13 minutos, sin animaciones embebidas, solo links explícitos) con el formato de `docs/GuiaPresentaciones.pdf`
+- [x] **DELIV-02**: Presentación en PDF (≤13 minutos, sin animaciones embebidas, solo links explícitos) con el formato de `docs/GuiaPresentaciones.pdf`
 - [ ] **DELIV-03**: Código fuente en un .zip con solo la versión final del motor de simulación (sin historial, documentos ni outputs de simulaciones)
 
 ## v2 Requirements
@@ -129,7 +129,7 @@ Qué fases cubren qué requirements.
 | PLUS-03 | Phase 4 | Complete |
 | BENCH-01 | Phase 5 | Pending |
 | DELIV-01 | Phase 5 | Complete |
-| DELIV-02 | Phase 5 | Pending |
+| DELIV-02 | Phase 5 | Complete |
 | DELIV-03 | Phase 5 | Pending |
 
 **Coverage:**
