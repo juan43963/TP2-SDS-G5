@@ -282,6 +282,84 @@ void testLongRunStaysWrapped() {
           "5000 pasos bajo PBC: todas las posiciones deben permanecer en [0, L)");
 }
 
+void testCircularMeanNearPi() {
+    // Two mutually-neighboring particles straddling the +-pi branch cut
+    // (RESEARCH.md Pitfall 5). Analytically: sumSin = sin(179deg)+sin(-179deg) = 0
+    // exactly (odd function, opposite-sign arguments), sumCos =
+    // cos(179deg)+cos(-179deg) ~= -1.9997 (even function, same-sign), so
+    // atan2(0, negative) = +pi exactly -- not the ~0 an arithmetic mean of
+    // 179deg and -179deg would wrongly produce.
+    const double L = 10.0, rc = 2.0;
+    const int M = maxValidGridM(L, rc);
+    const double t0 = 179.0 * kPi / 180.0;
+    const double t1 = -179.0 * kPi / 180.0;
+
+    std::vector<VicsekParticle> particles = {
+        {0, 1.0, 1.0, t0},
+        {1, 1.5, 1.0, t1},
+    };
+    Simulation sim(std::move(particles), L, rc, /*v0=*/0.0, /*dt=*/1.0, M, /*periodic=*/false,
+                   Model::Vicsek, /*eta=*/0.0);
+    sim.step();
+
+    for (const VicsekParticle& p : sim.particles()) {
+        check(std::abs(p.theta - kPi) < 1e-6,
+              "media circular cerca de +-pi: particula " + std::to_string(p.id) +
+                  " deberia converger a +pi (theta=" + std::to_string(p.theta) + ")");
+        check(std::abs(p.theta - 0.0) >= 0.1,
+              "media circular cerca de +-pi: particula " + std::to_string(p.id) +
+                  " no deberia caer en la patologia de la media aritmetica (~0)");
+    }
+}
+
+void testVoterZeroNeighborSelfInclusion() {
+    // A single isolated particle: the self-inclusive candidate pool always
+    // reduces to {i} when neighbors[i] is empty, so uniform_int_distribution
+    // pick(0, 0) always selects self and theta never changes -- runtime proof
+    // that Pitfall 2's UB case cannot occur.
+    const double L = 10.0, rc = 1.0;
+    const int M = maxValidGridM(L, rc);
+    const double original = 1.234;
+
+    std::vector<VicsekParticle> particles = {{0, 5.0, 5.0, original}};
+    Simulation sim(std::move(particles), L, rc, /*v0=*/0.0, /*dt=*/1.0, M, /*periodic=*/false,
+                   Model::Voter, /*eta=*/0.0);
+
+    for (int step = 0; step < 20; ++step) {
+        sim.step();
+        check(std::abs(sim.particles()[0].theta - original) < 1e-9,
+              "voter con cero vecinos: la particula aislada deberia mantener su theta original "
+              "(paso " + std::to_string(step) + ")");
+    }
+}
+
+void testVoterCandidatePoolInvariant() {
+    // Two mutually-neighboring particles with eta=0.0: the voter update can
+    // only ever copy from the closed candidate set {0.0, pi/2} (both
+    // particles' own old-snapshot headings), never a third/corrupted value.
+    const double L = 10.0, rc = 2.0;
+    const int M = maxValidGridM(L, rc);
+
+    std::vector<VicsekParticle> particles = {
+        {0, 1.0, 1.0, 0.0},
+        {1, 1.5, 1.0, kPi / 2.0},
+    };
+    Simulation sim(std::move(particles), L, rc, /*v0=*/0.0, /*dt=*/1.0, M, /*periodic=*/false,
+                   Model::Voter, /*eta=*/0.0, /*seed=*/42);
+
+    for (int step = 0; step < 100; ++step) {
+        sim.step();
+        for (const VicsekParticle& p : sim.particles()) {
+            const bool isZero = std::abs(p.theta - 0.0) < 1e-12;
+            const bool isHalfPi = std::abs(p.theta - kPi / 2.0) < 1e-12;
+            check(isZero || isHalfPi,
+                  "pool de candidatos del votante: particula " + std::to_string(p.id) +
+                      " deberia valer 0.0 o pi/2, nunca otro valor (theta=" +
+                      std::to_string(p.theta) + ", paso " + std::to_string(step) + ")");
+        }
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -303,6 +381,12 @@ int main() {
     testLongRunStaysWrapped();
     std::printf("- con paredes (no periodico), las posiciones no se envuelven\n");
     testWallsDoNotWrap();
+    std::printf("- media circular evita la patologia aritmetica cerca de +-pi\n");
+    testCircularMeanNearPi();
+    std::printf("- votante con cero vecinos: auto-inclusion bien definida (sin UB)\n");
+    testVoterZeroNeighborSelfInclusion();
+    std::printf("- votante: el pool de candidatos nunca produce un valor fuera de conjunto\n");
+    testVoterCandidatePoolInvariant();
 
     std::printf("\n%d verificaciones, %d fallas\n", checks, failures);
     if (failures == 0) std::printf("OK\n");
