@@ -4,16 +4,16 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 02
 current_phase_name: modelos-vicsek-y-votante
-status: executing
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-08-19T02:36:02.832Z"
+status: verifying
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-08-19T02:41:52.035Z"
 last_activity: 2026-08-18
 last_activity_desc: ROADMAP.md and STATE.md created, 31/31 requirements mapped
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-08-18)
 
 Phase: 02 (modelos-vicsek-y-votante) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-18 — Phase 02 execution started
 
-Progress: [████████░░] 75%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [████████░░] 75%
 |------|----------|-------|-------|
 | Phase 01 P02 | 35min | 2 tasks | 5 files |
 | Phase 02 P01 | 4min | 2 tasks | 4 files |
+| Phase 02 P02 | 6min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Recent decisions affecting current work:
 - [Phase ?]: CORE_SRC Makefile edit for engine/simulation.cpp pulled forward into Task 1 since Task 1's own self-test required it to link
 - [Phase ?]: Voter's zero-external-neighbor case self-includes (candidate pool = {i} union neighbors[i]), analogous to Vicsek's Phase-1-established self-inclusion convention
 - [Phase ?]: Noise convention frozen as Uniform(-eta/2, eta/2), added identically after either rule's raw heading via one shared addAngularNoise call
+- [Phase ?]: writeTrajectoryFrame takes an already-open ofstream& (never a path) -- structurally eliminates TP1's per-call truncation bug
+- [Phase ?]: Clustering/polarization observables stay in the C++ engine reusing Grid::neighbors() directly, no second neighbor search or Python-side recompute
 
 ### Pending Todos
 
@@ -96,6 +99,6 @@ Items acknowledged and carried forward — v2 requirements, solo si sobra tiempo
 
 ## Session Continuity
 
-Last session: 2026-08-19T02:36:02.821Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-08-19T02:41:52.025Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None

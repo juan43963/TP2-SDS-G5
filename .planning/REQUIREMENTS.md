@@ -34,13 +34,13 @@ Requirements para la entrega del 04/09/2026. Cada uno mapea a fases del roadmap.
 
 ### Salida de Datos (OUTPUT)
 
-- [ ] **OUTPUT-01**: La simulación escribe posiciones y velocidades por partícula y por timestep en archivos de texto, desacoplados del módulo de animación
+- [x] **OUTPUT-01**: La simulación escribe posiciones y velocidades por partícula y por timestep en archivos de texto, desacoplados del módulo de animación
 - [ ] **OUTPUT-02**: Para corridas de barrido no destinadas a animación se escribe solo el log escalar (t, va, S), evitando explosión de I/O
 
 ### Clustering (CLUSTER)
 
-- [ ] **CLUSTER-01**: Detecta clusters como componentes conexas del grafo de vecinos (partículas conectadas por cadenas de saltos vecino-a-vecino dentro de rc), reusando las listas de vecinos del CIM
-- [ ] **CLUSTER-02**: Calcula S = fracción de partículas en el cluster más grande (componente gigante)
+- [x] **CLUSTER-01**: Detecta clusters como componentes conexas del grafo de vecinos (partículas conectadas por cadenas de saltos vecino-a-vecino dentro de rc), reusando las listas de vecinos del CIM
+- [x] **CLUSTER-02**: Calcula S = fracción de partículas en el cluster más grande (componente gigante)
 
 ### Visualización y Gráficos (VIZ)
 
@@ -108,9 +108,9 @@ Qué fases cubren qué requirements.
 | VICSEK-01 | Phase 2 | Complete |
 | VOTER-01 | Phase 2 | Complete |
 | VOTER-02 | Phase 2 | Complete |
-| OUTPUT-01 | Phase 2 | Pending |
-| CLUSTER-01 | Phase 2 | Pending |
-| CLUSTER-02 | Phase 2 | Pending |
+| OUTPUT-01 | Phase 2 | Complete |
+| CLUSTER-01 | Phase 2 | Complete |
+| CLUSTER-02 | Phase 2 | Complete |
 | SWEEP-01 | Phase 3 | Pending |
 | SWEEP-02 | Phase 3 | Pending |
 | SWEEP-03 | Phase 3 | Pending |
