@@ -31,7 +31,7 @@ TP2_DIR = Path(__file__).resolve().parent.parent
 TP2_BIN = TP2_DIR / "tp2"
 SWEEP_DATA_DIR = TP2_DIR / "data" / "sweep"
 
-DISCARD_OUT_PATH = "/dev/null"
+DISCARD_OUT_PATH = os.devnull
 L_DEFAULT = 10.0
 DEFAULT_STEPS = 2000
 STEADY_STATE_FRACTION = 0.5  # descarta la primera mitad de los pasos como transitorio
