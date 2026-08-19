@@ -11,9 +11,9 @@ Requirements para la entrega del 04/09/2026. Cada uno mapea a fases del roadmap.
 
 - [ ] **ENGINE-01**: El motor extiende el struct de partícula de TP1 con orientación/velocidad (θ o vx,vy), además de posición
 - [ ] **ENGINE-02**: El motor reutiliza el Cell Index Method de TP1, adaptado para consultas repetidas por paso de tiempo (buffers persistentes, sin reconstrucción completa por llamada)
-- [ ] **ENGINE-03**: El loop de actualización es sincrónico (double-buffered): cada partícula calcula su nueva orientación a partir de las orientaciones viejas de sus vecinos, sin mutar in-place durante el paso
-- [ ] **ENGINE-04**: Las posiciones se envuelven correctamente bajo condiciones periódicas de contorno en una caja cuadrada de lado L=10, en cada paso de integración
-- [ ] **ENGINE-05**: El binario nuevo vive en `TP2/` y no modifica el código de `TP1/`
+- [x] **ENGINE-03**: El loop de actualización es sincrónico (double-buffered): cada partícula calcula su nueva orientación a partir de las orientaciones viejas de sus vecinos, sin mutar in-place durante el paso
+- [x] **ENGINE-04**: Las posiciones se envuelven correctamente bajo condiciones periódicas de contorno en una caja cuadrada de lado L=10, en cada paso de integración
+- [x] **ENGINE-05**: El binario nuevo vive en `TP2/` y no modifica el código de `TP1/`
 
 ### Modelo Vicsek (VICSEK)
 
@@ -102,9 +102,9 @@ Qué fases cubren qué requirements.
 |-------------|-------|--------|
 | ENGINE-01 | Phase 1 | Pending |
 | ENGINE-02 | Phase 1 | Pending |
-| ENGINE-03 | Phase 1 | Pending |
-| ENGINE-04 | Phase 1 | Pending |
-| ENGINE-05 | Phase 1 | Pending |
+| ENGINE-03 | Phase 1 | Complete |
+| ENGINE-04 | Phase 1 | Complete |
+| ENGINE-05 | Phase 1 | Complete |
 | VICSEK-01 | Phase 2 | Pending |
 | VOTER-01 | Phase 2 | Pending |
 | VOTER-02 | Phase 2 | Pending |
@@ -133,6 +133,7 @@ Qué fases cubren qué requirements.
 | DELIV-03 | Phase 5 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 31 total
 - Mapped to phases: 31
 - Unmapped: 0 ✓

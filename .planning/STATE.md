@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: motor-y-grid-persistente
 status: executing
-stopped_at: ROADMAP.md and STATE.md created, REQUIREMENTS.md traceability updated. Ready to plan Phase 1.
-last_updated: "2026-08-19T00:59:02.267Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-08-19T01:48:43.987Z"
 last_activity: 2026-08-18
 last_activity_desc: ROADMAP.md and STATE.md created, 31/31 requirements mapped
 progress:
   total_phases: 1
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 0
+  completed_plans: 2
 ---
 
 # Project State
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-08-18)
 ## Current Position
 
 Phase: 01 (motor-y-grid-persistente) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 01
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-08-18 — Phase 01 execution started
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -54,6 +54,11 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: N/A
 
 *Updated after each plan completion*
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 01 P02 | 35min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -64,6 +69,8 @@ Recent decisions affecting current work:
 
 - Roadmap: Binario nuevo en `TP2/` reusa el CIM de TP1 en vez de extender TP1 in-place o extraer una lib compartida — TP1 queda intacto.
 - Roadmap: Estructura de fases horizontal (motor completo y ambos modelos validados antes de escalar al barrido paramétrico), no vertical-slice — reduce riesgo de escalar cómputo sobre un motor incorrecto dado el plazo ajustado.
+- [Phase ?]: Self-inclusive circular mean (Vicsek 1995 convention) applied consistently for the heading update
+- [Phase ?]: CORE_SRC Makefile edit for engine/simulation.cpp pulled forward into Task 1 since Task 1's own self-test required it to link
 
 ### Pending Todos
 
@@ -86,6 +93,6 @@ Items acknowledged and carried forward — v2 requirements, solo si sobra tiempo
 
 ## Session Continuity
 
-Last session: 2026-08-18
-Stopped at: ROADMAP.md and STATE.md created, REQUIREMENTS.md traceability updated. Ready to plan Phase 1.
+Last session: 2026-08-19T01:48:43.976Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
