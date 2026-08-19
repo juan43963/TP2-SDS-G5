@@ -59,6 +59,27 @@ MARKER_VICSEK_SCATTER = "o"
 MARKER_VOTER_SCATTER = "x"
 
 
+def _rho_color(rho: float) -> str:
+    """Color configurado para `rho`, con error explicito si no esta en RHO_COLORS.
+
+    RHO_COLORS solo tiene entradas para {2.0, 4.0, 8.0}; un `summary.csv`
+    producido por `sweep.py --rhos <otros valores>` no debe crashear con un
+    KeyError sin contexto.
+    """
+    color = RHO_COLORS.get(rho)
+    if color is None:
+        raise ValueError(f"sin color configurado para rho={rho}; agregar a RHO_COLORS")
+    return color
+
+
+def _rho_marker(rho: float) -> str:
+    """Marcador configurado para `rho`, con error explicito si no esta en RHO_MARKERS."""
+    marker = RHO_MARKERS.get(rho)
+    if marker is None:
+        raise ValueError(f"sin marcador configurado para rho={rho}; agregar a RHO_MARKERS")
+    return marker
+
+
 def load_summary(csv_path: Path = SWEEP_SUMMARY_CSV) -> list[dict]:
     """Lee summary.csv y castea los campos numericos (DictReader siempre da strings)."""
     rows = []
@@ -99,8 +120,8 @@ def plot_va_eta(rows: list[dict], out_path: Path = None):
         va = [r["va_mean"] for r in group]
         va_err = [r["va_std"] for r in group]
         linestyle = LINESTYLE_VICSEK if model == "vicsek" else LINESTYLE_VOTER
-        ax.errorbar(etas, va, yerr=va_err, color=RHO_COLORS[rho], linestyle=linestyle,
-                    marker=RHO_MARKERS[rho], capsize=3, label=f"{model} rho={rho:g}")
+        ax.errorbar(etas, va, yerr=va_err, color=_rho_color(rho), linestyle=linestyle,
+                    marker=_rho_marker(rho), capsize=3, label=f"{model} rho={rho:g}")
     ax.set_xlabel("eta")
     ax.set_ylabel("va")
     ax.set_title("Polarizacion va vs ruido eta")
@@ -129,8 +150,8 @@ def plot_S_eta(rows: list[dict], out_path: Path = None):
         s_mean = [r["S_mean"] for r in group]
         s_err = [r["S_std"] for r in group]
         linestyle = LINESTYLE_VICSEK if model == "vicsek" else LINESTYLE_VOTER
-        ax.errorbar(etas, s_mean, yerr=s_err, color=RHO_COLORS[rho], linestyle=linestyle,
-                    marker=RHO_MARKERS[rho], capsize=3, label=f"{model} rho={rho:g}")
+        ax.errorbar(etas, s_mean, yerr=s_err, color=_rho_color(rho), linestyle=linestyle,
+                    marker=_rho_marker(rho), capsize=3, label=f"{model} rho={rho:g}")
     ax.set_xlabel("eta")
     ax.set_ylabel("S")
     ax.set_title("Fraccion del cluster gigante S vs ruido eta")
@@ -162,7 +183,7 @@ def plot_va_vs_S(rows: list[dict], out_path: Path = None):
         va = [r["va_mean"] for r in group]
         s_mean = [r["S_mean"] for r in group]
         marker = MARKER_VICSEK_SCATTER if model == "vicsek" else MARKER_VOTER_SCATTER
-        ax.scatter(va, s_mean, color=RHO_COLORS[rho], marker=marker,
+        ax.scatter(va, s_mean, color=_rho_color(rho), marker=marker,
                    label=f"{model} rho={rho:g}")
 
     ax.set_xlabel("va")
@@ -223,8 +244,8 @@ def plot_chi_eta(rows_with_chi: list[dict], out_path: Path = None):
         etas = [r["eta"] for r in group]
         chi = [r["chi"] for r in group]
         linestyle = LINESTYLE_VICSEK if model == "vicsek" else LINESTYLE_VOTER
-        ax.plot(etas, chi, color=RHO_COLORS[rho], linestyle=linestyle,
-                marker=RHO_MARKERS[rho], label=f"{model} rho={rho:g}")
+        ax.plot(etas, chi, color=_rho_color(rho), linestyle=linestyle,
+                marker=_rho_marker(rho), label=f"{model} rho={rho:g}")
     ax.set_xlabel("eta")
     ax.set_ylabel("chi = N*va_std^2")
     ax.set_title("Susceptibilidad chi vs ruido eta")
@@ -366,7 +387,7 @@ def plot_scalar_timeseries(rho: float, model: str, column: str, rows_summary: li
     ys = [r[col_index] for r in series]
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.plot(ts, ys, color=RHO_COLORS[rho])
+    ax.plot(ts, ys, color=_rho_color(rho))
     ax.axvline(cutoff_t, color="black", linestyle=":", label="estado estacionario")
     ax.set_xlabel("t")
     ax.set_ylabel(column)
