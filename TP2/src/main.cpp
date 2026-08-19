@@ -144,6 +144,9 @@ int main(int argc, char** argv) try {
     if (!trajOut) fail("no se pudo abrir " + o.out);
 
     const bool scalarLogEnabled = !o.scalarLog.empty();
+    if (scalarLogEnabled && o.scalarLog == o.out) {
+        fail("--out y --scalar-log no pueden apuntar al mismo archivo");
+    }
     std::ofstream scalarOut;
     if (scalarLogEnabled) {
         const std::filesystem::path scalarPath(o.scalarLog);
