@@ -79,4 +79,104 @@
   En ambos casos $\Delta\theta_i \sim \mathcal{U}(-\eta/2,\ \eta/2)$.
 \end{frame}
 
+% ---------------------------------------------------------------------
+% Seccion: Implementacion
+% ---------------------------------------------------------------------
+\section{Implementacion}
+
+\begin{frame}
+  \centering
+  \Large Implementaci\'on
+\end{frame}
+
+\begin{frame}{Arquitectura del motor}
+  \begin{itemize}
+    \item \texttt{VicsekParticle}: posici\'on $(x,y)$ + orientaci\'on
+      $\theta$ (extiende la part\'icula de TP1, que no ten\'ia velocidad).
+    \item \texttt{Grid}: grilla del Cell Index Method reutilizado de TP1,
+      ahora \textbf{persistente} -- sus buffers \texttt{cells}/\texttt{neighbors\_}
+      se reutilizan en cada \texttt{rebuild()} en vez de reasignarse.
+    \item \texttt{Simulation}: encapsula part\'iculas, grilla y RNG; el
+      m\'etodo \texttt{step()} hace la actualizaci\'on sincr\'onica.
+    \item Estrategia de interacci\'on seleccionable en tiempo de
+      construcci\'on: \texttt{enum class Model \{ Vicsek, Voter \}}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Esquema del \texttt{step()}}
+  Actualizaci\'on sincr\'onica en dos pasadas (double-buffered), para que
+  ninguna part\'icula use orientaciones ya actualizadas de otras dentro del
+  mismo paso:
+
+  \begin{enumerate}
+    \item \texttt{grid\_.rebuild(particles\_)} -- vecinos sobre la foto
+      previa al paso.
+    \item Para cada part\'icula $i$: calcular $\theta_i^{\text{nuevo}}$
+      (Vicsek o votante) + ruido, guardado en un buffer auxiliar
+      \texttt{thetaNew\_} (nunca se escribe \texttt{theta} todav\'ia).
+    \item Para cada part\'icula $i$: avanzar posici\'on con
+      $\theta_i^{\text{nuevo}}$, aplicar contorno peri\'odico, y reci\'en
+      ah\'i confirmar \texttt{theta}.
+  \end{enumerate}
+
+  Los observables ($v_a$, $S$) se calculan directamente sobre la lista de
+  adyacencia de la grilla, sin recomputar vecinos por fuera del motor.
+\end{frame}
+
+% ---------------------------------------------------------------------
+% Seccion: Simulaciones
+% ---------------------------------------------------------------------
+\section{Simulaciones}
+
+\begin{frame}
+  \centering
+  \Large Simulaciones
+\end{frame}
+
+\begin{frame}{Geometr\'ia y parametros}
+  \begin{columns}
+    \begin{column}{0.55\textwidth}
+      \begin{itemize}
+        \item Caja cuadrada $L=10$, condiciones peri\'odicas de contorno.
+        \item Densidades $\rho \in \{2,4,8\}$.
+        \item Ambos modelos: Vicsek y votante.
+        \item Variable de estudio: ruido angular $\eta$.
+        \item Grilla de $\eta$: gruesa (9 pts en $[0,2\pi]$) + fina (8 pts)
+          localizada por un mini-barrido exploratorio del bracket de
+          transici\'on, por cada (modelo, $\rho$).
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{frame_vicsek_rho2.png}
+
+      \small $\rho=2$, esquema de la caja $L\times L$ con vectores de
+      velocidad por part\'icula
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Observables y repeticiones}
+  Polarizaci\'on (parametro de orden global):
+  \[
+    v_a = \left| \frac{1}{N} \sum_{i=1}^{N} \hat{\vect{v}}_i \right|
+  \]
+
+  Fracci\'on del cluster gigante ($S$): tama\~no de la componente conexa
+  m\'as grande de la red de vecinos (CIM, radio $r_c$) sobre $N$:
+  \[
+    S = \frac{|\text{componente conexa m\'as grande}|}{N}
+  \]
+
+  \vspace{0.3cm}
+  \textbf{Repeticiones:} $K \geq 5$ semillas independientes por punto
+  $(\text{modelo}, \rho, \eta)$, semilla determin\'istica
+  (\texttt{sha256}), nunca por reloj. \\
+  \textbf{Duraci\'on:} 2000 pasos por corrida; estado estacionario = \'ultimo
+  50\% de los pasos (mismo criterio para $v_a$ y $S$). \\
+  \textbf{Tiempo real medido} (Plan de benchmark, $N=1000$):
+  $\approx 1.58$~ms por paso completo del motor de TP2 (rebuild de grilla +
+  b\'usqueda de vecinos + integraci\'on).
+\end{frame}
+
 \end{document}
