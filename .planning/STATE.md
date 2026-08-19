@@ -23,7 +23,7 @@ current_phase_name: Benchmark y Entregables
 See: .planning/PROJECT.md (updated 2026-08-18)
 
 **Core value:** Producir las curvas y gráficos correctos (va, S, comparación estándar vs votante) que sustenten el informe y la presentación — resultados/gráficos importan más que la elegancia del motor, aunque el motor debe ser rápido para el barrido.
-**Current focus:** Phase 05 — Benchmark y Entregables
+**Current focus:** Milestone v1.0 shipped — awaiting human final steps (video upload, informe/presentación review) before campus submission
 
 ## Current Position
 
@@ -93,9 +93,7 @@ None yet.
 
 ### Blockers/Concerns
 
-- Deadline duro: entrega 04/09/2026 13:00 (campus), ~2.5 semanas desde la creación de este roadmap (18/08/2026) — sin margen, fases deben ejecutarse en secuencia sin retrabajo.
-- CONCERNS.md de TP1 (mapeado en `.planning/codebase/`) señaló fricción de reuso que Phase 1–2 deben resolver explícitamente: `Particle` sin velocidad/orientación, `computeCIM` reconstruye la grilla desde cero por llamada (sin estado incremental), `writeDynamic` hardcodea velocidad `0 0`. Todo esto está cubierto por ENGINE-01/02 y OUTPUT-01 respectivamente — verificar en Phase 1–2 que quedó resuelto, no solo trasladado.
-- Gaps de investigación abiertos (research/SUMMARY.md) a resolver durante planning de fase: método de detección de estado estacionario (Phase 3), resolución de la grilla de η cerca de la transición (Phase 3, requiere mini-barrido exploratorio previo), disponibilidad de ffmpeg para animaciones .mp4 (Phase 4).
+- Deadline duro: entrega 04/09/2026 13:00 (campus) — v1.0 ya está construido y verificado; quedan solo dos pasos manuales fuera de alcance del pipeline: (1) subir `animation_vicsek_rho2.gif`/`animation_voter_rho2.gif` a YouTube/Drive y reemplazar los placeholders `[PEGAR LINK DE VIDEO AQUI]` en `TP2/presentacion/presentacion.tex`, recompilando después; (2) revisión final humana de `informe.pdf`/`presentacion.pdf` antes de la entrega real.
 
 ## Deferred Items
 
