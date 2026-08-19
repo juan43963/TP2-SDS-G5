@@ -379,6 +379,8 @@ def plot_scalar_timeseries(rho: float, model: str, column: str, rows_summary: li
 
     eta, log_path = _representative_log_path(rho, model, rows_summary)
     series = read_scalar_log(log_path)
+    if not series:
+        raise RuntimeError(f"scalar log vacio: {log_path}")
     cutoff = steady_state_index(len(series))
     cutoff_t = series[cutoff][0] if cutoff < len(series) else series[-1][0]
 
