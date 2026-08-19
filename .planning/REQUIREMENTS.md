@@ -96,47 +96,47 @@ Explícitamente excluido. Documentado para prevenir scope creep dado el plazo aj
 
 ## Traceability
 
-Qué fases cubren qué requirements. Se completa durante la creación del roadmap.
+Qué fases cubren qué requirements.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ENGINE-01 | TBD | Pending |
-| ENGINE-02 | TBD | Pending |
-| ENGINE-03 | TBD | Pending |
-| ENGINE-04 | TBD | Pending |
-| ENGINE-05 | TBD | Pending |
-| VICSEK-01 | TBD | Pending |
-| VOTER-01 | TBD | Pending |
-| VOTER-02 | TBD | Pending |
-| SWEEP-01 | TBD | Pending |
-| SWEEP-02 | TBD | Pending |
-| SWEEP-03 | TBD | Pending |
-| SWEEP-04 | TBD | Pending |
-| SWEEP-05 | TBD | Pending |
-| OUTPUT-01 | TBD | Pending |
-| OUTPUT-02 | TBD | Pending |
-| CLUSTER-01 | TBD | Pending |
-| CLUSTER-02 | TBD | Pending |
-| VIZ-01 | TBD | Pending |
-| VIZ-02 | TBD | Pending |
-| VIZ-03 | TBD | Pending |
-| VIZ-04 | TBD | Pending |
-| VIZ-05 | TBD | Pending |
-| VIZ-06 | TBD | Pending |
-| VIZ-07 | TBD | Pending |
-| BENCH-01 | TBD | Pending |
-| PLUS-01 | TBD | Pending |
-| PLUS-02 | TBD | Pending |
-| PLUS-03 | TBD | Pending |
-| DELIV-01 | TBD | Pending |
-| DELIV-02 | TBD | Pending |
-| DELIV-03 | TBD | Pending |
+| ENGINE-01 | Phase 1 | Pending |
+| ENGINE-02 | Phase 1 | Pending |
+| ENGINE-03 | Phase 1 | Pending |
+| ENGINE-04 | Phase 1 | Pending |
+| ENGINE-05 | Phase 1 | Pending |
+| VICSEK-01 | Phase 2 | Pending |
+| VOTER-01 | Phase 2 | Pending |
+| VOTER-02 | Phase 2 | Pending |
+| OUTPUT-01 | Phase 2 | Pending |
+| CLUSTER-01 | Phase 2 | Pending |
+| CLUSTER-02 | Phase 2 | Pending |
+| SWEEP-01 | Phase 3 | Pending |
+| SWEEP-02 | Phase 3 | Pending |
+| SWEEP-03 | Phase 3 | Pending |
+| SWEEP-04 | Phase 3 | Pending |
+| SWEEP-05 | Phase 3 | Pending |
+| OUTPUT-02 | Phase 3 | Pending |
+| VIZ-01 | Phase 4 | Pending |
+| VIZ-02 | Phase 4 | Pending |
+| VIZ-03 | Phase 4 | Pending |
+| VIZ-04 | Phase 4 | Pending |
+| VIZ-05 | Phase 4 | Pending |
+| VIZ-06 | Phase 4 | Pending |
+| VIZ-07 | Phase 4 | Pending |
+| PLUS-01 | Phase 4 | Pending |
+| PLUS-02 | Phase 4 | Pending |
+| PLUS-03 | Phase 4 | Pending |
+| BENCH-01 | Phase 5 | Pending |
+| DELIV-01 | Phase 5 | Pending |
+| DELIV-02 | Phase 5 | Pending |
+| DELIV-03 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 31 total
-- Mapped to phases: 0
-- Unmapped: 31 ⚠️ (se completa en la creación del roadmap)
+- Mapped to phases: 31
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-18*
-*Last updated: 2026-08-18 after initial definition*
+*Last updated: 2026-08-18 after roadmap creation — 31/31 v1 requirements mapped to 5 phases*
