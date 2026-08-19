@@ -171,7 +171,7 @@
   50\% de los pasos (mismo criterio para $v_a$ y $S$). \\
   \textbf{Tiempo real medido} (Plan de benchmark, $N=1000$):
   $\approx 1.58$~ms por paso completo del motor de TP2 (rebuild de grilla +
-  b\'usqueda de vecinos + integraci\'on).
+  b\'usqueda de vecinos + integraci\'on + escritura de trayectoria).
 \end{frame}
 
 % ---------------------------------------------------------------------
@@ -288,9 +288,10 @@
   \centering
   \includegraphics[width=0.75\textwidth]{benchmark_tp1_vs_tp2.png}
 
-  \small La serie TP1 mide s\'olo b\'usqueda de vecinos (\texttt{computeCIM});
-  la serie TP2 mide el paso completo del motor (rebuild + b\'usqueda +
-  integraci\'on) -- magnitudes distintas, no comparables en valor absoluto.
+  \small La serie TP1 ($L=20$) mide s\'olo b\'usqueda de vecinos
+  (\texttt{computeCIM}); la serie TP2 ($L=10$) mide el paso completo del
+  motor (rebuild + b\'usqueda + integraci\'on + escritura de trayectoria) --
+  magnitudes y densidades distintas, no comparables en valor absoluto.
   Ambas escalan con pendiente similar en log-log.
 \end{frame}
 
@@ -309,8 +310,9 @@
     \item $S$ se mantiene cerca de 1 en casi todo el rango, salvo Vicsek
       $\rho=2$ (baja densidad), donde se acopla con la p\'erdida de $v_a$.
     \item El motor de TP2 preserva el escalado del CIM de TP1: el paso
-      completo es m\'as costoso en t\'erminos absolutos, pero ambas series
-      crecen con $N$ con pendiente similar en log-log.
+      completo (incl. escritura, a mayor densidad $L=10$ vs $L=20$) es
+      m\'as costoso en t\'erminos absolutos, pero ambas series crecen con
+      $N$ con pendiente similar en log-log.
   \end{itemize}
 \end{frame}
 
