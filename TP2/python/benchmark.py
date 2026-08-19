@@ -194,8 +194,13 @@ def merge_and_save_csv(tp1_rows, tp2_rows, out_path=None):
     return combined
 
 
-def plot_benchmark(rows, out_path=None):
-    """Grafico log-log comparativo: busqueda de vecinos TP1 vs paso completo TP2."""
+def plot_benchmark(rows, out_path=None, show=False):
+    """Grafico log-log comparativo: busqueda de vecinos TP1 vs paso completo TP2.
+
+    Si show=True usa el backend interactivo y muestra la figura sin guardarla
+    (ver `--show` en el CLI); si show=False (default) guarda el PNG en
+    out_path y no abre ninguna ventana.
+    """
     if out_path is None:
         out_path = PLOTS_DIR / "benchmark_tp1_vs_tp2.png"
 
@@ -222,9 +227,12 @@ def plot_benchmark(rows, out_path=None):
     ax.grid(alpha=0.25, which="both")
     ax.legend(frameon=False, fontsize=9)
 
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
-    print(f"figura: {out_path}")
+    if show:
+        plt.show()
+    else:
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(out_path, dpi=150, bbox_inches="tight")
+        print(f"figura: {out_path}")
 
 
 def main():
@@ -253,7 +261,7 @@ def main():
     tp2_rows = run_tp2_timings(args.n_values, steps=args.steps_tp2, repeat=args.repeat_tp2)
 
     combined = merge_and_save_csv(tp1_rows, tp2_rows)
-    plot_benchmark(combined)
+    plot_benchmark(combined, show=args.show)
 
     for r in combined:
         print(f"  N={r['N']:5d}  TP1 (vecinos) {r['tp1_search_mean_ms']:8.4f} ms  "
