@@ -305,6 +305,37 @@ def _selftest():
         else:
             raise AssertionError("run_one no lanzo RuntimeError ante una corrida invalida")
 
+    # 7. build_eta_grid combina el extremo de la grilla gruesa con puntos
+    #    finos genuinamente insertados dentro del bracket detectado (no solo
+    #    la grilla gruesa repetida).
+    grid = build_eta_grid(1.0, 1.5)
+    assert grid[0] == 0.0, f"build_eta_grid: extremo bajo esperado 0.0, obtuvo {grid[0]}"
+    # tolerancia 1e-5, no 1e-9: build_eta_grid redondea a 6 decimales para
+    # dedupear puntos por ruido de punto flotante, asi que el maximo error
+    # de redondeo esperado es 5e-7.
+    assert abs(grid[-1] - 2.0 * math.pi) < 1e-5, (
+        f"build_eta_grid: extremo alto esperado 2*pi, obtuvo {grid[-1]}"
+    )
+    coarse_set = set(build_coarse_eta_grid())
+    assert any(1.0 < e < 1.5 and e not in coarse_set for e in grid), (
+        "build_eta_grid no inserto puntos finos dentro del bracket [1.0, 1.5]"
+    )
+
+    # 8. aislamiento de fallos en un batch mixto: una combinacion invalida
+    #    (rho=-1.0, deliberada) no debe abortar el pool ni descartar el
+    #    resultado de la combinacion valida -- contrato de run_sweep del que
+    #    depende el driver completo para no perder horas de un barrido a una
+    #    sola combinacion mala.
+    if TP2_BIN.exists():
+        results, failures = run_sweep(
+            [("vicsek", 2.0, 0.3, 0), ("vicsek", -1.0, 0.3, 0)], steps=20
+        )
+        assert len(results) == 1, f"run_sweep: esperado 1 resultado OK, obtuvo {len(results)}"
+        assert len(failures) == 1, f"run_sweep: esperado 1 fallo, obtuvo {len(failures)}"
+        assert failures[0]["rho"] == -1.0, (
+            f"run_sweep: fallo esperado con rho=-1.0, obtuvo rho={failures[0]['rho']}"
+        )
+
     print("sweep.py selftest OK")
 
 
