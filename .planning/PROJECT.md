@@ -19,13 +19,14 @@ Producir las curvas y gráficos correctos (polarización va, fracción del clust
 - ✓ Generación de partículas por densidad/N configurable — TP1
 - ✓ Formato de salida en archivos de texto, desacoplado del módulo de visualización — TP1
 - ✓ Self-test de validación del motor (`cim_test`) — TP1
+- ✓ Struct de partícula con orientación (`VicsekParticle`: x, y, theta) además de posición — Phase 1
+- ✓ Grid persistente (buffers `cells`/`neighbors_` reusados entre `rebuild()`, no reasignados por llamada) — Phase 1
+- ✓ Nuevo binario en `TP2/` (`tp2`/`tp2_test`), reusando el CIM de TP1 adaptado sin modificar `TP1/` — Phase 1
 
 ### Active
 
-- [ ] Extender el struct de partícula con velocidad/orientación (TP1 solo tiene posición)
 - [ ] Implementar el modelo estándar de Vicsek (promedio de dirección de vecinos + ruido η)
 - [ ] Implementar el modelo de votante (copia de un vecino al azar + ruido η)
-- [ ] Nuevo binario en `TP2/`, reusando el CIM de TP1 sin modificar `TP1/`
 - [ ] Soporte para las tres densidades del enunciado: ρ = 2, 4, 8 (N = ρ·L²)
 - [ ] Barrido del parámetro de ruido η para cada densidad y cada modelo
 - [ ] Salida de posiciones y velocidades por timestep en texto (mismo desacople sim/animación que TP1)
@@ -71,7 +72,7 @@ Producir las curvas y gráficos correctos (polarización va, fracción del clust
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Binario nuevo en `TP2/` que reusa el CIM de TP1, en vez de extender TP1 in-place o extraer una lib compartida | Mantiene TP1 intacto como entrega separada mientras reaprovecha código ya probado | — Pending |
+| Binario nuevo en `TP2/` que reusa el CIM de TP1, en vez de extender TP1 in-place o extraer una lib compartida | Mantiene TP1 intacto como entrega separada mientras reaprovecha código ya probado | Validated in Phase 1 — `tp2`/`tp2_test` compilan y corren independientes de TP1; `git diff --stat -- TP1/` vacío en las 5 commits de la fase |
 | Construir primero el motor completo (ambos modelos, validado con una corrida) y recién después el barrido paramétrico completo | Reduce el riesgo de escalar cómputo sobre un motor incorrecto, dado el plazo ajustado | — Pending |
 
 ## Evolution
@@ -92,4 +93,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-18 after initialization*
+*Last updated: 2026-08-18 after Phase 1 (motor-y-grid-persistente) completion*
