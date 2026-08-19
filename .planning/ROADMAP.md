@@ -100,12 +100,12 @@ Plans:
   4. El gráfico va vs S distingue las tres densidades; la susceptibilidad χ(η) y la tabla comparativa de η_c(ρ) se derivan de los mismos datos de réplicas ya generados
   5. Los 6 tipos de gráfico requeridos existen para ambos modelos (estándar y votante), con comparaciones visibles entre ambos
 
-**Plans**: 4 plans
+**Plans**: 2/4 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 04-01-PLAN.md — Barrido completo real (summary.csv) + analyze.py: va(eta), S(eta), va vs S
-- [ ] 04-02-PLAN.md — animate.py: animaciones GIF vicsek/voter a rho=2 con colormap ciclico
+- [x] 04-01-PLAN.md — Barrido completo real (summary.csv) + analyze.py: va(eta), S(eta), va vs S
+- [x] 04-02-PLAN.md — animate.py: animaciones GIF vicsek/voter a rho=2 con colormap ciclico
 
 **Wave 2** *(blocked on 04-01 completion)*
 
@@ -139,7 +139,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Motor y Grid Persistente | 2/2 | Complete    | 2026-08-18 |
 | 2. Modelos Vicsek y Votante | 2/2 | Complete    | 2026-08-18 |
 | 3. Barrido Paramétrico y Estadística | 2/2 | Complete    | 2026-08-19 |
-| 4. Análisis, Gráficos y Animación | 0/4 | Not started | - |
+| 4. Análisis, Gráficos y Animación | 2/4 | In Progress|  |
 | 5. Benchmark y Entregables | 0/TBD | Not started | - |
 
 ---
