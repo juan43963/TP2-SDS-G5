@@ -23,7 +23,13 @@ double addAngularNoise(double theta, double eta, std::mt19937_64& rng) {
     // file -- both Vicsek and voter rules funnel through this one call
     // (VOTER-02).
     std::uniform_real_distribution<double> noiseDist(-eta / 2.0, eta / 2.0);
-    return theta + noiseDist(rng);
+    const double noisy = theta + noiseDist(rng);
+    // Renormalize to [-pi, pi]: circularMeanHeading's atan2 output is always
+    // in-range, but voterHeading returns a prior particle's committed theta
+    // verbatim, so without this wrap the voter model's theta would drift as
+    // an unbounded random walk under eta>0 instead of staying periodic like
+    // the Vicsek branch.
+    return std::atan2(std::sin(noisy), std::cos(noisy));
 }
 
 double voterHeading(int i, const std::vector<VicsekParticle>& particles,

@@ -24,6 +24,14 @@ public:
 
     void step();
 
+    // Rebuilds the neighbor grid against the current (post-step) positions.
+    // step() only rebuilds from the PRE-step snapshot, so neighbors() is one
+    // step stale relative to particles() until this is called -- needed
+    // before computing an observable like giantComponentFraction() off the
+    // truly final configuration (e.g. after the step loop ends, or when no
+    // step has run at all).
+    void syncNeighbors() { grid_.rebuild(particles_); }
+
     const std::vector<VicsekParticle>& particles() const { return particles_; }
 
     const NeighborList& neighbors() const { return grid_.neighbors(); }
