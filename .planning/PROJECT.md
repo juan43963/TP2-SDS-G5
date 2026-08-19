@@ -61,6 +61,7 @@ Ninguno — todos los requirements v1 (31/31) están validados. Quedan dos pasos
 - TP1 ya validó: CIM ~O(N) vs fuerza bruta ~O(N²), M_max=13 óptimo para L=20/rc=1, N máximo generable ≈1000-1100 por muestreo por rechazo
 - Referencias del enunciado: Vicsek et al. 1995 (modelo estándar); Loscar, Baglietto & Vazquez 2021 (modelo de votante, `docs/Teorica_1.md` para más contexto)
 - CONCERNS.md de TP1 señala fricción de reuso relevante para TP2: `Particle` (`TP1/src/include/particle.h`) no tiene velocidad/orientación, `computeCIM` reconstruye la grilla desde cero en cada llamada (sin estado incremental), y `writeDynamic` hardcodea velocidad `0 0` — todo esto hay que resolverlo en el nuevo motor de TP2
+- **Estado al cierre de v1.0** (2026-08-19): ~3260 líneas de C++/Python/LaTeX en `TP2/` (excluyendo `TP1/`), 120 commits, 14 planes ejecutados en 5 fases, completado en ~1 día corrido (18/08 20:26 → 19/08 23:53). Motor y pipeline de análisis completos y verificados de punta a punta (incluyendo una re-ejecución empírica del pipeline completo durante el audit de milestone); solo quedan pasos manuales fuera de alcance de este pipeline (ver Requirements → Active).
 
 ## Constraints
 
@@ -100,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-19 after Phase 5 (benchmark-y-entregables) completion — todas las 5 fases del roadmap v1.0 completas, 31/31 requirements validados. Quedan pendientes solo los dos pasos manuales fuera de alcance: subir animaciones a YouTube/Drive + pegar links reales en la presentación, y la revisión final humana de informe/presentación antes de la entrega al campus (04/09/2026 13hs).*
+*Last updated: 2026-08-19 after v1.0 milestone completion — todas las 5 fases completas, 31/31 requirements validados, audit de milestone pasado (31/31, 0 gaps). Quedan pendientes solo los dos pasos manuales fuera de alcance: subir animaciones a YouTube/Drive + pegar links reales en la presentación, y la revisión final humana de informe/presentación antes de la entrega al campus (04/09/2026 13hs).*
