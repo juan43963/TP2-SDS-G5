@@ -54,7 +54,7 @@ Requirements para la entrega del 04/09/2026. Cada uno mapea a fases del roadmap.
 
 ### Benchmark (BENCH)
 
-- [ ] **BENCH-01**: Medición de tiempos de ejecución del CIM para N comparables a los usados en TP1, comparados contra los tiempos registrados en TP1
+- [x] **BENCH-01**: Medición de tiempos de ejecución del CIM para N comparables a los usados en TP1, comparados contra los tiempos registrados en TP1
 
 ### Diferenciales elegidos (PLUS)
 
@@ -127,7 +127,7 @@ Qué fases cubren qué requirements.
 | PLUS-01 | Phase 4 | Complete |
 | PLUS-02 | Phase 4 | Complete |
 | PLUS-03 | Phase 4 | Complete |
-| BENCH-01 | Phase 5 | Pending |
+| BENCH-01 | Phase 5 | Complete |
 | DELIV-01 | Phase 5 | Complete |
 | DELIV-02 | Phase 5 | Complete |
 | DELIV-03 | Phase 5 | Complete |

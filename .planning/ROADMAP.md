@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Modelos Vicsek y Votante** - Ambos modelos de interacción corriendo sobre el mismo motor (loop sincrónico double-buffered), con clustering/S y output real de posiciones+velocidades por timestep (completed 2026-08-18)
 - [x] **Phase 3: Barrido Paramétrico y Estadística** - Barrido reproducible de ρ×η×modelo×semilla con logging escalar y criterio documentado de estado estacionario (completed 2026-08-19)
 - [x] **Phase 4: Análisis, Gráficos y Animación** - Todos los gráficos requeridos (va(t), va(η), S(t), S(η), va vs S, comparación estándar/votante) y el módulo de animación con colormap cíclico (completed 2026-08-19)
-- [ ] **Phase 5: Benchmark y Entregables** - Comparación de tiempos CIM vs TP1, informe, presentación y zip de código final
+- [x] **Phase 5: Benchmark y Entregables** - Comparación de tiempos CIM vs TP1, informe, presentación y zip de código final (completed 2026-08-19)
 
 ## Phase Details
 
@@ -150,7 +150,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Modelos Vicsek y Votante | 2/2 | Complete    | 2026-08-18 |
 | 3. Barrido Paramétrico y Estadística | 2/2 | Complete    | 2026-08-19 |
 | 4. Análisis, Gráficos y Animación | 4/4 | Complete    | 2026-08-19 |
-| 5. Benchmark y Entregables | 4/4 | In Progress|  |
+| 5. Benchmark y Entregables | 4/4 | Complete    | 2026-08-19 |
 
 ---
 *Roadmap created: 2026-08-18*
