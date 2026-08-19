@@ -43,6 +43,12 @@ LINESTYLE_VOTER = "--"
 RHO_COLORS = {2.0: "#16a34a", 4.0: "#d97706", 8.0: "#7c3aed"}
 RHO_MARKERS = {2.0: "o", 4.0: "s", 8.0: "^"}
 
+# Marcadores usados solo en el scatter va-vs-S: ahi la densidad ya se
+# distingue por color (RHO_COLORS), asi que el marcador queda libre para
+# distinguir el modelo en vez de la densidad.
+MARKER_VICSEK_SCATTER = "o"
+MARKER_VOTER_SCATTER = "x"
+
 
 def load_summary(csv_path: Path = SWEEP_SUMMARY_CSV) -> list[dict]:
     """Lee summary.csv y castea los campos numericos (DictReader siempre da strings)."""
@@ -98,6 +104,70 @@ def plot_va_eta(rows: list[dict], out_path: Path = None):
     return ax
 
 
+def plot_S_eta(rows: list[dict], out_path: Path = None):
+    """S(eta) con barras de error (S_std), 6 series: 3 densidades x 2 modelos.
+
+    Misma estructura que plot_va_eta (agrupado/ordenado/color/linestyle/
+    marker identicos), graficando S_mean en vez de va_mean.
+    """
+    if out_path is None:
+        out_path = PLOTS_DIR / "S_eta.png"
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    groups = _group_by_model_rho(rows)
+    for (model, rho), group in sorted(groups.items()):
+        etas = [r["eta"] for r in group]
+        s_mean = [r["S_mean"] for r in group]
+        s_err = [r["S_std"] for r in group]
+        linestyle = LINESTYLE_VICSEK if model == "vicsek" else LINESTYLE_VOTER
+        ax.errorbar(etas, s_mean, yerr=s_err, color=RHO_COLORS[rho], linestyle=linestyle,
+                    marker=RHO_MARKERS[rho], capsize=3, label=f"{model} rho={rho:g}")
+    ax.set_xlabel("eta")
+    ax.set_ylabel("S")
+    ax.set_title("Fraccion del cluster gigante S vs ruido eta")
+    ax.legend(fontsize=9)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if "--show" not in sys.argv:
+        fig.savefig(out_path, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    return ax
+
+
+def plot_va_vs_S(rows: list[dict], out_path: Path = None):
+    """va vs S: color por densidad (3), marcador por modelo (2) -- 6 series.
+
+    Agrupa solo por rho (no por model): ambos modelos comparten el color de
+    su densidad, asi que la densidad es la senal visual primaria, per
+    04-CONTEXT.md ("distinguiendo las tres densidades").
+    """
+    if out_path is None:
+        out_path = PLOTS_DIR / "va_vs_S.png"
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    groups: dict[tuple, list[dict]] = {}
+    for r in rows:
+        groups.setdefault((r["rho"], r["model"]), []).append(r)
+
+    for (rho, model), group in sorted(groups.items()):
+        va = [r["va_mean"] for r in group]
+        s_mean = [r["S_mean"] for r in group]
+        marker = MARKER_VICSEK_SCATTER if model == "vicsek" else MARKER_VOTER_SCATTER
+        ax.scatter(va, s_mean, color=RHO_COLORS[rho], marker=marker,
+                   label=f"{model} rho={rho:g}")
+
+    ax.set_xlabel("va")
+    ax.set_ylabel("S")
+    ax.set_title("va vs S -- tres densidades, dos modelos")
+    ax.legend(fontsize=9)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if "--show" not in sys.argv:
+        fig.savefig(out_path, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    return ax
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Graficos va(eta), S(eta) y va-vs-S del barrido de tp2"
@@ -113,6 +183,10 @@ def main():
 
     plot_va_eta(rows)
     print(f"grafico: {PLOTS_DIR / 'va_eta.png'}")
+    plot_S_eta(rows)
+    print(f"grafico: {PLOTS_DIR / 'S_eta.png'}")
+    plot_va_vs_S(rows)
+    print(f"grafico: {PLOTS_DIR / 'va_vs_S.png'}")
 
     if args.show:
         plt.show()
