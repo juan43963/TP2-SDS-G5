@@ -22,19 +22,19 @@ Producir las curvas y gráficos correctos (polarización va, fracción del clust
 - ✓ Struct de partícula con orientación (`VicsekParticle`: x, y, theta) además de posición — Phase 1
 - ✓ Grid persistente (buffers `cells`/`neighbors_` reusados entre `rebuild()`, no reasignados por llamada) — Phase 1
 - ✓ Nuevo binario en `TP2/` (`tp2`/`tp2_test`), reusando el CIM de TP1 adaptado sin modificar `TP1/` — Phase 1
+- ✓ Modelo estándar de Vicsek (promedio circular self-inclusive de dirección de vecinos + ruido η uniforme) — Phase 2
+- ✓ Modelo de votante (copia self-inclusive de un vecino al azar + el mismo ruido η que Vicsek) — Phase 2
+- ✓ Salida de posiciones y velocidades reales (vx,vy) por timestep en texto, append-mode, desacoplada del módulo de animación — Phase 2
+- ✓ Cálculo de clusters (componentes conexas sobre la adyacencia del CIM) y de S = fracción del cluster más grande — Phase 2
 
 ### Active
 
-- [ ] Implementar el modelo estándar de Vicsek (promedio de dirección de vecinos + ruido η)
-- [ ] Implementar el modelo de votante (copia de un vecino al azar + ruido η)
 - [ ] Soporte para las tres densidades del enunciado: ρ = 2, 4, 8 (N = ρ·L²)
 - [ ] Barrido del parámetro de ruido η para cada densidad y cada modelo
-- [ ] Salida de posiciones y velocidades por timestep en texto (mismo desacople sim/animación que TP1)
 - [ ] Módulo de animación en Python que lee el texto de salida y colorea los vectores de velocidad según el ángulo
-- [ ] Cálculo del observable de polarización va y determinación de la ventana temporal de estado estacionario
+- [ ] Determinación de la ventana temporal de estado estacionario (el cálculo de va(t) en sí ya está disponible desde Phase 2, falta la detección de la ventana + el log escalar t,va,S para el barrido)
 - [ ] Gráfico de evolución temporal de va con línea vertical marcando el inicio del estacionario
 - [ ] Gráfico va vs η con barras de error, para las tres densidades
-- [ ] Cálculo de clusters (componentes conectadas por saltos vecino-a-vecino dentro de rc) y de S = fracción de partículas en el cluster más grande
 - [ ] Gráfico de evolución temporal de S para las tres densidades
 - [ ] Gráfico de S medio en estacionario (con desvío) vs η, mismo procedimiento que para va
 - [ ] Gráfico de va vs S distinguiendo densidades
@@ -73,7 +73,7 @@ Producir las curvas y gráficos correctos (polarización va, fracción del clust
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Binario nuevo en `TP2/` que reusa el CIM de TP1, en vez de extender TP1 in-place o extraer una lib compartida | Mantiene TP1 intacto como entrega separada mientras reaprovecha código ya probado | Validated in Phase 1 — `tp2`/`tp2_test` compilan y corren independientes de TP1; `git diff --stat -- TP1/` vacío en las 5 commits de la fase |
-| Construir primero el motor completo (ambos modelos, validado con una corrida) y recién después el barrido paramétrico completo | Reduce el riesgo de escalar cómputo sobre un motor incorrecto, dado el plazo ajustado | — Pending |
+| Construir primero el motor completo (ambos modelos, validado con una corrida) y recién después el barrido paramétrico completo | Reduce el riesgo de escalar cómputo sobre un motor incorrecto, dado el plazo ajustado | Validated in Phase 2 — ambos modelos corren y muestran va(t) creciente en una corrida individual; el barrido (Phase 3) todavía no arrancó |
 
 ## Evolution
 
@@ -93,4 +93,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-18 after Phase 1 (motor-y-grid-persistente) completion*
+*Last updated: 2026-08-18 after Phase 2 (modelos-vicsek-y-votante) completion*
