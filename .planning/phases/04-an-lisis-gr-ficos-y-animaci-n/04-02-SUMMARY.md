@@ -149,6 +149,14 @@ None - no external service configuration required.
 - `TP2/python/animate.py` is complete and independent of `analyze.py` (plan 04-01, running in the same wave) -- both GIF animations exist and satisfy VIZ-01, VIZ-07 (voter repetition), and PLUS-02 (vicsek band formation)
 - No blockers for the remaining Phase 4 plans (va(t)/S(t) plots, va(eta)/S(eta) comparisons, chi(eta)/eta_c differentials)
 
+## Self-Check: PASSED
+
+- FOUND: `TP2/python/animate.py`
+- FOUND: `TP2/data/plots/animation_vicsek_rho2.gif`
+- FOUND: `TP2/data/plots/animation_voter_rho2.gif`
+- FOUND: `.planning/phases/04-an-lisis-gr-ficos-y-animaci-n/04-02-SUMMARY.md`
+- FOUND commits: `7287a3a`, `2ff69ba`, `d8a57a3` in `git log --oneline`
+
 ---
 *Phase: 04-an-lisis-gr-ficos-y-animaci-n*
 *Completed: 2026-08-19*
