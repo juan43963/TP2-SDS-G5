@@ -44,13 +44,13 @@ Requirements para la entrega del 04/09/2026. Cada uno mapea a fases del roadmap.
 
 ### Visualización y Gráficos (VIZ)
 
-- [ ] **VIZ-01**: Módulo de animación en Python que lee el output de texto y dibuja cada partícula como un vector de velocidad, coloreado según el ángulo con un colormap cíclico (hsv/twilight)
-- [ ] **VIZ-02**: Gráfico de evolución temporal de va(t) para casos característicos, con línea vertical marcando el inicio del estado estacionario
-- [ ] **VIZ-03**: Gráfico va(η) con barras de error, para las tres densidades
-- [ ] **VIZ-04**: Gráfico de evolución temporal de S(t), para las tres densidades
-- [ ] **VIZ-05**: Gráfico S(η) con media y desvío en el estacionario, mismo procedimiento que va(η), para las tres densidades
-- [ ] **VIZ-06**: Gráfico va vs S distinguiendo las tres densidades
-- [ ] **VIZ-07**: Repetición de VIZ-01 a VIZ-06 (y observables asociados) para el modelo de votante, con gráficos comparativos superpuestos contra el modelo estándar
+- [x] **VIZ-01**: Módulo de animación en Python que lee el output de texto y dibuja cada partícula como un vector de velocidad, coloreado según el ángulo con un colormap cíclico (hsv/twilight)
+- [x] **VIZ-02**: Gráfico de evolución temporal de va(t) para casos característicos, con línea vertical marcando el inicio del estado estacionario
+- [x] **VIZ-03**: Gráfico va(η) con barras de error, para las tres densidades
+- [x] **VIZ-04**: Gráfico de evolución temporal de S(t), para las tres densidades
+- [x] **VIZ-05**: Gráfico S(η) con media y desvío en el estacionario, mismo procedimiento que va(η), para las tres densidades
+- [x] **VIZ-06**: Gráfico va vs S distinguiendo las tres densidades
+- [x] **VIZ-07**: Repetición de VIZ-01 a VIZ-06 (y observables asociados) para el modelo de votante, con gráficos comparativos superpuestos contra el modelo estándar
 
 ### Benchmark (BENCH)
 
@@ -58,9 +58,9 @@ Requirements para la entrega del 04/09/2026. Cada uno mapea a fases del roadmap.
 
 ### Diferenciales elegidos (PLUS)
 
-- [ ] **PLUS-01**: Cálculo de la susceptibilidad χ(η) = N·(⟨va²⟩ − ⟨va⟩²) a partir de las corridas con semillas independientes ya generadas para las barras de error
-- [ ] **PLUS-02**: Al menos una de las animaciones características (VIZ-01) elegida para mostrar formación de bandas/inhomogeneidad de densidad, esperable a ρ=2 con η moderado
-- [ ] **PLUS-03**: Tabla comparativa de η_c(ρ) extraído de las curvas va(η)/χ(η), para ambos modelos y las tres densidades
+- [x] **PLUS-01**: Cálculo de la susceptibilidad χ(η) = N·(⟨va²⟩ − ⟨va⟩²) a partir de las corridas con semillas independientes ya generadas para las barras de error
+- [x] **PLUS-02**: Al menos una de las animaciones características (VIZ-01) elegida para mostrar formación de bandas/inhomogeneidad de densidad, esperable a ρ=2 con η moderado
+- [x] **PLUS-03**: Tabla comparativa de η_c(ρ) extraído de las curvas va(η)/χ(η), para ambos modelos y las tres densidades
 
 ### Entregables (DELIV)
 
@@ -117,16 +117,16 @@ Qué fases cubren qué requirements.
 | SWEEP-04 | Phase 3 | Complete |
 | SWEEP-05 | Phase 3 | Complete |
 | OUTPUT-02 | Phase 3 | Complete |
-| VIZ-01 | Phase 4 | Pending |
-| VIZ-02 | Phase 4 | Pending |
-| VIZ-03 | Phase 4 | Pending |
-| VIZ-04 | Phase 4 | Pending |
-| VIZ-05 | Phase 4 | Pending |
-| VIZ-06 | Phase 4 | Pending |
-| VIZ-07 | Phase 4 | Pending |
-| PLUS-01 | Phase 4 | Pending |
-| PLUS-02 | Phase 4 | Pending |
-| PLUS-03 | Phase 4 | Pending |
+| VIZ-01 | Phase 4 | Complete |
+| VIZ-02 | Phase 4 | Complete |
+| VIZ-03 | Phase 4 | Complete |
+| VIZ-04 | Phase 4 | Complete |
+| VIZ-05 | Phase 4 | Complete |
+| VIZ-06 | Phase 4 | Complete |
+| VIZ-07 | Phase 4 | Complete |
+| PLUS-01 | Phase 4 | Complete |
+| PLUS-02 | Phase 4 | Complete |
+| PLUS-03 | Phase 4 | Complete |
 | BENCH-01 | Phase 5 | Pending |
 | DELIV-01 | Phase 5 | Pending |
 | DELIV-02 | Phase 5 | Pending |
