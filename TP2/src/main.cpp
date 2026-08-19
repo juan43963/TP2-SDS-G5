@@ -29,6 +29,7 @@ struct Options {
     std::string model = "vicsek";
     double eta = 0.0;
     std::string out = "data/dynamic.txt";
+    std::string scalarLog;  // empty = disabled (default)
 };
 
 void usage() {
@@ -51,6 +52,7 @@ void usage() {
         "  --model <str>    regla de interaccion: vicsek|voter          (default vicsek)\n"
         "  --eta <real>     amplitud del ruido angular                  (default 0.0)\n"
         "  --out <path>     archivo de trayectoria de salida            (default data/dynamic.txt)\n"
+        "  --scalar-log <path>  log escalar opcional '(t va S)' por paso   (default: deshabilitado)\n"
         "  -h, --help       esta ayuda\n");
 }
 
@@ -76,6 +78,7 @@ Options parseArgs(int argc, char** argv) {
         {"model", required_argument, nullptr, 'm'},
         {"eta", required_argument, nullptr, 'e'},
         {"out", required_argument, nullptr, 'o'},
+        {"scalar-log", required_argument, nullptr, 'x'},
         {"help", no_argument, nullptr, 'h'},
         {nullptr, 0, nullptr, 0}
     };
@@ -97,6 +100,7 @@ Options parseArgs(int argc, char** argv) {
             case 'm': o.model = optarg; break;
             case 'e': o.eta = std::stod(optarg); break;
             case 'o': o.out = optarg; break;
+            case 'x': o.scalarLog = optarg; break;
             case 'h': usage(); std::exit(0);
             default: fail("opcion invalida (probar --help)");
         }
@@ -139,10 +143,38 @@ int main(int argc, char** argv) try {
     std::ofstream trajOut(o.out);
     if (!trajOut) fail("no se pudo abrir " + o.out);
 
+    const bool scalarLogEnabled = !o.scalarLog.empty();
+    std::ofstream scalarOut;
+    if (scalarLogEnabled) {
+        const std::filesystem::path scalarPath(o.scalarLog);
+        if (!scalarPath.parent_path().empty()) {
+            std::filesystem::create_directories(scalarPath.parent_path());
+        }
+        scalarOut.open(o.scalarLog);
+        if (!scalarOut) fail("no se pudo abrir " + o.scalarLog);
+    }
+
     writeTrajectoryFrame(trajOut, sim.particles(), 0.0, o.v0);
+    if (scalarLogEnabled) {
+        // The grid never gets populated until a rebuild happens -- reuse the
+        // same resync pattern as the post-loop S computation below.
+        sim.syncNeighbors();
+        scalarOut << 0.0 << ' ' << polarization(sim.particles()) << ' '
+                  << giantComponentFraction(sim.neighbors()) << '\n';
+    }
     for (int step = 0; step < o.steps; ++step) {
         sim.step();
         writeTrajectoryFrame(trajOut, sim.particles(), static_cast<double>(step + 1) * o.dt, o.v0);
+        if (scalarLogEnabled) {
+            // step() only rebuilt the grid from the PRE-step snapshot, so
+            // neighbors() is one step stale relative to the just-advanced
+            // positions -- this resync makes S(t) match the SAME
+            // configuration va(t) was just computed from, not a lagged one.
+            sim.syncNeighbors();
+            const double t = static_cast<double>(step + 1) * o.dt;
+            scalarOut << t << ' ' << polarization(sim.particles()) << ' '
+                      << giantComponentFraction(sim.neighbors()) << '\n';
+        }
     }
 
     // step() only rebuilds the grid from the PRE-step snapshot, so neighbors()
@@ -155,8 +187,9 @@ int main(int argc, char** argv) try {
 
     std::printf(
         "TP2 motor: N=%d L=%.2f rc=%.2f M=%d steps=%d seed=%llu model=%s eta=%.4f va=%.4f "
-        "S=%.4f -- OK\n",
-        o.N, o.L, o.rc, o.M, o.steps, o.seed, o.model.c_str(), o.eta, va, S);
+        "S=%.4f scalar_log=%s -- OK\n",
+        o.N, o.L, o.rc, o.M, o.steps, o.seed, o.model.c_str(), o.eta, va, S,
+        scalarLogEnabled ? o.scalarLog.c_str() : "(disabled)");
 
     return 0;
 } catch (const std::exception& e) {
