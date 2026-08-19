@@ -26,6 +26,8 @@ public:
 
     const std::vector<VicsekParticle>& particles() const { return particles_; }
 
+    const NeighborList& neighbors() const { return grid_.neighbors(); }
+
 private:
     std::vector<VicsekParticle> particles_;
     Grid grid_;

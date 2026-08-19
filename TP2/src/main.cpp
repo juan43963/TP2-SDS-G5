@@ -1,6 +1,8 @@
 #include <cmath>
 #include <cstdio>
 #include <exception>
+#include <filesystem>
+#include <fstream>
 #include <getopt.h>
 #include <string>
 #include <vector>
@@ -8,6 +10,8 @@
 #include "engine/simulation.h"
 #include "generator.h"
 #include "grid.h"
+#include "io.h"
+#include "observables.h"
 
 namespace {
 
@@ -24,6 +28,7 @@ struct Options {
     bool periodic = true;
     std::string model = "vicsek";
     double eta = 0.0;
+    std::string out = "data/dynamic.txt";
 };
 
 void usage() {
@@ -45,6 +50,7 @@ void usage() {
         "  --no-periodic    contorno con paredes\n"
         "  --model <str>    regla de interaccion: vicsek|voter          (default vicsek)\n"
         "  --eta <real>     amplitud del ruido angular                  (default 0.0)\n"
+        "  --out <path>     archivo de trayectoria de salida            (default data/dynamic.txt)\n"
         "  -h, --help       esta ayuda\n");
 }
 
@@ -69,6 +75,7 @@ Options parseArgs(int argc, char** argv) {
         {"no-periodic", no_argument, nullptr, 'q'},
         {"model", required_argument, nullptr, 'm'},
         {"eta", required_argument, nullptr, 'e'},
+        {"out", required_argument, nullptr, 'o'},
         {"help", no_argument, nullptr, 'h'},
         {nullptr, 0, nullptr, 0}
     };
@@ -89,6 +96,7 @@ Options parseArgs(int argc, char** argv) {
             case 'q': o.periodic = false; break;
             case 'm': o.model = optarg; break;
             case 'e': o.eta = std::stod(optarg); break;
+            case 'o': o.out = optarg; break;
             case 'h': usage(); std::exit(0);
             default: fail("opcion invalida (probar --help)");
         }
@@ -120,13 +128,25 @@ int main(int argc, char** argv) try {
     Simulation sim(std::move(particles), o.L, o.rc, o.v0, o.dt, o.M, o.periodic, model, o.eta,
                    o.seed);
 
+    const std::filesystem::path outPath(o.out);
+    if (!outPath.parent_path().empty()) {
+        std::filesystem::create_directories(outPath.parent_path());
+    }
+    std::ofstream trajOut(o.out);
+    if (!trajOut) fail("no se pudo abrir " + o.out);
+
     for (int step = 0; step < o.steps; ++step) {
         sim.step();
+        writeTrajectoryFrame(trajOut, sim.particles(), static_cast<double>(step + 1) * o.dt, o.v0);
     }
 
+    const double va = polarization(sim.particles());
+    const double S = giantComponentFraction(sim.neighbors());
+
     std::printf(
-        "TP2 motor: N=%d L=%.2f rc=%.2f M=%d steps=%d seed=%llu model=%s eta=%.4f -- OK\n", o.N,
-        o.L, o.rc, o.M, o.steps, o.seed, o.model.c_str(), o.eta);
+        "TP2 motor: N=%d L=%.2f rc=%.2f M=%d steps=%d seed=%llu model=%s eta=%.4f va=%.4f "
+        "S=%.4f -- OK\n",
+        o.N, o.L, o.rc, o.M, o.steps, o.seed, o.model.c_str(), o.eta, va, S);
 
     return 0;
 } catch (const std::exception& e) {
