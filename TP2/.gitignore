@@ -3,3 +3,14 @@ tp2
 tp2_test
 data/
 __pycache__/
+informe/*.aux
+informe/*.log
+informe/*.out
+informe/*.toc
+presentacion/*.aux
+presentacion/*.log
+presentacion/*.out
+presentacion/*.nav
+presentacion/*.snm
+presentacion/*.toc
+presentacion/*.vrb
