@@ -127,11 +127,11 @@ Plans:
   3. La presentación en PDF (≤13 minutos, sin animaciones embebidas, solo links explícitos) sigue el formato de `docs/GuiaPresentaciones.pdf`
   4. El .zip de código fuente contiene solo la versión final del motor de TP2 (sin historial, documentos ni outputs de simulaciones) y su tamaño es del orden de kb
 
-**Plans**: 0/4 plans executed
+**Plans**: 1/4 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — Benchmark CIM: TP1 (busqueda) vs TP2 (paso completo), grafico log-log + CSV (BENCH-01)
+- [x] 05-01-PLAN.md — Benchmark CIM: TP1 (busqueda) vs TP2 (paso completo), grafico log-log + CSV (BENCH-01)
 
 **Wave 2** *(blocked on 05-01 completion)*
 
@@ -150,7 +150,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Modelos Vicsek y Votante | 2/2 | Complete    | 2026-08-18 |
 | 3. Barrido Paramétrico y Estadística | 2/2 | Complete    | 2026-08-19 |
 | 4. Análisis, Gráficos y Animación | 4/4 | Complete    | 2026-08-19 |
-| 5. Benchmark y Entregables | 0/TBD | Not started | - |
+| 5. Benchmark y Entregables | 1/4 | In Progress|  |
 
 ---
 *Roadmap created: 2026-08-18*
