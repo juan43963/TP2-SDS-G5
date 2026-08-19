@@ -100,7 +100,7 @@ Plans:
   4. El gráfico va vs S distingue las tres densidades; la susceptibilidad χ(η) y la tabla comparativa de η_c(ρ) se derivan de los mismos datos de réplicas ya generados
   5. Los 6 tipos de gráfico requeridos existen para ambos modelos (estándar y votante), con comparaciones visibles entre ambos
 
-**Plans**: 2/4 plans executed
+**Plans**: 3/4 plans executed
 Plans:
 **Wave 1**
 
@@ -109,7 +109,7 @@ Plans:
 
 **Wave 2** *(blocked on 04-01 completion)*
 
-- [ ] 04-03-PLAN.md — analyze.py: chi(eta) y tabla eta_c(rho) por modelo
+- [x] 04-03-PLAN.md — analyze.py: chi(eta) y tabla eta_c(rho) por modelo
 
 **Wave 3** *(blocked on 04-01 and 04-03 completion)*
 
@@ -139,7 +139,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Motor y Grid Persistente | 2/2 | Complete    | 2026-08-18 |
 | 2. Modelos Vicsek y Votante | 2/2 | Complete    | 2026-08-18 |
 | 3. Barrido Paramétrico y Estadística | 2/2 | Complete    | 2026-08-19 |
-| 4. Análisis, Gráficos y Animación | 2/4 | In Progress|  |
+| 4. Análisis, Gráficos y Animación | 3/4 | In Progress|  |
 | 5. Benchmark y Entregables | 0/TBD | Not started | - |
 
 ---
