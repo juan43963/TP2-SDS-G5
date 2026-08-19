@@ -171,3 +171,9 @@ None - no external service configuration required.
 ---
 *Phase: 04-an-lisis-gr-ficos-y-animaci-n*
 *Completed: 2026-08-19*
+
+## Self-Check: PASSED
+
+- FOUND: TP2/python/analyze.py
+- FOUND: commit a18eb0e (Task 1)
+- FOUND: commit e096eff (Task 2)
