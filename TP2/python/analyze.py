@@ -32,7 +32,13 @@ PLOTS_DIR = TP2_DIR / "data" / "plots"
 # eta_c(rho)) que reusan constantes de sweep.py como L_DEFAULT.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from sweep import L_DEFAULT
+from sweep import (
+    L_DEFAULT,
+    STEADY_STATE_FRACTION,
+    derive_seed,
+    summarize_run,
+    sweep_output_path,
+)
 
 # Paleta: color por modelo (para graficos de evolucion temporal de otros
 # planes de esta fase) y color+marcador por densidad (para los graficos
@@ -254,6 +260,113 @@ def write_eta_c_table(table: list[dict], out_path: Path = ETA_C_TABLE_CSV) -> No
         writer.writerows(table)
 
 
+def steady_state_index(n_rows: int, fraction: float = STEADY_STATE_FRACTION) -> int:
+    """Indice de corte de estado estacionario -- identico al de sweep.summarize_run.
+
+    Textualmente el mismo calculo que la linea `cutoff = int(len(rows) * steady_fraction)`
+    dentro de `sweep.summarize_run`: se importa `STEADY_STATE_FRACTION` de `sweep.py` (nunca
+    se redefine el valor 0.5 aqui), asi que hay una unica fuente para el criterio de corte.
+    """
+    return int(n_rows * fraction)
+
+
+def read_scalar_log(path: Path) -> list[tuple[float, float, float]]:
+    """Lee un scalar-log `t va S` (espacio-separado, sin header) como lista de tuplas.
+
+    Mismo formato que escribe `sweep.py`'s `run_one` via `--scalar-log`.
+    """
+    rows = []
+    with open(path) as f:
+        for line in f:
+            parts = line.split()
+            if not parts:
+                continue
+            t, va, s = (float(x) for x in parts)
+            rows.append((t, va, s))
+    return rows
+
+
+def pick_representative_eta(rows_summary: list[dict], rho: float, model: str) -> float:
+    """Eta representativo por (rho,model): el eta mas chico con va_mean >= 0.8.
+
+    Un estado claramente ordenado con transitorio de convergencia visible, no el caso
+    trivial eta=0. Si ninguna fila del grupo alcanza ese umbral, usa el eta de la fila
+    con el va_mean maximo del grupo. Determinista: depende solo de summary.csv ya
+    cargado, sin aleatoriedad.
+    """
+    group = sorted(
+        (r for r in rows_summary if r["rho"] == rho and r["model"] == model),
+        key=lambda r: r["eta"],
+    )
+    for r in group:
+        if r["va_mean"] >= 0.8:
+            return r["eta"]
+    return max(group, key=lambda r: r["va_mean"])["eta"]
+
+
+# Techo de repeat_index probado por el fallback de _representative_log_path --
+# sweep.py corre DEFAULT_K_SEEDS=5 semillas por punto del barrido completo, asi
+# que 5 cubre el rango real de repeat_index posibles para cualquier punto.
+DEFAULT_K_SEEDS_FALLBACK = 5
+
+
+def _representative_log_path(rho: float, model: str, rows_summary: list[dict]
+                              ) -> tuple[float, Path]:
+    """Resuelve (eta, log_path) del caso representativo, con fallback de repeat_index.
+
+    `repeat_index=0` es el caso normal (misma formula que sweep.py). Si ese seed
+    especifico no dejo archivo en disco (p.ej. esa corrida particular fallo durante
+    el barrido de 04-01 mientras otras semillas del mismo (model,rho,eta) si
+    tuvieron exito), se prueba repeat_index=1,2,... hasta encontrar un archivo
+    existente, en vez de fallar duro -- riesgo documentado en el plan.
+    """
+    eta = pick_representative_eta(rows_summary, rho, model)
+    for repeat_index in range(DEFAULT_K_SEEDS_FALLBACK):
+        seed = derive_seed(rho, eta, model, repeat_index)
+        log_path = sweep_output_path(model, rho, eta, seed)
+        if log_path.exists():
+            return eta, log_path
+    # Ningun repeat_index encontro archivo: se deja fallar con repeat_index=0
+    # para que el mensaje de error apunte al path esperado por defecto.
+    seed = derive_seed(rho, eta, model, 0)
+    return eta, sweep_output_path(model, rho, eta, seed)
+
+
+def plot_scalar_timeseries(rho: float, model: str, column: str, rows_summary: list[dict],
+                            out_path: Path = None):
+    """va(t) o S(t) para el caso representativo de (rho,model), con linea vertical
+    en el mismo indice de corte de estado estacionario que usa sweep.summarize_run.
+
+    `column` es el literal "va" o "S". Reusa `RHO_COLORS` para la linea (consistencia
+    de paleta con los graficos va(eta)/S(eta)/chi(eta) de esta misma fase).
+    """
+    if out_path is None:
+        out_path = PLOTS_DIR / f"{column}_t_{model}_rho{rho:g}.png"
+
+    eta, log_path = _representative_log_path(rho, model, rows_summary)
+    series = read_scalar_log(log_path)
+    cutoff = steady_state_index(len(series))
+    cutoff_t = series[cutoff][0] if cutoff < len(series) else series[-1][0]
+
+    col_index = 1 if column == "va" else 2
+    ts = [r[0] for r in series]
+    ys = [r[col_index] for r in series]
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.plot(ts, ys, color=RHO_COLORS[rho])
+    ax.axvline(cutoff_t, color="black", linestyle=":", label="estado estacionario")
+    ax.set_xlabel("t")
+    ax.set_ylabel(column)
+    ax.set_title(f"{column}(t) -- {model} rho={rho:g} eta={eta:.4f}")
+    ax.legend(fontsize=9)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if "--show" not in sys.argv:
+        fig.savefig(out_path, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    return ax
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Graficos va(eta), S(eta), chi(eta), va-vs-S y tabla eta_c(rho) del barrido de tp2"
@@ -281,6 +394,11 @@ def main():
     table = compute_eta_c_table(rows_chi)
     write_eta_c_table(table)
     print(f"tabla: {ETA_C_TABLE_CSV} ({len(table)} filas)")
+
+    for rho in (2.0, 4.0, 8.0):
+        for column in ("va", "S"):
+            plot_scalar_timeseries(rho, "vicsek", column, rows)
+            print(f"grafico: {PLOTS_DIR / f'{column}_t_vicsek_rho{rho:g}.png'}")
 
     if args.show:
         plt.show()
