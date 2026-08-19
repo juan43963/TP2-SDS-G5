@@ -215,6 +215,31 @@ void testSynchronousUpdateNoBias() {
     }
 }
 
+void testModelDefaultsReproducePhase1() {
+    // Regression proof that appending trailing defaulted model/eta/seed
+    // parameters left Phase 1's existing 7-positional-argument call sites'
+    // behavior byte-identical: same hand-computed 3-particle case as
+    // testSynchronousUpdateNoBias, built via the OLD 7-arg constructor call
+    // (no model/eta/seed supplied), relying purely on the new defaults.
+    const double L = 10.0, rc = 2.0;
+    const int M = maxValidGridM(L, rc);
+    const double expected = 1.5707963267948966;  // pi/2, hand-derived above
+
+    std::vector<VicsekParticle> particles = {
+        {0, 1.0, 1.0, 0.0},
+        {1, 2.0, 1.0, kPi / 2.0},
+        {2, 1.0, 2.0, kPi},
+    };
+    Simulation sim(std::move(particles), L, rc, /*v0=*/0.0, /*dt=*/1.0, M, /*periodic=*/false);
+    sim.step();
+
+    for (const VicsekParticle& p : sim.particles()) {
+        check(std::abs(p.theta - expected) < 1e-9,
+              "defaults de modelo/eta/seed: particula " + std::to_string(p.id) +
+                  " deberia converger a pi/2 igual que en Phase 1");
+    }
+}
+
 void testWallsDoNotWrap() {
     // Regression test for the CR-01 review finding: with periodic=false
     // ("--no-periodic", walls), Simulation::step() must NOT wrap positions
@@ -272,6 +297,8 @@ int main() {
     testGridPersistentBuffers();
     std::printf("- actualizacion sincronica double-buffered (sin sesgo de orden)\n");
     testSynchronousUpdateNoBias();
+    std::printf("- defaults de modelo/eta/seed reproducen el comportamiento de Phase 1\n");
+    testModelDefaultsReproducePhase1();
     std::printf("- posiciones permanecen en [0,L) tras 5000 pasos con PBC\n");
     testLongRunStaysWrapped();
     std::printf("- con paredes (no periodico), las posiciones no se envuelven\n");

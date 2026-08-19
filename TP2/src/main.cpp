@@ -22,6 +22,8 @@ struct Options {
     double v0 = 0.03;
     double dt = 1.0;
     bool periodic = true;
+    std::string model = "vicsek";
+    double eta = 0.0;
 };
 
 void usage() {
@@ -41,6 +43,8 @@ void usage() {
         "  --dt <real>      paso temporal de integracion                 (default 1.0)\n"
         "  --periodic       contorno periodico                          (default)\n"
         "  --no-periodic    contorno con paredes\n"
+        "  --model <str>    regla de interaccion: vicsek|voter          (default vicsek)\n"
+        "  --eta <real>     amplitud del ruido angular                  (default 0.0)\n"
         "  -h, --help       esta ayuda\n");
 }
 
@@ -63,6 +67,8 @@ Options parseArgs(int argc, char** argv) {
         {"dt", required_argument, nullptr, 'd'},
         {"periodic", no_argument, nullptr, 'p'},
         {"no-periodic", no_argument, nullptr, 'q'},
+        {"model", required_argument, nullptr, 'm'},
+        {"eta", required_argument, nullptr, 'e'},
         {"help", no_argument, nullptr, 'h'},
         {nullptr, 0, nullptr, 0}
     };
@@ -81,6 +87,8 @@ Options parseArgs(int argc, char** argv) {
             case 'd': o.dt = std::stod(optarg); break;
             case 'p': o.periodic = true; break;
             case 'q': o.periodic = false; break;
+            case 'm': o.model = optarg; break;
+            case 'e': o.eta = std::stod(optarg); break;
             case 'h': usage(); std::exit(0);
             default: fail("opcion invalida (probar --help)");
         }
@@ -89,6 +97,8 @@ Options parseArgs(int argc, char** argv) {
     if (o.steps < 0) fail("--steps debe ser >= 0");
     if (o.N != -1 && o.N < 0) fail("--N debe ser >= 0");
     if (o.M != -1 && o.M < 1) fail("--M debe ser >= 1");
+    if (o.model != "vicsek" && o.model != "voter") fail("--model debe ser 'vicsek' o 'voter'");
+    if (o.eta < 0.0) fail("--eta debe ser >= 0");
     return o;
 }
 
@@ -106,14 +116,17 @@ int main(int argc, char** argv) try {
 
     std::vector<VicsekParticle> particles = generateVicsekParticles(o.N, o.L, o.seed);
 
-    Simulation sim(std::move(particles), o.L, o.rc, o.v0, o.dt, o.M, o.periodic);
+    const Model model = (o.model == "voter") ? Model::Voter : Model::Vicsek;
+    Simulation sim(std::move(particles), o.L, o.rc, o.v0, o.dt, o.M, o.periodic, model, o.eta,
+                   o.seed);
 
     for (int step = 0; step < o.steps; ++step) {
         sim.step();
     }
 
-    std::printf("TP2 motor: N=%d L=%.2f rc=%.2f M=%d steps=%d seed=%llu -- OK\n", o.N, o.L, o.rc,
-                o.M, o.steps, o.seed);
+    std::printf(
+        "TP2 motor: N=%d L=%.2f rc=%.2f M=%d steps=%d seed=%llu model=%s eta=%.4f -- OK\n", o.N,
+        o.L, o.rc, o.M, o.steps, o.seed, o.model.c_str(), o.eta);
 
     return 0;
 } catch (const std::exception& e) {
