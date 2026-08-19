@@ -34,6 +34,7 @@ SWEEP_DATA_DIR = TP2_DIR / "data" / "sweep"
 DISCARD_OUT_PATH = os.devnull
 L_DEFAULT = 10.0
 DEFAULT_STEPS = 2000
+RUN_TIMEOUT_S = 300  # limite por corrida individual de tp2 (SWEEP-01 aislamiento de fallos)
 STEADY_STATE_FRACTION = 0.5  # descarta la primera mitad de los pasos como transitorio
 DEFAULT_K_SEEDS = 5  # minimo de semillas por punto (SWEEP-03)
 
@@ -86,7 +87,13 @@ def run_one(model: str, rho: float, eta: float, seed: int, steps: int = DEFAULT_
         "--out", DISCARD_OUT_PATH,
         "--scalar-log", str(out_path),
     ]
-    proc = subprocess.run(args, capture_output=True, text=True)
+    try:
+        proc = subprocess.run(args, capture_output=True, text=True, timeout=RUN_TIMEOUT_S)
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(
+            f"tp2 timeout (model={model} rho={rho} eta={eta:.4f} seed={seed}) "
+            f"tras {RUN_TIMEOUT_S}s"
+        ) from exc
     if proc.returncode != 0:
         raise RuntimeError(
             f"tp2 fallo (model={model} rho={rho} eta={eta:.4f} seed={seed}): "
