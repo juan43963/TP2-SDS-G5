@@ -350,17 +350,19 @@ Simulation sim(std::move(particles), o.L, o.rc, o.v0, o.dt, o.M, o.periodic, mod
 | A2 | `eta` noise convention is `Uniform(-η/2, η/2)` added to the raw heading (average or copied), applied identically to both models | Pattern 1, Phase Requirements (VICSEK-01/VOTER-01/VOTER-02) | Cross-checked via WebSearch against Vicsek 1995's restated formula and independently against the enunciado's own text ("más el ruido η") — LOW risk, but the exact numeric bound `η/2` (vs., e.g., `η` or `2πη`) came from WebSearch corroboration rather than a primary-source PDF read (`docs/Teorica_1.md` is OCR-corrupted, unreadable — see Sources) |
 | A3 | Trajectory writer should keep the stream open across the whole run and append one frame per `step()` call, rather than reopening the file per frame or per run | Pattern 4, Pitfall 4 | If the actual intended usage pattern is "one file per timestep" (many small files) rather than "one growing file," the animation module's expected input format (Phase 4, not yet designed) could mismatch — no explicit spec for this in the enunciado beyond "texto plano" |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Exact trajectory file column/frame format for the eventual animation consumer**
    - What we know: The assignment requires text output, decoupled from animation, with real positions+velocities per particle per timestep (OUTPUT-01, satisfied by Pattern 4's `t\n` + `x y vx vy`×N per frame layout, directly extending TP1's proven column order).
    - What's unclear: Whether Phase 4's animation module (VIZ-01, out of scope for this phase) expects a single growing file per run, or per-frame files, or a specific delimiter/header convention beyond what's specified here.
    - Recommendation: Freeze the format decided in Pattern 4 now (it's a strict superset of TP1's already-working column layout) and treat any Phase 4 mismatch as a parser adjustment on the Python side, not a re-run of the C++ engine — this matches the architecture's documented "text-file coupling, update both sides together" convention.
+   - RESOLVED: Pattern 4's format (`t\n` + `x y vx vy`×N per frame, one already-open `ofstream&` appended once per step) is what 02-02-PLAN.md implements. Any Phase 4 mismatch is a Python-side parser adjustment, not a re-run of this phase.
 
 2. **Whether `va`/`S` need to be printed anywhere in Phase 2 beyond a self-test**
    - What we know: OUTPUT-02 (the scalar `t,va,S` log for sweep runs) is explicitly scoped to Phase 3, not this phase. This phase's success criterion 1 only requires that a single validation run "shows va(t) growing toward a high value."
    - What's unclear: Whether the planner should add a minimal stdout print (e.g., extend `tp2`'s existing summary line to include final va) for manual verification during Phase 2, or whether an in-process self-test computing `polarization()` across a short run is sufficient without any user-facing output.
    - Recommendation: A self-test is sufficient to satisfy the phase's stated success criteria without scope-creeping into OUTPUT-02's territory; a stdout print is a cheap, low-risk addition if the plan wants a manual-inspection option too.
+   - RESOLVED: 02-02-PLAN.md uses an in-process self-test asserting `polarization()` rises across a short run (no stdout requirement added) — sufficient for this phase's success criteria, no OUTPUT-02 scope creep.
 
 ## Security Domain
 
