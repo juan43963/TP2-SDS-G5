@@ -7,6 +7,7 @@
 #include "engine/simulation.h"
 #include "generator.h"
 #include "grid.h"
+#include "observables.h"
 #include "particle.h"
 
 namespace {
@@ -360,6 +361,63 @@ void testVoterCandidatePoolInvariant() {
     }
 }
 
+void testGiantComponentFraction() {
+    // Same deterministic 4-particle configuration as testGridStructural:
+    // p0-p1 y p0-p2 estan dentro de rc; p1-p2 no; p3 esta aislada. p0/p1/p2
+    // forman una componente conexa via adyacencia encadenada (p1-p0-p2), p3
+    // queda aislada -- 3 de 4 particulas en la componente gigante = 0.75
+    // exacto, verificado a mano (no leido de la funcion bajo test).
+    const double L = 10.0, rc = 1.5;
+    const int M = maxValidGridM(L, rc);
+
+    const std::vector<VicsekParticle> particles = {
+        {0, 1.0, 1.0, 0.0},
+        {1, 2.0, 1.0, 0.0},
+        {2, 1.0, 2.4, 0.0},
+        {3, 8.0, 8.0, 0.0},
+    };
+
+    Grid grid(M, L, rc, /*periodic=*/false);
+    grid.rebuild(particles);
+    const double S = giantComponentFraction(grid.neighbors());
+    check(std::abs(S - 0.75) < 1e-9,
+          "fraccion de componente gigante: se esperaba 0.75 (3 de 4 particulas), obtuvo " +
+              std::to_string(S));
+
+    check(std::abs(giantComponentFraction(NeighborList{}) - 0.0) < 1e-9,
+          "fraccion de componente gigante: NeighborList vacia deberia devolver 0.0");
+}
+
+void testPolarizationRisesForBothModels() {
+    // Prueba de la fase (criterio de exito 1): una corrida de validacion de
+    // bajo ruido debe mostrar va(t) creciendo hacia un valor alto, para
+    // ambos modelos, reusando la seleccion de modelo de 02-01.
+    const double L = 10.0, rc = 1.0, v0 = 0.5, dt = 1.0, eta = 0.1;
+    const int M = maxValidGridM(L, rc);
+    const unsigned long long seed = 7;
+
+    for (const Model model : {Model::Vicsek, Model::Voter}) {
+        const std::string modelName = (model == Model::Vicsek) ? "vicsek" : "votante";
+
+        std::vector<VicsekParticle> particles = generateVicsekParticles(200, L, seed);
+        const double vaStart = polarization(particles);
+
+        Simulation sim(std::move(particles), L, rc, v0, dt, M, /*periodic=*/true, model, eta,
+                        seed);
+        for (int step = 0; step < 300; ++step) {
+            sim.step();
+        }
+        const double vaEnd = polarization(sim.particles());
+
+        check(vaEnd > vaStart,
+              "polarizacion creciente (" + modelName + "): va final (" + std::to_string(vaEnd) +
+                  ") deberia superar la inicial (" + std::to_string(vaStart) + ")");
+        check(vaEnd > 0.5,
+              "polarizacion creciente (" + modelName + "): va final (" + std::to_string(vaEnd) +
+                  ") deberia superar 0.5");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -387,6 +445,10 @@ int main() {
     testVoterZeroNeighborSelfInclusion();
     std::printf("- votante: el pool de candidatos nunca produce un valor fuera de conjunto\n");
     testVoterCandidatePoolInvariant();
+    std::printf("- fraccion de componente gigante: caso deterministico de 4 particulas\n");
+    testGiantComponentFraction();
+    std::printf("- polarizacion va(t) creciente para ambos modelos (vicsek y votante)\n");
+    testPolarizationRisesForBothModels();
 
     std::printf("\n%d verificaciones, %d fallas\n", checks, failures);
     if (failures == 0) std::printf("OK\n");
