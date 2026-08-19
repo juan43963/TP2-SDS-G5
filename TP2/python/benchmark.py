@@ -34,6 +34,7 @@ nunca como si fueran una comparacion apples-to-apples.
 import argparse
 import csv
 import os
+import re
 import statistics
 import subprocess
 import sys
@@ -78,6 +79,20 @@ def run_tp1_timings(n_values, repeat=100):
     Devuelve una lista de dicts {N, mean_ms, std_ms} para study=="punto4.1"
     (tiempo puro de busqueda de vecinos del CIM, L=20 fijo -- el modo
     "densidad libre" de TP1), restringida a los N pedidos.
+
+    Nota de acoplamiento fragil: `--study n` de TP1 corre, para cada N,
+    TRES mediciones (punto4.1, punto4.1_brute, punto4.2 a densidad fija con
+    L=sqrt(N/rho) y M recalculado) aunque este script solo consuma
+    punto4.1. Si punto4.1_brute o punto4.2 fallan para cualquier N pedido
+    (p.ej. `--brute` con un N grande, o un M<1 en la corrida de densidad
+    fija), TP1/python/benchmark.py sale con codigo != 0 y ademas NO
+    persiste su CSV -- lo escribe una unica vez al final del barrido
+    completo (`save_csv` se llama despues del loop) -- asi que toda la
+    corrida se pierde, incluidas las N de punto4.1 que ya se habian
+    calculado. No se modifica TP1/python/benchmark.py para evitar esto
+    (esta documentado como "SIN modificarlo"); en su lugar, el mensaje de
+    error abajo intenta indicar hasta que N llego a imprimir progreso antes
+    de la falla, para orientar el diagnostico.
     """
     if not TP1_BIN.exists():
         sys.exit(f"error: no existe {TP1_BIN}. Correr `make` en TP1/ primero.")
@@ -86,7 +101,16 @@ def run_tp1_timings(n_values, repeat=100):
             "--n-sweep", *(str(n) for n in n_values), "--repeat", str(repeat)]
     proc = subprocess.run(args, cwd=TP1_DIR, capture_output=True, text=True)
     if proc.returncode != 0:
-        raise RuntimeError(f"TP1/python/benchmark.py --study n fallo: {proc.stderr.strip()}")
+        completed = re.findall(r"^\s*N=\s*(\d+)\s*\|", proc.stdout, re.MULTILINE)
+        progress = (f" N completadas antes de la falla (segun stdout): {completed}."
+                    if completed else " Ninguna N completo su progreso antes de la falla.")
+        raise RuntimeError(
+            f"TP1/python/benchmark.py --study n fallo: {proc.stderr.strip()}\n"
+            f"Nota: --study n corre tambien punto4.1_brute y punto4.2 (no usados por "
+            f"este script) y puede fallar por esas sub-mediciones para alguna N aunque "
+            f"punto4.1 fuera valido; ademas TP1 solo escribe su CSV al final del "
+            f"barrido, asi que ningun resultado parcial quedo persistido.{progress}"
+        )
 
     wanted = set(n_values)
     rows = []
