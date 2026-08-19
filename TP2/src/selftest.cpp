@@ -215,6 +215,25 @@ void testSynchronousUpdateNoBias() {
     }
 }
 
+void testWallsDoNotWrap() {
+    // Regression test for the CR-01 review finding: with periodic=false
+    // ("--no-periodic", walls), Simulation::step() must NOT wrap positions
+    // through the boundary the way it does under PBC. A single particle
+    // heading straight at x=L must be allowed to cross x=L unwrapped, not
+    // silently teleport back to x~0 as if the boundary were periodic.
+    const double L = 10.0, rc = 1.0;
+    const int M = maxValidGridM(L, rc);
+
+    std::vector<VicsekParticle> particles = {{0, 9.5, 5.0, 0.0}};
+    Simulation sim(std::move(particles), L, rc, /*v0=*/1.0, /*dt=*/1.0, M, /*periodic=*/false);
+    sim.step();
+
+    const double x = sim.particles()[0].x;
+    check(std::abs(x - 10.5) < 1e-9,
+          "con paredes: la particula no deberia envolverse al cruzar x=L (x=" + std::to_string(x) +
+              ", esperado 10.5)");
+}
+
 void testLongRunStaysWrapped() {
     // 5000-step run under periodic boundary conditions: every particle's
     // position must remain strictly inside [0, L) after every single step,
@@ -255,6 +274,8 @@ int main() {
     testSynchronousUpdateNoBias();
     std::printf("- posiciones permanecen en [0,L) tras 5000 pasos con PBC\n");
     testLongRunStaysWrapped();
+    std::printf("- con paredes (no periodico), las posiciones no se envuelven\n");
+    testWallsDoNotWrap();
 
     std::printf("\n%d verificaciones, %d fallas\n", checks, failures);
     if (failures == 0) std::printf("OK\n");

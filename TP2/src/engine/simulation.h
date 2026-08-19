@@ -22,4 +22,5 @@ private:
     Grid grid_;
     std::vector<double> thetaNew_;
     double L_, rc_, v0_, dt_;
+    bool periodic_;
 };

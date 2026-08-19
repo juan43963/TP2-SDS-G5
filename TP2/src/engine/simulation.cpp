@@ -26,7 +26,8 @@ Simulation::Simulation(std::vector<VicsekParticle> particles, double L, double r
       L_(L),
       rc_(rc),
       v0_(v0),
-      dt_(dt) {}
+      dt_(dt),
+      periodic_(periodic) {}
 
 void Simulation::step() {
     // Pass 1: rebuild the neighbor grid from the current (old) positions.
@@ -48,8 +49,8 @@ void Simulation::step() {
         headingToVelocity(thetaNew_[static_cast<size_t>(i)], v0_, vx, vy);
 
         VicsekParticle& p = particles_[static_cast<size_t>(i)];
-        p.x = periodicWrap(p.x + vx * dt_, L_);
-        p.y = periodicWrap(p.y + vy * dt_, L_);
+        p.x = periodic_ ? periodicWrap(p.x + vx * dt_, L_) : p.x + vx * dt_;
+        p.y = periodic_ ? periodicWrap(p.y + vy * dt_, L_) : p.y + vy * dt_;
         p.theta = thetaNew_[static_cast<size_t>(i)];
     }
 }
