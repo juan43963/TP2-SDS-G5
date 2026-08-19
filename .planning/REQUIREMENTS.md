@@ -26,16 +26,16 @@ Requirements para la entrega del 04/09/2026. Cada uno mapea a fases del roadmap.
 
 ### Barrido Paramétrico y Estadística (SWEEP)
 
-- [ ] **SWEEP-01**: Soporta las tres densidades ρ = 2, 4, 8 (N = ρ·L²) con L=10 fijo
-- [ ] **SWEEP-02**: Soporta un barrido del parámetro de ruido η, con resolución más fina cerca de la transición orden-desorden
-- [ ] **SWEEP-03**: Cada punto (ρ, η, modelo) se corre con múltiples semillas independientes (K≥5) para calcular barras de error genuinas, no solo fluctuación temporal de una corrida
-- [ ] **SWEEP-04**: La semilla del generador de números aleatorios se fija explícitamente por corrida (nunca por reloj), garantizando reproducibilidad y ausencia de correlación entre repeticiones
-- [ ] **SWEEP-05**: Existe un criterio documentado y reproducible para determinar la ventana de estado estacionario, aplicado igual a va y a S
+- [x] **SWEEP-01**: Soporta las tres densidades ρ = 2, 4, 8 (N = ρ·L²) con L=10 fijo
+- [x] **SWEEP-02**: Soporta un barrido del parámetro de ruido η, con resolución más fina cerca de la transición orden-desorden
+- [x] **SWEEP-03**: Cada punto (ρ, η, modelo) se corre con múltiples semillas independientes (K≥5) para calcular barras de error genuinas, no solo fluctuación temporal de una corrida
+- [x] **SWEEP-04**: La semilla del generador de números aleatorios se fija explícitamente por corrida (nunca por reloj), garantizando reproducibilidad y ausencia de correlación entre repeticiones
+- [x] **SWEEP-05**: Existe un criterio documentado y reproducible para determinar la ventana de estado estacionario, aplicado igual a va y a S
 
 ### Salida de Datos (OUTPUT)
 
 - [x] **OUTPUT-01**: La simulación escribe posiciones y velocidades por partícula y por timestep en archivos de texto, desacoplados del módulo de animación
-- [ ] **OUTPUT-02**: Para corridas de barrido no destinadas a animación se escribe solo el log escalar (t, va, S), evitando explosión de I/O
+- [x] **OUTPUT-02**: Para corridas de barrido no destinadas a animación se escribe solo el log escalar (t, va, S), evitando explosión de I/O
 
 ### Clustering (CLUSTER)
 
@@ -111,12 +111,12 @@ Qué fases cubren qué requirements.
 | OUTPUT-01 | Phase 2 | Complete |
 | CLUSTER-01 | Phase 2 | Complete |
 | CLUSTER-02 | Phase 2 | Complete |
-| SWEEP-01 | Phase 3 | Pending |
-| SWEEP-02 | Phase 3 | Pending |
-| SWEEP-03 | Phase 3 | Pending |
-| SWEEP-04 | Phase 3 | Pending |
-| SWEEP-05 | Phase 3 | Pending |
-| OUTPUT-02 | Phase 3 | Pending |
+| SWEEP-01 | Phase 3 | Complete |
+| SWEEP-02 | Phase 3 | Complete |
+| SWEEP-03 | Phase 3 | Complete |
+| SWEEP-04 | Phase 3 | Complete |
+| SWEEP-05 | Phase 3 | Complete |
+| OUTPUT-02 | Phase 3 | Complete |
 | VIZ-01 | Phase 4 | Pending |
 | VIZ-02 | Phase 4 | Pending |
 | VIZ-03 | Phase 4 | Pending |
