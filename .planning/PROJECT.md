@@ -30,16 +30,15 @@ Producir las curvas y gráficos correctos (polarización va, fracción del clust
 - ✓ Log escalar (t, va, S) por timestep para corridas de barrido (`--scalar-log`), sin volcar posiciones/velocidades completas — Phase 3
 - ✓ Criterio de estado estacionario (corte fijo del primer X% de pasos como transitorio) documentado y aplicado idénticamente a va y a S — Phase 3
 - ✓ CSV resumen con media±desvío por punto (ρ, η, modelo) agregando las K semillas, listo para graficar — Phase 3
+- ✓ Módulo de animación en Python (`TP2/python/animate.py`) que lee la trayectoria completa de una corrida dedicada y colorea los vectores de velocidad según el ángulo con colormap cíclico (hsv), exportado a GIF (ffmpeg no disponible en el entorno) — Phase 4
+- ✓ Gráficos va(t) y S(t) con línea vertical de estado estacionario, usando exactamente el mismo detector de corte fijo que `sweep.py::summarize_run` (paridad numérica verificada), para las tres densidades y ambos modelos (12 PNGs) — Phase 4
+- ✓ Curvas va(η) y S(η) con barras de error genuinas (multi-semilla) superponiendo vicsek y votante en el mismo gráfico, para las tres densidades — Phase 4
+- ✓ Gráfico va vs S distinguiendo las tres densidades — Phase 4
+- ✓ Susceptibilidad χ(η) = N·va_std² y tabla comparativa η_c(ρ) (máximo de χ sobre la grilla muestreada), derivadas directamente de `summary.csv` — Phase 4
+- ✓ Formación de bandas/inhomogeneidad de densidad visible en la animación característica de Vicsek a ρ=2 (η sesgado hacia el borde ordenado del bracket de transición) — Phase 4
 
 ### Active
 
-- [ ] Módulo de animación en Python que lee el texto de salida y colorea los vectores de velocidad según el ángulo
-- [ ] Gráfico de evolución temporal de va con línea vertical marcando el inicio del estacionario
-- [ ] Gráfico va vs η con barras de error, para las tres densidades
-- [ ] Gráfico de evolución temporal de S para las tres densidades
-- [ ] Gráfico de S medio en estacionario (con desvío) vs η, mismo procedimiento que para va
-- [ ] Gráfico de va vs S distinguiendo densidades
-- [ ] Repetir todo lo anterior para el modelo de votante y comparar contra el estándar en los mismos gráficos
 - [ ] Medición de tiempos de ejecución del CIM para N comparables a TP1 y comparación con los tiempos de TP1
 - [ ] Informe (PDF) con el formato de `docs/GuiaInformes.pdf`
 - [ ] Presentación (PDF, ≤13 min, sin animaciones embebidas) con el formato de `docs/GuiaPresentaciones.pdf`
@@ -77,6 +76,8 @@ Producir las curvas y gráficos correctos (polarización va, fracción del clust
 | Construir primero el motor completo (ambos modelos, validado con una corrida) y recién después el barrido paramétrico completo | Reduce el riesgo de escalar cómputo sobre un motor incorrecto, dado el plazo ajustado | Validated in Phase 2 — ambos modelos corren y muestran va(t) creciente en una corrida individual; barrido completo en Phase 3 |
 | Semilla determinística vía sha256(model\|rho\|eta\|repeat_index) en vez de índices bit-packeados | Decorrelación limpia entre valores de η casi idénticos, sin invariante de cuantización de η que mantener sincronizado con la grilla exploratoria | Validated in Phase 3 — decisión tomada en checkpoint humano bloqueante; `TP2/python/sweep.py::derive_seed` |
 | Grilla de η localizada vía mini-barrido exploratorio (baja resolución, K=1-2) antes de la grilla fina completa | La ubicación real de la transición orden-desorden solo se conoce después de explorar; evita desperdiciar cómputo en una grilla fija mal ubicada | Validated in Phase 3 — `explore_transition`/`build_eta_grid` detectan el bracket de transición a partir de corridas reales de `tp2` |
+| Animación en GIF (PillowWriter) en vez de MP4 (ffmpeg) | ffmpeg no está instalado en el entorno de desarrollo; Pillow sí, sin nueva dependencia | Validated in Phase 4 — ambas animaciones (`animation_vicsek_rho2.gif`, `animation_voter_rho2.gif`) generadas y verificadas visualmente |
+| η de la animación característica de Vicsek sesgado hacia el borde ordenado del bracket de transición (`eta_low + 0.15*(eta_high-eta_low)`), no el punto medio | El punto medio del bracket cayó del lado desordenado y no mostró bandas en la QA visual del checkpoint; el régimen de bandas clásico de Vicsek aparece cerca del borde ordenado de la transición | Validated in Phase 4 — checkpoint humano de QA visual confirmó formación de bandas tras el ajuste; verificado independientemente en la fase de verificación |
 
 ## Evolution
 
@@ -96,4 +97,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-19 after Phase 3 (barrido-param-trico-y-estad-stica) completion*
+*Last updated: 2026-08-19 after Phase 4 (an-lisis-gr-ficos-y-animaci-n) completion*
