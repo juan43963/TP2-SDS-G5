@@ -27,7 +27,7 @@ import matplotlib.animation as animation  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
-from sweep import TP2_BIN, L_DEFAULT, explore_transition  # noqa: E402
+from sweep import TP2_BIN, L_DEFAULT, RUN_TIMEOUT_S, explore_transition  # noqa: E402
 
 ANIM_DATA_DIR = TP2_DIR / "data" / "animation"
 PLOTS_DIR = TP2_DIR / "data" / "plots"
@@ -77,7 +77,12 @@ def run_characteristic(model: str, rho: float = RHO_CHARACTERISTIC,
         "--seed", str(SEED_CHARACTERISTIC),
         "--out", str(out_path),
     ]
-    proc = subprocess.run(args, capture_output=True, text=True)
+    try:
+        proc = subprocess.run(args, capture_output=True, text=True, timeout=RUN_TIMEOUT_S)
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(
+            f"tp2 timeout (animate model={model}) tras {RUN_TIMEOUT_S}s"
+        ) from exc
     if proc.returncode != 0:
         raise RuntimeError(f"tp2 fallo (animate model={model}): {proc.stderr.strip()}")
     return out_path, eta
