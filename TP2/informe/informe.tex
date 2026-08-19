@@ -49,4 +49,115 @@ conexa más grande de la red de vecinos), comparando ambos modelos entre sí y
 verificando además que el costo computacional del CIM reutilizado escala de forma
 consistente con lo ya observado en el Trabajo Práctico 1.
 
+\section{Modelo}
+
+Cada partícula $i$ está descripta por su posición $\vect{r}_i(t)$ y su ángulo de
+orientación $\theta_i(t)$, y se mueve a rapidez constante $v_0$. La posición se
+actualiza de forma sincrónica (todas las partículas a la vez, a partir del estado
+del paso anterior) según
+
+\begin{equation}
+  \vect{r}_i(t+\Delta t) = \vect{r}_i(t) + v_0 \left(\cos\theta_i(t+\Delta t),\
+  \sin\theta_i(t+\Delta t)\right) \Delta t,
+  \label{eq:position}
+\end{equation}
+
+con envoltura periódica de las coordenadas dentro de la caja de lado $L$ (condición
+de contorno periódica). El vecindario $\mathcal{N}_i$ de la partícula $i$ es
+autoinclusivo (contiene a $i$ y a toda partícula $j$ con $|\vect{r}_i - \vect{r}_j| < r_c$,
+calculado en cada paso por el CIM) y es el mismo conjunto que usan ambas reglas de
+interacción, difiriendo únicamente en cómo combinan las orientaciones de
+$\mathcal{N}_i$.
+
+En el \emph{modelo estándar de Vicsek} [1], la nueva orientación es el promedio
+circular de las orientaciones de $\mathcal{N}_i$ más ruido angular:
+
+\begin{equation}
+  \theta_i(t+\Delta t) = \operatorname{atan2}\!\left(\sum_{j \in \mathcal{N}_i} \sin\theta_j(t),\;
+  \sum_{j \in \mathcal{N}_i} \cos\theta_j(t)\right) + \Delta\theta_i,
+  \label{eq:vicsek}
+\end{equation}
+
+donde la suma de senos y cosenos evita la discontinuidad de promediar ángulos
+directamente. En el \emph{modelo de votante} [2], en cambio, la partícula no
+promedia: elige un único vecino $j$ al azar dentro de $\mathcal{N}_i$ (con
+distribución uniforme) y copia directamente su orientación:
+
+\begin{equation}
+  \theta_i(t+\Delta t) = \theta_j(t) + \Delta\theta_i,\qquad j \sim \mathcal{U}(\mathcal{N}_i).
+  \label{eq:voter}
+\end{equation}
+
+En ambos modelos el ruido angular $\Delta\theta_i$ se agrega de la misma manera,
+como una variable aleatoria uniforme $\Delta\theta_i \sim \mathcal{U}(-\eta/2,\ \eta/2)$,
+independiente entre partículas y entre pasos, siendo $\eta$ el único parámetro que
+controla el desorden del sistema. Los parámetros del sistema son la densidad
+$\rho = N/L^2$, el radio de interacción $r_c$, la rapidez $v_0$ y el paso temporal
+$\Delta t$, todos en unidades de simulación adimensionales (no se asocian a
+unidades físicas explícitas, siguiendo la convención del enunciado y de [1]).
+
+\section{Implementacion}
+
+El motor de simulación (\texttt{TP2/src/}) reutiliza el Cell Index Method (CIM) del
+Trabajo Práctico 1, adaptado a una nueva partícula \texttt{VicsekParticle} que
+agrega orientación además de posición (\texttt{struct VicsekParticle \{ int id;
+double x, y, theta; \}}, en \texttt{particle.h}). A diferencia del \texttt{computeCIM}
+de TP1, que reconstruía la grilla desde cero en cada llamada, el nuevo tipo
+\texttt{Grid} (\texttt{grid.h}) es un objeto persistente: sus buffers
+\texttt{cells} y \texttt{neighbors\_} se reutilizan entre llamadas a
+\texttt{rebuild()} en lugar de reasignarse en cada paso, eliminando la fricción de
+reuso señalada tras TP1.
+
+La clase \texttt{Simulation} (\texttt{engine/simulation.h}) encapsula el estado
+completo de una corrida: el vector de partículas, la grilla persistente, un buffer
+auxiliar \texttt{thetaNew\_} y el generador de números aleatorios. Su método
+\texttt{step()} realiza una actualización sincrónica de dos buffers: primero
+calcula la nueva orientación de \emph{todas} las partículas a partir de la
+foto instantánea previa al paso (nunca mezclando orientaciones ya actualizadas de
+otras partículas dentro del mismo paso), y recién después aplica esas orientaciones
+para mover las posiciones, evitando sesgos por orden de iteración. La regla de
+interacción es seleccionable en tiempo de construcción mediante un
+\texttt{enum class Model \{ Vicsek, Voter \}}, que despacha a las funciones libres
+\texttt{circularMeanHeading} o \texttt{voterHeading} (Ecs.~\ref{eq:vicsek} y
+\ref{eq:voter} respectivamente); el ruido angular se agrega de forma idéntica en
+ambos casos mediante una única función compartida \texttt{addAngularNoise}.
+
+Los observables escalares se calculan directamente sobre la grilla del motor, sin
+recomputar vecinos por fuera: \texttt{polarization()} calcula $v_a$ a partir del
+vector de partículas, y \texttt{giantComponentFraction()} calcula $S$ recorriendo
+las componentes conexas de \texttt{NeighborList} (la misma lista de adyacencia que
+usa el CIM), ambas en \texttt{observables.h}. La salida se escribe en texto plano
+(posición y velocidad real \texttt{vx, vy} por partícula y por paso, o un log
+escalar reducido \texttt{(t, va, S)} para corridas de barrido), desacoplando la
+simulación del módulo de animación en Python, tal como exige el enunciado. El
+nuevo binario \texttt{tp2}/\texttt{tp2\_test} vive enteramente en \texttt{TP2/} y
+reutiliza el CIM adaptándolo, sin modificar ningún archivo de \texttt{TP1/}.
+
+\section{Simulaciones}
+
+Todas las corridas del barrido paramétrico usan la geometría fija que impone el
+enunciado: caja cuadrada de lado $L=10$ con condiciones periódicas de contorno. Se
+estudian tres densidades $\rho \in \{2, 4, 8\}$, cada una con ambos modelos de
+interacción (Vicsek y votante), en función del ruido angular $\eta$.
+
+La grilla de valores de $\eta$ combina una grilla gruesa global de 9 puntos
+equiespaciados en $[0, 2\pi]$ con una grilla fina de 8 puntos adicionales,
+concentrada dentro del intervalo (\emph{bracket}) donde ocurre la transición
+orden-desorden. Ese intervalo se ubica de forma independiente para cada
+combinación (modelo, $\rho$) mediante un mini-barrido exploratorio previo (2
+semillas y 500 pasos por punto, sobre la grilla gruesa), detectando el primer
+cruce de la polarización media $v_a$ por debajo del umbral $0.5$. Esta ubicación
+dinámica evita concentrar cómputo en una grilla fija que podría no coincidir con
+la transición real de cada combinación.
+
+Para cada punto $(\text{modelo}, \rho, \eta)$ de la grilla final se corren al menos
+$K=5$ semillas independientes, con semilla determinística derivada de
+$\mathrm{sha256}(\text{modelo}\,|\,\rho\,|\,\eta\,|\,\text{índice de repetición})$
+truncado a 64 bits (nunca sembrada por reloj), garantizando reproducibilidad
+exacta y decorrelación entre puntos de $\eta$ cercanos. Cada corrida completa del
+barrido consta de 2000 pasos de simulación. El criterio de estado estacionario
+descarta el primer 50\% de los pasos como transitorio, y esa misma ventana
+temporal se usa para promediar tanto $v_a$ como $S$, de modo que ambos observables
+se miden bajo el mismo criterio de corte.
+
 \end{document}
