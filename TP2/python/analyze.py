@@ -395,10 +395,29 @@ def main():
     write_eta_c_table(table)
     print(f"tabla: {ETA_C_TABLE_CSV} ({len(table)} filas)")
 
+    timeseries_paths = []
     for rho in (2.0, 4.0, 8.0):
         for column in ("va", "S"):
-            plot_scalar_timeseries(rho, "vicsek", column, rows)
-            print(f"grafico: {PLOTS_DIR / f'{column}_t_vicsek_rho{rho:g}.png'}")
+            for model in ("vicsek", "voter"):
+                plot_scalar_timeseries(rho, model, column, rows)
+                path = PLOTS_DIR / f"{column}_t_{model}_rho{rho:g}.png"
+                print(f"grafico: {path}")
+                timeseries_paths.append(path)
+
+    # Resumen final: lista completa de artefactos que produce una sola
+    # invocacion de `python3 python/analyze.py`, acumulados de 04-01, 04-03 y
+    # este plan (5 + 12 = 17 archivos: 16 PNG + 1 CSV).
+    all_artifacts = [
+        PLOTS_DIR / "va_eta.png",
+        PLOTS_DIR / "S_eta.png",
+        PLOTS_DIR / "va_vs_S.png",
+        PLOTS_DIR / "chi_eta.png",
+        ETA_C_TABLE_CSV,
+        *timeseries_paths,
+    ]
+    print(f"\nconjunto completo de artefactos estaticos de Fase 4 ({len(all_artifacts)} archivos):")
+    for path in all_artifacts:
+        print(f"  {path}")
 
     if args.show:
         plt.show()
