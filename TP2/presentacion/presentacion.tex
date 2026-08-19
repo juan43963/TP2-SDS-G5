@@ -89,38 +89,33 @@
   \Large Implementaci\'on
 \end{frame}
 
-\begin{frame}{Arquitectura del motor}
-  \begin{itemize}
-    \item \texttt{VicsekParticle}: posici\'on $(x,y)$ + orientaci\'on
-      $\theta$ (extiende la part\'icula de TP1, que no ten\'ia velocidad).
-    \item \texttt{Grid}: grilla del Cell Index Method reutilizado de TP1,
-      ahora \textbf{persistente} -- sus buffers \texttt{cells}/\texttt{neighbors\_}
-      se reutilizan en cada \texttt{rebuild()} en vez de reasignarse.
-    \item \texttt{Simulation}: encapsula part\'iculas, grilla y RNG; el
-      m\'etodo \texttt{step()} hace la actualizaci\'on sincr\'onica.
-    \item Estrategia de interacci\'on seleccionable en tiempo de
-      construcci\'on: \texttt{enum class Model \{ Vicsek, Voter \}}.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Esquema del \texttt{step()}}
-  Actualizaci\'on sincr\'onica en dos pasadas (double-buffered), para que
-  ninguna part\'icula use orientaciones ya actualizadas de otras dentro del
-  mismo paso:
-
-  \begin{enumerate}
-    \item \texttt{grid\_.rebuild(particles\_)} -- vecinos sobre la foto
-      previa al paso.
-    \item Para cada part\'icula $i$: calcular $\theta_i^{\text{nuevo}}$
-      (Vicsek o votante) + ruido, guardado en un buffer auxiliar
-      \texttt{thetaNew\_} (nunca se escribe \texttt{theta} todav\'ia).
-    \item Para cada part\'icula $i$: avanzar posici\'on con
-      $\theta_i^{\text{nuevo}}$, aplicar contorno peri\'odico, y reci\'en
-      ah\'i confirmar \texttt{theta}.
-  \end{enumerate}
-
-  Los observables ($v_a$, $S$) se calculan directamente sobre la lista de
-  adyacencia de la grilla, sin recomputar vecinos por fuera del motor.
+\begin{frame}{Arquitectura del motor y esquema del \texttt{step()}}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \small
+      \begin{itemize}
+        \item \texttt{VicsekParticle}: posici\'on $(x,y)$ + orientaci\'on
+          $\theta$ (extiende la part\'icula de TP1, sin velocidad).
+        \item \texttt{Grid}: CIM de TP1 reutilizado, ahora
+          \textbf{persistente} (buffers reusados en \texttt{rebuild()}).
+        \item \texttt{Simulation}: encapsula part\'iculas, grilla, RNG.
+        \item Interacci\'on seleccionable: \texttt{enum class Model
+          \{ Vicsek, Voter \}}.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \small
+      \texttt{step()}, sincr\'onico (double-buffered):
+      \begin{enumerate}
+        \item \texttt{grid\_.rebuild()} sobre la foto previa al paso.
+        \item Nueva orientaci\'on de \emph{todas} las part\'iculas
+          (Vicsek/votante + ruido) a un buffer auxiliar.
+        \item Avanzar posici\'on con la nueva orientaci\'on, PBC, y
+          reci\'en ah\'i confirmar \texttt{theta}.
+      \end{enumerate}
+      $v_a$ y $S$ se calculan sobre la misma lista de adyacencia del CIM.
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------------
@@ -177,6 +172,154 @@
   \textbf{Tiempo real medido} (Plan de benchmark, $N=1000$):
   $\approx 1.58$~ms por paso completo del motor de TP2 (rebuild de grilla +
   b\'usqueda de vecinos + integraci\'on).
+\end{frame}
+
+% ---------------------------------------------------------------------
+% Seccion: Resultados (patron 2.4.1-2.4.8, parametro eta)
+% ---------------------------------------------------------------------
+\section{Resultados}
+
+\begin{frame}
+  \centering
+  \Large Resultados
+\end{frame}
+
+% 2.4.1 -- animacion caracteristica (frame fijo + link explicito)
+\begin{frame}{Animaci\'on caracter\'istica -- $\rho=2$}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{frame_vicsek_rho2.png}
+
+      \small Vicsek, $\eta \approx 2.47$ (borde ordenado de la transici\'on)
+
+      \footnotesize [PEGAR LINK DE VIDEO AQUI -- subir a YouTube/Drive y
+      reemplazar]
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{frame_voter_rho2.png}
+
+      \small Votante, $\eta$ del bracket de transici\'on
+
+      \footnotesize [PEGAR LINK DE VIDEO AQUI -- subir a YouTube/Drive y
+      reemplazar]
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 2.4.2 -- evolucion temporal de va y S (observables primarios)
+\begin{frame}{Evoluci\'on temporal de $v_a$ y $S$ -- $\rho=2$, $\eta=0$}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{va_t_vicsek_rho2.png}\\
+      \tiny Vicsek $v_a(t)$
+      \vspace{0.15cm}
+      \includegraphics[width=\textwidth]{va_t_voter_rho2.png}\\
+      \tiny Votante $v_a(t)$
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{S_t_vicsek_rho2.png}\\
+      \tiny Vicsek $S(t)$
+      \vspace{0.15cm}
+      \includegraphics[width=\textwidth]{S_t_voter_rho2.png}\\
+      \tiny Votante $S(t)$
+    \end{column}
+  \end{columns}
+
+  \vspace{0.15cm}
+  \footnotesize L\'inea vertical: inicio del estado estacionario (50\% de
+  los pasos descartado como transitorio, mismo criterio para $v_a$ y $S$).
+  Vicsek converge suave y r\'apido; el votante lo hace de forma ruidosa y
+  lenta (\emph{coarsening}), con ca\'idas transitorias de $S$.
+\end{frame}
+
+% 2.4.3 -- input vs observable (va y S vs eta)
+\begin{frame}{$v_a$ y $S$ vs. ruido $\eta$}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{va_eta.png}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{S_eta.png}
+    \end{column}
+  \end{columns}
+
+  \small $\rho \in \{2,4,8\}$, ambos modelos (Vicsek: l\'ineas s\'olidas;
+  votante: l\'ineas punteadas), barras de error sobre $K\geq5$ semillas.
+  $S$ se mantiene cerca de 1 salvo Vicsek $\rho=2$, que cae levemente en la
+  transici\'on.
+\end{frame}
+
+\begin{frame}{$v_a$ vs. $S$, y susceptibilidad $\chi(\eta)$}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{va_vs_S.png}\\
+      \tiny $v_a$ vs. $S$, tres densidades. $\rho=2$: correlaci\'on
+      positiva marcada; $\rho=8$: $S\approx1$ siempre.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{chi_eta.png}\\
+      \small
+      \begin{tabular}{lcc}
+        \toprule
+        Modelo & $\rho$ & $\eta_c$ \\
+        \midrule
+        Vicsek  & 2 & 2.581 \\
+        Vicsek  & 4 & 3.254 \\
+        Vicsek  & 8 & 4.712 \\
+        Votante & 2 & 0.224 \\
+        Votante & 4 & 0.000 \\
+        Votante & 8 & 0.112 \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Punto (g): benchmark TP1 vs TP2
+\begin{frame}{Tiempos de ejecuci\'on del CIM: TP1 vs. TP2}
+  \centering
+  \includegraphics[width=0.75\textwidth]{benchmark_tp1_vs_tp2.png}
+
+  \small La serie TP1 mide s\'olo b\'usqueda de vecinos (\texttt{computeCIM});
+  la serie TP2 mide el paso completo del motor (rebuild + b\'usqueda +
+  integraci\'on) -- magnitudes distintas, no comparables en valor absoluto.
+  Ambas escalan con pendiente similar en log-log.
+\end{frame}
+
+% ---------------------------------------------------------------------
+% Conclusiones (1 diapositiva)
+% ---------------------------------------------------------------------
+\section{Conclusiones}
+
+\begin{frame}{Conclusiones}
+  \begin{itemize}
+    \item Ambos modelos muestran transici\'on orden-desorden en $\eta$,
+      pero Vicsek sostiene el orden hasta $\eta$ mucho mayores que el
+      votante ($\eta_c$ de $2.58$ a $4.71$ vs. $\leq 0.22$).
+    \item $\eta_c$ de Vicsek crece con la densidad; el votante permanece
+      cerca de $\eta=0$ en las tres densidades.
+    \item $S$ se mantiene cerca de 1 en casi todo el rango, salvo Vicsek
+      $\rho=2$ (baja densidad), donde se acopla con la p\'erdida de $v_a$.
+    \item El motor de TP2 preserva el escalado del CIM de TP1: el paso
+      completo es m\'as costoso en t\'erminos absolutos, pero ambas series
+      crecen con $N$ con pendiente similar en log-log.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------
+% Cierre
+% ---------------------------------------------------------------------
+\begin{frame}
+  \centering
+  \Large Muchas Gracias
 \end{frame}
 
 \end{document}
