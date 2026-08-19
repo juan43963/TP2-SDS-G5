@@ -81,7 +81,7 @@ Options parseArgs(int argc, char** argv) {
     };
 
     int opt;
-    while ((opt = getopt_long(argc, argv, "h", long_options, nullptr)) != -1) {
+    while ((opt = getopt_long(argc, argv, "h", long_options, nullptr)) != -1) try {
         switch (opt) {
             case 'r': o.rho = std::stod(optarg); break;
             case 'N': o.N = std::stoi(optarg); break;
@@ -100,6 +100,8 @@ Options parseArgs(int argc, char** argv) {
             case 'h': usage(); std::exit(0);
             default: fail("opcion invalida (probar --help)");
         }
+    } catch (const std::exception&) {
+        fail("valor numerico invalido: '" + std::string(optarg ? optarg : "") + "'");
     }
 
     if (o.steps < 0) fail("--steps debe ser >= 0");
@@ -107,6 +109,8 @@ Options parseArgs(int argc, char** argv) {
     if (o.M != -1 && o.M < 1) fail("--M debe ser >= 1");
     if (o.model != "vicsek" && o.model != "voter") fail("--model debe ser 'vicsek' o 'voter'");
     if (o.eta < 0.0) fail("--eta debe ser >= 0");
+    if (o.L <= 0.0) fail("--L debe ser > 0");
+    if (o.rho <= 0.0) fail("--rho debe ser > 0");
     return o;
 }
 
@@ -135,11 +139,17 @@ int main(int argc, char** argv) try {
     std::ofstream trajOut(o.out);
     if (!trajOut) fail("no se pudo abrir " + o.out);
 
+    writeTrajectoryFrame(trajOut, sim.particles(), 0.0, o.v0);
     for (int step = 0; step < o.steps; ++step) {
         sim.step();
         writeTrajectoryFrame(trajOut, sim.particles(), static_cast<double>(step + 1) * o.dt, o.v0);
     }
 
+    // step() only rebuilds the grid from the PRE-step snapshot, so neighbors()
+    // is one step stale relative to particles() after the loop -- resync
+    // against the true final positions before computing S (also needed when
+    // steps==0, since the Grid constructor never populates neighbors_).
+    sim.syncNeighbors();
     const double va = polarization(sim.particles());
     const double S = giantComponentFraction(sim.neighbors());
 
