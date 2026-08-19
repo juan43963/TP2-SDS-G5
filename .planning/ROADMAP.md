@@ -29,7 +29,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Un self-test confirma que, tras muchos pasos de integración, todas las posiciones permanecen envueltas dentro de `[0, L)` bajo condiciones periódicas de contorno en la caja L=10
   3. El binario de TP2 compila y corre de forma independiente desde `TP2/`, y `git diff` no muestra ningún cambio dentro de `TP1/`
   4. El struct de partícula expone orientación/velocidad (θ o vx,vy) además de posición, y el grid persistente reutiliza sus buffers entre pasos en vez de reasignar memoria por consulta
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Domain model (VicsekParticle) + persistent Grid (CIM adaptado con buffers reutilizados)
+- [ ] 01-02-PLAN.md — Loop sincrónico double-buffered + wrap PBC en integración + CLI standalone en TP2/
 
 ### Phase 2: Modelos Vicsek y Votante
 **Goal**: Ambos modelos de interacción (estándar y votante) corren sobre el motor de la Fase 1, comparten la misma función de ruido y el mismo radio de interacción seleccionables por flag de CLI, calculan clustering/S reusando la adyacencia del grid, y escriben posiciones+velocidades reales por timestep — la corrección de una sola corrida de cada modelo queda probada antes de escalar al barrido.
