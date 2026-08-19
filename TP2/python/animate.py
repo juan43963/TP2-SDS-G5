@@ -23,6 +23,7 @@ sys.path.insert(0, str(TP2_DIR / "python"))
 import matplotlib
 if "--show" not in sys.argv:
     matplotlib.use("Agg")
+import matplotlib.animation as animation  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
@@ -99,6 +100,48 @@ def read_trajectory(path) -> list[tuple[float, np.ndarray]]:
     return frames
 
 
+def render_animation(frames, out_path, L: float = L_DEFAULT, stride: int = FRAME_STRIDE,
+                      fps: int = FPS) -> None:
+    """Renderiza `frames` como un GIF via PillowWriter (ffmpeg no disponible).
+
+    Cada particula es un quiver de velocidad coloreado por su angulo de heading
+    (atan2(vy, vx), siempre recomputado desde vx/vy -- el archivo de trayectoria
+    nunca trae theta directamente). El angulo se normaliza sobre [-pi, pi] ->
+    [0, 1] y el colormap ciclico usa clim=(0,1) FIJO en cada frame, nunca
+    autoescalado, para que un color dado siempre signifique el mismo angulo a
+    lo largo de toda la animacion.
+    """
+    sampled = frames[::stride]
+    if not sampled:
+        raise ValueError("render_animation: no hay frames para renderizar")
+
+    fig, ax = plt.subplots()
+    ax.set_xlim(0, L)
+    ax.set_ylim(0, L)
+    ax.set_aspect("equal")
+
+    t0, rows0 = sampled[0]
+    x, y, vx, vy = rows0[:, 0], rows0[:, 1], rows0[:, 2], rows0[:, 3]
+    angle = np.arctan2(vy, vx)
+    norm = (angle + np.pi) / (2.0 * np.pi)
+    quiver = ax.quiver(x, y, vx, vy, norm, cmap=ANGLE_CMAP, clim=(0, 1), pivot="mid")
+    title = ax.set_title(f"t = {t0:.1f}")
+
+    def update(frame_index):
+        t, rows = sampled[frame_index]
+        x, y, vx, vy = rows[:, 0], rows[:, 1], rows[:, 2], rows[:, 3]
+        angle = np.arctan2(vy, vx)
+        norm = (angle + np.pi) / (2.0 * np.pi)
+        quiver.set_offsets(np.column_stack([x, y]))
+        quiver.set_UVC(vx, vy, norm)
+        title.set_text(f"t = {t:.1f}")
+        return quiver, title
+
+    anim = animation.FuncAnimation(fig, update, frames=len(sampled), blit=False)
+    anim.save(str(out_path), writer=animation.PillowWriter(fps=fps))
+    plt.close(fig)
+
+
 def _selftest():
     """Verificaciones internas -- convencion sin framework, analoga a sweep.py."""
     ANIM_DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -140,6 +183,14 @@ def main():
     if args.selftest:
         _selftest()
         return
+
+    PLOTS_DIR.mkdir(parents=True, exist_ok=True)
+    for model in ("vicsek", "voter"):
+        traj_path, eta = run_characteristic(model)
+        frames = read_trajectory(traj_path)
+        out_path = PLOTS_DIR / f"animation_{model}_rho2.gif"
+        render_animation(frames, out_path)
+        print(f"animacion: model={model} eta={eta:.4f} -> {out_path}")
 
 
 if __name__ == "__main__":
