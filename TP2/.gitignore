@@ -2,3 +2,4 @@ build/
 tp2
 tp2_test
 data/
+__pycache__/
