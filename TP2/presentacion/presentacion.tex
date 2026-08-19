@@ -1,0 +1,82 @@
+\documentclass{beamer}
+\usetheme{Warsaw}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,graphicx,booktabs}
+
+% Rutas de figuras: llegan tanto a TP2/data/plots/ (generadas en Fases 3-4 y
+% en el Plan 05-01) como a los frames extraidos localmente en este directorio.
+\graphicspath{{../data/plots/}{./}}
+
+% Notacion (docs/GuiaPresentaciones.md 3.5): vectores en negrita sin italica.
+\newcommand{\vect}[1]{\mathbf{#1}}
+
+\setbeamertemplate{navigation symbols}{}
+
+\title{Simulaci\'on de Bandadas: Modelo de Vicsek y Modelo de Votante}
+\author{Grupo 5}
+\date{}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% ---------------------------------------------------------------------
+% Seccion: Introduccion / Sistema Real / Fundamentos (<=3 diapositivas)
+% ---------------------------------------------------------------------
+\section{Introduccion}
+
+\begin{frame}
+  \centering
+  \Large Introducci\'on / Sistema Real / Fundamentos
+\end{frame}
+
+\begin{frame}{Sistema real}
+  Las \textbf{bandadas de agentes autopropulsados} (bancos de peces, bandadas
+  de aves, enjambres de bacterias) son sistemas de muchas part\'iculas que se
+  mueven a rapidez aproximadamente constante y ajustan continuamente su
+  direcci\'on seg\'un las de sus vecinos cercanos.
+
+  \vspace{0.5cm}
+
+  Sin l\'ider ni reglas globales, emerge un comportamiento colectivo
+  \textbf{ordenado} (movimiento coherente) o \textbf{desordenado} seg\'un el
+  nivel de ruido en la interacci\'on -- una transici\'on de fase
+  orden-desorden.
+\end{frame}
+
+\begin{frame}{Modelo matem\'atico general}
+  Cada part\'icula $i$ tiene posici\'on $\vect{r}_i(t)$ y orientaci\'on
+  $\theta_i(t)$, movi\'endose a rapidez constante $v_0$:
+
+  \[
+    \vect{r}_i(t+\Delta t) = \vect{r}_i(t) + v_0\,(\cos\theta_i(t+\Delta t),\,
+    \sin\theta_i(t+\Delta t))\,\Delta t
+  \]
+
+  La orientaci\'on se actualiza seg\'un la interacci\'on con el vecindario
+  $\mathcal{N}_i$ (part\'iculas dentro de un radio $r_c$) m\'as un ruido
+  angular $\eta$:
+
+  \begin{itemize}
+    \item \textbf{Vicsek}: promedio circular de las orientaciones de
+      $\mathcal{N}_i$
+      \[
+        \theta_i(t+\Delta t) = \operatorname{atan2}\!\Big(\textstyle\sum_{j\in\mathcal{N}_i}\sin\theta_j,\;
+        \sum_{j\in\mathcal{N}_i}\cos\theta_j\Big) + \Delta\theta_i
+      \]
+    \item \textbf{Votante}: copia la orientaci\'on de un \'unico vecino
+      elegido al azar
+      \[
+        \theta_i(t+\Delta t) = \theta_j(t) + \Delta\theta_i,\qquad
+        j \sim \mathcal{U}(\mathcal{N}_i)
+      \]
+  \end{itemize}
+
+  En ambos casos $\Delta\theta_i \sim \mathcal{U}(-\eta/2,\ \eta/2)$.
+\end{frame}
+
+\end{document}
