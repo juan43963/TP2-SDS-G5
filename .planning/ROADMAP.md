@@ -127,7 +127,17 @@ Plans:
   3. La presentación en PDF (≤13 minutos, sin animaciones embebidas, solo links explícitos) sigue el formato de `docs/GuiaPresentaciones.pdf`
   4. El .zip de código fuente contiene solo la versión final del motor de TP2 (sin historial, documentos ni outputs de simulaciones) y su tamaño es del orden de kb
 
-**Plans**: TBD
+**Plans**: 0/4 plans executed
+Plans:
+**Wave 1**
+
+- [ ] 05-01-PLAN.md — Benchmark CIM: TP1 (busqueda) vs TP2 (paso completo), grafico log-log + CSV (BENCH-01)
+
+**Wave 2** *(blocked on 05-01 completion)*
+
+- [ ] 05-02-PLAN.md — Informe LaTeX (informe.tex/pdf) con todas las figuras de Fase 3/4 + benchmark (DELIV-01)
+- [ ] 05-03-PLAN.md — Presentacion Beamer (presentacion.tex/pdf), frames de animacion + placeholder de link (DELIV-02)
+- [ ] 05-04-PLAN.md — Empaquetado del codigo final en TP2_codigo.zip con chequeo de tamano (DELIV-03)
 
 ## Progress
 
