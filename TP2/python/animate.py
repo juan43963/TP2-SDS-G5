@@ -202,6 +202,9 @@ def main():
         _selftest()
         return
 
+    if not TP2_BIN.exists():
+        sys.exit(f"error: no existe {TP2_BIN}. Correr `make` primero.")
+
     PLOTS_DIR.mkdir(parents=True, exist_ok=True)
     for model in ("vicsek", "voter"):
         eta_bias = ETA_BIAS_VICSEK if model == "vicsek" else ETA_BIAS_DEFAULT
