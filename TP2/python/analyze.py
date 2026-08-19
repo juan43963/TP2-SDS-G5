@@ -13,6 +13,7 @@ densidades del enunciado.
 
 import argparse
 import csv
+import math
 import sys
 from pathlib import Path
 
@@ -176,17 +177,29 @@ def plot_va_vs_S(rows: list[dict], out_path: Path = None):
     return ax
 
 
+def _round_half_away_from_zero(x: float) -> int:
+    """Redondeo half-away-from-zero, igual a `std::round` de C++ (TP2/src/main.cpp).
+
+    Python's builtin `round()` es half-to-even (banker's rounding), que puede
+    diverger de `std::round` para inputs que caen exactamente en `.5`. Esta
+    funcion replica la semantica de C++ para cualquier signo de `x`.
+    """
+    return math.floor(x + 0.5) if x >= 0 else math.ceil(x - 0.5)
+
+
 def compute_chi(rows: list[dict]) -> list[dict]:
     """chi(eta) = N * va_std^2 por fila, con N = round(rho * L_DEFAULT^2) (PLUS-01).
 
     Devuelve una lista NUEVA (no muta `rows`): cada elemento es una copia
     superficial de la fila original mas la clave "chi". va_std^2 ya es la
     varianza de va entre las K semillas (columna directa de summary.csv), asi
-    que no hace falta reabrir ningun log escalar por semilla.
+    que no hace falta reabrir ningun log escalar por semilla. `N` se redondea
+    con `_round_half_away_from_zero` (no el `round()` builtin de Python) para
+    coincidir con `std::round` usado por el binario C++ (TP2/src/main.cpp).
     """
     result = []
     for row in rows:
-        n = round(row["rho"] * L_DEFAULT ** 2)
+        n = _round_half_away_from_zero(row["rho"] * L_DEFAULT ** 2)
         chi_row = dict(row)
         chi_row["chi"] = n * (row["va_std"] ** 2)
         result.append(chi_row)
