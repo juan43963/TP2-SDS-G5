@@ -13,10 +13,10 @@ namespace {
 
 struct Options {
     double rho = 4.0;
-    int N = 0;       // 0 means: derive from rho (N = round(rho * L * L))
+    int N = -1;      // -1 means: derive from rho (N = round(rho * L * L))
     double L = 10.0;
     double rc = 1.0;
-    int M = 0;       // 0 means: derive via maxValidGridM(L, rc)
+    int M = -1;      // -1 means: derive via maxValidGridM(L, rc)
     int steps = 100;
     unsigned long long seed = 42;  // explicit constant, never time-seeded
     double v0 = 0.03;
@@ -87,6 +87,8 @@ Options parseArgs(int argc, char** argv) {
     }
 
     if (o.steps < 0) fail("--steps debe ser >= 0");
+    if (o.N != -1 && o.N < 0) fail("--N debe ser >= 0");
+    if (o.M != -1 && o.M < 1) fail("--M debe ser >= 1");
     return o;
 }
 
@@ -95,10 +97,10 @@ Options parseArgs(int argc, char** argv) {
 int main(int argc, char** argv) try {
     Options o = parseArgs(argc, argv);
 
-    if (o.N == 0) {
+    if (o.N < 0) {
         o.N = static_cast<int>(std::round(o.rho * o.L * o.L));
     }
-    if (o.M == 0) {
+    if (o.M < 0) {
         o.M = maxValidGridM(o.L, o.rc);
     }
 
