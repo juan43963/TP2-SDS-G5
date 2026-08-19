@@ -159,7 +159,23 @@ def explore_transition(model: str, rho: float, k_explore: int = K_EXPLORE,
         if means[i] >= va_threshold > means[i + 1]:
             return (coarse[i], coarse[i + 1])
 
-    # sin cruce detectado: fallback al bracket de mayor eta (totalmente desordenado)
+    # Sin cruce detectado en la grilla gruesa. Dos escenarios posibles:
+    #  - el sistema esta ordenado en todo el rango (means[0] arriba del umbral,
+    #    la transicion -- si existe -- esta mas alla de eta=2*pi): fallback de
+    #    alto eta.
+    #  - el sistema ya esta desordenado en eta=0 (means[0] por debajo del
+    #    umbral, tipico del votante tras solo STEPS_EXPLORE pasos: coarsening
+    #    lento, no garantiza va~1 en eta=0 como si lo hace Vicsek): la
+    #    transicion, si existe en un sentido util, esta cerca de eta=0, no de
+    #    eta=2*pi -- fallback de bajo eta en ese caso.
+    if means[0] < va_threshold:
+        print(f"advertencia: sin cruce detectado para model={model} rho={rho:g} "
+              f"(means[0]={means[0]:.3f} < umbral); usando fallback de bajo eta",
+              file=sys.stderr)
+        return (coarse[0], coarse[1])
+
+    print(f"advertencia: sin cruce detectado para model={model} rho={rho:g} "
+          f"(means[0]={means[0]:.3f}); usando fallback de alto eta", file=sys.stderr)
     return (coarse[-2], coarse[-1])
 
 
