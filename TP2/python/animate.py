@@ -112,7 +112,7 @@ def read_trajectory(path) -> list[tuple[float, np.ndarray]]:
 
 
 def render_animation(frames, out_path, L: float = L_DEFAULT, stride: int = FRAME_STRIDE,
-                      fps: int = FPS) -> None:
+                      fps: int = FPS, show: bool = False) -> None:
     """Renderiza `frames` como un GIF via PillowWriter (ffmpeg no disponible).
 
     Cada particula es un quiver de velocidad coloreado por su angulo de heading
@@ -150,6 +150,8 @@ def render_animation(frames, out_path, L: float = L_DEFAULT, stride: int = FRAME
 
     anim = animation.FuncAnimation(fig, update, frames=len(sampled), blit=False)
     anim.save(str(out_path), writer=animation.PillowWriter(fps=fps))
+    if show:
+        plt.show()
     plt.close(fig)
 
 
@@ -201,7 +203,7 @@ def main():
         traj_path, eta = run_characteristic(model, eta_bias=eta_bias)
         frames = read_trajectory(traj_path)
         out_path = PLOTS_DIR / f"animation_{model}_rho2.gif"
-        render_animation(frames, out_path)
+        render_animation(frames, out_path, show=args.show)
         print(f"animacion: model={model} eta={eta:.4f} (bias={eta_bias:g}) -> {out_path}")
 
 
