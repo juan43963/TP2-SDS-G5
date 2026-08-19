@@ -4,7 +4,8 @@ CXXFLAGS ?= -std=c++20 -O2 -Wall -Wextra -pedantic -Isrc/include
 BUILD := build
 SRC   := src
 
-CORE_SRC := $(SRC)/methods/cell_index_grid.cpp
+CORE_SRC := $(SRC)/methods/cell_index_grid.cpp \
+            $(SRC)/utils/generator.cpp
 CORE_OBJ := $(CORE_SRC:$(SRC)/%.cpp=$(BUILD)/%.o)
 
 .PHONY: all test clean

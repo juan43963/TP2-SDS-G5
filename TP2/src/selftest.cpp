@@ -3,10 +3,13 @@
 #include <string>
 #include <vector>
 
+#include "generator.h"
 #include "grid.h"
 #include "particle.h"
 
 namespace {
+
+constexpr double kPi = 3.14159265358979323846;
 
 int failures = 0;
 int checks = 0;
@@ -74,6 +77,88 @@ void testGridStructural() {
     }
 }
 
+NeighborList sorted(NeighborList list) {
+    for (std::vector<int>& row : list) std::sort(row.begin(), row.end());
+    return list;
+}
+
+NeighborList bruteForceReference(const std::vector<VicsekParticle>& particles, double L, double rc,
+                                 bool periodic) {
+    const int n = static_cast<int>(particles.size());
+    NeighborList result(static_cast<size_t>(n));
+    for (int i = 0; i < n; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            if (withinRadius(particles[static_cast<size_t>(i)], particles[static_cast<size_t>(j)], L, rc,
+                             periodic)) {
+                result[static_cast<size_t>(i)].push_back(j);
+                result[static_cast<size_t>(j)].push_back(i);
+            }
+        }
+    }
+    return result;
+}
+
+void testGenerator() {
+    const double L = 10.0;
+
+    const std::vector<VicsekParticle> a = generateVicsekParticles(50, L, 42);
+    const std::vector<VicsekParticle> b = generateVicsekParticles(50, L, 42);
+
+    check(a.size() == 50, "el generador deberia devolver N particulas");
+
+    bool badId = false, outside = false, identical = true;
+    for (size_t i = 0; i < a.size(); ++i) {
+        if (a[i].id != static_cast<int>(i)) badId = true;
+        if (a[i].x < 0.0 || a[i].x >= L || a[i].y < 0.0 || a[i].y >= L) outside = true;
+        if (a[i].theta < -kPi || a[i].theta >= kPi) outside = true;
+        if (a[i].x != b[i].x || a[i].y != b[i].y || a[i].theta != b[i].theta) identical = false;
+    }
+    check(!badId, "el id debe coincidir con el indice");
+    check(!outside, "x,y deben estar en [0,L) y theta en [-pi,pi)");
+    check(identical, "la misma semilla deberia dar la misma configuracion");
+}
+
+void testGridMatchesBruteForce() {
+    const double L = 10.0, rc = 1.0;
+    const int mMax = maxValidGridM(L, rc);
+
+    for (const int N : {10, 100}) {
+        for (const bool periodic : {false, true}) {
+            const std::vector<VicsekParticle> particles = generateVicsekParticles(N, L, 7);
+            const NeighborList expected = sorted(bruteForceReference(particles, L, rc, periodic));
+            const std::string bfCtx =
+                "fuerza bruta N=" + std::to_string(N) + (periodic ? " periodico" : " con paredes");
+            checkStructure(expected, bfCtx);
+
+            for (int M = 1; M <= mMax; ++M) {
+                const std::string ctx =
+                    "N=" + std::to_string(N) + " M=" + std::to_string(M) + (periodic ? " periodico" : " con paredes");
+                Grid grid(M, L, rc, periodic);
+                grid.rebuild(particles);
+                const NeighborList actual = sorted(grid.neighbors());
+                checkStructure(actual, ctx);
+                check(actual == expected, ctx + ": el grid no coincide con fuerza bruta");
+            }
+        }
+    }
+}
+
+void testGridPersistentBuffers() {
+    const double L = 10.0, rc = 1.0;
+    const int M = maxValidGridM(L, rc);
+    Grid grid(M, L, rc, false);
+
+    const std::vector<VicsekParticle> first = generateVicsekParticles(10, L, 1);
+    grid.rebuild(first);
+    const void* cellsPtr1 = static_cast<const void*>(grid.cells.data());
+
+    const std::vector<VicsekParticle> second = generateVicsekParticles(10, L, 2);
+    grid.rebuild(second);
+    const void* cellsPtr2 = static_cast<const void*>(grid.cells.data());
+
+    check(cellsPtr1 == cellsPtr2, "grid.cells no deberia reasignarse entre llamadas a rebuild()");
+}
+
 }  // namespace
 
 int main() {
@@ -81,6 +166,12 @@ int main() {
 
     std::printf("- estructura de la grilla persistente (CIM)\n");
     testGridStructural();
+    std::printf("- generador de particulas puntuales\n");
+    testGenerator();
+    std::printf("- grid == fuerza bruta para todo M valido\n");
+    testGridMatchesBruteForce();
+    std::printf("- buffers persistentes del grid entre llamadas a rebuild()\n");
+    testGridPersistentBuffers();
 
     std::printf("\n%d verificaciones, %d fallas\n", checks, failures);
     if (failures == 0) std::printf("OK\n");
