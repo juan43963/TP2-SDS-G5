@@ -77,7 +77,15 @@ Plans:
   3. Existe un criterio de ventana de estado estacionario documentado (por ejemplo corte fijo o detección de convergencia) y se aplica de forma idéntica al cálculo de va y de S
   4. Un CSV resumen agrega todas las corridas con media y desvío por punto (ρ, η, modelo) a partir de las K semillas, listo para graficar
 
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+**Wave 1**
+
+- [ ] 03-01-PLAN.md — Motor `--scalar-log` (t va S) + reproducibilidad core del driver (derive_seed, run_one, summarize_run) — incluye checkpoint de decisión sobre la fórmula de semilla
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 03-02-PLAN.md — Exploración de grilla η + barrido paralelo completo (multiprocessing) + agregación a CSV resumen
 
 ### Phase 4: Análisis, Gráficos y Animación
 
@@ -117,7 +125,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Motor y Grid Persistente | 2/2 | Complete    | 2026-08-18 |
 | 2. Modelos Vicsek y Votante | 2/2 | Complete    | 2026-08-18 |
-| 3. Barrido Paramétrico y Estadística | 0/TBD | Not started | - |
+| 3. Barrido Paramétrico y Estadística | 0/2 | Not started | - |
 | 4. Análisis, Gráficos y Animación | 0/TBD | Not started | - |
 | 5. Benchmark y Entregables | 0/TBD | Not started | - |
 
