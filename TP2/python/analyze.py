@@ -218,9 +218,45 @@ def plot_chi_eta(rows_with_chi: list[dict], out_path: Path = None):
     return ax
 
 
+ETA_C_TABLE_CSV = PLOTS_DIR / "eta_c_table.csv"
+
+
+def compute_eta_c_table(rows_with_chi: list[dict]) -> list[dict]:
+    """eta_c(rho) por (model,rho): eta del maximo de chi sobre la grilla ya muestreada (PLUS-03).
+
+    Argmax puro sobre la grilla ya muestreada -- sin interpolacion ni ajuste
+    de curva adicional. Empates de chi se rompen por el eta mas chico, para
+    que el resultado sea deterministico.
+    """
+    groups: dict[tuple, list[dict]] = {}
+    for r in rows_with_chi:
+        groups.setdefault((r["model"], r["rho"]), []).append(r)
+
+    table = []
+    for (model, rho), group in groups.items():
+        best = max(group, key=lambda r: (r["chi"], -r["eta"]))
+        table.append({"model": model, "rho": rho, "eta_c": best["eta"]})
+    table.sort(key=lambda r: (r["model"], r["rho"]))
+    return table
+
+
+def write_eta_c_table(table: list[dict], out_path: Path = ETA_C_TABLE_CSV) -> None:
+    """Persiste eta_c_table.csv con columnas model,rho,eta_c.
+
+    Misma convencion csv.DictWriter + fieldnames fijos + writeheader() que
+    aggregate_to_csv/write_failures_csv en sweep.py.
+    """
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = ["model", "rho", "eta_c"]
+    with open(out_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(table)
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Graficos va(eta), S(eta), chi(eta) y va-vs-S del barrido de tp2"
+        description="Graficos va(eta), S(eta), chi(eta), va-vs-S y tabla eta_c(rho) del barrido de tp2"
     )
     parser.add_argument("--show", action="store_true",
                         help="abrir ventana interactiva en vez de guardar los PNG")
@@ -241,6 +277,10 @@ def main():
     rows_chi = compute_chi(rows)
     plot_chi_eta(rows_chi)
     print(f"grafico: {PLOTS_DIR / 'chi_eta.png'}")
+
+    table = compute_eta_c_table(rows_chi)
+    write_eta_c_table(table)
+    print(f"tabla: {ETA_C_TABLE_CSV} ({len(table)} filas)")
 
     if args.show:
         plt.show()
