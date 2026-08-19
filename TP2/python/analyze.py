@@ -32,6 +32,8 @@ PLOTS_DIR = TP2_DIR / "data" / "plots"
 # eta_c(rho)) que reusan constantes de sweep.py como L_DEFAULT.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from sweep import L_DEFAULT
+
 # Paleta: color por modelo (para graficos de evolucion temporal de otros
 # planes de esta fase) y color+marcador por densidad (para los graficos
 # va(eta)/S(eta)/va-vs-S de este plan). Convencion SCREAMING_SNAKE_CASE a
@@ -168,9 +170,57 @@ def plot_va_vs_S(rows: list[dict], out_path: Path = None):
     return ax
 
 
+def compute_chi(rows: list[dict]) -> list[dict]:
+    """chi(eta) = N * va_std^2 por fila, con N = round(rho * L_DEFAULT^2) (PLUS-01).
+
+    Devuelve una lista NUEVA (no muta `rows`): cada elemento es una copia
+    superficial de la fila original mas la clave "chi". va_std^2 ya es la
+    varianza de va entre las K semillas (columna directa de summary.csv), asi
+    que no hace falta reabrir ningun log escalar por semilla.
+    """
+    result = []
+    for row in rows:
+        n = round(row["rho"] * L_DEFAULT ** 2)
+        chi_row = dict(row)
+        chi_row["chi"] = n * (row["va_std"] ** 2)
+        result.append(chi_row)
+    return result
+
+
+def plot_chi_eta(rows_with_chi: list[dict], out_path: Path = None):
+    """chi(eta), 6 series: 3 densidades x 2 modelos. Sin barras de error.
+
+    Misma estructura de agrupado/orden/color/linestyle/marker que
+    plot_va_eta/plot_S_eta, pero chi es un punto derivado (no hay desvio de
+    chi en summary.csv), asi que se grafica con una linea simple (ax.plot),
+    no ax.errorbar.
+    """
+    if out_path is None:
+        out_path = PLOTS_DIR / "chi_eta.png"
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    groups = _group_by_model_rho(rows_with_chi)
+    for (model, rho), group in sorted(groups.items()):
+        etas = [r["eta"] for r in group]
+        chi = [r["chi"] for r in group]
+        linestyle = LINESTYLE_VICSEK if model == "vicsek" else LINESTYLE_VOTER
+        ax.plot(etas, chi, color=RHO_COLORS[rho], linestyle=linestyle,
+                marker=RHO_MARKERS[rho], label=f"{model} rho={rho:g}")
+    ax.set_xlabel("eta")
+    ax.set_ylabel("chi = N*va_std^2")
+    ax.set_title("Susceptibilidad chi vs ruido eta")
+    ax.legend(fontsize=9)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if "--show" not in sys.argv:
+        fig.savefig(out_path, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    return ax
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Graficos va(eta), S(eta) y va-vs-S del barrido de tp2"
+        description="Graficos va(eta), S(eta), chi(eta) y va-vs-S del barrido de tp2"
     )
     parser.add_argument("--show", action="store_true",
                         help="abrir ventana interactiva en vez de guardar los PNG")
@@ -187,6 +237,10 @@ def main():
     print(f"grafico: {PLOTS_DIR / 'S_eta.png'}")
     plot_va_vs_S(rows)
     print(f"grafico: {PLOTS_DIR / 'va_vs_S.png'}")
+
+    rows_chi = compute_chi(rows)
+    plot_chi_eta(rows_chi)
+    print(f"grafico: {PLOTS_DIR / 'chi_eta.png'}")
 
     if args.show:
         plt.show()
