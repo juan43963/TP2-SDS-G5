@@ -26,13 +26,14 @@ Producir las curvas y gráficos correctos (polarización va, fracción del clust
 - ✓ Modelo de votante (copia self-inclusive de un vecino al azar + el mismo ruido η que Vicsek) — Phase 2
 - ✓ Salida de posiciones y velocidades reales (vx,vy) por timestep en texto, append-mode, desacoplada del módulo de animación — Phase 2
 - ✓ Cálculo de clusters (componentes conexas sobre la adyacencia del CIM) y de S = fracción del cluster más grande — Phase 2
+- ✓ Barrido reproducible sobre ρ ∈ {2,4,8} × grilla de η (gruesa + fina cerca de la transición, localizada vía mini-barrido exploratorio) × {vicsek, voter} × K≥5 semillas, con semilla determinística (sha256 de model|rho|eta|repeat_index) nunca por reloj — Phase 3
+- ✓ Log escalar (t, va, S) por timestep para corridas de barrido (`--scalar-log`), sin volcar posiciones/velocidades completas — Phase 3
+- ✓ Criterio de estado estacionario (corte fijo del primer X% de pasos como transitorio) documentado y aplicado idénticamente a va y a S — Phase 3
+- ✓ CSV resumen con media±desvío por punto (ρ, η, modelo) agregando las K semillas, listo para graficar — Phase 3
 
 ### Active
 
-- [ ] Soporte para las tres densidades del enunciado: ρ = 2, 4, 8 (N = ρ·L²)
-- [ ] Barrido del parámetro de ruido η para cada densidad y cada modelo
 - [ ] Módulo de animación en Python que lee el texto de salida y colorea los vectores de velocidad según el ángulo
-- [ ] Determinación de la ventana temporal de estado estacionario (el cálculo de va(t) en sí ya está disponible desde Phase 2, falta la detección de la ventana + el log escalar t,va,S para el barrido)
 - [ ] Gráfico de evolución temporal de va con línea vertical marcando el inicio del estacionario
 - [ ] Gráfico va vs η con barras de error, para las tres densidades
 - [ ] Gráfico de evolución temporal de S para las tres densidades
@@ -73,7 +74,9 @@ Producir las curvas y gráficos correctos (polarización va, fracción del clust
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Binario nuevo en `TP2/` que reusa el CIM de TP1, en vez de extender TP1 in-place o extraer una lib compartida | Mantiene TP1 intacto como entrega separada mientras reaprovecha código ya probado | Validated in Phase 1 — `tp2`/`tp2_test` compilan y corren independientes de TP1; `git diff --stat -- TP1/` vacío en las 5 commits de la fase |
-| Construir primero el motor completo (ambos modelos, validado con una corrida) y recién después el barrido paramétrico completo | Reduce el riesgo de escalar cómputo sobre un motor incorrecto, dado el plazo ajustado | Validated in Phase 2 — ambos modelos corren y muestran va(t) creciente en una corrida individual; el barrido (Phase 3) todavía no arrancó |
+| Construir primero el motor completo (ambos modelos, validado con una corrida) y recién después el barrido paramétrico completo | Reduce el riesgo de escalar cómputo sobre un motor incorrecto, dado el plazo ajustado | Validated in Phase 2 — ambos modelos corren y muestran va(t) creciente en una corrida individual; barrido completo en Phase 3 |
+| Semilla determinística vía sha256(model\|rho\|eta\|repeat_index) en vez de índices bit-packeados | Decorrelación limpia entre valores de η casi idénticos, sin invariante de cuantización de η que mantener sincronizado con la grilla exploratoria | Validated in Phase 3 — decisión tomada en checkpoint humano bloqueante; `TP2/python/sweep.py::derive_seed` |
+| Grilla de η localizada vía mini-barrido exploratorio (baja resolución, K=1-2) antes de la grilla fina completa | La ubicación real de la transición orden-desorden solo se conoce después de explorar; evita desperdiciar cómputo en una grilla fija mal ubicada | Validated in Phase 3 — `explore_transition`/`build_eta_grid` detectan el bracket de transición a partir de corridas reales de `tp2` |
 
 ## Evolution
 
@@ -93,4 +96,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-18 after Phase 2 (modelos-vicsek-y-votante) completion*
+*Last updated: 2026-08-19 after Phase 3 (barrido-param-trico-y-estad-stica) completion*
