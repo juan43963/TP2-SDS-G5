@@ -215,6 +215,29 @@ void testSynchronousUpdateNoBias() {
     }
 }
 
+void testLongRunStaysWrapped() {
+    // 5000-step run under periodic boundary conditions: every particle's
+    // position must remain strictly inside [0, L) after every single step,
+    // not just checked at the end (PITFALLS.md Pitfall 3).
+    const double L = 10.0, rc = 1.0;
+    const int M = maxValidGridM(L, rc);
+
+    std::vector<VicsekParticle> particles = generateVicsekParticles(50, L, 123);
+    Simulation sim(std::move(particles), L, rc, /*v0=*/0.5, /*dt=*/1.0, M, /*periodic=*/true);
+
+    bool everyStepWrapped = true;
+    for (int step = 0; step < 5000; ++step) {
+        sim.step();
+        for (const VicsekParticle& p : sim.particles()) {
+            if (!(p.x >= 0.0 && p.x < L && p.y >= 0.0 && p.y < L)) {
+                everyStepWrapped = false;
+            }
+        }
+    }
+    check(everyStepWrapped,
+          "5000 pasos bajo PBC: todas las posiciones deben permanecer en [0, L)");
+}
+
 }  // namespace
 
 int main() {
@@ -230,6 +253,8 @@ int main() {
     testGridPersistentBuffers();
     std::printf("- actualizacion sincronica double-buffered (sin sesgo de orden)\n");
     testSynchronousUpdateNoBias();
+    std::printf("- posiciones permanecen en [0,L) tras 5000 pasos con PBC\n");
+    testLongRunStaysWrapped();
 
     std::printf("\n%d verificaciones, %d fallas\n", checks, failures);
     if (failures == 0) std::printf("OK\n");

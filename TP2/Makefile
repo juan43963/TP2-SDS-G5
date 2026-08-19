@@ -11,8 +11,10 @@ CORE_OBJ := $(CORE_SRC:$(SRC)/%.cpp=$(BUILD)/%.o)
 
 .PHONY: all test clean
 
-# El binario `tp2` (motor completo con main.cpp) se agrega en el Plan 02.
-all: tp2_test
+all: tp2 tp2_test
+
+tp2: $(CORE_OBJ) $(BUILD)/main.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 tp2_test: $(CORE_OBJ) $(BUILD)/selftest.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
