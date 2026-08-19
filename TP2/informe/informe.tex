@@ -318,20 +318,28 @@ notar que ambas series miden magnitudes distintas: la serie de TP1 mide
 exclusivamente el tiempo de la búsqueda de vecinos (\texttt{computeCIM}), mientras
 que la serie de TP2 mide el tiempo de un paso completo del motor (reconstrucción
 de la grilla persistente + búsqueda de vecinos + integración de posiciones y
-orientaciones de todas las partículas) -- por eso la curva de TP2 se ubica
+orientaciones de todas las partículas + escritura del frame de trayectoria a
+\texttt{/dev/null}, ya que \texttt{tp2} no expone un flag para omitir esa
+escritura durante el benchmark) -- por eso la curva de TP2 se ubica
 sistemáticamente por encima de la de TP1 en todo el rango de $N$, sin que eso
-implique una regresión del CIM en sí. Ambas curvas muestran, en escala log-log, un
-crecimiento con $N$ de pendiente similar, lo que indica que el costo adicional del
-paso completo de TP2 (rebuild + integración) escala de forma consistente con la
-búsqueda de vecinos del CIM y no introduce un cambio de orden de complejidad
-respecto de lo ya observado en TP1.
+implique una regresión del CIM en sí. Además, ambas series se miden a
+densidades distintas: TP1 usa el $L=20$ fijo de su propio script de benchmark
+(\texttt{TP1/python/benchmark.py}, no modificado), mientras que TP2 usa
+$L=10$, el valor por defecto de este trabajo, por lo que la comparación no es
+estrictamente a igual densidad de partículas. Ambas curvas muestran, en
+escala log-log, un crecimiento con $N$ de pendiente similar, lo que indica que
+el costo adicional del paso completo de TP2 (rebuild + integración +
+escritura) escala de forma consistente con la búsqueda de vecinos del CIM y no
+introduce un cambio de orden de complejidad respecto de lo ya observado en
+TP1.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.85\textwidth]{benchmark_tp1_vs_tp2.png}
   \caption{Tiempo de cómputo por operación vs. número de partículas $N$ (escala
-    log-log): búsqueda de vecinos del CIM (TP1) vs. paso completo del motor
-    (TP2). Magnitudes distintas, no directamente comparables en valor absoluto.}
+    log-log): búsqueda de vecinos del CIM (TP1, $L=20$) vs. paso completo del
+    motor incl. escritura de trayectoria (TP2, $L=10$). Magnitudes y
+    densidades distintas, no directamente comparables en valor absoluto.}
   \label{fig:benchmark}
 \end{figure}
 
@@ -359,10 +367,11 @@ pérdida de polarización y la fragmentación de la red en más de un cluster gr
 Finalmente, el benchmark de tiempos confirma que el motor de TP2 preserva el
 comportamiento de escalado del Cell Index Method reutilizado de TP1: aunque el
 paso completo de TP2 es más costoso en términos absolutos que la búsqueda pura de
-vecinos de TP1 (por incluir además la reconstrucción de la grilla y la
-integración), ambas series crecen con $N$ con una pendiente similar en escala
-log-log, sin degradación de complejidad al integrar el CIM dentro del motor
-dinámico completo.
+vecinos de TP1 (por incluir además la reconstrucción de la grilla, la
+integración y la escritura de trayectoria, y por medirse a una densidad mayor,
+$L=10$ contra el $L=20$ de TP1), ambas series crecen con $N$ con una pendiente
+similar en escala log-log, sin degradación de complejidad al integrar el CIM
+dentro del motor dinámico completo.
 
 \section*{Referencias}
 
