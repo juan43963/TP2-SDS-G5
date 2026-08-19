@@ -127,7 +127,7 @@ Plans:
   3. La presentación en PDF (≤13 minutos, sin animaciones embebidas, solo links explícitos) sigue el formato de `docs/GuiaPresentaciones.pdf`
   4. El .zip de código fuente contiene solo la versión final del motor de TP2 (sin historial, documentos ni outputs de simulaciones) y su tamaño es del orden de kb
 
-**Plans**: 1/4 plans executed
+**Plans**: 2/4 plans executed
 Plans:
 **Wave 1**
 
@@ -135,7 +135,7 @@ Plans:
 
 **Wave 2** *(blocked on 05-01 completion)*
 
-- [ ] 05-02-PLAN.md — Informe LaTeX (informe.tex/pdf) con todas las figuras de Fase 3/4 + benchmark (DELIV-01)
+- [x] 05-02-PLAN.md — Informe LaTeX (informe.tex/pdf) con todas las figuras de Fase 3/4 + benchmark (DELIV-01)
 - [ ] 05-03-PLAN.md — Presentacion Beamer (presentacion.tex/pdf), frames de animacion + placeholder de link (DELIV-02)
 - [ ] 05-04-PLAN.md — Empaquetado del codigo final en TP2_codigo.zip con chequeo de tamano (DELIV-03)
 
@@ -150,7 +150,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Modelos Vicsek y Votante | 2/2 | Complete    | 2026-08-18 |
 | 3. Barrido Paramétrico y Estadística | 2/2 | Complete    | 2026-08-19 |
 | 4. Análisis, Gráficos y Animación | 4/4 | Complete    | 2026-08-19 |
-| 5. Benchmark y Entregables | 1/4 | In Progress|  |
+| 5. Benchmark y Entregables | 2/4 | In Progress|  |
 
 ---
 *Roadmap created: 2026-08-18*
