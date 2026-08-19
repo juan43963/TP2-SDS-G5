@@ -36,13 +36,14 @@ Producir las curvas y gráficos correctos (polarización va, fracción del clust
 - ✓ Gráfico va vs S distinguiendo las tres densidades — Phase 4
 - ✓ Susceptibilidad χ(η) = N·va_std² y tabla comparativa η_c(ρ) (máximo de χ sobre la grilla muestreada), derivadas directamente de `summary.csv` — Phase 4
 - ✓ Formación de bandas/inhomogeneidad de densidad visible en la animación característica de Vicsek a ρ=2 (η sesgado hacia el borde ordenado del bracket de transición) — Phase 4
+- ✓ Medición de tiempos de ejecución del CIM (TP2/python/benchmark.py) para el mismo N-sweep que TP1, con divulgación explícita de las diferencias metodológicas (TP2 mide paso completo con I/O, TP1 mide búsqueda pura; L=20 en TP1 vs L=10 en TP2) — Phase 5
+- ✓ Informe (PDF, `TP2/informe/informe.pdf`, 9 páginas) en LaTeX con el formato de `docs/GuiaInformes.pdf` — secciones Introducción/Modelo/Implementación/Simulaciones/Resultados/Conclusiones/Referencias, notación matemática correcta, figuras con datos reales — Phase 5
+- ✓ Presentación (PDF, `TP2/presentacion/presentacion.pdf`, 17 diapositivas) en LaTeX Beamer con el formato de `docs/GuiaPresentaciones.pdf` — sin animaciones embebidas, frames estáticos + placeholder explícito de link de video — Phase 5
+- ✓ Código fuente en `TP2_codigo.zip` (raíz del repo, 34.8KB) — solo `TP2/src/`, `TP2/Makefile`, `TP2/python/*.py`, sin datos/historial/binarios/documentos — Phase 5
 
 ### Active
 
-- [ ] Medición de tiempos de ejecución del CIM para N comparables a TP1 y comparación con los tiempos de TP1
-- [ ] Informe (PDF) con el formato de `docs/GuiaInformes.pdf`
-- [ ] Presentación (PDF, ≤13 min, sin animaciones embebidas) con el formato de `docs/GuiaPresentaciones.pdf`
-- [ ] Código fuente en .zip — solo la versión final del motor de simulación, sin historial ni outputs
+Ninguno — todos los requirements v1 (31/31) están validados. Quedan dos pasos manuales fuera del alcance de este pipeline automático (ver Contexto): subir las animaciones a YouTube/Drive y pegar los links reales en `presentacion.tex`/`.pdf`, y la revisión final humana de informe/presentación antes de la entrega real al campus el 04/09/2026.
 
 ### Out of Scope
 
@@ -78,6 +79,8 @@ Producir las curvas y gráficos correctos (polarización va, fracción del clust
 | Grilla de η localizada vía mini-barrido exploratorio (baja resolución, K=1-2) antes de la grilla fina completa | La ubicación real de la transición orden-desorden solo se conoce después de explorar; evita desperdiciar cómputo en una grilla fija mal ubicada | Validated in Phase 3 — `explore_transition`/`build_eta_grid` detectan el bracket de transición a partir de corridas reales de `tp2` |
 | Animación en GIF (PillowWriter) en vez de MP4 (ffmpeg) | ffmpeg no está instalado en el entorno de desarrollo; Pillow sí, sin nueva dependencia | Validated in Phase 4 — ambas animaciones (`animation_vicsek_rho2.gif`, `animation_voter_rho2.gif`) generadas y verificadas visualmente |
 | η de la animación característica de Vicsek sesgado hacia el borde ordenado del bracket de transición (`eta_low + 0.15*(eta_high-eta_low)`), no el punto medio | El punto medio del bracket cayó del lado desordenado y no mostró bandas en la QA visual del checkpoint; el régimen de bandas clásico de Vicsek aparece cerca del borde ordenado de la transición | Validated in Phase 4 — checkpoint humano de QA visual confirmó formación de bandas tras el ajuste; verificado independientemente en la fase de verificación |
+| Pipeline automático completo para Fase 5 (benchmark + informe + presentación + .zip) con placeholder de texto explícito para los links de video, en vez de detenerse a pedir que el usuario suba los videos primero | El usuario decidió explícitamente priorizar velocidad dado el plazo ajustado; subir video a YouTube/Drive requiere una acción humana que no se puede automatizar, así que se deja un placeholder claro y una revisión final humana pendiente | Validated in Phase 5 — informe y presentación completos y verificados salvo por los 2 links de video (marcados con `[PEGAR LINK DE VIDEO AQUI]`) |
+| Benchmark del CIM vía timing externo (wall-clock de Python alrededor de `tp2 --steps`) en vez de agregar un flag `--csv`/`--bench` al motor C++ | Evita tocar `TP2/src/main.cpp` solo para benchmarking; mide el costo real de un paso completo tal como lo experimenta el usuario | Validated in Phase 5 — `TP2/python/benchmark.py`, con divulgación explícita de que esto incluye I/O (a diferencia de TP1) y de la diferencia de geometría (L=20 vs L=10) |
 
 ## Evolution
 
@@ -97,4 +100,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-19 after Phase 4 (an-lisis-gr-ficos-y-animaci-n) completion*
+*Last updated: 2026-08-19 after Phase 5 (benchmark-y-entregables) completion — todas las 5 fases del roadmap v1.0 completas, 31/31 requirements validados. Quedan pendientes solo los dos pasos manuales fuera de alcance: subir animaciones a YouTube/Drive + pegar links reales en la presentación, y la revisión final humana de informe/presentación antes de la entrega al campus (04/09/2026 13hs).*
