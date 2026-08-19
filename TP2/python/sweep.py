@@ -1,22 +1,30 @@
 #!/usr/bin/env python3
 """Driver de barrido parametrico para tp2 (Vicsek/Votante) -- Fase 3.
 
-Nucleo de reproducibilidad del barrido: semilla determinista derivada de
-(rho, eta, model, repeat_index), layout de archivos de salida por corrida,
-una corrida individual (run_one) y el resumen de estado estacionario
-(summarize_run) aplicado identicamente a va y a S.
+Nucleo de reproducibilidad del barrido (plan 03-01): semilla determinista
+derivada de (rho, eta, model, repeat_index), layout de archivos de salida
+por corrida, una corrida individual (run_one) y el resumen de estado
+estacionario (summarize_run) aplicado identicamente a va y a S.
 
-La orquestacion completa del barrido (grilla de eta exploratoria/fina,
-ejecucion paralela sobre multiprocessing.Pool, agregacion a CSV) se agrega
-en el plan 03-02 sobre estas mismas funciones, sin modificarlas.
+Orquestacion completa del barrido (plan 03-02, sobre las mismas funciones,
+sin modificarlas): mini-barrido exploratorio de baja resolucion para ubicar
+la transicion orden-desorden por (model, rho), grilla de eta gruesa-lejos +
+fina-cerca, ejecucion paralela del grid completo via un pool de procesos
+con aislamiento de fallos por combinacion, y agregacion K-semillas -> CSV.
 
     python3 python/sweep.py --selftest    # corre las verificaciones internas
+    python3 python/sweep.py               # corre el barrido completo por defecto
 """
 
 import argparse
+import csv
 import hashlib
+import math
+import multiprocessing
+import os
 import statistics
 import subprocess
+import sys
 from pathlib import Path
 
 TP2_DIR = Path(__file__).resolve().parent.parent
@@ -28,6 +36,14 @@ L_DEFAULT = 10.0
 DEFAULT_STEPS = 2000
 STEADY_STATE_FRACTION = 0.5  # descarta la primera mitad de los pasos como transitorio
 DEFAULT_K_SEEDS = 5  # minimo de semillas por punto (SWEEP-03)
+
+COARSE_ETA_POINTS = 9  # grilla gruesa global: 9 puntos espaciados pi/4 en [0, 2*pi]
+FINE_ETA_POINTS = 8  # puntos extra insertados dentro del bracket de transicion detectado
+K_EXPLORE = 2  # semillas por punto del mini-barrido exploratorio
+STEPS_EXPLORE = 500  # pasos por corrida del mini-barrido exploratorio
+VA_THRESHOLD = 0.5  # umbral de va usado para ubicar el cruce orden-desorden
+DEFAULT_RHOS = [2.0, 4.0, 8.0]  # densidades del enunciado (SWEEP-01)
+DEFAULT_MODELS = ["vicsek", "voter"]
 
 
 def derive_seed(rho: float, eta: float, model: str, repeat_index: int) -> int:
@@ -106,6 +122,129 @@ def summarize_run(log_path: Path, steady_fraction: float = STEADY_STATE_FRACTION
     )
 
 
+def build_coarse_eta_grid() -> list[float]:
+    """Grilla gruesa global: COARSE_ETA_POINTS puntos espaciados en [0, 2*pi]."""
+    return [i * (2.0 * math.pi) / (COARSE_ETA_POINTS - 1) for i in range(COARSE_ETA_POINTS)]
+
+
+def explore_transition(model: str, rho: float, k_explore: int = K_EXPLORE,
+                        steps_explore: int = STEPS_EXPLORE,
+                        va_threshold: float = VA_THRESHOLD) -> tuple[float, float]:
+    """Mini-barrido exploratorio de baja resolucion (SWEEP-02).
+
+    Corre la grilla gruesa de eta con pocas semillas/pasos por punto y
+    devuelve el bracket [eta_low, eta_high] donde la va media de estado
+    estacionario cruza por debajo de va_threshold por primera vez, ubicado
+    de forma independiente para cada (model, rho).
+    """
+    coarse = build_coarse_eta_grid()
+    means = []
+    for eta in coarse:
+        va_means = []
+        for repeat_index in range(k_explore):
+            seed = derive_seed(rho, eta, model, repeat_index)
+            log_path = run_one(model, rho, eta, seed, steps=steps_explore)
+            va_mean, _ = summarize_run(log_path)
+            va_means.append(va_mean)
+        means.append(statistics.mean(va_means))
+
+    for i in range(len(coarse) - 1):
+        if means[i] >= va_threshold > means[i + 1]:
+            return (coarse[i], coarse[i + 1])
+
+    # sin cruce detectado: fallback al bracket de mayor eta (totalmente desordenado)
+    return (coarse[-2], coarse[-1])
+
+
+def build_eta_grid(eta_low: float, eta_high: float) -> list[float]:
+    """Grilla combinada: gruesa global + fina dentro del bracket de transicion.
+
+    Mas resolucion cerca de la transicion orden-desorden que en el resto del
+    rango, deduplicada y ordenada (redondeada para evitar duplicados por
+    ruido de punto flotante).
+    """
+    coarse = build_coarse_eta_grid()
+    fine = [eta_low + i * (eta_high - eta_low) / (FINE_ETA_POINTS - 1) for i in range(FINE_ETA_POINTS)]
+    return sorted({round(e, 6) for e in coarse + fine})
+
+
+def _run_and_summarize(args: tuple) -> dict:
+    """Worker picklable a nivel de modulo para el pool de procesos de run_sweep.
+
+    `args` desempaqueta a (model, rho, eta, repeat_index, steps). Nunca deja
+    propagar una excepcion cruzando el limite del pool -- una combinacion
+    fallida se devuelve como dict "ok"=False en vez de abortar el resto del
+    barrido (SWEEP-01, "log y continuar").
+    """
+    model, rho, eta, repeat_index, steps = args
+    seed = derive_seed(rho, eta, model, repeat_index)
+    try:
+        log_path = run_one(model, rho, eta, seed, steps=steps)
+        va_mean, s_mean = summarize_run(log_path)
+        return {"ok": True, "model": model, "rho": rho, "eta": eta, "seed": seed,
+                "va_mean": va_mean, "S_mean": s_mean}
+    except Exception as exc:
+        return {"ok": False, "model": model, "rho": rho, "eta": eta, "seed": seed,
+                "error": str(exc)}
+
+
+def run_sweep(tasks: list, steps: int = DEFAULT_STEPS, workers: int | None = None
+              ) -> tuple[list, list]:
+    """Ejecuta todas las combinaciones (model,rho,eta,repeat_index) en paralelo.
+
+    `tasks` es una lista de tuplas (model, rho, eta, repeat_index). Devuelve
+    (results, failures): una combinacion fallida cae en `failures` sin
+    abortar el pool ni descartar el resto de los resultados.
+    """
+    workers = workers or os.cpu_count() or 1
+    args = [(model, rho, eta, repeat_index, steps) for (model, rho, eta, repeat_index) in tasks]
+    with multiprocessing.Pool(workers) as pool:
+        raw = pool.map(_run_and_summarize, args)
+    results = [r for r in raw if r["ok"]]
+    failures = [r for r in raw if not r["ok"]]
+    return results, failures
+
+
+def aggregate_to_csv(results: list, csv_path: Path) -> None:
+    """Agrega resultados por (model,rho,eta): media +/- desvio sobre las K semillas."""
+    groups: dict[tuple, list[dict]] = {}
+    for r in results:
+        key = (r["model"], r["rho"], r["eta"])
+        groups.setdefault(key, []).append(r)
+
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = ["model", "rho", "eta", "va_mean", "va_std", "S_mean", "S_std", "n_seeds"]
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for key in sorted(groups):
+            model, rho, eta = key
+            group = groups[key]
+            n = len(group)
+            va_values = [g["va_mean"] for g in group]
+            s_values = [g["S_mean"] for g in group]
+            writer.writerow({
+                "model": model,
+                "rho": rho,
+                "eta": f"{eta:.6f}",
+                "va_mean": statistics.mean(va_values),
+                "va_std": statistics.stdev(va_values) if n >= 2 else 0.0,
+                "S_mean": statistics.mean(s_values),
+                "S_std": statistics.stdev(s_values) if n >= 2 else 0.0,
+                "n_seeds": n,
+            })
+
+
+def write_failures_csv(failures: list, csv_path: Path) -> None:
+    """Persiste las combinaciones fallidas: model,rho,eta,seed,error."""
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = ["model", "rho", "eta", "seed", "error"]
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows({k: r[k] for k in fieldnames} for r in failures)
+
+
 def _selftest():
     """Verificaciones internas -- convencion sin framework, analoga a selftest.cpp."""
     # 1. determinismo: misma entrada -> misma semilla.
@@ -175,11 +314,53 @@ def main():
     )
     parser.add_argument("--selftest", action="store_true",
                         help="corre las verificaciones internas y sale")
+    parser.add_argument("--rhos", type=float, nargs="+", default=DEFAULT_RHOS,
+                        help=f"densidades a barrer (default {DEFAULT_RHOS})")
+    parser.add_argument("--models", nargs="+", default=DEFAULT_MODELS,
+                        choices=["vicsek", "voter"],
+                        help=f"modelos a barrer (default {DEFAULT_MODELS})")
+    parser.add_argument("--k-seeds", type=int, default=DEFAULT_K_SEEDS,
+                        help=f"semillas por punto del barrido completo (default {DEFAULT_K_SEEDS}, SWEEP-03)")
+    parser.add_argument("--steps", type=int, default=DEFAULT_STEPS,
+                        help=f"pasos por corrida del barrido completo (default {DEFAULT_STEPS})")
+    parser.add_argument("--k-explore", type=int, default=K_EXPLORE,
+                        help=f"semillas por punto del mini-barrido exploratorio (default {K_EXPLORE})")
+    parser.add_argument("--steps-explore", type=int, default=STEPS_EXPLORE,
+                        help=f"pasos por corrida del mini-barrido exploratorio (default {STEPS_EXPLORE})")
+    parser.add_argument("--workers", type=int, default=None,
+                        help="procesos en paralelo del pool (default: os.cpu_count())")
+    parser.add_argument("--out", type=Path, default=SWEEP_DATA_DIR / "summary.csv",
+                        help="ruta del CSV resumen final (default data/sweep/summary.csv)")
     args = parser.parse_args()
 
     if args.selftest:
         _selftest()
         return
+
+    if not TP2_BIN.exists():
+        sys.exit(f"error: no existe {TP2_BIN}. Correr `make` primero.")
+
+    tasks = []
+    for model in args.models:
+        for rho in args.rhos:
+            eta_low, eta_high = explore_transition(
+                model, rho, k_explore=args.k_explore, steps_explore=args.steps_explore
+            )
+            print(f"exploracion: model={model} rho={rho:g} -> "
+                  f"bracket [{eta_low:.4f}, {eta_high:.4f}]")
+            eta_grid = build_eta_grid(eta_low, eta_high)
+            for eta in eta_grid:
+                for repeat_index in range(args.k_seeds):
+                    tasks.append((model, rho, eta, repeat_index))
+
+    results, failures = run_sweep(tasks, steps=args.steps, workers=args.workers)
+    aggregate_to_csv(results, args.out)
+    print(f"resumen: {args.out} ({len(results)} corridas OK)")
+
+    if failures:
+        failures_path = args.out.parent / "failures.csv"
+        write_failures_csv(failures, failures_path)
+        print(f"advertencia: {len(failures)} corridas fallaron, detalle en {failures_path}")
 
 
 if __name__ == "__main__":
