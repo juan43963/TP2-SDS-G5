@@ -13,7 +13,7 @@ El proyecto se construye como capas horizontales completas, no como slices verti
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Motor y Grid Persistente** - Partícula con orientación/velocidad, CIM persistente sin reconstrucción por paso, wrap PBC correcto, binario nuevo en TP2/ sin tocar TP1/
+- [x] **Phase 1: Motor y Grid Persistente** - Partícula con orientación/velocidad, CIM persistente sin reconstrucción por paso, wrap PBC correcto, binario nuevo en TP2/ sin tocar TP1/ (completed 2026-08-18)
 - [ ] **Phase 2: Modelos Vicsek y Votante** - Ambos modelos de interacción corriendo sobre el mismo motor (loop sincrónico double-buffered), con clustering/S y output real de posiciones+velocidades por timestep
 - [ ] **Phase 3: Barrido Paramétrico y Estadística** - Barrido reproducible de ρ×η×modelo×semilla con logging escalar y criterio documentado de estado estacionario
 - [ ] **Phase 4: Análisis, Gráficos y Animación** - Todos los gráficos requeridos (va(t), va(η), S(t), S(η), va vs S, comparación estándar/votante) y el módulo de animación con colormap cíclico
@@ -107,7 +107,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Motor y Grid Persistente | 2/2 | In Progress|  |
+| 1. Motor y Grid Persistente | 2/2 | Complete    | 2026-08-18 |
 | 2. Modelos Vicsek y Votante | 0/TBD | Not started | - |
 | 3. Barrido Paramétrico y Estadística | 0/TBD | Not started | - |
 | 4. Análisis, Gráficos y Animación | 0/TBD | Not started | - |
