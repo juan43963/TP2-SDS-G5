@@ -136,6 +136,11 @@ int main(int argc, char** argv) try {
     Simulation sim(std::move(particles), o.L, o.rc, o.v0, o.dt, o.M, o.periodic, model, o.eta,
                    o.seed);
 
+    const bool scalarLogEnabled = !o.scalarLog.empty();
+    if (scalarLogEnabled && o.scalarLog == o.out) {
+        fail("--out y --scalar-log no pueden apuntar al mismo archivo");
+    }
+
     const std::filesystem::path outPath(o.out);
     if (!outPath.parent_path().empty()) {
         std::filesystem::create_directories(outPath.parent_path());
@@ -143,10 +148,6 @@ int main(int argc, char** argv) try {
     std::ofstream trajOut(o.out);
     if (!trajOut) fail("no se pudo abrir " + o.out);
 
-    const bool scalarLogEnabled = !o.scalarLog.empty();
-    if (scalarLogEnabled && o.scalarLog == o.out) {
-        fail("--out y --scalar-log no pueden apuntar al mismo archivo");
-    }
     std::ofstream scalarOut;
     if (scalarLogEnabled) {
         const std::filesystem::path scalarPath(o.scalarLog);
