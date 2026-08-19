@@ -61,7 +61,7 @@ def derive_seed(rho: float, eta: float, model: str, repeat_index: int) -> int:
 
 def sweep_output_path(model: str, rho: float, eta: float, seed: int) -> Path:
     """Layout de archivos de barrido: data/sweep/{model}/rho{rho}/eta{eta}/seed{seed}.txt."""
-    return SWEEP_DATA_DIR / model / f"rho{rho:g}" / f"eta{eta:.4f}" / f"seed{seed}.txt"
+    return SWEEP_DATA_DIR / model / f"rho{rho:g}" / f"eta{eta:.6f}" / f"seed{seed}.txt"
 
 
 def run_one(model: str, rho: float, eta: float, seed: int, steps: int = DEFAULT_STEPS,
@@ -259,7 +259,7 @@ def _selftest():
     assert seed_a != seed_c, "derive_seed no decorrelaciona por model"
 
     # 3. layout documentado de sweep_output_path.
-    expected_path = SWEEP_DATA_DIR / "vicsek" / "rho2" / "eta0.3000" / "seed42.txt"
+    expected_path = SWEEP_DATA_DIR / "vicsek" / "rho2" / "eta0.300000" / "seed42.txt"
     assert sweep_output_path("vicsek", 2.0, 0.3, 42) == expected_path, (
         "sweep_output_path no coincide con el layout documentado"
     )
