@@ -55,7 +55,15 @@ Plans:
   3. La detección de clusters (componentes conexas sobre la adyacencia del CIM) devuelve S consistente con inspección visual en una configuración pequeña y determinística
   4. El archivo de salida dinámico contiene vx,vy reales por partícula y por timestep (ya no el placeholder `0 0` heredado de TP1), consumible por un módulo de animación externo
 
-**Plans**: TBD
+**Plans**: 2/2 plans planned
+Plans:
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — Modelo Vicsek + Votante seleccionables por CLI, función de ruido compartida (VICSEK-01, VOTER-01, VOTER-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 02-02-PLAN.md — Output real de trayectoria (vx,vy) + clustering/polarización (OUTPUT-01, CLUSTER-01, CLUSTER-02)
 
 ### Phase 3: Barrido Paramétrico y Estadística
 
@@ -108,7 +116,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Motor y Grid Persistente | 2/2 | Complete    | 2026-08-18 |
-| 2. Modelos Vicsek y Votante | 0/TBD | Not started | - |
+| 2. Modelos Vicsek y Votante | 0/2 | Not started | - |
 | 3. Barrido Paramétrico y Estadística | 0/TBD | Not started | - |
 | 4. Análisis, Gráficos y Animación | 0/TBD | Not started | - |
 | 5. Benchmark y Entregables | 0/TBD | Not started | - |
