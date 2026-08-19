@@ -250,6 +250,13 @@ def main():
     ap.add_argument("--show", action="store_true", help="backend interactivo, no guarda")
     args = ap.parse_args()
 
+    if args.steps_tp2 < 1:
+        sys.exit(f"error: --steps-tp2 debe ser >= 1 (recibido {args.steps_tp2})")
+    if args.repeat_tp1 < 1:
+        sys.exit(f"error: --repeat-tp1 debe ser >= 1 (recibido {args.repeat_tp1})")
+    if args.repeat_tp2 < 1:
+        sys.exit(f"error: --repeat-tp2 debe ser >= 1 (recibido {args.repeat_tp2})")
+
     print("nota: TP1 mide a L=20 (densidad libre de TP1/python/benchmark.py) y TP2 mide a "
           f"L={L_BENCH:g}; el paso de TP2 incluye escritura de trayectoria por paso a "
           "os.devnull -- no son magnitudes directamente comparables, ver docstring del modulo.")
