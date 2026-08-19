@@ -15,11 +15,13 @@ gitignoreado), asi que ambos lados se miden frescos en esta corrida:
 - TP2: invoca el binario `tp2` real, cronometrado por fuera con
   time.perf_counter() alrededor del subprocess, para el tiempo de paso
   completo del motor (rebuild de grilla CIM + busqueda de vecinos +
-  integracion), dividido por la cantidad de --steps.
+  integracion + escritura de trayectoria por paso a os.devnull, ya que
+  `tp2` no tiene un flag para desactivar esa escritura), dividido por la
+  cantidad de --steps.
 
-Son magnitudes distintas (una operacion vs un paso completo de simulacion)
--- el grafico y el CSV las etiquetan como tales, nunca como si fueran lo
-mismo.
+Son magnitudes distintas (una operacion vs un paso completo de simulacion,
+este ultimo con I/O de trayectoria incluido) -- el grafico y el CSV las
+etiquetan como tales, nunca como si fueran lo mismo.
 
     python3 python/benchmark.py                # N-sweep completo por defecto
     python3 python/benchmark.py --n-values 100 --repeat-tp1 20 --repeat-tp2 3
@@ -97,12 +99,18 @@ def run_tp1_timings(n_values, repeat=100):
 
 
 def run_tp2_timings(n_values, steps=STEPS_BENCH, repeat=REPEAT_BENCH):
-    """Cronometra `tp2` de punta a punta (rebuild de grilla + vecinos + integracion).
+    """Cronometra `tp2` de punta a punta (rebuild de grilla + vecinos + integracion + escritura).
 
     Para cada N corre el binario `repeat` veces, mide el wall-clock total con
     time.perf_counter() alrededor del subprocess y divide por `steps` para
     obtener el costo promedio por paso. Devuelve una lista de dicts
     {N, mean_ms, std_ms}.
+
+    Nota: `tp2` escribe un frame de trayectoria por paso (aunque `--out`
+    apunte a os.devnull, sigue pagando el costo de formatear los floats a
+    texto), y no expone un flag para saltear esa escritura durante el
+    benchmark -- por eso el numero medido incluye esa I/O, no solo
+    grid+busqueda+integracion.
     """
     if not TP2_BIN.exists():
         sys.exit(f"error: no existe {TP2_BIN}. Correr `make` en TP2/ primero.")
@@ -172,14 +180,15 @@ def plot_benchmark(rows, out_path=None):
     ax.errorbar(n, [r["tp2_step_mean_ms"] for r in rows],
                 yerr=[r["tp2_step_std_ms"] for r in rows],
                 marker="s", capsize=3, linewidth=1.4, markersize=5, color=COLOR_TP2,
-                label="TP2: paso completo (rebuild grilla + busqueda + integracion)")
+                label="TP2: paso completo (rebuild grilla + busqueda + integracion + escritura)")
 
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("N (numero de particulas)")
     ax.set_ylabel("tiempo [ms]")
     ax.set_title("TP1 vs TP2 -- tiempo de computo por operacion vs N\n"
-                 "(magnitudes distintas: busqueda pura de vecinos vs paso completo del motor)")
+                 "(magnitudes distintas: busqueda pura de vecinos vs paso completo del motor\n"
+                 "incl. escritura de trayectoria por paso)")
     ax.grid(alpha=0.25, which="both")
     ax.legend(frameon=False, fontsize=9)
 
