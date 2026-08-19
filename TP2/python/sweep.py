@@ -152,6 +152,20 @@ def _selftest():
             for field in fields:
                 float(field)  # ValueError si no es parseable como float
 
+    # 6. contrato de fallo: run_one debe lanzar RuntimeError (con "tp2 fallo"
+    #    en el mensaje) ante una corrida invalida, en vez de dejar propagar
+    #    una excepcion cruda -- Plan 03-02 depende de este contrato para
+    #    aislar una combinacion fallida sin abortar el resto del barrido.
+    if TP2_BIN.exists():
+        try:
+            run_one("vicsek", -1.0, 0.3, 1, steps=5)
+        except RuntimeError as exc:
+            assert "tp2 fallo" in str(exc), (
+                f"RuntimeError sin el prefijo esperado 'tp2 fallo': {exc}"
+            )
+        else:
+            raise AssertionError("run_one no lanzo RuntimeError ante una corrida invalida")
+
     print("sweep.py selftest OK")
 
 
