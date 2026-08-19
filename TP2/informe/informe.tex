@@ -160,4 +160,218 @@ descarta el primer 50\% de los pasos como transitorio, y esa misma ventana
 temporal se usa para promediar tanto $v_a$ como $S$, de modo que ambos observables
 se miden bajo el mismo criterio de corte.
 
+\section{Resultados}
+
+La Fig.~\ref{fig:va-eta} muestra la polarización media en estado estacionario
+$v_a$ en función del ruido $\eta$, para las tres densidades y ambos modelos
+superpuestos. Ambos modelos parten de $v_a \approx 1$ (orden total) en $\eta = 0$
+y decaen hacia $v_a \approx 0$ (desorden) a medida que $\eta$ crece, pero con
+formas cualitativamente distintas: el modelo de Vicsek (líneas sólidas) mantiene
+$v_a$ alto hasta valores de $\eta$ intermedios y decae de forma relativamente
+suave, mientras que el modelo de votante (líneas punteadas) cae de forma abrupta
+ya para $\eta$ pequeño, permaneciendo casi todo el rango de $\eta$ en un régimen
+de baja polarización. Para el modelo de Vicsek, a mayor densidad $\rho$ la curva
+se sostiene ordenada hasta valores de $\eta$ más altos (la curva $\rho=8$ queda
+por encima de $\rho=4$ y $\rho=2$ en la región de transición), consistente con
+que una mayor densidad facilita el acoplamiento entre vecinos.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{va_eta.png}
+  \caption{Polarización $v_a$ en función del ruido angular $\eta$, para
+    $\rho \in \{2,4,8\}$ y ambos modelos de interacción (Vicsek: líneas
+    sólidas; votante: líneas punteadas). Barras de error sobre $K \geq 5$
+    semillas independientes por punto.}
+  \label{fig:va-eta}
+\end{figure}
+
+La Fig.~\ref{fig:s-eta} muestra el mismo barrido para la fracción del cluster
+gigante $S$. A diferencia de $v_a$, $S$ se mantiene cercano a 1 en casi todo el
+rango de $\eta$ y para las tres densidades: dado que $r_c$ y $\rho$ ya generan una
+red de vecinos densamente conectada, casi todas las partículas terminan formando
+parte de una única componente conexa gigante independientemente del grado de
+orden direccional del sistema. La única desviación apreciable ocurre en
+Vicsek $\rho=2$ (la densidad más baja), donde $S$ cae levemente (hasta
+$\approx 0.96$) en la región de $\eta$ intermedio, reflejando que a baja densidad
+la conectividad de la red es más marginal y más sensible al ruido.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{S_eta.png}
+  \caption{Fracción del cluster gigante $S$ en función del ruido angular $\eta$,
+    mismas combinaciones de la Fig.~\ref{fig:va-eta}.}
+  \label{fig:s-eta}
+\end{figure}
+
+La Fig.~\ref{fig:va-vs-s} relaciona directamente ambos observables, distinguiendo
+las tres densidades. Para $\rho=8$ (mayor densidad) $S$ permanece esencialmente en
+1 sin importar el valor de $v_a$: la red siempre está conectada. Para $\rho=2$ (la
+más baja) aparece una correlación positiva más marcada entre $v_a$ y $S$: los
+puntos de menor polarización también muestran los valores de $S$ más bajos del
+gráfico, evidenciando que a baja densidad la fragmentación en clusters y la
+pérdida de orden direccional están más acopladas entre sí.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{va_vs_S.png}
+  \caption{Polarización $v_a$ vs. fracción del cluster gigante $S$, distinguiendo
+    las tres densidades y ambos modelos.}
+  \label{fig:va-vs-s}
+\end{figure}
+
+Las Figs.~\ref{fig:va-t-vicsek} y~\ref{fig:va-t} muestran la evolución temporal de $v_a$ para una corrida
+característica en $\rho=2$, $\eta=0$, ilustrando el criterio de estado
+estacionario (línea vertical punteada, corte al 50\% de los pasos). En el modelo
+de Vicsek $v_a(t)$ crece de forma monótona y suave desde una condición inicial
+desordenada hasta saturar cerca de 1 bastante antes del corte, por lo que la
+ventana de estado estacionario cae completamente dentro del régimen ya
+convergido. En el modelo de votante, en cambio, $v_a(t)$ crece de forma mucho más
+ruidosa y lenta -- consistente con un proceso de \emph{coarsening} por copia local
+en vez de promediado global -- y solo alcanza el régimen ordenado hacia el final
+de la ventana simulada, lo que explica la mayor dispersión (barras de error) que
+se observa para el modelo de votante en las Figs.~\ref{fig:va-eta}
+y~\ref{fig:s-eta}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{va_t_vicsek_rho2.png}
+  \caption{Evolución temporal de $v_a$, modelo de Vicsek, $\rho=2$, $\eta=0$. La
+    línea vertical punteada marca el inicio de la ventana de estado
+    estacionario (50\% de los pasos descartado como transitorio).}
+  \label{fig:va-t-vicsek}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{va_t_voter_rho2.png}
+  \caption{Evolución temporal de $v_a$, modelo de votante, $\rho=2$, $\eta=0$,
+    con el mismo criterio de corte que la Fig.~\ref{fig:va-t-vicsek}.}
+  \label{fig:va-t}
+\end{figure}
+
+De forma análoga, las Figs.~\ref{fig:s-t-vicsek} y~\ref{fig:s-t-voter} muestran la
+evolución temporal de $S$ para las mismas corridas. En Vicsek, $S$ salta a
+$\approx 1$ casi inmediatamente y se mantiene estable durante toda la ventana de
+estado estacionario. En el votante, $S$ ya parte cerca de 1 desde el inicio pero
+muestra caídas transitorias intermitentes (la red se reparte momentáneamente en
+más de un cluster grande antes de recombinarse), consistente con la dinámica más
+ruidosa observada también en $v_a(t)$.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{S_t_vicsek_rho2.png}
+  \caption{Evolución temporal de $S$, modelo de Vicsek, $\rho=2$, $\eta=0$.}
+  \label{fig:s-t-vicsek}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{S_t_voter_rho2.png}
+  \caption{Evolución temporal de $S$, modelo de votante, $\rho=2$, $\eta=0$.}
+  \label{fig:s-t-voter}
+\end{figure}
+
+La Fig.~\ref{fig:chi-eta} muestra la susceptibilidad $\chi(\eta) = N \cdot
+\mathrm{Var}(v_a)$ sobre la grilla muestreada. El modelo de votante exhibe picos
+de $\chi$ mucho más pronunciados y ubicados a valores de $\eta$ muy bajos
+(cercanos a 0), especialmente para $\rho=8$, mientras que el modelo de Vicsek
+muestra un pico mucho más suave y desplazado a valores de $\eta$ intermedios. Esto
+es consistente con la Tabla~\ref{tab:eta_c}, que resume el valor de $\eta_c$
+(ubicación del máximo de $\chi$) para cada combinación (modelo, $\rho$): para
+Vicsek, $\eta_c$ crece con la densidad ($2.581 \to 3.254 \to 4.712$ para
+$\rho = 2, 4, 8$), mientras que para el modelo de votante $\eta_c$ se ubica
+siempre muy cerca de $\eta=0$ (entre $0$ y $0.224$), reflejando que la región
+ordenada del votante es mucho más angosta y frágil frente al ruido que la de
+Vicsek, para las tres densidades estudiadas.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{chi_eta.png}
+  \caption{Susceptibilidad $\chi(\eta) = N \cdot \mathrm{Var}(v_a)$ en función del
+    ruido angular $\eta$.}
+  \label{fig:chi-eta}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Ubicación del máximo de la susceptibilidad, $\eta_c(\rho)$, para cada
+    modelo, sobre la grilla de $\eta$ muestreada.}
+  \label{tab:eta_c}
+  \begin{tabular}{lcc}
+    \toprule
+    Modelo & $\rho$ & $\eta_c$ \\
+    \midrule
+    Vicsek  & 2 & 2.581 \\
+    Vicsek  & 4 & 3.254 \\
+    Vicsek  & 8 & 4.712 \\
+    Votante & 2 & 0.224 \\
+    Votante & 4 & 0.000 \\
+    Votante & 8 & 0.112 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Finalmente, la Fig.~\ref{fig:benchmark} compara los tiempos de ejecución del CIM
+reutilizado de TP1 contra los tiempos del motor completo de TP2, en función del
+número de partículas $N$, satisfaciendo el punto (g) del enunciado. Es importante
+notar que ambas series miden magnitudes distintas: la serie de TP1 mide
+exclusivamente el tiempo de la búsqueda de vecinos (\texttt{computeCIM}), mientras
+que la serie de TP2 mide el tiempo de un paso completo del motor (reconstrucción
+de la grilla persistente + búsqueda de vecinos + integración de posiciones y
+orientaciones de todas las partículas) -- por eso la curva de TP2 se ubica
+sistemáticamente por encima de la de TP1 en todo el rango de $N$, sin que eso
+implique una regresión del CIM en sí. Ambas curvas muestran, en escala log-log, un
+crecimiento con $N$ de pendiente similar, lo que indica que el costo adicional del
+paso completo de TP2 (rebuild + integración) escala de forma consistente con la
+búsqueda de vecinos del CIM y no introduce un cambio de orden de complejidad
+respecto de lo ya observado en TP1.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{benchmark_tp1_vs_tp2.png}
+  \caption{Tiempo de cómputo por operación vs. número de partículas $N$ (escala
+    log-log): búsqueda de vecinos del CIM (TP1) vs. paso completo del motor
+    (TP2). Magnitudes distintas, no directamente comparables en valor absoluto.}
+  \label{fig:benchmark}
+\end{figure}
+
+\section{Conclusiones}
+
+El sistema exhibe una transición orden-desorden en función del ruido angular
+$\eta$ para ambos modelos de interacción, pero de naturaleza claramente distinta:
+el modelo estándar de Vicsek sostiene un régimen ordenado ($v_a$ cercano a 1)
+hasta valores de $\eta$ apreciablemente mayores que el modelo de votante, y ese
+umbral de ruido crece con la densidad ($\eta_c$ va de $2.58$ a $4.71$ al pasar de
+$\rho=2$ a $\rho=8$). El modelo de votante, en cambio, pierde el orden casi
+inmediatamente al introducir ruido ($\eta_c \leq 0.22$ en las tres densidades),
+consistente con que promediar sobre todos los vecinos (Vicsek) produce un
+mecanismo de alineación mucho más robusto frente al ruido que copiar a un único
+vecino elegido al azar (votante). La dinámica temporal también difiere: Vicsek
+converge al estado ordenado de forma suave y relativamente rápida, mientras que el
+votante lo hace mediante un proceso de \emph{coarsening} más lento y ruidoso.
+
+La fracción del cluster gigante $S$ se mantiene cercana a 1 en casi todo el rango
+de $\eta$ y para las tres densidades, indicando que la conectividad de vecinos no
+depende fuertemente del grado de orden direccional salvo en el caso de menor
+densidad ($\rho=2$), donde sí se observa una correlación apreciable entre la
+pérdida de polarización y la fragmentación de la red en más de un cluster grande.
+
+Finalmente, el benchmark de tiempos confirma que el motor de TP2 preserva el
+comportamiento de escalado del Cell Index Method reutilizado de TP1: aunque el
+paso completo de TP2 es más costoso en términos absolutos que la búsqueda pura de
+vecinos de TP1 (por incluir además la reconstrucción de la grilla y la
+integración), ambas series crecen con $N$ con una pendiente similar en escala
+log-log, sin degradación de complejidad al integrar el CIM dentro del motor
+dinámico completo.
+
+\section*{Referencias}
+
+[1] T. Vicsek, A. Czirók, E. Ben-Jacob, I. Cohen, O. Shochet, "Novel type of
+phase transition in a system of self-driven particles", Physical Review Letters,
+vol. 75, no. 6, pp. 1226 (1995).
+
+[2] E. S. Loscar, G. Baglietto, F. Vazquez, "Noisy multistate voter model for
+flocking in finite dimensions", Physical Review E, vol. 104, no. 3, pp. 034111
+(2021).
+
 \end{document}
