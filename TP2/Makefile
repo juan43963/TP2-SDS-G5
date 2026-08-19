@@ -5,7 +5,8 @@ BUILD := build
 SRC   := src
 
 CORE_SRC := $(SRC)/methods/cell_index_grid.cpp \
-            $(SRC)/utils/generator.cpp
+            $(SRC)/utils/generator.cpp \
+            $(SRC)/engine/simulation.cpp
 CORE_OBJ := $(CORE_SRC:$(SRC)/%.cpp=$(BUILD)/%.o)
 
 .PHONY: all test clean

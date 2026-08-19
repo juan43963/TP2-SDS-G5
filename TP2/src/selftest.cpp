@@ -1,8 +1,10 @@
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <string>
 #include <vector>
 
+#include "engine/simulation.h"
 #include "generator.h"
 #include "grid.h"
 #include "particle.h"
@@ -159,6 +161,60 @@ void testGridPersistentBuffers() {
     check(cellsPtr1 == cellsPtr2, "grid.cells no deberia reasignarse entre llamadas a rebuild()");
 }
 
+void testSynchronousUpdateNoBias() {
+    // Hand-computed 3-particle case (see 01-02-PLAN.md Task 1 <behavior>):
+    // p0={1,1,0}, p1={2,1,pi/2}, p2={1,2,pi}; mutual distances 1.0, 1.0,
+    // sqrt(2) are all < rc=2.0, so all three are mutual neighbors.
+    // Self-inclusive circular mean gives sin-sum=1, cos-sum=0 for every
+    // particle, so the expected new heading is atan2(1, 0) = pi/2 exactly.
+    const double L = 10.0, rc = 2.0;
+    const int M = maxValidGridM(L, rc);
+    const double expected = 1.5707963267948966;  // pi/2, hand-derived above
+
+    auto findThetaById = [](const std::vector<VicsekParticle>& particles, int id) {
+        for (const VicsekParticle& p : particles) {
+            if (p.id == id) return p.theta;
+        }
+        return std::nan("");
+    };
+
+    // Forward insertion order: p0, p1, p2.
+    const std::vector<VicsekParticle> forward = {
+        {0, 1.0, 1.0, 0.0},
+        {1, 2.0, 1.0, kPi / 2.0},
+        {2, 1.0, 2.0, kPi},
+    };
+    Simulation simForward(forward, L, rc, /*v0=*/0.0, /*dt=*/1.0, M, /*periodic=*/false);
+    simForward.step();
+
+    for (const int id : {0, 1, 2}) {
+        const double theta = findThetaById(simForward.particles(), id);
+        check(std::abs(theta - expected) < 1e-9,
+              "actualizacion sincronica: particula " + std::to_string(id) +
+                  " deberia converger a pi/2 (orden directo)");
+    }
+
+    // Reverse insertion order: p2, p1, p0 -- proves no iteration-order bias.
+    const std::vector<VicsekParticle> reverse = {
+        {2, 1.0, 2.0, kPi},
+        {1, 2.0, 1.0, kPi / 2.0},
+        {0, 1.0, 1.0, 0.0},
+    };
+    Simulation simReverse(reverse, L, rc, /*v0=*/0.0, /*dt=*/1.0, M, /*periodic=*/false);
+    simReverse.step();
+
+    for (const int id : {0, 1, 2}) {
+        const double forwardTheta = findThetaById(simForward.particles(), id);
+        const double reverseTheta = findThetaById(simReverse.particles(), id);
+        check(std::abs(reverseTheta - expected) < 1e-9,
+              "actualizacion sincronica: particula " + std::to_string(id) +
+                  " deberia converger a pi/2 (orden inverso)");
+        check(std::abs(reverseTheta - forwardTheta) < 1e-9,
+              "actualizacion sincronica: particula " + std::to_string(id) +
+                  " no deberia depender del orden de insercion");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -172,6 +228,8 @@ int main() {
     testGridMatchesBruteForce();
     std::printf("- buffers persistentes del grid entre llamadas a rebuild()\n");
     testGridPersistentBuffers();
+    std::printf("- actualizacion sincronica double-buffered (sin sesgo de orden)\n");
+    testSynchronousUpdateNoBias();
 
     std::printf("\n%d verificaciones, %d fallas\n", checks, failures);
     if (failures == 0) std::printf("OK\n");
