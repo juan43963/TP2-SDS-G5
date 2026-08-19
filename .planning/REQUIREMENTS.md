@@ -17,12 +17,12 @@ Requirements para la entrega del 04/09/2026. Cada uno mapea a fases del roadmap.
 
 ### Modelo Vicsek (VICSEK)
 
-- [ ] **VICSEK-01**: Implementa la regla estándar de Vicsek: cada partícula promedia (promedio circular vía atan2 de senos/cosenos) la dirección de sus vecinos dentro de rc y le suma ruido angular η
+- [x] **VICSEK-01**: Implementa la regla estándar de Vicsek: cada partícula promedia (promedio circular vía atan2 de senos/cosenos) la dirección de sus vecinos dentro de rc y le suma ruido angular η
 
 ### Modelo de Votante (VOTER)
 
-- [ ] **VOTER-01**: Implementa el modelo de votante: cada partícula copia la dirección de un vecino elegido al azar dentro de rc y le suma ruido angular η
-- [ ] **VOTER-02**: Ambos modelos comparten el mismo motor, la misma función de ruido y el mismo radio de interacción, seleccionables por flag de CLI
+- [x] **VOTER-01**: Implementa el modelo de votante: cada partícula copia la dirección de un vecino elegido al azar dentro de rc y le suma ruido angular η
+- [x] **VOTER-02**: Ambos modelos comparten el mismo motor, la misma función de ruido y el mismo radio de interacción, seleccionables por flag de CLI
 
 ### Barrido Paramétrico y Estadística (SWEEP)
 
@@ -105,9 +105,9 @@ Qué fases cubren qué requirements.
 | ENGINE-03 | Phase 1 | Complete |
 | ENGINE-04 | Phase 1 | Complete |
 | ENGINE-05 | Phase 1 | Complete |
-| VICSEK-01 | Phase 2 | Pending |
-| VOTER-01 | Phase 2 | Pending |
-| VOTER-02 | Phase 2 | Pending |
+| VICSEK-01 | Phase 2 | Complete |
+| VOTER-01 | Phase 2 | Complete |
+| VOTER-02 | Phase 2 | Complete |
 | OUTPUT-01 | Phase 2 | Pending |
 | CLUSTER-01 | Phase 2 | Pending |
 | CLUSTER-02 | Phase 2 | Pending |

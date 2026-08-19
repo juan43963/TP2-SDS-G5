@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 2
-current_phase_name: Modelos Vicsek y Votante
+current_phase: 02
+current_phase_name: modelos-vicsek-y-votante
 status: executing
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-08-19T02:29:07.360Z"
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-08-19T02:36:02.832Z"
 last_activity: 2026-08-18
 last_activity_desc: ROADMAP.md and STATE.md created, 31/31 requirements mapped
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -23,16 +23,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-18)
 
 **Core value:** Producir las curvas y gráficos correctos (va, S, comparación estándar vs votante) que sustenten el informe y la presentación — resultados/gráficos importan más que la elegancia del motor, aunque el motor debe ser rápido para el barrido.
-**Current focus:** Phase 01 — motor-y-grid-persistente
+**Current focus:** Phase 02 — modelos-vicsek-y-votante
 
 ## Current Position
 
-Phase: 2 — Modelos Vicsek y Votante
-Plan: Not started
+Phase: 02 (modelos-vicsek-y-votante) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-08-18 — Phase 01 complete, transitioned to Phase 2
+Last activity: 2026-08-18 — Phase 02 execution started
 
-Progress: [██████████] 100%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [██████████] 100%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01 P02 | 35min | 2 tasks | 5 files |
+| Phase 02 P01 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,8 @@ Recent decisions affecting current work:
 - Roadmap: Estructura de fases horizontal (motor completo y ambos modelos validados antes de escalar al barrido paramétrico), no vertical-slice — reduce riesgo de escalar cómputo sobre un motor incorrecto dado el plazo ajustado.
 - [Phase ?]: Self-inclusive circular mean (Vicsek 1995 convention) applied consistently for the heading update
 - [Phase ?]: CORE_SRC Makefile edit for engine/simulation.cpp pulled forward into Task 1 since Task 1's own self-test required it to link
+- [Phase ?]: Voter's zero-external-neighbor case self-includes (candidate pool = {i} union neighbors[i]), analogous to Vicsek's Phase-1-established self-inclusion convention
+- [Phase ?]: Noise convention frozen as Uniform(-eta/2, eta/2), added identically after either rule's raw heading via one shared addAngularNoise call
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ Items acknowledged and carried forward — v2 requirements, solo si sobra tiempo
 
 ## Session Continuity
 
-Last session: 2026-08-19T01:48:43.976Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-08-19T02:36:02.821Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
