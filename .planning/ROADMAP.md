@@ -33,11 +33,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. El binario de TP2 compila y corre de forma independiente desde `TP2/`, y `git diff` no muestra ningún cambio dentro de `TP1/`
   4. El struct de partícula expone orientación/velocidad (θ o vx,vy) además de posición, y el grid persistente reutiliza sus buffers entre pasos en vez de reasignar memoria por consulta
 
-**Plans**: 2 plans
+**Plans**: 1/2 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Domain model (VicsekParticle) + persistent Grid (CIM adaptado con buffers reutilizados)
+- [x] 01-01-PLAN.md — Domain model (VicsekParticle) + persistent Grid (CIM adaptado con buffers reutilizados)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -107,7 +107,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Motor y Grid Persistente | 0/TBD | Not started | - |
+| 1. Motor y Grid Persistente | 1/2 | In Progress|  |
 | 2. Modelos Vicsek y Votante | 0/TBD | Not started | - |
 | 3. Barrido Paramétrico y Estadística | 0/TBD | Not started | - |
 | 4. Análisis, Gráficos y Animación | 0/TBD | Not started | - |
