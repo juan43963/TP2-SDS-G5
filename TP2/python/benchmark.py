@@ -11,17 +11,21 @@ gitignoreado), asi que ambos lados se miden frescos en esta corrida:
 - TP1: invoca `TP1/python/benchmark.py --study n` SIN modificarlo (solo
   subprocess), y parsea su CSV de salida (`TP1/data/bench_punto4.csv`,
   filtrando study=="punto4.1") para el tiempo puro de busqueda de vecinos
-  del CIM.
+  del CIM. Esas corridas usan el L fijo de TP1 (L_DEFAULT=20 en
+  TP1/python/benchmark.py), no modificable desde aca sin tocar ese script.
 - TP2: invoca el binario `tp2` real, cronometrado por fuera con
   time.perf_counter() alrededor del subprocess, para el tiempo de paso
   completo del motor (rebuild de grilla CIM + busqueda de vecinos +
   integracion + escritura de trayectoria por paso a os.devnull, ya que
   `tp2` no tiene un flag para desactivar esa escritura), dividido por la
-  cantidad de --steps.
+  cantidad de --steps. Estas corridas usan L_BENCH=10 (el L por defecto
+  de este TP2).
 
 Son magnitudes distintas (una operacion vs un paso completo de simulacion,
-este ultimo con I/O de trayectoria incluido) -- el grafico y el CSV las
-etiquetan como tales, nunca como si fueran lo mismo.
+este ultimo con I/O de trayectoria incluido) medidas ademas a densidades
+distintas (TP1: L=20 => N/400 part/u^2; TP2: L=10 => N/100 part/u^2, 4x mas
+denso para el mismo N) -- el grafico y el CSV las etiquetan como tales,
+nunca como si fueran una comparacion apples-to-apples.
 
     python3 python/benchmark.py                # N-sweep completo por defecto
     python3 python/benchmark.py --n-values 100 --repeat-tp1 20 --repeat-tp2 3
@@ -176,11 +180,12 @@ def plot_benchmark(rows, out_path=None):
     ax.errorbar(n, [r["tp1_search_mean_ms"] for r in rows],
                 yerr=[r["tp1_search_std_ms"] for r in rows],
                 marker="o", capsize=3, linewidth=1.4, markersize=5, color=COLOR_TP1,
-                label="TP1: busqueda de vecinos (CIM)")
+                label="TP1: busqueda de vecinos (CIM), L=20")
     ax.errorbar(n, [r["tp2_step_mean_ms"] for r in rows],
                 yerr=[r["tp2_step_std_ms"] for r in rows],
                 marker="s", capsize=3, linewidth=1.4, markersize=5, color=COLOR_TP2,
-                label="TP2: paso completo (rebuild grilla + busqueda + integracion + escritura)")
+                label=f"TP2: paso completo (rebuild grilla + busqueda + integracion "
+                      f"+ escritura), L={L_BENCH:g}")
 
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -188,7 +193,8 @@ def plot_benchmark(rows, out_path=None):
     ax.set_ylabel("tiempo [ms]")
     ax.set_title("TP1 vs TP2 -- tiempo de computo por operacion vs N\n"
                  "(magnitudes distintas: busqueda pura de vecinos vs paso completo del motor\n"
-                 "incl. escritura de trayectoria por paso)")
+                 f"incl. escritura de trayectoria por paso; densidades distintas: TP1 L=20 "
+                 f"vs TP2 L={L_BENCH:g})")
     ax.grid(alpha=0.25, which="both")
     ax.legend(frameon=False, fontsize=9)
 
@@ -211,6 +217,10 @@ def main():
                     help=f"pasos por corrida de tp2 (default {STEPS_BENCH})")
     ap.add_argument("--show", action="store_true", help="backend interactivo, no guarda")
     args = ap.parse_args()
+
+    print("nota: TP1 mide a L=20 (densidad libre de TP1/python/benchmark.py) y TP2 mide a "
+          f"L={L_BENCH:g}; el paso de TP2 incluye escritura de trayectoria por paso a "
+          "os.devnull -- no son magnitudes directamente comparables, ver docstring del modulo.")
 
     print(f"TP1: N={args.n_values}, repeat={args.repeat_tp1}")
     tp1_rows = run_tp1_timings(args.n_values, repeat=args.repeat_tp1)
