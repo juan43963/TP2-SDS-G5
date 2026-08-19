@@ -108,7 +108,7 @@ def _group_by_model_rho(rows: list[dict]) -> dict:
     return groups
 
 
-def plot_va_eta(rows: list[dict], out_path: Path = None):
+def plot_va_eta(rows: list[dict], out_path: Path = None, show: bool = False):
     """va(eta) con barras de error (va_std), 6 series: 3 densidades x 2 modelos."""
     if out_path is None:
         out_path = PLOTS_DIR / "va_eta.png"
@@ -128,13 +128,13 @@ def plot_va_eta(rows: list[dict], out_path: Path = None):
     ax.legend(fontsize=9)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    if "--show" not in sys.argv:
+    if not show:
         fig.savefig(out_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
     return ax
 
 
-def plot_S_eta(rows: list[dict], out_path: Path = None):
+def plot_S_eta(rows: list[dict], out_path: Path = None, show: bool = False):
     """S(eta) con barras de error (S_std), 6 series: 3 densidades x 2 modelos.
 
     Misma estructura que plot_va_eta (agrupado/ordenado/color/linestyle/
@@ -158,13 +158,13 @@ def plot_S_eta(rows: list[dict], out_path: Path = None):
     ax.legend(fontsize=9)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    if "--show" not in sys.argv:
+    if not show:
         fig.savefig(out_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
     return ax
 
 
-def plot_va_vs_S(rows: list[dict], out_path: Path = None):
+def plot_va_vs_S(rows: list[dict], out_path: Path = None, show: bool = False):
     """va vs S: color por densidad (3), marcador por modelo (2) -- 6 series.
 
     Agrupa solo por rho (no por model): ambos modelos comparten el color de
@@ -192,7 +192,7 @@ def plot_va_vs_S(rows: list[dict], out_path: Path = None):
     ax.legend(fontsize=9)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    if "--show" not in sys.argv:
+    if not show:
         fig.savefig(out_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
     return ax
@@ -227,7 +227,7 @@ def compute_chi(rows: list[dict]) -> list[dict]:
     return result
 
 
-def plot_chi_eta(rows_with_chi: list[dict], out_path: Path = None):
+def plot_chi_eta(rows_with_chi: list[dict], out_path: Path = None, show: bool = False):
     """chi(eta), 6 series: 3 densidades x 2 modelos. Sin barras de error.
 
     Misma estructura de agrupado/orden/color/linestyle/marker que
@@ -252,7 +252,7 @@ def plot_chi_eta(rows_with_chi: list[dict], out_path: Path = None):
     ax.legend(fontsize=9)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    if "--show" not in sys.argv:
+    if not show:
         fig.savefig(out_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
     return ax
@@ -367,7 +367,7 @@ def _representative_log_path(rho: float, model: str, rows_summary: list[dict]
 
 
 def plot_scalar_timeseries(rho: float, model: str, column: str, rows_summary: list[dict],
-                            out_path: Path = None):
+                            out_path: Path = None, show: bool = False):
     """va(t) o S(t) para el caso representativo de (rho,model), con linea vertical
     en el mismo indice de corte de estado estacionario que usa sweep.summarize_run.
 
@@ -395,7 +395,7 @@ def plot_scalar_timeseries(rho: float, model: str, column: str, rows_summary: li
     ax.legend(fontsize=9)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    if "--show" not in sys.argv:
+    if not show:
         fig.savefig(out_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
     return ax
@@ -414,15 +414,15 @@ def main():
     PLOTS_DIR.mkdir(parents=True, exist_ok=True)
     rows = load_summary(args.summary)
 
-    plot_va_eta(rows)
+    plot_va_eta(rows, show=args.show)
     print(f"grafico: {PLOTS_DIR / 'va_eta.png'}")
-    plot_S_eta(rows)
+    plot_S_eta(rows, show=args.show)
     print(f"grafico: {PLOTS_DIR / 'S_eta.png'}")
-    plot_va_vs_S(rows)
+    plot_va_vs_S(rows, show=args.show)
     print(f"grafico: {PLOTS_DIR / 'va_vs_S.png'}")
 
     rows_chi = compute_chi(rows)
-    plot_chi_eta(rows_chi)
+    plot_chi_eta(rows_chi, show=args.show)
     print(f"grafico: {PLOTS_DIR / 'chi_eta.png'}")
 
     table = compute_eta_c_table(rows_chi)
@@ -433,7 +433,7 @@ def main():
     for rho in (2.0, 4.0, 8.0):
         for column in ("va", "S"):
             for model in ("vicsek", "voter"):
-                plot_scalar_timeseries(rho, model, column, rows)
+                plot_scalar_timeseries(rho, model, column, rows, show=args.show)
                 path = PLOTS_DIR / f"{column}_t_{model}_rho{rho:g}.png"
                 print(f"grafico: {path}")
                 timeseries_paths.append(path)
