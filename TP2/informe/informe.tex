@@ -1,0 +1,52 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,graphicx,booktabs}
+\usepackage{mathptmx}
+
+% Rutas de figuras relativas a TP2/informe/, apuntando a TP2/data/plots/
+\graphicspath{{../data/plots/}}
+
+% Notacion (docs/GuiaInformes.md): vectores en negrita sin italica; los
+% escalares quedan en italica por defecto de LaTeX en modo matematico.
+\newcommand{\vect}[1]{\mathbf{#1}}
+
+\title{Simulaci\'on de Bandadas: Modelo de Vicsek y Modelo de Votante}
+\author{Grupo 5 -- Simulaci\'on de Sistemas}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Introduccion}
+
+Las bandadas de agentes autopropulsados son sistemas de muchas partículas que se
+mueven a velocidad constante y ajustan su dirección en función de las direcciones
+de sus vecinos cercanos, dando lugar a fenómenos colectivos de orden emergente sin
+necesidad de un líder ni de reglas globales. Vicsek et al.\ [1]
+propusieron un modelo mínimo off-lattice para este tipo de sistemas, en el cual
+cada partícula promedia la dirección de las partículas dentro de un radio de
+interacción $r_c$ y adopta esa dirección promedio perturbada por un ruido angular
+$\eta$, mostrando que el sistema exhibe una transición de fase orden-desorden a
+medida que $\eta$ aumenta.
+
+Este trabajo implementa y caracteriza dicho modelo estándar de Vicsek, y lo compara
+contra una regla de interacción alternativa conocida como modelo de votante
+[2], en la cual cada partícula no promedia sino que copia
+directamente la dirección de un único vecino elegido al azar (más el mismo ruido
+$\eta$). El sistema se simula en una caja cuadrada de lado $L=10$ con condiciones
+periódicas de contorno, para tres densidades $\rho = 2, 4, 8$, reutilizando el
+Cell Index Method (CIM) desarrollado en el Trabajo Práctico 1 para la búsqueda
+eficiente de vecinos dentro del radio $r_c$.
+
+El objetivo del trabajo es estudiar el comportamiento del sistema en función del
+parámetro de ruido $\eta$ para ambas reglas de interacción y las tres densidades
+propuestas, caracterizando la transición orden-desorden a través de la
+polarización $v_a$ (parámetro de orden global de las velocidades) y de la fracción
+del cluster gigante $S$ (fracción de partículas que pertenecen a la componente
+conexa más grande de la red de vecinos), comparando ambos modelos entre sí y
+verificando además que el costo computacional del CIM reutilizado escala de forma
+consistente con lo ya observado en el Trabajo Práctico 1.
+
+\end{document}
