@@ -1,1 +1,6 @@
 /TP2_codigo.zip
+/.DS_Store
+docs/.DS_Store
+
+# Salidas de simulacion y graficos (no se versionan ni van al .zip de entrega)
+/data/
