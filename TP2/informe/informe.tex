@@ -4,6 +4,8 @@
 \usepackage[a4paper,margin=2.5cm]{geometry}
 \usepackage{amsmath,amssymb,graphicx,booktabs}
 \usepackage{mathptmx}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
 
 % Rutas de figuras relativas a TP2/informe/, apuntando a TP2/data/plots/
 \graphicspath{{../data/plots/}}
@@ -12,12 +14,50 @@
 % escalares quedan en italica por defecto de LaTeX en modo matematico.
 \newcommand{\vect}[1]{\mathbf{#1}}
 
-\title{Simulaci\'on de Bandadas: Modelo de Vicsek y Modelo de Votante}
-\author{Grupo 5 -- Simulaci\'on de Sistemas}
-\date{}
-
 \begin{document}
-\maketitle
+
+\begin{titlepage}
+\centering
+
+% TODO(usuario): no se encontro archivo de logo ITBA en el repositorio
+% (ni en el repo ni en .extras/). Si consigue uno (png/pdf), puede
+% agregar aqui un \includegraphics[width=...]{logo_itba} antes del texto.
+
+{\Large\bfseries Instituto Tecnol\'ogico de Buenos Aires\par}
+
+\vspace{1.5cm}
+
+{\LARGE\bfseries Trabajo Pr\'actico N\textdegree{}2\par}
+\vspace{0.3cm}
+{\Large 72.25 Simulaci\'on de Sistemas\par}
+{\large Aut\'omatas Celulares\par}
+
+\vspace{1.5cm}
+
+{\large\itshape Simulaci\'on de Bandadas: Modelo de Vicsek y Modelo de Votante\par}
+
+\vspace{2cm}
+
+\begin{flushleft}
+\textbf{Grupo 5}
+
+\textbf{Integrantes:}
+
+Lucas Di Candia (63212) -- \href{mailto:ldicandia@itba.edu.ar}{ldicandia@itba.edu.ar}
+
+Juan Francisco Palermo ([LEGAJO]) -- \href{mailto:juanpalermo@itba.edu.ar}{juanpalermo@itba.edu.ar}
+
+Gonzalo Sharif Curi Martinez ([LEGAJO]) -- \href{mailto:gcurimartinez@itba.edu.ar}{gcurimartinez@itba.edu.ar}
+
+\vspace{0.5cm}
+Fecha de Entrega: 04/09/2026
+\end{flushleft}
+
+\vfill
+
+{\large 2C -- 2025\par}
+
+\end{titlepage}
 
 \section{Introduccion}
 
@@ -94,7 +134,11 @@ independiente entre partículas y entre pasos, siendo $\eta$ el único parámetr
 controla el desorden del sistema. Los parámetros del sistema son la densidad
 $\rho = N/L^2$, el radio de interacción $r_c$, la rapidez $v_0$ y el paso temporal
 $\Delta t$, todos en unidades de simulación adimensionales (no se asocian a
-unidades físicas explícitas, siguiendo la convención del enunciado y de [1]).
+unidades físicas explícitas, siguiendo la convención del enunciado y de [1]). Se
+utilizan los valores fijos $L=10$ (lado de la caja), $r_c=1$ (radio de
+interacción), $v_0=0.03$ (rapidez) y $\Delta t=1$ (paso temporal) en todas las
+corridas, valores por defecto de la implementación (\texttt{TP2/src/main.cpp}) y
+coincidentes con los de la cátedra.
 
 \section{Implementacion}
 
