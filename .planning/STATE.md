@@ -4,9 +4,9 @@ milestone: v1.0
 milestone_name: milestone
 status: Awaiting next milestone
 stopped_at: Completed 05-04-PLAN.md (phase 05 complete, milestone complete)
-last_updated: "2026-08-19T22:55:07.815Z"
-last_activity: 2026-08-19
-last_activity_desc: Phase 03 execution started
+last_updated: "2026-08-24T16:45:00.000Z"
+last_activity: 2026-08-24
+last_activity_desc: Completed quick task 260824-i0l (5 plans, informe+presentacion pendientes cerrados)
 progress:
   total_phases: 5
   completed_phases: 5
@@ -103,6 +103,7 @@ None yet.
 | 260824-i0l-02 | Carátula Beamer + placeholders de video → TODO + fix overflow (presentación) | 2026-08-24 | 3b39d12 | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
 | 260824-i0l-03 | Índice + resumen + fotogramas de animación (informe) | 2026-08-24 | 0275f51 | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
 | 260824-i0l-04 | Fix pick_representative_eta (E0.5/E0.6) + regenerar figuras punto (b) + confirmar η_c/χ sin cambios | 2026-08-24 | e6eaecb | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
+| 260824-i0l-05 | Tabla analítica ⟨k⟩ vs. umbral de percolación + barrido real ρ<1.5 + Fig. S(ρ) | 2026-08-24 | 1926e22 | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
 
 ## Deferred Items
 
