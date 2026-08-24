@@ -312,22 +312,27 @@ pérdida de orden direccional están más acopladas entre sí.
 \end{figure}
 
 Las Figs.~\ref{fig:va-t-vicsek} y~\ref{fig:va-t} muestran la evolución temporal de $v_a$ para una corrida
-característica en $\rho=2$, $\eta=0$, ilustrando el criterio de estado
-estacionario (línea vertical punteada, corte al 50\% de los pasos). En el modelo
-de Vicsek $v_a(t)$ crece de forma monótona y suave desde una condición inicial
-desordenada hasta saturar cerca de 1 bastante antes del corte, por lo que la
-ventana de estado estacionario cae completamente dentro del régimen ya
-convergido. En el modelo de votante, en cambio, $v_a(t)$ crece de forma mucho más
-ruidosa y lenta -- consistente con un proceso de \emph{coarsening} por copia local
-en vez de promediado global -- y solo alcanza el régimen ordenado hacia el final
-de la ventana simulada, lo que explica la mayor dispersión (barras de error) que
-se observa para el modelo de votante en las Figs.~\ref{fig:va-eta}
+característica de cada modelo en $\rho=2$ y un valor de ruido $\eta>0$ no trivial
+-- se evita deliberadamente el caso $\eta=0$, donde ambos modelos ya parten
+prácticamente ordenados y no hay transitorio real que mostrar --, ilustrando el
+criterio de estado estacionario (línea vertical punteada, corte al 50\% de los
+pasos, $t=1000$ sobre los 2000 simulados). En el modelo de Vicsek ($\eta=0.7854$)
+$v_a(t)$ crece de forma monótona y suave desde una condición inicial desordenada,
+superando $v_a \geq 0.8$ entre $t=39$ y $t=160$ según la semilla (rango sobre las
+$K=5$ semillas oficiales de este punto del barrido), muy por debajo del inicio de
+la ventana de estado estacionario. En el modelo de votante ($\eta=0.1122$), en
+cambio, $v_a(t)$ crece de forma mucho más ruidosa y dispersa entre semillas --
+consistente con un proceso de \emph{coarsening} por copia local en vez de
+promediado global --, superando $v_a \geq 0.8$ recién entre $t=45$ y $t=546$ según
+la semilla, y sin alcanzar $v_a \geq 0.99$ dentro de los 2000 pasos simulados en
+ninguna de las 5 semillas, lo que explica la mayor dispersión (barras de error)
+que se observa para el modelo de votante en las Figs.~\ref{fig:va-eta}
 y~\ref{fig:s-eta}.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.7\textwidth]{va_t_vicsek_rho2.png}
-  \caption{Evolución temporal de $v_a$, modelo de Vicsek, $\rho=2$, $\eta=0$. La
+  \caption{Evolución temporal de $v_a$, modelo de Vicsek, $\rho=2$, $\eta=0.7854$. La
     línea vertical punteada marca el inicio de la ventana de estado
     estacionario (50\% de los pasos descartado como transitorio).}
   \label{fig:va-t-vicsek}
@@ -336,7 +341,7 @@ y~\ref{fig:s-eta}.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.7\textwidth]{va_t_voter_rho2.png}
-  \caption{Evolución temporal de $v_a$, modelo de votante, $\rho=2$, $\eta=0$,
+  \caption{Evolución temporal de $v_a$, modelo de votante, $\rho=2$, $\eta=0.1122$,
     con el mismo criterio de corte que la Fig.~\ref{fig:va-t-vicsek}.}
   \label{fig:va-t}
 \end{figure}
@@ -352,14 +357,14 @@ ruidosa observada también en $v_a(t)$.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.7\textwidth]{S_t_vicsek_rho2.png}
-  \caption{Evolución temporal de $S$, modelo de Vicsek, $\rho=2$, $\eta=0$.}
+  \caption{Evolución temporal de $S$, modelo de Vicsek, $\rho=2$, $\eta=0.7854$.}
   \label{fig:s-t-vicsek}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.7\textwidth]{S_t_voter_rho2.png}
-  \caption{Evolución temporal de $S$, modelo de votante, $\rho=2$, $\eta=0$.}
+  \caption{Evolución temporal de $S$, modelo de votante, $\rho=2$, $\eta=0.1122$.}
   \label{fig:s-t-voter}
 \end{figure}
 
@@ -374,7 +379,12 @@ Vicsek, $\eta_c$ crece con la densidad ($2.581 \to 3.254 \to 4.712$ para
 $\rho = 2, 4, 8$), mientras que para el modelo de votante $\eta_c$ se ubica
 siempre muy cerca de $\eta=0$ (entre $0$ y $0.224$), reflejando que la región
 ordenada del votante es mucho más angosta y frágil frente al ruido que la de
-Vicsek, para las tres densidades estudiadas.
+Vicsek, para las tres densidades estudiadas. Tanto $\eta_c$ como $\chi(\eta)$ se
+calculan directamente sobre la grilla completa de \texttt{summary.csv} y no
+dependen de qué corrida particular se grafica como caso ilustrativo en las
+Figs.~\ref{fig:va-t-vicsek}--\ref{fig:s-t-voter}; se confirmó explícitamente que
+la Tabla~\ref{tab:eta_c} es idéntica antes y después de corregir el criterio de
+selección de ese caso ilustrativo.
 
 \begin{figure}[htbp]
   \centering
