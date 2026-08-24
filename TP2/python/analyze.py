@@ -321,21 +321,29 @@ def read_scalar_log(path: Path) -> list[tuple[float, float, float]]:
 
 
 def pick_representative_eta(rows_summary: list[dict], rho: float, model: str) -> float:
-    """Eta representativo por (rho,model): el eta mas chico con va_mean >= 0.8.
+    """Eta representativo por (rho,model): el eta>0 mas chico con va_mean >= 0.8.
 
     Un estado claramente ordenado con transitorio de convergencia visible, no el caso
-    trivial eta=0. Si ninguna fila del grupo alcanza ese umbral, usa el eta de la fila
-    con el va_mean maximo del grupo. Determinista: depende solo de summary.csv ya
-    cargado, sin aleatoriedad.
+    trivial eta=0 -- eta=0 se excluye explicitamente del grupo antes de aplicar el
+    criterio, porque ahi ambos modelos ya estan practicamente ordenados desde el primer
+    paso y el criterio se cumpliria trivialmente sin mostrar ningun transitorio. Si
+    ningun eta>0 alcanza ese umbral, usa el eta>0 de la fila con el va_mean maximo del
+    subgrupo eta>0 (caso del modelo votante, que no cruza 0.8 en la grilla gruesa).
+    Solo si el grupo no tiene NINGUN eta>0 (caso degenerado que no deberia ocurrir en la
+    grilla real) cae de nuevo al grupo completo (incluyendo eta=0) para no lanzar
+    excepcion. Determinista: depende solo de summary.csv ya cargado, sin aleatoriedad.
     """
     group = sorted(
         (r for r in rows_summary if r["rho"] == rho and r["model"] == model),
         key=lambda r: r["eta"],
     )
-    for r in group:
+    nonzero_group = [r for r in group if r["eta"] > 0]
+    if not nonzero_group:
+        return max(group, key=lambda r: r["va_mean"])["eta"]
+    for r in nonzero_group:
         if r["va_mean"] >= 0.8:
             return r["eta"]
-    return max(group, key=lambda r: r["va_mean"])["eta"]
+    return max(nonzero_group, key=lambda r: r["va_mean"])["eta"]
 
 
 # Techo de repeat_index probado por el fallback de _representative_log_path --
