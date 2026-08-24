@@ -20,6 +20,7 @@ from pathlib import Path
 import matplotlib
 if "--show" not in sys.argv:
     matplotlib.use("Agg")
+import matplotlib.colors
 import matplotlib.pyplot as plt
 
 TP2_DIR = Path(__file__).resolve().parent.parent
@@ -51,6 +52,23 @@ LINESTYLE_VICSEK = "-"
 LINESTYLE_VOTER = "--"
 RHO_COLORS = {2.0: "#16a34a", 4.0: "#d97706", 8.0: "#7c3aed"}
 RHO_MARKERS = {2.0: "o", 4.0: "s", 8.0: "^"}
+
+# Grilla fina del barrido de percolacion (D-07b, este plan): rho = 0.15*i,
+# i=1..10. Colores muestreados programaticamente de un colormap (10 puntos
+# equiespaciados de viridis) para no tener que elegir 10 hex a mano; un unico
+# marcador comun ("d", diamante) que no colisiona con los de {2,4,8} de
+# arriba ("o"/"s"/"^"), ya que aqui la densidad se distingue por posicion en
+# el eje x (plot_S_rho), no por marcador.
+_PERCOLATION_RHOS = [round(0.15 * i, 2) for i in range(1, 11)]
+for _i, _rho in enumerate(_PERCOLATION_RHOS):
+    RHO_COLORS[_rho] = matplotlib.colors.to_hex(plt.cm.viridis(_i / (len(_PERCOLATION_RHOS) - 1)))
+    RHO_MARKERS[_rho] = "d"
+del _i, _rho
+
+# Umbral analitico de percolacion continua bidimensional para discos de
+# radio de interaccion rc=1 (hallazgo E0.10 / consulta C1): <k>_c ~ 4.51,
+# expresado en terminos de rho via <k> = rho*pi*rc^2 => rho_c = 4.51/pi.
+RHO_C_PERCOLATION = 4.51 / math.pi
 
 # Marcadores usados solo en el scatter va-vs-S: ahi la densidad ya se
 # distingue por color (RHO_COLORS), asi que el marcador queda libre para
@@ -189,6 +207,46 @@ def plot_va_vs_S(rows: list[dict], out_path: Path = None, show: bool = False):
     ax.set_xlabel("va")
     ax.set_ylabel("S")
     ax.set_title("va vs S -- tres densidades, dos modelos")
+    ax.legend(fontsize=9)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if not show:
+        fig.savefig(out_path, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    return ax
+
+
+def plot_S_rho(rows: list[dict], out_path: Path = None, show: bool = False):
+    """S(rho) a eta=0 (percolacion geometrica pura), 2 series: una por modelo.
+
+    A diferencia de plot_va_vs_S (agrupado por rho), aca rho es el eje x, asi
+    que `rows` se agrupa SOLO por model. Marca el umbral analitico de
+    percolacion continua (RHO_C_PERCOLATION) con una linea vertical punteada,
+    para comparar visualmente contra la transicion empirica.
+    """
+    if out_path is None:
+        out_path = PLOTS_DIR / "S_rho.png"
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    groups: dict[str, list[dict]] = {}
+    for r in rows:
+        groups.setdefault(r["model"], []).append(r)
+
+    for model, group in sorted(groups.items()):
+        group = sorted(group, key=lambda r: r["rho"])
+        rhos = [r["rho"] for r in group]
+        s_mean = [r["S_mean"] for r in group]
+        s_err = [r["S_std"] for r in group]
+        color = COLOR_VICSEK if model == "vicsek" else COLOR_VOTER
+        marker = MARKER_VICSEK_SCATTER if model == "vicsek" else MARKER_VOTER_SCATTER
+        ax.errorbar(rhos, s_mean, yerr=s_err, color=color, marker=marker,
+                    capsize=3, label=model)
+
+    ax.axvline(RHO_C_PERCOLATION, color="gray", linestyle=":",
+               label=f"umbral analitico rho_c={RHO_C_PERCOLATION:.4f}")
+    ax.set_xlabel("rho")
+    ax.set_ylabel("S")
+    ax.set_title("Fraccion del cluster gigante S vs densidad rho (eta=0)")
     ax.legend(fontsize=9)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -419,6 +477,9 @@ def main():
                         help="abrir ventana interactiva en vez de guardar los PNG")
     parser.add_argument("--summary", type=Path, default=SWEEP_SUMMARY_CSV,
                         help=f"ruta del CSV resumen del barrido (default {SWEEP_SUMMARY_CSV})")
+    parser.add_argument("--percolation-summary", type=Path,
+                        default=TP2_DIR / "data" / "sweep" / "percolation_summary.csv",
+                        help="ruta del CSV resumen del barrido de percolacion (S_rho.png)")
     args = parser.parse_args()
 
     PLOTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -438,6 +499,14 @@ def main():
     table = compute_eta_c_table(rows_chi)
     write_eta_c_table(table)
     print(f"tabla: {ETA_C_TABLE_CSV} ({len(table)} filas)")
+
+    if args.percolation_summary.exists():
+        rows_percolation = load_summary(args.percolation_summary)
+        plot_S_rho(rows_percolation, show=args.show)
+        print(f"grafico: {PLOTS_DIR / 'S_rho.png'}")
+    else:
+        print(f"aviso: {args.percolation_summary} no existe -- correr primero el "
+              f"barrido de percolacion (Task 2 de 260824-i0l-05) para generar S_rho.png")
 
     timeseries_paths = []
     for rho in (2.0, 4.0, 8.0):
