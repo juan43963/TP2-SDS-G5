@@ -169,6 +169,7 @@
 \end{frame}
 
 \begin{frame}{Observables y repeticiones}
+  \small
   Polarizaci\'on (parametro de orden global):
   \[
     v_a = \left| \frac{1}{N} \sum_{i=1}^{N} \hat{\vect{v}}_i \right|
@@ -180,7 +181,7 @@
     S = \frac{|\text{componente conexa m\'as grande}|}{N}
   \]
 
-  \vspace{0.3cm}
+  \vspace{0.15cm}
   \textbf{Repeticiones:} $K \geq 5$ semillas independientes por punto
   $(\text{modelo}, \rho, \eta)$, semilla determin\'istica
   (\texttt{sha256}), nunca por reloj. \\
@@ -236,24 +237,21 @@
   \begin{columns}
     \begin{column}{0.48\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{va_t_vicsek_rho2.png}\\
+      \includegraphics[width=0.72\textwidth]{va_t_vicsek_rho2.png}\\
       \tiny Vicsek $v_a(t)$
-      \vspace{0.15cm}
-      \includegraphics[width=\textwidth]{va_t_voter_rho2.png}\\
+      \includegraphics[width=0.72\textwidth]{va_t_voter_rho2.png}\\
       \tiny Votante $v_a(t)$
     \end{column}
     \begin{column}{0.48\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{S_t_vicsek_rho2.png}\\
+      \includegraphics[width=0.72\textwidth]{S_t_vicsek_rho2.png}\\
       \tiny Vicsek $S(t)$
-      \vspace{0.15cm}
-      \includegraphics[width=\textwidth]{S_t_voter_rho2.png}\\
+      \includegraphics[width=0.72\textwidth]{S_t_voter_rho2.png}\\
       \tiny Votante $S(t)$
     \end{column}
   \end{columns}
 
-  \vspace{0.15cm}
-  \footnotesize L\'inea vertical: inicio del estado estacionario (50\% de
+  \scriptsize L\'inea vertical: inicio del estado estacionario (50\% de
   los pasos descartado como transitorio, mismo criterio para $v_a$ y $S$).
   Vicsek converge suave y r\'apido; el votante lo hace de forma ruidosa y
   lenta (\emph{coarsening}), con ca\'idas transitorias de $S$.
@@ -288,8 +286,8 @@
     \end{column}
     \begin{column}{0.48\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{chi_eta.png}\\
-      \small
+      \includegraphics[width=0.92\textwidth]{chi_eta.png}\\
+      \scriptsize
       \begin{tabular}{lcc}
         \toprule
         Modelo & $\rho$ & $\eta_c$ \\
@@ -309,7 +307,7 @@
 % Punto (g): benchmark TP1 vs TP2
 \begin{frame}{Tiempos de ejecuci\'on del CIM: TP1 vs. TP2}
   \centering
-  \includegraphics[width=0.75\textwidth]{benchmark_tp1_vs_tp2.png}
+  \includegraphics[width=0.52\textwidth]{benchmark_tp1_vs_tp2.png}
 
   \small La serie TP1 ($L=20$) mide s\'olo b\'usqueda de vecinos
   (\texttt{computeCIM}); la serie TP2 ($L=10$) mide el paso completo del
