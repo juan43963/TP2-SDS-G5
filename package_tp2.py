@@ -1,40 +1,50 @@
-"""Empaqueta la version final del motor de TP2 en TP2_codigo.zip.
+"""Empaqueta y prepara los entregables oficiales de TP2.
 
-Incluye unicamente:
+Entregables generados segun el formato de entrega:
+  - b) SdS_TP2_2026Q2G05CS_Presentación.pdf (desde TP2/presentacion/presentacion.pdf)
+  - c) SdS_TP2_2026Q2G05CS_Codigo.zip (solo version final del motor, orden de los KB)
+  - d) SdS_TP2_2026Q2G05CS_Informe.pdf (desde TP2/informe/informe.pdf)
+
+El ZIP de codigo incluye unicamente (allowlist-only):
   - TP2/src/** (codigo fuente C++ del motor)
   - TP2/Makefile
-  - TP2/python/*.py (los 4 scripts de analisis/visualizacion)
+  - TP2/python/*.py (los scripts de analisis/visualizacion)
 
-Excluye explicitamente (allowlist-only, nunca blacklist): TP2/data/,
-TP2/build/, los binarios compilados TP2/tp2 y TP2/tp2_test,
-TP2/informe/, TP2/presentacion/, __pycache__/ y cualquier rastro de .git.
+Excluye explicitamente: TP2/data/, TP2/build/, binarios compilados,
+TP2/informe/, TP2/presentacion/, __pycache__ y .git.
 
-Uso: python3 package_tp2.py   (desde la raiz del repositorio)
+Uso: python package_tp2.py   (desde la raiz del repositorio)
 """
 
 from __future__ import annotations
 
+import shutil
 import sys
 import zipfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent
 TP2_DIR = REPO_ROOT / "TP2"
-OUT_ZIP = REPO_ROOT / "TP2_codigo.zip"
-SIZE_WARNING_BYTES = 500 * 1024
 
+PREFIX = "SdS_TP2_2026Q2G05CS"
+OUT_ZIP = REPO_ROOT / f"{PREFIX}_Codigo.zip"
+OUT_INFORME = REPO_ROOT / f"{PREFIX}_Informe.pdf"
+OUT_PRESENTACION = REPO_ROOT / f"{PREFIX}_Presentación.pdf"
+
+# Legacy alias para compatibilidad interna
+LEGACY_ZIP = REPO_ROOT / "TP2_codigo.zip"
+
+SRC_INFORME_PDF = TP2_DIR / "informe" / "informe.pdf"
+SRC_PRESENTACION_PDF = TP2_DIR / "presentacion" / "presentacion.pdf"
+
+SIZE_WARNING_BYTES = 500 * 1024
 REQUIRED_PYTHON_SCRIPTS = {"sweep.py", "analyze.py", "animate.py", "benchmark.py"}
 
 
-def collect_files() -> list[Path]:
-    """Allowlist-only collection: TP2/src/**, TP2/Makefile, TP2/python/*.py.
-
-    Nunca incluye TP2/data, TP2/build, TP2/tp2, TP2/tp2_test, TP2/informe
-    ni TP2/presentacion -- esos directorios/archivos simplemente no
-    aparecen en ninguno de los tres globs de abajo.
-    """
+def collect_code_files() -> list[Path]:
+    """Allowlist-only collection: TP2/src/**, TP2/Makefile, TP2/python/*.py."""
     src_files = sorted(p for p in (TP2_DIR / "src").rglob("*") if p.is_file())
-    makefile = [TP2_DIR / "Makefile"]
+    makefile = [TP2_DIR / "Makefile"] if (TP2_DIR / "Makefile").exists() else []
     python_files = sorted(p for p in (TP2_DIR / "python").glob("*.py") if p.is_file())
     return src_files + makefile + python_files
 
@@ -42,28 +52,20 @@ def collect_files() -> list[Path]:
 def build_zip(files: list[Path], out_path: Path) -> None:
     with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as zf:
         for f in files:
-            zf.write(f, arcname=str(f.relative_to(REPO_ROOT)))
+            zf.write(f, arcname=f.relative_to(REPO_ROOT).as_posix())
 
 
 def check_size(out_path: Path, warn_bytes: int = SIZE_WARNING_BYTES) -> int:
-    """Informativo, nunca aborta el empaquetado -- el enunciado pide 'orden de kb'."""
     size = out_path.stat().st_size
     if size > warn_bytes:
-        print(f"ADVERTENCIA: {out_path.name} pesa {size} bytes (> {warn_bytes} bytes / 500KB)")
+        print(f"  [!] ADVERTENCIA: {out_path.name} pesa {size} bytes (> {warn_bytes} bytes / 500KB)")
     else:
-        print(f"OK: {out_path.name} pesa {size} bytes")
+        print(f"  [OK] {out_path.name} ({size / 1024:.1f} KB)")
     return size
 
 
-def verify_contents(files: list[Path], out_path: Path) -> None:
-    """Reabre el zip y confirma que su contenido es EXACTAMENTE el esperado.
-
-    - Ni de mas ni de menos: set(namelist) == set(expected arcnames).
-    - Los 4 scripts Python deben estar todos presentes bajo TP2/python/ --
-      si benchmark.py faltara por una dependencia rota con 05-01, esto
-      debe fallar fuerte en vez de empaquetar silenciosamente solo 3 de 4.
-    """
-    expected = {str(f.relative_to(REPO_ROOT)) for f in files}
+def verify_zip_contents(files: list[Path], out_path: Path) -> None:
+    expected = {f.relative_to(REPO_ROOT).as_posix() for f in files}
     with zipfile.ZipFile(out_path) as zf:
         actual = set(zf.namelist())
 
@@ -82,12 +84,46 @@ def verify_contents(files: list[Path], out_path: Path) -> None:
         )
 
 
+def copy_pdf(src: Path, dst: Path, name_desc: str) -> None:
+    if not src.exists():
+        raise FileNotFoundError(f"No se encontro el PDF origen para {name_desc}: {src}")
+    shutil.copy2(src, dst)
+    size_kb = dst.stat().st_size / 1024
+    print(f"  [OK] {dst.name} ({size_kb:.1f} KB)")
+
+
 def main() -> int:
-    files = collect_files()
+    print("=" * 65)
+    print("EMPAQUETANDO ENTREGABLES TP2 - 72.25 SIMULACION DE SISTEMAS")
+    print(f"Comision: S | Grupo: 05 | Prefijo: {PREFIX}")
+    print("=" * 65)
+
+    # 1. Codigo ZIP
+    print("\n1. Empaquetando Codigo Fuente...")
+    files = collect_code_files()
     build_zip(files, OUT_ZIP)
     check_size(OUT_ZIP)
-    verify_contents(files, OUT_ZIP)
-    print(f"{OUT_ZIP} generado con {len(files)} archivos")
+    verify_zip_contents(files, OUT_ZIP)
+
+    # Copia legacy para retrocompatibilidad
+    shutil.copy2(OUT_ZIP, LEGACY_ZIP)
+
+    # 2. Presentacion PDF
+    print("\n2. Copiando Presentacion PDF...")
+    copy_pdf(SRC_PRESENTACION_PDF, OUT_PRESENTACION, "Presentacion")
+
+    # 3. Informe PDF
+    print("\n3. Copiando Informe PDF...")
+    copy_pdf(SRC_INFORME_PDF, OUT_INFORME, "Informe")
+
+    print("\n" + "=" * 65)
+    print("RESUMEN DE ENTREGABLES GENERADOS:")
+    print(f"  a) Presentacion Oral (13 min) -> En clase 04/09/2026")
+    print(f"  b) {OUT_PRESENTACION.name}")
+    print(f"  c) {OUT_ZIP.name}")
+    print(f"  d) {OUT_INFORME.name}")
+    print("=" * 65)
+    print("Todos los archivos estan listos para subir al campus.")
     return 0
 
 
