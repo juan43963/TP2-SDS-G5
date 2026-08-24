@@ -7,8 +7,8 @@
 \usepackage{hyperref}
 \hypersetup{hidelinks}
 
-% Rutas de figuras relativas a TP2/informe/, apuntando a TP2/data/plots/
-\graphicspath{{../data/plots/}}
+% Rutas de figuras relativas a TP2/informe/, apuntando a TP2/data/plots/ y directorio local
+\graphicspath{{../data/plots/}{./}}
 
 % Notacion (docs/GuiaInformes.md): vectores en negrita sin italica; los
 % escalares quedan en italica por defecto de LaTeX en modo matematico.
@@ -19,9 +19,8 @@
 \begin{titlepage}
 \centering
 
-% TODO(usuario): no se encontro archivo de logo ITBA en el repositorio
-% (ni en el repo ni en .extras/). Si consigue uno (png/pdf), puede
-% agregar aqui un \includegraphics[width=...]{logo_itba} antes del texto.
+\includegraphics[width=0.45\textwidth]{logo-itba-site.png}\par
+\vspace{1cm}
 
 {\Large\bfseries Instituto Tecnol\'ogico de Buenos Aires\par}
 
