@@ -157,4 +157,90 @@ Medido aparte (ρ=2): el votante ya cae a `va = 0.33` en η=0.5, mientras Vicsek
 
 ---
 
+## C7 — Corte de estado estacionario: ¿fracción fija de 50%, o un criterio de convergencia?
+
+**Contexto.** Para descartar el transitorio usamos un corte fijo: se tira el primer 50% de los pasos de cada corrida (`STEADY_STATE_FRACTION = 0.5` en `sweep.py`), sin importar η, ρ ni modelo.
+
+Probamos qué tan sensible es el promedio de `va` a ese corte, tomando 3 semillas completas (2000 pasos) en un punto de la zona de transición (Vicsek, ρ=2, η=2.356):
+
+| Corte | va media (por semilla) | media de las 3 | std entre semillas |
+|---|---|---|---|
+| 30% | 0.6003 / 0.5729 / 0.5860 | 0.5864 | 0.0112 |
+| 50% (actual) | 0.5751 / 0.6040 / 0.5750 | 0.5847 | 0.0137 |
+| 70% | 0.5536 / 0.6212 / 0.5585 | 0.5777 | 0.0308 |
+| 90% | 0.5201 / 0.6682 / 0.5764 | 0.5882 | 0.0611 |
+
+El valor medio apenas se mueve (0.577–0.588), pero el ruido entre semillas **crece con el corte** porque queda cada vez menos ventana para promediar. El 50% no es peor que las alternativas, pero tampoco lo elegimos con un criterio objetivo (plateau, autocorrelación, etc.), sino como convención fija razonable.
+
+**Pregunta.** ¿Alcanza con un corte fijo del 50% documentado como convención, o esperan un criterio de convergencia explícito (ej. detectar cuándo la media móvil deja de tener tendencia) que pueda variar punto a punto?
+
+**Por qué importa.** No cambia demasiado el valor medio en este punto, pero si el criterio esperado es distinto (por ejemplo, un corte más chico como 10-20%) para sistemas que ordenan rápido, cambiaría la incerteza reportada — y potencialmente el ancho del pico de χ usado en C5.
+
+**Supuesto mientras tanto.** Se mantiene el corte fijo del 50%, documentado como convención en el informe.
+
+---
+
+## C8 — Barras de error: ¿desvío entre semillas o fluctuación temporal en el estacionario?
+
+**Contexto.** El `va_std` que graficamos como barra de error es el desvío de las medias de 5 semillas independientes (una media por semilla, luego std de esas 5 medias). No es el desvío punto a punto de `va(t)` dentro de una corrida.
+
+En el mismo punto de C7 (Vicsek, ρ=2, η=2.356, corte 50%), comparamos ambas magnitudes:
+
+| Magnitud | Valor |
+|---|---|
+| std entre las 3 medias de semilla (lo que graficamos) | 0.0137 |
+| std temporal de `va(t)` dentro del estacionario, semilla 1 | 0.1322 |
+| std temporal de `va(t)` dentro del estacionario, semilla 2 | 0.1014 |
+| std temporal de `va(t)` dentro del estacionario, semilla 3 | 0.1180 |
+
+La fluctuación punto a punto de `va` dentro de una sola corrida es **casi 10 veces mayor** que el desvío entre semillas que reportamos como barra de error. Esto es esperable si el estimador es la media de ~1000 pasos autocorrelacionados (el error de la media cae al promediar en el tiempo), pero significa que la barra de error que mostramos describe la incerteza del *promedio*, no la amplitud real con que fluctúa el observable.
+
+**Preguntas.**
+1. ¿Las barras de error esperadas son las del desvío entre semillas (incerteza de la media, lo que ya hacemos), o quieren ver también/en cambio la fluctuación temporal dentro del estacionario?
+2. ¿5 semillas por punto (η, ρ, modelo) alcanza para esa incerteza, o conviene subir el número cerca de la transición, donde el desvío entre semillas es más grande (ver C5)?
+
+**Por qué importa.** Cambia qué tan "ajustadas" se ven las curvas de `va(η)` y `S(η)`; con el criterio actual las barras son chicas y las curvas parecen más precisas de lo que un lector podría esperar si conociera la fluctuación real del sistema.
+
+**Supuesto mientras tanto.** Se mantiene el std entre 5 semillas como barra de error, mencionando en el texto que hay fluctuación temporal adicional dentro de cada corrida.
+
+---
+
+## C9 — Modelo de votante: ¿qué hace una partícula sin vecinos dentro de rc?
+
+**Contexto.** El enunciado describe el modelo de votante como "elige al azar a uno solo de sus vecinos y copia directamente su dirección (más el ruido η)", pero no dice qué pasa cuando una partícula **no tiene vecinos** dentro de `rc`. Implementamos que en ese caso la partícula "se vota a sí misma": mantiene su propia dirección (más ruido), igual que Vicsek estándar cuando no hay vecinos.
+
+Esto no es un caso de borde raro: con las densidades bajas que pide la aclaración para el estudio de clusters (ver C1: N = 32, 16, 11), tener partículas aisladas dentro de `rc` es frecuente, así que la convención elegida afecta una fracción no despreciable de las actualizaciones.
+
+**Pregunta.** ¿Es correcta la convención de "auto-voto" (mantener la dirección propia + ruido) cuando no hay vecinos, o debería la partícula quedar sin actualizar / hacer otra cosa en ese caso?
+
+**Por qué importa.** Con N=11-32 (densidades de C1), muchas partículas pueden no tener vecinos en varios pasos; la convención elegida determina si esas partículas siguen moviéndose de forma coherente (auto-voto) o se "congelan" en su ángulo (sin actualizar), lo cual afecta directamente `va` y `S` en el régimen subcrítico que es justamente el foco del estudio de clusters.
+
+**Supuesto mientras tanto.** Se mantiene la convención de auto-voto, análoga a la de Vicsek estándar sin vecinos.
+
+---
+
+## C10 — Punto (g): ¿con qué N comparamos los tiempos del CIM contra TP1?
+
+**Contexto.** El punto (g) pide "tomar algunas simulaciones que tengan un número de partículas similar a las estudiadas en TP1" para comparar tiempos de CIM. En TP2, N sale de `ρ·L²` con `L=10` fijo: N ≈ 200, 400, 800 para las densidades del enunciado (y N = 11, 16, 32 para las de C1). No tenemos control directo de N salvo eligiendo ρ.
+
+**Pregunta.** Para la comparación de tiempos, ¿alcanza con usar los N que ya salen de las densidades pedidas (200/400/800), o esperan correr TP1 con esos N exactos (y las mismas condiciones de contorno, periódicas) para que la comparación sea realmente equivalente y no solo de orden de magnitud?
+
+**Por qué importa.** TP1 corrió con parámetros propios (rc, condiciones de contorno) que pueden no coincidir con los de TP2; si la cátedra espera una comparación estricta, hay que rehacer corridas de TP1 con esos parámetros en vez de reusar resultados viejos.
+
+**Supuesto mientras tanto.** Se compara contra los N más cercanos disponibles en los resultados de TP1, aclarando en el texto que las condiciones no son idénticas.
+
+---
+
+## C11 — Punto (e): ¿la curva va vs S se ordena/conecta por η?
+
+**Contexto.** El punto (e) pide graficar `va` en función de `S`, distinguiendo densidades. Lo implementamos como una curva paramétrica: para cada ρ, un punto por cada η, conectados en el orden de η creciente.
+
+**Pregunta.** ¿Es esa la lectura esperada, o alcanza con un scatter de puntos (η, ρ) sin conectar, dejando que la correlación va-S se lea directamente de la nube de puntos?
+
+**Por qué importa.** Es una decisión únicamente de presentación (no cambia ningún número), pero conectar los puntos por η sugiere una trayectoria que quizás no es la lectura que se busca en este punto del enunciado.
+
+**Supuesto mientras tanto.** Se mantiene la curva conectada por η, con la densidad distinguida por color/marcador.
+
+---
+
 *Documento vivo: se agregan entradas a medida que la auditoría encuentra puntos que requieren confirmación de la cátedra.*
