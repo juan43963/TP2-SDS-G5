@@ -102,6 +102,7 @@ None yet.
 | 260824-i0l-01 | Parámetros explícitos rc/v0/dt + carátula real (informe) | 2026-08-24 | 98b93a5 | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
 | 260824-i0l-02 | Carátula Beamer + placeholders de video → TODO + fix overflow (presentación) | 2026-08-24 | 3b39d12 | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
 | 260824-i0l-03 | Índice + resumen + fotogramas de animación (informe) | 2026-08-24 | 0275f51 | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
+| 260824-i0l-04 | Fix pick_representative_eta (E0.5/E0.6) + regenerar figuras punto (b) + confirmar η_c/χ sin cambios | 2026-08-24 | e6eaecb | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
 
 ## Deferred Items
 
