@@ -43,7 +43,9 @@ FINE_ETA_POINTS = 8  # puntos extra insertados dentro del bracket de transicion 
 K_EXPLORE = 2  # semillas por punto del mini-barrido exploratorio
 STEPS_EXPLORE = 500  # pasos por corrida del mini-barrido exploratorio
 VA_THRESHOLD = 0.5  # umbral de va usado para ubicar el cruce orden-desorden
-DEFAULT_RHOS = [2.0, 4.0, 8.0]  # densidades del enunciado (SWEEP-01)
+STANDARD_RHOS = [2.0, 4.0, 8.0]  # densidades del enunciado (SWEEP-01)
+CLUSTER_RHOS = [round(1.0 / math.pi, 4), round(1.0 / (2.0 * math.pi), 4), round(1.0 / (3.0 * math.pi), 4)]  # 1/pi, 1/(2pi), 1/(3pi)
+DEFAULT_RHOS = STANDARD_RHOS + CLUSTER_RHOS
 DEFAULT_MODELS = ["vicsek", "voter"]
 
 

@@ -4,8 +4,8 @@
 Entrypoint unico (convencion establecida en TP1/python/visualize.py): lee
 `data/sweep/summary.csv` (generado por `python/sweep.py`, esquema
 model,rho,eta,va_mean,va_std,S_mean,S_std,n_seeds) y produce los graficos
-va(eta), S(eta) y va vs S, superponiendo siempre los dos modelos y las tres
-densidades del enunciado.
+va(eta), S(eta), chi(eta), va vs S y evoluciones temporales va(t) y S(t),
+superponiendo los dos modelos y las densidades del enunciado y del estudio de clusters.
 
     python3 python/analyze.py            # regenera los PNG en data/plots/
     python3 python/analyze.py --show      # backend interactivo, no guarda
@@ -27,11 +27,6 @@ TP2_DIR = Path(__file__).resolve().parent.parent
 SWEEP_SUMMARY_CSV = TP2_DIR / "data" / "sweep" / "summary.csv"
 PLOTS_DIR = TP2_DIR / "data" / "plots"
 
-# Este directorio (TP2/python) ya queda en sys.path[0] cuando se invoca como
-# `python3 python/analyze.py`, pero se agrega explicitamente para que
-# `from sweep import ...` funcione tambien si el script se importa desde
-# otro cwd -- lo van a necesitar los planes siguientes de esta fase (chi(eta),
-# eta_c(rho)) que reusan constantes de sweep.py como L_DEFAULT.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from sweep import (
@@ -42,64 +37,90 @@ from sweep import (
     sweep_output_path,
 )
 
-# Paleta: color por modelo (para graficos de evolucion temporal de otros
-# planes de esta fase) y color+marcador por densidad (para los graficos
-# va(eta)/S(eta)/va-vs-S de este plan). Convencion SCREAMING_SNAKE_CASE a
-# nivel de modulo, igual que TP1/python/visualize.py.
+# Paleta y estilos
 COLOR_VICSEK = "#2563eb"
 COLOR_VOTER = "#dc2626"
 LINESTYLE_VICSEK = "-"
 LINESTYLE_VOTER = "--"
-RHO_COLORS = {2.0: "#16a34a", 4.0: "#d97706", 8.0: "#7c3aed"}
-RHO_MARKERS = {2.0: "o", 4.0: "s", 8.0: "^"}
 
-# Grilla fina del barrido de percolacion (D-07b, este plan): rho = 0.15*i,
-# i=1..10. Colores muestreados programaticamente de un colormap (10 puntos
-# equiespaciados de viridis) para no tener que elegir 10 hex a mano; un unico
-# marcador comun ("d", diamante) que no colisiona con los de {2,4,8} de
-# arriba ("o"/"s"/"^"), ya que aqui la densidad se distingue por posicion en
-# el eje x (plot_S_rho), no por marcador.
+# Colores y marcadores para densidades estandar y de clusters
+RHO_1_PI = round(1.0 / math.pi, 4)        # 0.3183
+RHO_1_2PI = round(1.0 / (2.0 * math.pi), 4) # 0.1592
+RHO_1_3PI = round(1.0 / (3.0 * math.pi), 4) # 0.1061
+
+RHO_COLORS = {
+    8.0: "#7c3aed",      # violeta
+    4.0: "#d97706",      # ambar / naranja
+    2.0: "#16a34a",      # verde
+    RHO_1_PI: "#0284c7",  # celeste / azul cyan
+    RHO_1_2PI: "#0d9488", # teal
+    RHO_1_3PI: "#e11d48", # carmesi / rosa fuerte
+}
+
+RHO_MARKERS = {
+    8.0: "^",
+    4.0: "s",
+    2.0: "o",
+    RHO_1_PI: "v",
+    RHO_1_2PI: "<",
+    RHO_1_3PI: ">",
+}
+
+# Grilla fina del barrido de percolacion (D-07b): rho = 0.15*i, i=1..10
 _PERCOLATION_RHOS = [round(0.15 * i, 2) for i in range(1, 11)]
 for _i, _rho in enumerate(_PERCOLATION_RHOS):
     RHO_COLORS[_rho] = matplotlib.colors.to_hex(plt.cm.viridis(_i / (len(_PERCOLATION_RHOS) - 1)))
     RHO_MARKERS[_rho] = "d"
 del _i, _rho
 
-# Umbral analitico de percolacion continua bidimensional para discos de
-# radio de interaccion rc=1 (hallazgo E0.10 / consulta C1): <k>_c ~ 4.51,
-# expresado en terminos de rho via <k> = rho*pi*rc^2 => rho_c = 4.51/pi.
+# Umbral analitico de percolacion continua bidimensional para discos de rc=1
 RHO_C_PERCOLATION = 4.51 / math.pi
 
-# Marcadores usados solo en el scatter va-vs-S: ahi la densidad ya se
-# distingue por color (RHO_COLORS), asi que el marcador queda libre para
-# distinguir el modelo en vez de la densidad.
 MARKER_VICSEK_SCATTER = "o"
 MARKER_VOTER_SCATTER = "x"
 
 
 def _rho_color(rho: float) -> str:
-    """Color configurado para `rho`, con error explicito si no esta en RHO_COLORS.
-
-    RHO_COLORS solo tiene entradas para {2.0, 4.0, 8.0}; un `summary.csv`
-    producido por `sweep.py --rhos <otros valores>` no debe crashear con un
-    KeyError sin contexto.
-    """
-    color = RHO_COLORS.get(rho)
-    if color is None:
-        raise ValueError(f"sin color configurado para rho={rho}; agregar a RHO_COLORS")
-    return color
+    """Color configurado para `rho`, con busqueda por tolerancia para evitar fallos de redondeo."""
+    for key, val in RHO_COLORS.items():
+        if abs(rho - key) < 1e-3:
+            return val
+    # Fallback determinista
+    return matplotlib.colors.to_hex(plt.cm.tab10(int(round(rho * 100)) % 10))
 
 
 def _rho_marker(rho: float) -> str:
-    """Marcador configurado para `rho`, con error explicito si no esta en RHO_MARKERS."""
-    marker = RHO_MARKERS.get(rho)
-    if marker is None:
-        raise ValueError(f"sin marcador configurado para rho={rho}; agregar a RHO_MARKERS")
-    return marker
+    """Marcador configurado para `rho`, con busqueda por tolerancia."""
+    for key, val in RHO_MARKERS.items():
+        if abs(rho - key) < 1e-3:
+            return val
+    return "o"
+
+
+def _rho_label(rho: float) -> str:
+    """Etiqueta matematica legible para graficos y leyendas."""
+    if abs(rho - 1.0 / math.pi) < 0.01:
+        return r"\rho = 1/\pi"
+    if abs(rho - 1.0 / (2.0 * math.pi)) < 0.01:
+        return r"\rho = 1/(2\pi)"
+    if abs(rho - 1.0 / (3.0 * math.pi)) < 0.01:
+        return r"\rho = 1/(3\pi)"
+    return f"\\rho = {rho:g}"
+
+
+def _rho_filename_tag(rho: float) -> str:
+    """Tag de archivo limpio para nombres de PNG."""
+    if abs(rho - 1.0 / math.pi) < 0.01:
+        return "1_pi"
+    if abs(rho - 1.0 / (2.0 * math.pi)) < 0.01:
+        return "1_2pi"
+    if abs(rho - 1.0 / (3.0 * math.pi)) < 0.01:
+        return "1_3pi"
+    return f"{rho:g}"
 
 
 def load_summary(csv_path: Path = SWEEP_SUMMARY_CSV) -> list[dict]:
-    """Lee summary.csv y castea los campos numericos (DictReader siempre da strings)."""
+    """Lee summary.csv y castea los campos numericos."""
     rows = []
     with open(csv_path, newline="") as f:
         for row in csv.DictReader(f):
@@ -127,23 +148,28 @@ def _group_by_model_rho(rows: list[dict]) -> dict:
 
 
 def plot_va_eta(rows: list[dict], out_path: Path = None, show: bool = False):
-    """va(eta) con barras de error (va_std), 6 series: 3 densidades x 2 modelos."""
+    """va(eta) con barras de error para las 3 densidades estandar del enunciado (rho=2,4,8)."""
     if out_path is None:
         out_path = PLOTS_DIR / "va_eta.png"
 
+    std_rows = [r for r in rows if any(abs(r["rho"] - r0) < 0.01 for r0 in (2.0, 4.0, 8.0))]
+    if not std_rows:
+        std_rows = rows
+
     fig, ax = plt.subplots(figsize=(8, 6))
-    groups = _group_by_model_rho(rows)
-    for (model, rho), group in sorted(groups.items()):
+    groups = _group_by_model_rho(std_rows)
+    for (model, rho), group in sorted(groups.items(), key=lambda x: (x[0][0], -x[0][1])):
         etas = [r["eta"] for r in group]
         va = [r["va_mean"] for r in group]
         va_err = [r["va_std"] for r in group]
         linestyle = LINESTYLE_VICSEK if model == "vicsek" else LINESTYLE_VOTER
         ax.errorbar(etas, va, yerr=va_err, color=_rho_color(rho), linestyle=linestyle,
-                    marker=_rho_marker(rho), capsize=3, label=f"{model} rho={rho:g}")
-    ax.set_xlabel("eta")
-    ax.set_ylabel("va")
-    ax.set_title("Polarizacion va vs ruido eta")
+                    marker=_rho_marker(rho), capsize=3, label=f"{model} ${_rho_label(rho)}$")
+    ax.set_xlabel(r"$\eta$ (amplitud del ruido)", fontsize=11)
+    ax.set_ylabel(r"Polarización $v_a$", fontsize=11)
+    ax.set_title(r"Polarización $v_a$ vs. Ruido $\eta$", fontsize=12)
     ax.legend(fontsize=9)
+    ax.grid(True, linestyle=":", alpha=0.6)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if not show:
@@ -153,61 +179,90 @@ def plot_va_eta(rows: list[dict], out_path: Path = None, show: bool = False):
 
 
 def plot_S_eta(rows: list[dict], out_path: Path = None, show: bool = False):
-    """S(eta) con barras de error (S_std), 6 series: 3 densidades x 2 modelos.
-
-    Misma estructura que plot_va_eta (agrupado/ordenado/color/linestyle/
-    marker identicos), graficando S_mean en vez de va_mean.
-    """
+    """S(eta) con barras de error: 2 paneles (Supercritico rho=2,4,8 vs Subcritico 1/pi, 1/2pi, 1/3pi)."""
     if out_path is None:
         out_path = PLOTS_DIR / "S_eta.png"
 
-    fig, ax = plt.subplots(figsize=(8, 6))
-    groups = _group_by_model_rho(rows)
-    for (model, rho), group in sorted(groups.items()):
-        etas = [r["eta"] for r in group]
-        s_mean = [r["S_mean"] for r in group]
-        s_err = [r["S_std"] for r in group]
-        linestyle = LINESTYLE_VICSEK if model == "vicsek" else LINESTYLE_VOTER
-        ax.errorbar(etas, s_mean, yerr=s_err, color=_rho_color(rho), linestyle=linestyle,
-                    marker=_rho_marker(rho), capsize=3, label=f"{model} rho={rho:g}")
-    ax.set_xlabel("eta")
-    ax.set_ylabel("S")
-    ax.set_title("Fraccion del cluster gigante S vs ruido eta")
-    ax.legend(fontsize=9)
+    std_rows = [r for r in rows if any(abs(r["rho"] - r0) < 0.01 for r0 in (2.0, 4.0, 8.0))]
+    sub_rows = [r for r in rows if any(abs(r["rho"] - r0) < 0.01 for r0 in (1.0/math.pi, 1.0/(2*math.pi), 1.0/(3*math.pi)))]
+
+    if sub_rows:
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5.5), sharey=True)
+        # Panel supercritico
+        groups1 = _group_by_model_rho(std_rows)
+        for (model, rho), group in sorted(groups1.items(), key=lambda x: (x[0][0], -x[0][1])):
+            etas = [r["eta"] for r in group]
+            s_mean = [r["S_mean"] for r in group]
+            s_err = [r["S_std"] for r in group]
+            linestyle = LINESTYLE_VICSEK if model == "vicsek" else LINESTYLE_VOTER
+            ax1.errorbar(etas, s_mean, yerr=s_err, color=_rho_color(rho), linestyle=linestyle,
+                        marker=_rho_marker(rho), capsize=3, label=f"{model} ${_rho_label(rho)}$")
+        ax1.set_xlabel(r"$\eta$", fontsize=11)
+        ax1.set_ylabel(r"Fracción componente gigante $S$", fontsize=11)
+        ax1.set_title(r"Régimen Supercrítico ($\langle k \rangle > 4.51$, $S \approx 1$)", fontsize=11)
+        ax1.legend(fontsize=8)
+        ax1.grid(True, linestyle=":", alpha=0.6)
+
+        # Panel subcritico
+        groups2 = _group_by_model_rho(sub_rows)
+        for (model, rho), group in sorted(groups2.items(), key=lambda x: (x[0][0], -x[0][1])):
+            etas = [r["eta"] for r in group]
+            s_mean = [r["S_mean"] for r in group]
+            s_err = [r["S_std"] for r in group]
+            linestyle = LINESTYLE_VICSEK if model == "vicsek" else LINESTYLE_VOTER
+            ax2.errorbar(etas, s_mean, yerr=s_err, color=_rho_color(rho), linestyle=linestyle,
+                        marker=_rho_marker(rho), capsize=3, label=f"{model} ${_rho_label(rho)}$")
+        ax2.set_xlabel(r"$\eta$", fontsize=11)
+        ax2.set_title(r"Régimen Subcrítico ($\langle k \rangle < 4.51$, Transición Dinámica)", fontsize=11)
+        ax2.legend(fontsize=8)
+        ax2.grid(True, linestyle=":", alpha=0.6)
+        fig.suptitle(r"Fracción del Cluster Gigante $S$ vs. Ruido $\eta$", fontsize=13)
+        fig.tight_layout()
+    else:
+        fig, ax1 = plt.subplots(figsize=(8, 6))
+        groups1 = _group_by_model_rho(std_rows)
+        for (model, rho), group in sorted(groups1.items(), key=lambda x: (x[0][0], -x[0][1])):
+            etas = [r["eta"] for r in group]
+            s_mean = [r["S_mean"] for r in group]
+            s_err = [r["S_std"] for r in group]
+            linestyle = LINESTYLE_VICSEK if model == "vicsek" else LINESTYLE_VOTER
+            ax1.errorbar(etas, s_mean, yerr=s_err, color=_rho_color(rho), linestyle=linestyle,
+                        marker=_rho_marker(rho), capsize=3, label=f"{model} ${_rho_label(rho)}$")
+        ax1.set_xlabel(r"$\eta$", fontsize=11)
+        ax1.set_ylabel(r"Fracción componente gigante $S$", fontsize=11)
+        ax1.set_title(r"Fracción del cluster gigante $S$ vs ruido $\eta$", fontsize=12)
+        ax1.legend(fontsize=9)
+        ax1.grid(True, linestyle=":", alpha=0.6)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if not show:
         fig.savefig(out_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
-    return ax
+    return fig
 
 
 def plot_va_vs_S(rows: list[dict], out_path: Path = None, show: bool = False):
-    """va vs S: color por densidad (3), marcador por modelo (2) -- 6 series.
-
-    Agrupa solo por rho (no por model): ambos modelos comparten el color de
-    su densidad, asi que la densidad es la senal visual primaria, per
-    04-CONTEXT.md ("distinguiendo las tres densidades").
-    """
+    """va vs S: color por densidad, marcador por modelo -- abarca todas las densidades."""
     if out_path is None:
         out_path = PLOTS_DIR / "va_vs_S.png"
 
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(8.5, 6))
     groups: dict[tuple, list[dict]] = {}
     for r in rows:
         groups.setdefault((r["rho"], r["model"]), []).append(r)
 
-    for (rho, model), group in sorted(groups.items()):
+    for (rho, model), group in sorted(groups.items(), key=lambda x: -x[0][0]):
         va = [r["va_mean"] for r in group]
         s_mean = [r["S_mean"] for r in group]
         marker = MARKER_VICSEK_SCATTER if model == "vicsek" else MARKER_VOTER_SCATTER
         ax.scatter(va, s_mean, color=_rho_color(rho), marker=marker,
-                   label=f"{model} rho={rho:g}")
+                   label=f"{model} ${_rho_label(rho)}$", alpha=0.85, edgecolors="none")
 
-    ax.set_xlabel("va")
-    ax.set_ylabel("S")
-    ax.set_title("va vs S -- tres densidades, dos modelos")
-    ax.legend(fontsize=9)
+    ax.set_xlabel(r"Polarización $v_a$", fontsize=11)
+    ax.set_ylabel(r"Fracción componente gigante $S$", fontsize=11)
+    ax.set_title(r"Polarización $v_a$ vs. Fracción del Cluster Gigante $S$", fontsize=12)
+    ax.legend(fontsize=8, loc="lower right")
+    ax.grid(True, linestyle=":", alpha=0.6)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if not show:
@@ -217,13 +272,7 @@ def plot_va_vs_S(rows: list[dict], out_path: Path = None, show: bool = False):
 
 
 def plot_S_rho(rows: list[dict], out_path: Path = None, show: bool = False):
-    """S(rho) a eta=0 (percolacion geometrica pura), 2 series: una por modelo.
-
-    A diferencia de plot_va_vs_S (agrupado por rho), aca rho es el eje x, asi
-    que `rows` se agrupa SOLO por model. Marca el umbral analitico de
-    percolacion continua (RHO_C_PERCOLATION) con una linea vertical punteada,
-    para comparar visualmente contra la transicion empirica.
-    """
+    """S(rho) a eta=0 (percolacion geometrica pura), 2 series: una por modelo."""
     if out_path is None:
         out_path = PLOTS_DIR / "S_rho.png"
 
@@ -243,11 +292,12 @@ def plot_S_rho(rows: list[dict], out_path: Path = None, show: bool = False):
                     capsize=3, label=model)
 
     ax.axvline(RHO_C_PERCOLATION, color="gray", linestyle=":",
-               label=f"umbral analitico rho_c={RHO_C_PERCOLATION:.4f}")
-    ax.set_xlabel("rho")
-    ax.set_ylabel("S")
-    ax.set_title("Fraccion del cluster gigante S vs densidad rho (eta=0)")
+               label=f"umbral analítico $\\rho_c = {RHO_C_PERCOLATION:.3f}$")
+    ax.set_xlabel(r"Densidad $\rho$", fontsize=11)
+    ax.set_ylabel(r"Fracción componente gigante $S$", fontsize=11)
+    ax.set_title(r"Fracción del cluster gigante $S$ vs. Densidad $\rho$ ($\eta=0$)", fontsize=12)
     ax.legend(fontsize=9)
+    ax.grid(True, linestyle=":", alpha=0.6)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if not show:
@@ -257,25 +307,12 @@ def plot_S_rho(rows: list[dict], out_path: Path = None, show: bool = False):
 
 
 def _round_half_away_from_zero(x: float) -> int:
-    """Redondeo half-away-from-zero, igual a `std::round` de C++ (TP2/src/main.cpp).
-
-    Python's builtin `round()` es half-to-even (banker's rounding), que puede
-    diverger de `std::round` para inputs que caen exactamente en `.5`. Esta
-    funcion replica la semantica de C++ para cualquier signo de `x`.
-    """
+    """Redondeo half-away-from-zero, igual a `std::round` de C++ (TP2/src/main.cpp)."""
     return math.floor(x + 0.5) if x >= 0 else math.ceil(x - 0.5)
 
 
 def compute_chi(rows: list[dict]) -> list[dict]:
-    """chi(eta) = N * va_std^2 por fila, con N = round(rho * L_DEFAULT^2) (PLUS-01).
-
-    Devuelve una lista NUEVA (no muta `rows`): cada elemento es una copia
-    superficial de la fila original mas la clave "chi". va_std^2 ya es la
-    varianza de va entre las K semillas (columna directa de summary.csv), asi
-    que no hace falta reabrir ningun log escalar por semilla. `N` se redondea
-    con `_round_half_away_from_zero` (no el `round()` builtin de Python) para
-    coincidir con `std::round` usado por el binario C++ (TP2/src/main.cpp).
-    """
+    """chi(eta) = N * va_std^2 por fila, con N = round(rho * L_DEFAULT^2)."""
     result = []
     for row in rows:
         n = _round_half_away_from_zero(row["rho"] * L_DEFAULT ** 2)
@@ -286,28 +323,27 @@ def compute_chi(rows: list[dict]) -> list[dict]:
 
 
 def plot_chi_eta(rows_with_chi: list[dict], out_path: Path = None, show: bool = False):
-    """chi(eta), 6 series: 3 densidades x 2 modelos. Sin barras de error.
-
-    Misma estructura de agrupado/orden/color/linestyle/marker que
-    plot_va_eta/plot_S_eta, pero chi es un punto derivado (no hay desvio de
-    chi en summary.csv), asi que se grafica con una linea simple (ax.plot),
-    no ax.errorbar.
-    """
+    """chi(eta) para las densidades estandar rho=2,4,8."""
     if out_path is None:
         out_path = PLOTS_DIR / "chi_eta.png"
 
+    std_rows = [r for r in rows_with_chi if any(abs(r["rho"] - r0) < 0.01 for r0 in (2.0, 4.0, 8.0))]
+    if not std_rows:
+        std_rows = rows_with_chi
+
     fig, ax = plt.subplots(figsize=(8, 6))
-    groups = _group_by_model_rho(rows_with_chi)
-    for (model, rho), group in sorted(groups.items()):
+    groups = _group_by_model_rho(std_rows)
+    for (model, rho), group in sorted(groups.items(), key=lambda x: (x[0][0], -x[0][1])):
         etas = [r["eta"] for r in group]
         chi = [r["chi"] for r in group]
         linestyle = LINESTYLE_VICSEK if model == "vicsek" else LINESTYLE_VOTER
         ax.plot(etas, chi, color=_rho_color(rho), linestyle=linestyle,
-                marker=_rho_marker(rho), label=f"{model} rho={rho:g}")
-    ax.set_xlabel("eta")
-    ax.set_ylabel("chi = N*va_std^2")
-    ax.set_title("Susceptibilidad chi vs ruido eta")
+                marker=_rho_marker(rho), label=f"{model} ${_rho_label(rho)}$")
+    ax.set_xlabel(r"$\eta$", fontsize=11)
+    ax.set_ylabel(r"Susceptibilidad $\chi = N \operatorname{Var}(v_a)$", fontsize=11)
+    ax.set_title(r"Susceptibilidad $\chi$ vs. Ruido $\eta$", fontsize=12)
     ax.legend(fontsize=9)
+    ax.grid(True, linestyle=":", alpha=0.6)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if not show:
@@ -320,12 +356,7 @@ ETA_C_TABLE_CSV = PLOTS_DIR / "eta_c_table.csv"
 
 
 def compute_eta_c_table(rows_with_chi: list[dict]) -> list[dict]:
-    """eta_c(rho) por (model,rho): eta del maximo de chi sobre la grilla ya muestreada (PLUS-03).
-
-    Argmax puro sobre la grilla ya muestreada -- sin interpolacion ni ajuste
-    de curva adicional. Empates de chi se rompen por el eta mas chico, para
-    que el resultado sea deterministico.
-    """
+    """eta_c(rho) por (model,rho): eta del maximo de chi sobre la grilla ya muestreada."""
     groups: dict[tuple, list[dict]] = {}
     for r in rows_with_chi:
         groups.setdefault((r["model"], r["rho"]), []).append(r)
@@ -339,11 +370,7 @@ def compute_eta_c_table(rows_with_chi: list[dict]) -> list[dict]:
 
 
 def write_eta_c_table(table: list[dict], out_path: Path = ETA_C_TABLE_CSV) -> None:
-    """Persiste eta_c_table.csv con columnas model,rho,eta_c.
-
-    Misma convencion csv.DictWriter + fieldnames fijos + writeheader() que
-    aggregate_to_csv/write_failures_csv en sweep.py.
-    """
+    """Persiste eta_c_table.csv con columnas model,rho,eta_c."""
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = ["model", "rho", "eta_c"]
     with open(out_path, "w", newline="") as f:
@@ -353,20 +380,12 @@ def write_eta_c_table(table: list[dict], out_path: Path = ETA_C_TABLE_CSV) -> No
 
 
 def steady_state_index(n_rows: int, fraction: float = STEADY_STATE_FRACTION) -> int:
-    """Indice de corte de estado estacionario -- identico al de sweep.summarize_run.
-
-    Textualmente el mismo calculo que la linea `cutoff = int(len(rows) * steady_fraction)`
-    dentro de `sweep.summarize_run`: se importa `STEADY_STATE_FRACTION` de `sweep.py` (nunca
-    se redefine el valor 0.5 aqui), asi que hay una unica fuente para el criterio de corte.
-    """
+    """Indice de corte de estado estacionario."""
     return int(n_rows * fraction)
 
 
 def read_scalar_log(path: Path) -> list[tuple[float, float, float]]:
-    """Lee un scalar-log `t va S` (espacio-separado, sin header) como lista de tuplas.
-
-    Mismo formato que escribe `sweep.py`'s `run_one` via `--scalar-log`.
-    """
+    """Lee un scalar-log `t va S` como lista de tuplas."""
     rows = []
     with open(path) as f:
         for line in f:
@@ -379,20 +398,9 @@ def read_scalar_log(path: Path) -> list[tuple[float, float, float]]:
 
 
 def pick_representative_eta(rows_summary: list[dict], rho: float, model: str) -> float:
-    """Eta representativo por (rho,model): el eta>0 mas chico con va_mean >= 0.8.
-
-    Un estado claramente ordenado con transitorio de convergencia visible, no el caso
-    trivial eta=0 -- eta=0 se excluye explicitamente del grupo antes de aplicar el
-    criterio, porque ahi ambos modelos ya estan practicamente ordenados desde el primer
-    paso y el criterio se cumpliria trivialmente sin mostrar ningun transitorio. Si
-    ningun eta>0 alcanza ese umbral, usa el eta>0 de la fila con el va_mean maximo del
-    subgrupo eta>0 (caso del modelo votante, que no cruza 0.8 en la grilla gruesa).
-    Solo si el grupo no tiene NINGUN eta>0 (caso degenerado que no deberia ocurrir en la
-    grilla real) cae de nuevo al grupo completo (incluyendo eta=0) para no lanzar
-    excepcion. Determinista: depende solo de summary.csv ya cargado, sin aleatoriedad.
-    """
+    """Eta representativo por (rho,model): el eta>0 mas chico con va_mean >= 0.8."""
     group = sorted(
-        (r for r in rows_summary if r["rho"] == rho and r["model"] == model),
+        (r for r in rows_summary if abs(r["rho"] - rho) < 1e-3 and r["model"] == model),
         key=lambda r: r["eta"],
     )
     nonzero_group = [r for r in group if r["eta"] > 0]
@@ -404,44 +412,27 @@ def pick_representative_eta(rows_summary: list[dict], rho: float, model: str) ->
     return max(nonzero_group, key=lambda r: r["va_mean"])["eta"]
 
 
-# Techo de repeat_index probado por el fallback de _representative_log_path --
-# sweep.py corre DEFAULT_K_SEEDS=5 semillas por punto del barrido completo, asi
-# que 5 cubre el rango real de repeat_index posibles para cualquier punto.
 DEFAULT_K_SEEDS_FALLBACK = 5
 
 
-def _representative_log_path(rho: float, model: str, rows_summary: list[dict]
-                              ) -> tuple[float, Path]:
-    """Resuelve (eta, log_path) del caso representativo, con fallback de repeat_index.
-
-    `repeat_index=0` es el caso normal (misma formula que sweep.py). Si ese seed
-    especifico no dejo archivo en disco (p.ej. esa corrida particular fallo durante
-    el barrido de 04-01 mientras otras semillas del mismo (model,rho,eta) si
-    tuvieron exito), se prueba repeat_index=1,2,... hasta encontrar un archivo
-    existente, en vez de fallar duro -- riesgo documentado en el plan.
-    """
+def _representative_log_path(rho: float, model: str, rows_summary: list[dict]) -> tuple[float, Path]:
+    """Resuelve (eta, log_path) del caso representativo."""
     eta = pick_representative_eta(rows_summary, rho, model)
     for repeat_index in range(DEFAULT_K_SEEDS_FALLBACK):
         seed = derive_seed(rho, eta, model, repeat_index)
         log_path = sweep_output_path(model, rho, eta, seed)
         if log_path.exists():
             return eta, log_path
-    # Ningun repeat_index encontro archivo: se deja fallar con repeat_index=0
-    # para que el mensaje de error apunte al path esperado por defecto.
     seed = derive_seed(rho, eta, model, 0)
     return eta, sweep_output_path(model, rho, eta, seed)
 
 
 def plot_scalar_timeseries(rho: float, model: str, column: str, rows_summary: list[dict],
                             out_path: Path = None, show: bool = False):
-    """va(t) o S(t) para el caso representativo de (rho,model), con linea vertical
-    en el mismo indice de corte de estado estacionario que usa sweep.summarize_run.
-
-    `column` es el literal "va" o "S". Reusa `RHO_COLORS` para la linea (consistencia
-    de paleta con los graficos va(eta)/S(eta)/chi(eta) de esta misma fase).
-    """
+    """va(t) o S(t) para el caso representativo de (rho,model)."""
+    tag = _rho_filename_tag(rho)
     if out_path is None:
-        out_path = PLOTS_DIR / f"{column}_t_{model}_rho{rho:g}.png"
+        out_path = PLOTS_DIR / f"{column}_t_{model}_rho{tag}.png"
 
     eta, log_path = _representative_log_path(rho, model, rows_summary)
     series = read_scalar_log(log_path)
@@ -456,11 +447,12 @@ def plot_scalar_timeseries(rho: float, model: str, column: str, rows_summary: li
 
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.plot(ts, ys, color=_rho_color(rho))
-    ax.axvline(cutoff_t, color="black", linestyle=":", label="estado estacionario")
-    ax.set_xlabel("t")
-    ax.set_ylabel(column)
-    ax.set_title(f"{column}(t) -- {model} rho={rho:g} eta={eta:.4f}")
+    ax.axvline(cutoff_t, color="black", linestyle=":", label="inicio estado estacionario")
+    ax.set_xlabel("Tiempo $t$", fontsize=11)
+    ax.set_ylabel(r"Observable $" + column + r"(t)$", fontsize=11)
+    ax.set_title(f"{column}(t) -- {model} ${_rho_label(rho)}$ ($\\eta={eta:.4f}$)", fontsize=12)
     ax.legend(fontsize=9)
+    ax.grid(True, linestyle=":", alpha=0.6)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if not show:
@@ -505,21 +497,20 @@ def main():
         plot_S_rho(rows_percolation, show=args.show)
         print(f"grafico: {PLOTS_DIR / 'S_rho.png'}")
     else:
-        print(f"aviso: {args.percolation_summary} no existe -- correr primero el "
-              f"barrido de percolacion (Task 2 de 260824-i0l-05) para generar S_rho.png")
+        print(f"aviso: {args.percolation_summary} no existe -- generar con sweep.py")
 
+    # Identificar todas las densidades presentes en summary.csv
+    unique_rhos = sorted({r["rho"] for r in rows})
     timeseries_paths = []
-    for rho in (2.0, 4.0, 8.0):
+    for rho in unique_rhos:
         for column in ("va", "S"):
             for model in ("vicsek", "voter"):
-                plot_scalar_timeseries(rho, model, column, rows, show=args.show)
-                path = PLOTS_DIR / f"{column}_t_{model}_rho{rho:g}.png"
+                tag = _rho_filename_tag(rho)
+                path = PLOTS_DIR / f"{column}_t_{model}_rho{tag}.png"
+                plot_scalar_timeseries(rho, model, column, rows, out_path=path, show=args.show)
                 print(f"grafico: {path}")
                 timeseries_paths.append(path)
 
-    # Resumen final: lista completa de artefactos que produce una sola
-    # invocacion de `python3 python/analyze.py`, acumulados de 04-01, 04-03 y
-    # este plan (5 + 12 = 17 archivos: 16 PNG + 1 CSV).
     all_artifacts = [
         PLOTS_DIR / "va_eta.png",
         PLOTS_DIR / "S_eta.png",
@@ -528,7 +519,7 @@ def main():
         ETA_C_TABLE_CSV,
         *timeseries_paths,
     ]
-    print(f"\nconjunto completo de artefactos estaticos de Fase 4 ({len(all_artifacts)} archivos):")
+    print(f"\nconjunto completo de artefactos ({len(all_artifacts)} archivos):")
     for path in all_artifacts:
         print(f"  {path}")
 

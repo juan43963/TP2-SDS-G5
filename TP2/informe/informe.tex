@@ -277,21 +277,16 @@ que una mayor densidad facilita el acoplamiento entre vecinos.
   \label{fig:va-eta}
 \end{figure}
 
-La Fig.~\ref{fig:s-eta} muestra el mismo barrido para la fracción del cluster
-gigante $S$. A diferencia de $v_a$, $S$ se mantiene cercano a 1 en casi todo el
-rango de $\eta$ y para las tres densidades: dado que $r_c$ y $\rho$ ya generan una
-red de vecinos densamente conectada, casi todas las partículas terminan formando
-parte de una única componente conexa gigante independientemente del grado de
-orden direccional del sistema. La única desviación apreciable ocurre en
-Vicsek $\rho=2$ (la densidad más baja), donde $S$ cae levemente (hasta
-$\approx 0.96$) en la región de $\eta$ intermedio, reflejando que a baja densidad
-la conectividad de la red es más marginal y más sensible al ruido.
+La Fig.~\ref{fig:s-eta} muestra el barrido para la fracción del cluster gigante $S$ en función de $\eta$, comparando el régimen supercrítico ($\rho=2,4,8$) contra el régimen subcrítico ($\rho=1/\pi, 1/(2\pi), 1/(3\pi)$) solicitado por la cátedra para el estudio de clusters.
+
+En el panel izquierdo (régimen supercrítico), $S$ se mantiene cercano a 1 en casi todo el rango de $\eta$ y para las tres densidades altas ($\rho=2, 4, 8$): dado que la densidad supera ampliamente el umbral de percolación geométrica, la red de interacción está densamente conectada a priori.
+
+En cambio, en el panel derecho (régimen subcrítico, $\rho \in \{1/\pi, 1/(2\pi), 1/(3\pi)\}$), la red espacial no percola de forma geométrica aleatoria. Aquí, la formación de una componente gigante $S > 0$ es producto del \emph{alineamiento dinámico}: a bajo ruido ($\eta \to 0$), las partículas se mueven en bandada y se agrupan en un cluster gigante coherente ($S \to 1$), mientras que al aumentar el ruido $\eta$ la bandada se desintegra y el tamaño del cluster cae hacia el valor de ruido de fondo ($S \to 1/N$).
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{S_eta.png}
-  \caption{Fracción del cluster gigante $S$ en función del ruido angular $\eta$,
-    mismas combinaciones de la Fig.~\ref{fig:va-eta}.}
+  \includegraphics[width=\textwidth]{S_eta.png}
+  \caption{Fracción del cluster gigante $S$ en función del ruido angular $\eta$. Panel izquierdo: régimen supercrítico ($\rho=2,4,8$, $N=200,400,800$), donde $S \approx 1$. Panel derecho: régimen subcrítico ($\rho=1/\pi, 1/(2\pi), 1/(3\pi)$, $N=32,16,11$), donde $S(\eta)$ exhibe la desintegración dinámica del cluster con el ruido.}
   \label{fig:s-eta}
 \end{figure}
 
@@ -373,19 +368,16 @@ por debajo de $\rho_c$.
   \label{fig:s-rho}
 \end{figure}
 
-La Fig.~\ref{fig:va-vs-s} relaciona directamente ambos observables, distinguiendo
-las tres densidades. Para $\rho=8$ (mayor densidad) $S$ permanece esencialmente en
-1 sin importar el valor de $v_a$: la red siempre está conectada. Para $\rho=2$ (la
-más baja) aparece una correlación positiva más marcada entre $v_a$ y $S$: los
-puntos de menor polarización también muestran los valores de $S$ más bajos del
-gráfico, evidenciando que a baja densidad la fragmentación en clusters y la
-pérdida de orden direccional están más acopladas entre sí.
+La Fig.~\ref{fig:va-vs-s} relaciona directamente ambos observables ($v_a$ vs. $S$), abarcando tanto las densidades estándar ($\rho=2,4,8$) como las subcríticas ($\rho=1/\pi, 1/(2\pi), 1/(3\pi)$).
+
+Para las densidades supercríticas ($\rho=4, 8$, y en gran medida $\rho=2$), los puntos se agrupan en la franja superior ($S \approx 1$) cubriendo todo el rango de polarización $v_a \in [0, 1]$: la red espacial está permanentemente conectada con independencia del orden direccional.
+
+En cambio, para las densidades subcríticas ($\rho \le 1/\pi$), la figura revela una clara correlación diagonal: los estados altamente polarizados ($v_a \approx 1$) corresponden a bandadas densas y unificadas ($S \approx 1$), mientras que a medida que el desorden angular crece ($v_a \to 0$), la bandada se fragmenta en clusters pequeños ($S \to 1/N$).
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{va_vs_S.png}
-  \caption{Polarización $v_a$ vs. fracción del cluster gigante $S$, distinguiendo
-    las tres densidades y ambos modelos.}
+  \includegraphics[width=0.85\textwidth]{va_vs_S.png}
+  \caption{Polarización $v_a$ vs. fracción del cluster gigante $S$, distinguiendo las densidades supercríticas ($\rho=2,4,8$) y subcríticas ($\rho=1/\pi, 1/(2\pi), 1/(3\pi)$) para ambos modelos de interacción.}
   \label{fig:va-vs-s}
 \end{figure}
 
