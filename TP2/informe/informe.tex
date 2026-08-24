@@ -295,6 +295,84 @@ la conectividad de la red es más marginal y más sensible al ruido.
   \label{fig:s-eta}
 \end{figure}
 
+La saturación de $S$ cerca de 1 en las tres densidades del enunciado tiene una
+explicación geométrica directa: para un radio de interacción $r_c=1$, el número
+medio de vecinos geométricos de una partícula (dentro de $r_c$, independientemente
+de su orientación) es $\langle k \rangle = \rho \pi r_c^2$. Este es precisamente el
+parámetro de control de la percolación continua de discos en 2D, cuyo umbral de
+percolación es $\langle k \rangle_c \approx 4.51$ (valor estándar de la teoría de
+percolación continua para el modelo de discos superpuestos aleatorios; no se cuenta
+con una cita bibliográfica específica para ese número en este trabajo). La
+Tabla~\ref{tab:k-percolacion} muestra que las tres densidades $\rho=2,4,8$ usadas en
+el enunciado dan $\langle k \rangle = 6.28, 12.57, 25.13$ respectivamente, todas muy
+por encima del umbral -- la red de vecinos geométricos ya está en régimen
+supercrítico (percolada) antes incluso de considerar la dinámica de alineación, por
+lo que casi cualquier configuración produce una única componente conexa gigante y
+$S$ queda estructuralmente cerca de 1 independientemente de $\eta$. En cambio, las
+tres densidades usadas en la consulta C1 ($\rho = 1/\pi,\ 1/(2\pi),\ 1/(3\pi)$) dan
+$\langle k \rangle = 1.00, 0.50, 0.33$, muy por debajo del umbral: régimen
+subcrítico, donde la red de vecinos está fragmentada en clusters pequeños
+desconectados entre sí.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Número medio de vecinos geométricos $\langle k \rangle = \rho \pi r_c^2$
+    ($r_c=1$) para las densidades del enunciado y las de la consulta C1, comparado
+    contra el umbral de percolación continua bidimensional
+    $\langle k \rangle_c \approx 4.51$.}
+  \label{tab:k-percolacion}
+  \begin{tabular}{lccc}
+    \toprule
+    $\rho$ & $N = \rho L^2$ ($L=10$) & $\langle k \rangle = \rho \pi r_c^2$ & Régimen \\
+    \midrule
+    8 & 800 & 25.133 & Supercrítico \\
+    4 & 400 & 12.566 & Supercrítico \\
+    2 & 200 & 6.283 & Supercrítico \\
+    \midrule
+    --- & --- & 4.510 & Umbral $\langle k \rangle_c$ \\
+    \midrule
+    $1/\pi \approx 0.318$ & 31.83 & 1.000 & Subcrítico \\
+    $1/(2\pi) \approx 0.159$ & 15.92 & 0.500 & Subcrítico \\
+    $1/(3\pi) \approx 0.106$ & 10.61 & 0.333 & Subcrítico \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Como complemento empírico a la justificación analítica de la
+Tabla~\ref{tab:k-percolacion}, se corrió un barrido adicional real en esta máquina,
+reusando \texttt{run\_sweep}/\texttt{aggregate\_to\_csv} de \texttt{sweep.py} y
+\texttt{plot\_S\_rho} de \texttt{analyze.py}, a densidades
+$\rho \in \{0.15, 0.30, \ldots, 1.50\}$ (10 valores, $N$ entre 15 y 150 con
+$L=10$), ruido fijo $\eta=0$ (percolación geométrica pura, sin dinámica de
+alineación de por medio), ambos modelos de interacción y $K=5$ semillas por punto.
+Este rango fue elegido porque el umbral analítico en términos de $\rho$,
+$\rho_c = 4.51/(\pi r_c^2) \approx 1.436$, cae dentro de él. La Fig.~\ref{fig:s-rho}
+muestra el resultado: para el modelo de Vicsek, $S$ ya es alto
+($\gtrsim 0.92$) incluso en el punto más bajo del barrido ($\rho=0.15$) y alcanza
+$S=1$ exactamente a partir de $\rho=1.05$, apenas por debajo del umbral analítico
+marcado con la línea vertical punteada. Para el modelo de votante, $S$ fluctúa de
+forma más ruidosa en todo el rango (entre $\approx 0.85$ y $0.98$, con desviaciones
+estándar apreciables entre semillas) sin mostrar una transición tan nítida como
+Vicsek, consistente con la mayor sensibilidad del modelo de votante al ruido de
+tamaño finito ya observada en las Figs.~\ref{fig:va-eta} y~\ref{fig:s-eta}. Ambos
+modelos muestran valores de $S$ sistemáticamente altos ($S \geq 0.85$) en todo el
+rango barrido, sin un colapso nítido por debajo del umbral analítico -- resultado
+esperable dado que $N$ es pequeño en este barrido (hasta apenas 15 partículas en
+$\rho=0.15$, donde $\langle k \rangle \approx 0.47$): el umbral de percolación es
+una propiedad de sistemas de tamaño infinito, y con $N$ tan chico las fluctuaciones
+de tamaño finito ensanchan la transición y elevan el valor de $S$ medido incluso
+por debajo de $\rho_c$.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{S_rho.png}
+  \caption{Fracción del cluster gigante $S$ en función de la densidad $\rho$, a
+    ruido $\eta=0$ (percolación geométrica pura), para ambos modelos. La línea
+    vertical punteada marca el umbral analítico de percolación continua
+    $\rho_c = 4.51/(\pi r_c^2) \approx 1.436$ (Tabla~\ref{tab:k-percolacion}).}
+  \label{fig:s-rho}
+\end{figure}
+
 La Fig.~\ref{fig:va-vs-s} relaciona directamente ambos observables, distinguiendo
 las tres densidades. Para $\rho=8$ (mayor densidad) $S$ permanece esencialmente en
 1 sin importar el valor de $v_a$: la red siempre está conectada. Para $\rho=2$ (la
@@ -465,6 +543,14 @@ de $\eta$ y para las tres densidades, indicando que la conectividad de vecinos n
 depende fuertemente del grado de orden direccional salvo en el caso de menor
 densidad ($\rho=2$), donde sí se observa una correlación apreciable entre la
 pérdida de polarización y la fragmentación de la red en más de un cluster grande.
+Esta saturación se explica geométricamente: el número medio de vecinos geométricos
+$\langle k \rangle = \rho \pi r_c^2$ en $\rho=2,4,8$ supera ampliamente el umbral de
+percolación continua bidimensional ($\langle k \rangle_c \approx 4.51$), por lo que
+la red de vecinos ya está percolada antes de considerar la dinámica de alineación;
+el barrido complementario a densidades menores ($\rho \in [0.15, 1.50]$,
+Fig.~\ref{fig:s-rho}) confirma empíricamente valores de $S$ más bajos y ruidosos en
+torno al umbral analítico, aunque atenuados por efectos de tamaño finito dado el
+$N$ pequeño de ese barrido.
 
 Finalmente, el benchmark de tiempos confirma que el motor de TP2 preserva el
 comportamiento de escalado del Cell Index Method reutilizado de TP1: aunque el
