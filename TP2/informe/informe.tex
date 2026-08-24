@@ -59,6 +59,28 @@ Fecha de Entrega: 04/09/2026
 
 \end{titlepage}
 
+\begin{abstract}
+Este trabajo implementa y compara dos reglas de interacción para bandadas de
+agentes autopropulsados fuera de red: el modelo de Vicsek, donde cada partícula
+promedia la orientación de sus vecinos, y un modelo de votante, donde copia la
+orientación de un único vecino al azar, ambas perturbadas por ruido angular
+$\eta$. El motor en C++ reutiliza el Cell Index Method (CIM) del Trabajo
+Práctico 1 para la búsqueda de vecinos, en una caja periódica de lado $L=10$. Se
+caracteriza la transición orden-desorden mediante la polarización $v_a$ y la
+fracción del cluster gigante $S$ en función de $\eta$, para tres densidades
+$\rho=2,4,8$. Los resultados muestran que Vicsek sostiene el orden hasta ruidos
+apreciablemente mayores que el votante, y que ese umbral crece con la densidad
+en ambos modelos. La fracción $S$ satura cerca de 1 en las tres densidades
+porque el número medio de vecinos supera el umbral de percolación continua;
+para exhibir esa transición empíricamente se agrega un barrido complementario
+a densidades menores. Finalmente, se verifica que el motor conserva el
+escalado del CIM observado en el Trabajo Práctico 1.
+\end{abstract}
+
+\clearpage
+\tableofcontents
+\clearpage
+
 \section{Introduccion}
 
 Las bandadas de agentes autopropulsados son sistemas de muchas partículas que se
