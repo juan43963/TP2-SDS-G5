@@ -93,7 +93,14 @@ None yet.
 
 ### Blockers/Concerns
 
-- Deadline duro: entrega 04/09/2026 13:00 (campus) — v1.0 ya está construido y verificado; quedan solo dos pasos manuales fuera de alcance del pipeline: (1) subir `animation_vicsek_rho2.gif`/`animation_voter_rho2.gif` a YouTube/Drive y reemplazar los placeholders `[PEGAR LINK DE VIDEO AQUI]` en `TP2/presentacion/presentacion.tex`, recompilando después; (2) revisión final humana de `informe.pdf`/`presentacion.pdf` antes de la entrega real.
+- Deadline duro: entrega 04/09/2026 13:00 (campus) — quedan pasos manuales fuera de alcance del pipeline: (1) subir `animation_vicsek_rho2.gif`/`animation_voter_rho2.gif` a YouTube/Drive y pegar el link real donde `presentacion.tex`/`informe.tex` dejan un TODO(usuario) explícito, recompilando después; (2) completar los dos legajos marcados `[LEGAJO]` (Juan Francisco Palermo, Gonzalo Sharif Curi Martinez) en la carátula de informe y presentación; (3) conseguir/agregar el logo ITBA si se consigue el archivo (hay un TODO en el preámbulo del informe); (4) regenerar `TP2/data/plots/benchmark_tp1_vs_tp2.png` con una corrida fresca del pipeline real antes de la entrega — la versión actual es recuperada de un PDF previamente comprometido, no una corrida nueva; (5) revisión final humana de `informe.pdf`/`presentacion.pdf` antes de la entrega real.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260824-i0l-01 | Parámetros explícitos rc/v0/dt + carátula real (informe) | 2026-08-24 | 98b93a5 | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
+| 260824-i0l-02 | Carátula Beamer + placeholders de video → TODO + fix overflow (presentación) | 2026-08-24 | 3b39d12 | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
 
 ## Deferred Items
 
