@@ -26,7 +26,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent
 TP2_DIR = REPO_ROOT / "TP2"
 
-PREFIX = "SdS_TP2_2026Q2G05CS"
+PREFIX = "SdS_TP2_2026Q2G05CSS"
 OUT_ZIP = REPO_ROOT / f"{PREFIX}_Codigo.zip"
 OUT_INFORME = REPO_ROOT / f"{PREFIX}_Informe.pdf"
 OUT_PRESENTACION = REPO_ROOT / f"{PREFIX}_Presentación.pdf"
