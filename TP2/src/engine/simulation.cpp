@@ -51,7 +51,6 @@ Simulation::Simulation(std::vector<VicsekParticle> particles, double L, double r
       grid_(M, L, rc, periodic),
       thetaNew_(particles_.size()),
       L_(L),
-      rc_(rc),
       v0_(v0),
       dt_(dt),
       periodic_(periodic),

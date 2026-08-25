@@ -40,7 +40,7 @@ private:
     std::vector<VicsekParticle> particles_;
     Grid grid_;
     std::vector<double> thetaNew_;
-    double L_, rc_, v0_, dt_;
+    double L_, v0_, dt_;
     bool periodic_;
     Model model_;
     double eta_;
