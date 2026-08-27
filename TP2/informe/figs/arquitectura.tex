@@ -1,0 +1,99 @@
+% Arquitectura del motor de simulacion (TP2). Figura standalone incluida con
+% \input desde informe.tex; requiere \usepackage{tikz} y las librerias
+% arrows.meta, positioning, fit, backgrounds, calc en el preambulo del
+% documento que la incluye.
+%
+% Los nombres son los del codigo real (TP2/src/): clases, metodos y funciones
+% libres se escriben en \texttt{} tal como aparecen en los fuentes.
+\begin{tikzpicture}[
+    font=\small,
+    node distance=0pt,
+    box/.style={
+      draw=black!55, rounded corners=1.6pt, align=center,
+      inner xsep=5pt, inner ysep=4pt, text width=#1
+    },
+    estado/.style={box=3.5cm, fill=black!8},
+    proceso/.style={box=4.2cm, fill=white},
+    dato/.style={box=3.6cm, fill=black!16, draw=black!70},
+    salida/.style={box=4.6cm, fill=white, draw=black!70, dashed},
+    py/.style={box=4.6cm, fill=black!5, draw=black!45},
+    flecha/.style={-{Latex[length=2mm,width=1.4mm]}, draw=black!60, thick},
+    flecha2/.style={-{Latex[length=2mm,width=1.4mm]}, draw=black!60, thick, dashed},
+    etiqueta/.style={font=\scriptsize\itshape, text=black!60, align=center},
+    fase/.style={font=\scriptsize\bfseries, text=black!45}
+  ]
+
+  % ---------------- Estado ----------------
+  \node[estado] (estado) at (0,0)
+    {\texttt{Simulation}\\[1pt]
+     {\scriptsize\texttt{particles\_} (\texttt{VicsekParticle}: \texttt{x, y, theta}),\\
+      \texttt{grid\_}, \texttt{thetaNew\_}, \texttt{rng\_}}};
+
+  % ---------------- Fase 1: CIM ----------------
+  \node[proceso, below=1.0cm of estado] (rebuild)
+    {\texttt{Grid::rebuild(particles\_)}\\[1pt]
+     {\scriptsize grilla $M\times M$, celdas indexadas con\\
+      \texttt{cellIndex}; vecinos con \texttt{wrap}\\ y \texttt{withinRadius}}};
+
+  \node[dato, below=0.85cm of rebuild] (nl)
+    {\texttt{NeighborList}\\[1pt]
+     {\scriptsize lista de adyacencia\\ (\texttt{grid\_.neighbors()})}};
+
+  % ---------------- Bifurcacion ----------------
+  \node[proceso, below left=1.15cm and 0.55cm of nl] (regla)
+    {\textbf{Regla de interacci\'on}\\[2pt]
+     {\scriptsize \texttt{circularMeanHeading} (Vicsek)\\
+      \texttt{voterHeading} (votante)\\
+      $+$ \texttt{addAngularNoise}\\
+      $\rightarrow$ \texttt{thetaNew\_}}};
+
+  \node[proceso, below right=1.15cm and 0.55cm of nl] (obs)
+    {\textbf{Observables}\\[2pt]
+     {\scriptsize \texttt{polarization(particles\_)}\\
+      \texttt{giantComponentFraction(}\\ \texttt{grid\_.neighbors())}}};
+
+  % ---------------- Fase 2: integracion ----------------
+  \node[proceso, below=1.0cm of regla] (integra)
+    {\textbf{Integraci\'on}\\[2pt]
+     {\scriptsize \texttt{headingToVelocity} $+$ \texttt{periodicWrap}\\
+      commit de \texttt{x, y, theta}}};
+
+  % ---------------- Salidas ----------------
+  \node[salida, below=1.0cm of integra] (traj)
+    {\texttt{writeTrajectoryFrame}\\[1pt]
+     {\scriptsize texto plano: $t$, luego\\ \texttt{x y vx vy} por part\'{\i}cula}};
+
+  \node[salida] (scalar) at (obs |- traj)
+    {\texttt{scalar-log}\\[1pt]
+     {\scriptsize texto plano: \texttt{t va S}\\ por paso}};
+
+  % ---------------- Modulo Python ----------------
+  \node[py, below=1.0cm of traj] (animate)
+    {\texttt{python/animate.py}\\[1pt]
+     {\scriptsize animaci\'on (GIF)}};
+
+  \node[py] (analyze) at (scalar |- animate)
+    {\texttt{python/sweep.py}, \texttt{analyze.py}\\[1pt]
+     {\scriptsize barrido, promedios y figuras}};
+
+  % ---------------- Flechas ----------------
+  \draw[flecha] (estado) -- node[etiqueta, right=2pt] {fase 1} (rebuild);
+  \draw[flecha] (rebuild) -- (nl);
+  \draw[flecha] (nl.south) -- ++(0,-0.35) -| (regla.north);
+  \draw[flecha2] (nl.south) -- ++(0,-0.35) -| (obs.north);
+  \draw[flecha] (regla) -- node[etiqueta, right=2pt] {fase 2} (integra);
+  \draw[flecha] (integra) -- (traj);
+  \draw[flecha] (obs) -- (scalar);
+  \draw[flecha] (traj) -- (animate);
+  \draw[flecha] (scalar) -- (analyze);
+
+  % realimentacion: el estado avanza un paso
+  \draw[flecha] (integra.west) -- ++(-1.15,0) node[etiqueta, midway, above] {}
+    |- node[etiqueta, pos=0.25, rotate=90, above] {paso siguiente} (estado.west);
+
+  % resincronizacion del grid para los observables
+  \draw[flecha2] (integra.east) -- ++(0.5,0) |- ($(rebuild.east)+(0,-0.32)$)
+    node[etiqueta, pos=0.28, right=1pt, align=left]
+    {\texttt{syncNeighbors()}:\\ segundo \texttt{rebuild} sobre\\ las posiciones ya\\ avanzadas (solo si el\\ \texttt{scalar-log} est\'a activo)};
+
+\end{tikzpicture}
