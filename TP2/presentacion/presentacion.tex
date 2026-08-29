@@ -25,7 +25,7 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
 
-\graphicspath{{../data/plots/}{./}{../informe/figs/}}
+\graphicspath{{../data/plots/}{../data/plots/timeseries/}{../data/plots/eta/}{../data/plots/phase/}{../data/plots/benchmark/}{../data/plots/extra/}{./}{../informe/figs/}}
 
 % Guia 3.5: vectores en negrita sin italica, escalares en italica sin negrita.
 \newcommand{\vect}[1]{\mathbf{#1}}
@@ -34,18 +34,23 @@
 \setbeamertemplate{footline}[frame number]
 \setbeamercovered{transparent}
 
-% Diapositiva divisoria automatica por seccion (guia 1.13).
+% Diapositiva divisoria automatica por seccion (guia 1.13). El color "title"
+% de whale es texto blanco pensado para ir SOBRE la caja de fondo oscura que
+% da beamercolorbox; usar solo el fg (como antes) deja texto blanco sobre el
+% fondo blanco de la diapositiva -- invisible. beamercolorbox pinta ambos.
 \AtBeginSection[]{%
   \begin{frame}[plain]
     \vfill
-    \centering
-    {\usebeamerfont{title}\usebeamercolor[fg]{title}\insertsectionhead}
+    \begin{beamercolorbox}[sep=8pt,center]{title}
+      \usebeamerfont{title}\insertsection
+    \end{beamercolorbox}
     \vfill
   \end{frame}
 }
 
-% Bloque de parametros al costado de una figura (guia 1.7).
-\newcommand{\params}[1]{{\scriptsize #1}}
+% Bloque de parametros al costado de una figura (guia 1.7). \footnotesize en
+% vez de \scriptsize (guia 1.8: legible desde el fondo de la sala).
+\newcommand{\params}[1]{{\footnotesize #1}}
 
 \title[Bandadas: Vicsek y Votante]{Autómata Off-Lattice: Bandadas de agentes autopropulsados}
 \subtitle{Modelo de Vicsek y Modelo de Votante}
@@ -106,6 +111,9 @@
   \vspace{0.3em}
   \centering
   Ruido angular uniforme: $\Delta\theta_i \in [-\eta/2,\; \eta/2]$
+
+  \vspace{0.3em}
+  {\footnotesize $\Delta t$, $v$ y $\eta$ son adimensionales (sin unidades físicas asociadas).}
 \end{frame}
 
 % =====================================================================
@@ -144,7 +152,6 @@
         \item Motor en \textbf{C\texttt{++}20}, sin dependencias externas.
         \item \texttt{Particle} guarda sólo $x$, $y$, $\theta$: la velocidad se deriva de $\theta$.
         \item Los dos modelos comparten todo salvo la regla de alineamiento.
-        \item Salida en texto plano; análisis y animación en Python, aparte.
       \end{itemize}
     \end{column}
   \end{columns}
@@ -278,28 +285,29 @@
 % ---------------------------------------------------------------- 13
 \begin{frame}{Vicsek: dinámica característica}
   \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.36\textwidth}
       \centering
-      \includegraphics[height=0.52\textheight]{frame_vicsek_rho2_ordenado.png}\\[2pt]
+      \includegraphics[height=0.48\textheight]{frame_vicsek_rho2_ordenado.png}\\[2pt]
       {\scriptsize $\eta = 1{,}0$}\\
       {\tiny\color{blue}\url{https://youtu.be/PENDIENTE-1}}
     \end{column}
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.36\textwidth}
       \centering
-      \includegraphics[height=0.52\textheight]{frame_vicsek_rho2_desordenado.png}\\[2pt]
+      \includegraphics[height=0.48\textheight]{frame_vicsek_rho2_desordenado.png}\\[2pt]
       {\scriptsize $\eta = 4{,}0$}\\
       {\tiny\color{blue}\url{https://youtu.be/PENDIENTE-2}}
     \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$\rho = 2$ \ ($N = 200$)\\$L = 10$, \ $r_c = 1$\\[4pt]Fotograma en $t = 850$.\\[4pt]Color según el ángulo de la velocidad.}
+    \end{column}
   \end{columns}
-  \vspace{0.4em}
-  \centering \params{$\rho = 2$ \ ($N = 200$), \ $L = 10$, \ $r_c = 1$. \ Fotograma en $t = 850$. \ Color según el ángulo de la velocidad.}
 \end{frame}
 
 % ---------------------------------------------------------------- 14
 \begin{frame}{Vicsek: evolución temporal de la polarización}
   \begin{columns}[c]
     \begin{column}{0.70\textwidth}
-      \centering\includegraphics[height=0.72\textheight,keepaspectratio]{va_t_vicsek_rho2.png}
+      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_t_vicsek_rho2.png}
     \end{column}
     \begin{column}{0.28\textwidth}
       \params{
@@ -318,7 +326,7 @@
 \begin{frame}{Vicsek: polarización en función del ruido}
   \begin{columns}[c]
     \begin{column}{0.70\textwidth}
-      \centering\includegraphics[height=0.72\textheight,keepaspectratio]{va_eta_vicsek.png}
+      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_eta_vicsek.png}
     \end{column}
     \begin{column}{0.28\textwidth}
       \params{
@@ -337,62 +345,77 @@
 \end{frame}
 
 % ---------------------------------------------------------------- 16
-\begin{frame}{Vicsek: evolución temporal de la componente gigante}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \centering\includegraphics[height=0.62\textheight,keepaspectratio]{S_t_vicsek_rho2.png}\\
-      {\scriptsize $\rho = 2$ \ ($N = 200$)}
+\begin{frame}{Vicsek: evolución temporal de la componente gigante ($\rho = 2$)}
+  \begin{columns}[c]
+    \begin{column}{0.70\textwidth}
+      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_t_vicsek_rho2.png}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \centering\includegraphics[height=0.62\textheight,keepaspectratio]{S_t_vicsek_rho1_pi.png}\\
-      {\scriptsize $\rho = 1/\pi$ \ ($N = 32$)}
+    \begin{column}{0.28\textwidth}
+      \params{Vicsek\\$\rho = 2$ \ ($N = 200$)\\$L = 10$, \ $r_c = 1$\\$2\times10^{3}$ pasos}
     \end{column}
   \end{columns}
-  \vspace{0.3em}
-  \centering \params{Vicsek, \ $L = 10$, \ $r_c = 1$. \ Izquierda: $2\times10^{3}$ pasos. \ Derecha: $1\times10^{4}$ pasos.}
+\end{frame}
+
+\begin{frame}{Vicsek: evolución temporal de la componente gigante ($\rho = 1/\pi$)}
+  \begin{columns}[c]
+    \begin{column}{0.70\textwidth}
+      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_t_vicsek_rho1_pi.png}
+    \end{column}
+    \begin{column}{0.28\textwidth}
+      \params{Vicsek\\$\rho = 1/\pi$ \ ($N = 32$)\\$L = 10$, \ $r_c = 1$\\$1\times10^{4}$ pasos}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 17
-\begin{frame}{Vicsek: componente gigante en función del ruido}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \centering\includegraphics[height=0.62\textheight,keepaspectratio]{S_eta_vicsek_super.png}\\
-      {\scriptsize $\rho = 2,\ 4,\ 8$}
+\begin{frame}{Vicsek: componente gigante en función del ruido ($\rho = 2,\ 4,\ 8$)}
+  \begin{columns}[c]
+    \begin{column}{0.70\textwidth}
+      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_eta_vicsek_super.png}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \centering\includegraphics[height=0.62\textheight,keepaspectratio]{S_eta_vicsek_sub.png}\\
-      {\scriptsize $\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$}
+    \begin{column}{0.28\textwidth}
+      \params{Vicsek\\$\rho = 2,\ 4,\ 8$\\10 realizaciones\\por punto\\[6pt]Barras de error: desvío estándar entre realizaciones.}
     \end{column}
   \end{columns}
-  \vspace{0.3em}
-  \centering \params{Vicsek, \ 10 realizaciones por punto. \ Barras de error: desvío estándar entre realizaciones.}
+\end{frame}
+
+\begin{frame}{Vicsek: componente gigante en función del ruido ($\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$)}
+  \begin{columns}[c]
+    \begin{column}{0.70\textwidth}
+      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_eta_vicsek_sub.png}
+    \end{column}
+    \begin{column}{0.28\textwidth}
+      \params{Vicsek\\$\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$\\10 realizaciones\\por punto\\[6pt]Barras de error: desvío estándar entre realizaciones.}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 18
 \begin{frame}{Votante: dinámica característica}
   \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.36\textwidth}
       \centering
-      \includegraphics[height=0.52\textheight]{frame_voter_rho2_ordenado.png}\\[2pt]
+      \includegraphics[height=0.48\textheight]{frame_voter_rho2_ordenado.png}\\[2pt]
       {\scriptsize $\eta = 0{,}05$}\\
       {\tiny\color{blue}\url{https://youtu.be/PENDIENTE-3}}
     \end{column}
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.36\textwidth}
       \centering
-      \includegraphics[height=0.52\textheight]{frame_voter_rho2_desordenado.png}\\[2pt]
+      \includegraphics[height=0.48\textheight]{frame_voter_rho2_desordenado.png}\\[2pt]
       {\scriptsize $\eta = 1{,}0$}\\
       {\tiny\color{blue}\url{https://youtu.be/PENDIENTE-4}}
     \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$\rho = 2$ \ ($N = 200$)\\$L = 10$, \ $r_c = 1$\\[4pt]Fotograma en $t = 850$.\\[4pt]Color según el ángulo de la velocidad.}
+    \end{column}
   \end{columns}
-  \vspace{0.4em}
-  \centering \params{$\rho = 2$ \ ($N = 200$), \ $L = 10$, \ $r_c = 1$. \ Fotograma en $t = 850$. \ Color según el ángulo de la velocidad.}
 \end{frame}
 
 % ---------------------------------------------------------------- 19
 \begin{frame}{Votante: evolución temporal de la polarización}
   \begin{columns}[c]
     \begin{column}{0.70\textwidth}
-      \centering\includegraphics[height=0.72\textheight,keepaspectratio]{va_t_voter_rho2.png}
+      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_t_voter_rho2.png}
     \end{column}
     \begin{column}{0.28\textwidth}
       \params{
@@ -411,7 +434,7 @@
 \begin{frame}{Votante: polarización en función del ruido}
   \begin{columns}[c]
     \begin{column}{0.70\textwidth}
-      \centering\includegraphics[height=0.72\textheight,keepaspectratio]{va_eta_voter.png}
+      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_eta_voter.png}
     \end{column}
     \begin{column}{0.28\textwidth}
       \params{
@@ -430,42 +453,56 @@
 \end{frame}
 
 % ---------------------------------------------------------------- 21
-\begin{frame}{Votante: evolución temporal de la componente gigante}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \centering\includegraphics[height=0.62\textheight,keepaspectratio]{S_t_voter_rho2.png}\\
-      {\scriptsize $\rho = 2$ \ ($N = 200$)}
+\begin{frame}{Votante: evolución temporal de la componente gigante ($\rho = 2$)}
+  \begin{columns}[c]
+    \begin{column}{0.70\textwidth}
+      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_t_voter_rho2.png}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \centering\includegraphics[height=0.62\textheight,keepaspectratio]{S_t_voter_rho1_pi.png}\\
-      {\scriptsize $\rho = 1/\pi$ \ ($N = 32$)}
+    \begin{column}{0.28\textwidth}
+      \params{Votante\\$\rho = 2$ \ ($N = 200$)\\$L = 10$, \ $r_c = 1$\\$2\times10^{3}$ pasos}
     \end{column}
   \end{columns}
-  \vspace{0.3em}
-  \centering \params{Votante, \ $L = 10$, \ $r_c = 1$. \ Izquierda: $2\times10^{3}$ pasos. \ Derecha: $1\times10^{4}$ pasos.}
+\end{frame}
+
+\begin{frame}{Votante: evolución temporal de la componente gigante ($\rho = 1/\pi$)}
+  \begin{columns}[c]
+    \begin{column}{0.70\textwidth}
+      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_t_voter_rho1_pi.png}
+    \end{column}
+    \begin{column}{0.28\textwidth}
+      \params{Votante\\$\rho = 1/\pi$ \ ($N = 32$)\\$L = 10$, \ $r_c = 1$\\$1\times10^{4}$ pasos}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 22
-\begin{frame}{Votante: componente gigante en función del ruido}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \centering\includegraphics[height=0.62\textheight,keepaspectratio]{S_eta_voter_super.png}\\
-      {\scriptsize $\rho = 2,\ 4,\ 8$}
+\begin{frame}{Votante: componente gigante en función del ruido ($\rho = 2,\ 4,\ 8$)}
+  \begin{columns}[c]
+    \begin{column}{0.70\textwidth}
+      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_eta_voter_super.png}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \centering\includegraphics[height=0.62\textheight,keepaspectratio]{S_eta_voter_sub.png}\\
-      {\scriptsize $\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$}
+    \begin{column}{0.28\textwidth}
+      \params{Votante\\$\rho = 2,\ 4,\ 8$\\10 realizaciones\\por punto\\[6pt]Barras de error: desvío estándar entre realizaciones.}
     \end{column}
   \end{columns}
-  \vspace{0.3em}
-  \centering \params{Votante, \ 10 realizaciones por punto. \ Barras de error: desvío estándar entre realizaciones.}
+\end{frame}
+
+\begin{frame}{Votante: componente gigante en función del ruido ($\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$)}
+  \begin{columns}[c]
+    \begin{column}{0.70\textwidth}
+      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_eta_voter_sub.png}
+    \end{column}
+    \begin{column}{0.28\textwidth}
+      \params{Votante\\$\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$\\10 realizaciones\\por punto\\[6pt]Barras de error: desvío estándar entre realizaciones.}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 23
 \begin{frame}{Comparación: polarización}
   \begin{columns}[c]
     \begin{column}{0.70\textwidth}
-      \centering\includegraphics[height=0.72\textheight,keepaspectratio]{va_eta_comparacion.png}
+      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_eta_comparacion.png}
     \end{column}
     \begin{column}{0.28\textwidth}
       \params{
@@ -484,7 +521,7 @@
 \begin{frame}{Comparación: componente gigante}
   \begin{columns}[c]
     \begin{column}{0.70\textwidth}
-      \centering\includegraphics[height=0.72\textheight,keepaspectratio]{S_eta_comparacion_sub.png}
+      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{S_eta_comparacion_sub.png}
     \end{column}
     \begin{column}{0.28\textwidth}
       \params{
@@ -503,7 +540,7 @@
 \begin{frame}{Polarización en función de la componente gigante}
   \begin{columns}[c]
     \begin{column}{0.70\textwidth}
-      \centering\includegraphics[height=0.72\textheight,keepaspectratio]{va_vs_S_comparacion.png}
+      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_vs_S_comparacion.png}
     \end{column}
     \begin{column}{0.28\textwidth}
       \params{
@@ -522,7 +559,7 @@
 \begin{frame}{Tiempo de ejecución del Cell Index Method}
   \begin{columns}[c]
     \begin{column}{0.68\textwidth}
-      \centering\includegraphics[height=0.72\textheight,keepaspectratio]{benchmark_tp1_vs_tp2.png}
+      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{benchmark_tp1_vs_tp2.png}
     \end{column}
     \begin{column}{0.30\textwidth}
       \params{
@@ -560,8 +597,9 @@
 % ---------------------------------------------------------------- 29
 \begin{frame}[plain]
   \vfill
-  \centering
-  {\usebeamerfont{title}\usebeamercolor[fg]{title} Muchas gracias}
+  \begin{beamercolorbox}[sep=8pt,center]{title}
+    \usebeamerfont{title} Muchas gracias
+  \end{beamercolorbox}
   \vfill
 \end{frame}
 

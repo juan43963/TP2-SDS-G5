@@ -31,7 +31,7 @@ from sweep import TP2_BIN, L_DEFAULT, RUN_TIMEOUT_S  # noqa: E402
 from analyze import SWEEP_SUMMARY_CSV, load_summary, pick_eta_levels  # noqa: E402
 
 ANIM_DATA_DIR = TP2_DIR / "data" / "animation"
-PLOTS_DIR = TP2_DIR / "data" / "plots"
+PLOTS_DIR = TP2_DIR / "data" / "plots" / "animation"
 RHO_CHARACTERISTIC = 2.0
 STEPS_CHARACTERISTIC = 1000
 SEED_CHARACTERISTIC = 1000  # constante explicita, distinta de cualquier semilla del barrido

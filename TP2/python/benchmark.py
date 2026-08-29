@@ -63,7 +63,7 @@ TP2_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = TP2_DIR.parent
 TP1_BIN = REPO_ROOT / "TP1" / "cim"
 TP2_BIN = TP2_DIR / "tp2"
-PLOTS_DIR = TP2_DIR / "data" / "plots"
+PLOTS_DIR = TP2_DIR / "data" / "plots" / "benchmark"
 
 # Condiciones comunes forzadas en los dos binarios.
 L_BENCH = 10.0
@@ -188,7 +188,10 @@ def plot_benchmark(rows, out_path, show=False):
     ax.set_ylabel("Tiempo de búsqueda de vecinos [ms]", fontsize=FS)
     ax.tick_params(axis="both", which="major", labelsize=FS - 3)
     ax.grid(False)
-    ax.legend(fontsize=FS - 5, frameon=False)
+    # Afuera del area de ejes (misma convencion que analyze.py::_style): con
+    # loc="best" y sin caja de fondo, la leyenda podia caer sobre una de las
+    # dos curvas y quedar ilegible.
+    ax.legend(fontsize=FS - 5, frameon=False, loc="center left", bbox_to_anchor=(1.02, 0.5))
 
     if show:
         plt.show()

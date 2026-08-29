@@ -22,7 +22,7 @@
 
 % Rutas de figuras: graficos generados en TP2/data/plots/, figuras propias del
 % informe en TP2/informe/figs/, fotogramas en TP2/presentacion/.
-\graphicspath{{../data/plots/}{./figs/}{../presentacion/}{./}}
+\graphicspath{{../data/plots/}{../data/plots/timeseries/}{../data/plots/eta/}{../data/plots/phase/}{../data/plots/benchmark/}{../data/plots/extra/}{./figs/}{../presentacion/}{./}}
 
 % ---------------------------------------------------------------------------
 % Convencion de simbolos (docs/GuiaInformes.md): escalares en italica sin
@@ -514,7 +514,7 @@ tiempos contra TP1).
 Todas las corridas usan la geometría que impone el enunciado: caja cuadrada de
 lado $L = 10$ con condiciones periódicas de contorno y radio de interacción
 $r_c = 1$. La rapidez es $v_0 = 0{,}03$ y el paso temporal $\Delta t = 1$, de
-modo que en un paso una partícula recorre el $3\,\%$ de su radio de
+modo que en un paso una partícula recorre el $3\%$ de su radio de
 interacción. Todas las magnitudes son adimensionales, sin asociación a unidades
 físicas, siguiendo la convención del enunciado y de la referencia [1].
 
@@ -632,17 +632,17 @@ semillas es mayor.}
 \label{sec:estacionario}
 
 El valor escalar de cada observable se obtiene promediando su serie temporal
-sobre una ventana de estado estacionario, descartando el primer $50\,\%$ de los
+sobre una ventana de estado estacionario, descartando el primer $50\%$ de los
 pasos como transitorio: con 2000 pasos por corrida, la ventana de promediado es
 $t \in [1000,\ 2000]$. El mismo corte se aplica de forma idéntica a $v_a$ y a
 $S$, de modo que ambos observables se miden bajo el mismo criterio y sobre la
 misma ventana temporal. La Sección~\ref{sec:va-t} muestra que el transitorio
 real es de uno a dos órdenes de magnitud más corto que ese corte, por lo que la
 convención es conservadora.
-\pregunta{El corte del $50\,\%$ es una convención fija, no un criterio de
+\pregunta{El corte del $50\%$ es una convención fija, no un criterio de
 convergencia medido punto a punto. Verificado sobre Vicsek, $\rho=2$,
 $\eta=2{,}356$, la media de $v_a$ varía sólo entre $0{,}578$ y $0{,}588$ al
-mover el corte del $30\,\%$ al $90\,\%$, pero la dispersión entre semillas crece
+mover el corte del $30\%$ al $90\%$, pero la dispersión entre semillas crece
 de $0{,}011$ a $0{,}061$ al achicarse la ventana. Falta confirmar si se acepta
 el corte fijo documentado o si se espera un criterio explícito de convergencia.}
 
@@ -730,10 +730,10 @@ sin tendencia apreciable, y es ese promedio el que se reporta como valor escalar
 del observable en las secciones siguientes.
 
 El caso del votante conviene mirarlo con más cuidado: con la semilla más lenta
-el transitorio termina en $t = 827$, apenas un $17\,\%$ antes del corte en
-$t = 1000$. El criterio del $50\,\%$ sigue siendo válido en este punto de la
+el transitorio termina en $t = 827$, apenas un $17\%$ antes del corte en
+$t = 1000$. El criterio del $50\%$ sigue siendo válido en este punto de la
 grilla, pero el margen es estrecho y no puede darse por descontado en los demás.
-\pregunta{Falta verificar que el corte del $50\,\%$ deje afuera el transitorio
+\pregunta{Falta verificar que el corte del $50\%$ deje afuera el transitorio
 del votante en \emph{todos} los puntos de la grilla, no sólo en el que se
 grafica: a $\eta = 0{,}1122$ y $\rho = 2$ la semilla más lenta converge recién
 en $t = 827$ sobre un corte en $t = 1000$. Si en algún punto el transitorio
@@ -746,7 +746,7 @@ excede el corte, la media de estado estacionario queda contaminada.}
     $\rho = 2$ ($N = 200$), $\eta = 0{,}7854$, $L = 10$, $r_c = 1$,
     $v_0 = 0{,}03$, 2000 pasos, una semilla del conjunto de $K = 5$ del barrido.
     La línea vertical punteada marca el inicio de la ventana de estado
-    estacionario ($t = 1000$, $50\,\%$ de los pasos descartado como
+    estacionario ($t = 1000$, $50\%$ de los pasos descartado como
     transitorio).}
   \label{fig:va-t-vicsek}
 \end{figure}
@@ -803,13 +803,13 @@ orientación en 2000 pasos para los sistemas más grandes.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.82\textwidth]{va_eta.png}
+  \includegraphics[width=0.82\textwidth]{va_eta_comparacion.png}
   \caption{Polarización media de estado estacionario $v_a$ en función de la
     amplitud del ruido angular $\eta$, para $\rho \in \{2, 4, 8\}$
     ($N = 200$, 400 y 800) y ambos modelos de interacción (Vicsek: línea
     sólida; votante: línea de trazos). Parámetros comunes: $L = 10$,
     $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$, 2000 pasos por corrida,
-    promedio sobre el $50\,\%$ final de cada corrida. Barras de error: desvío
+    promedio sobre el $50\%$ final de cada corrida. Barras de error: desvío
     estándar entre $K = 5$ semillas independientes por punto.}
   \label{fig:va-eta}
 \end{figure}
@@ -905,7 +905,7 @@ residual de unas pocas partículas por cluster.
     estudio de clusters, $\rho \in \{1/\pi,\ 1/(2\pi),\ 1/(3\pi)\}$
     ($N = 32$, 16, 11), régimen subcrítico. Parámetros comunes: $L = 10$,
     $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$, 2000 pasos, promedio sobre el
-    $50\,\%$ final. Barras de error: desvío estándar entre $K = 5$ semillas.}
+    $50\%$ final. Barras de error: desvío estándar entre $K = 5$ semillas.}
   \label{fig:S-eta}
 \end{figure}
 
@@ -948,7 +948,7 @@ se discute a continuación: la figura no mide lo que su ruido nulo sugiere.
     función de la densidad $\rho$, a ruido nulo ($\eta = 0$), para ambos
     modelos. Diez densidades $\rho = 0{,}15\,i$ con $i = 1,\dots,10$
     ($N$ entre 15 y 150 con $L = 10$), $r_c = 1$, $v_0 = 0{,}03$,
-    $\Delta t = 1$, 2000 pasos, promedio sobre el $50\,\%$ final. Barras de
+    $\Delta t = 1$, 2000 pasos, promedio sobre el $50\%$ final. Barras de
     error: desvío estándar entre $K = 5$ semillas independientes. La línea
     vertical punteada marca el umbral analítico de percolación
     $\rho_c = \langle k \rangle_c / (\pi r_c^2) \approx 1{,}436$ [3].}
@@ -1000,7 +1000,7 @@ manifestaciones del mismo agrupamiento dinámico.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.86\textwidth]{va_vs_S.png}
+  \includegraphics[width=0.86\textwidth]{va_vs_S_comparacion.png}
   \caption{Fracción del cluster gigante $S$ en función de la polarización
     $v_a$, ambas en el estado estacionario, distinguiendo densidad por color y
     modelo por marcador (Vicsek: círculos; votante: cruces). Cada punto
@@ -1009,7 +1009,7 @@ manifestaciones del mismo agrupamiento dinámico.
     ($\rho = 2$, 4, 8; $N = 200$, 400, 800) y las del estudio de clusters
     ($\rho = 1/\pi$, $1/(2\pi)$, $1/(3\pi)$; $N = 32$, 16, 11). Parámetros
     comunes: $L = 10$, $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$, 2000 pasos,
-    promedio sobre el $50\,\%$ final.}
+    promedio sobre el $50\%$ final.}
   \label{fig:va-vs-S}
 \end{figure}
 
@@ -1037,7 +1037,7 @@ extremadamente angosta.
     ambos modelos (Vicsek: línea sólida; votante: línea de trazos). La varianza
     se calcula entre las $K = 5$ medias de estado estacionario de cada punto.
     Parámetros comunes: $L = 10$, $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$,
-    2000 pasos, promedio sobre el $50\,\%$ final.}
+    2000 pasos, promedio sobre el $50\%$ final.}
   \label{fig:chi-eta}
 \end{figure}
 

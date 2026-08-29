@@ -42,6 +42,13 @@ import matplotlib.pyplot as plt
 TP2_DIR = Path(__file__).resolve().parent.parent
 SWEEP_SUMMARY_CSV = TP2_DIR / "data" / "sweep" / "summary.csv"
 PLOTS_DIR = TP2_DIR / "data" / "plots"
+# Subcarpetas por tipo de figura -- la carpeta plana con 25+ PNG era dificil de
+# recorrer a mano. `make plot` (TP2/Makefile) reconstruye todo esto desde cero
+# en cada corrida (data/ esta gitignored), asi que reorganizar aca no rompe
+# ninguna referencia persistida fuera de los \graphicspath de los .tex.
+TIMESERIES_DIR = PLOTS_DIR / "timeseries"   # va_t_*, S_t_* -- inciso (b)/(d)
+ETA_DIR = PLOTS_DIR / "eta"                 # va_eta_*, S_eta_* -- inciso (c)/(d)
+PHASE_DIR = PLOTS_DIR / "phase"             # va_vs_S_* -- inciso (e)
 # Figuras que el enunciado NO pide (susceptibilidad, eta_c, S(rho)). La catedra
 # fue explicita: "la susceptibilidad es para el final, pero no se los habiamos
 # pedido" y "limitemonos a lo que hay". Se siguen generando -- son utiles como
@@ -69,17 +76,29 @@ from sweep import (
 FS = 20  # tamano de fuente pedido por la catedra
 
 
-def _style(ax, xlabel, ylabel, legend=True, legend_loc="best"):
+def _style(ax, xlabel, ylabel, legend=True, legend_loc=None):
     """Aplica las reglas de figura de la catedra a un eje.
 
     Sin titulo (va en la diapositiva / epigrafe), sin grilla, fuente grande.
+
+    Leyenda: por defecto AFUERA del area de ejes (a la derecha), nunca
+    superpuesta a la data. `loc="best"` (el default anterior) la dejaba
+    adentro del grafico y, sin caja de fondo, quedaba ilegible cuando caia
+    sobre una curva o una nube de puntos. `_save` guarda con
+    `bbox_inches="tight"`, asi que la leyenda afuera no recorta nada, solo
+    ensancha el PNG. Un llamador puede pedir una esquina especifica adentro
+    con `legend_loc` si el grafico tiene una zona genuinamente vacia.
     """
     ax.set_xlabel(xlabel, fontsize=FS)
     ax.set_ylabel(ylabel, fontsize=FS)
     ax.tick_params(axis="both", which="major", labelsize=FS - 3)
     ax.grid(False)
     if legend:
-        ax.legend(fontsize=FS - 5, frameon=False, loc=legend_loc)
+        if legend_loc is None:
+            ax.legend(fontsize=FS - 5, frameon=False,
+                      loc="center left", bbox_to_anchor=(1.02, 0.5))
+        else:
+            ax.legend(fontsize=FS - 5, frameon=False, loc=legend_loc)
 
 
 def _save(fig, out_path, show=False):
@@ -248,6 +267,33 @@ def plot_eta_curve(rows, column, models, rhos, out_path, show=False,
     return ax
 
 
+def plot_S_eta_dual(rows, out_path, show=False):
+    """`S(eta)` de dos paneles: izquierdo (rhos del enunciado), derecho (rhos
+    subcriticas), ambos modelos superpuestos en cada panel.
+
+    Misma logica de trazado que `plot_eta_curve` (que ya genera cada panel por
+    separado en `S_eta_comparacion_super.png`/`_sub.png`), compuesta en un
+    unico PNG de dos ejes para la figura de cierre del inciso (d) del informe.
+    """
+    fig, axes = plt.subplots(1, 2, figsize=(18.0, 6.5))
+    for ax, rhos in zip(axes, (STANDARD_RHOS, CLUSTER_RHOS)):
+        for model in ("vicsek", "voter"):
+            for rho in sorted(rhos, reverse=True):
+                group = _series(rows, model, rho)
+                if not group:
+                    continue
+                label = f"{MODEL_LABEL[model]}, ${_rho_label(rho)}$"
+                ax.errorbar([r["eta"] for r in group], [r["S_mean"] for r in group],
+                            yerr=[r["S_std"] for r in group],
+                            color=_rho_color(rho), linestyle=LINESTYLE[model],
+                            marker=_rho_marker(rho), markersize=6, capsize=3,
+                            linewidth=1.8, label=label)
+        ax.set_ylim(0.0, 1.05)
+        _style(ax, r"Ruido $\eta$", r"Componente gigante $S$")
+    _save(fig, out_path, show)
+    return axes
+
+
 # ---------------------------------------------------------------------------
 # Inciso (e): va vs S
 # ---------------------------------------------------------------------------
@@ -273,8 +319,7 @@ def plot_va_vs_S(rows, models, rhos, out_path, show=False):
                        edgecolors="none" if model == "vicsek" else None,
                        label=label)
 
-    _style(ax, r"Polarización $v_a$", r"Componente gigante $S$",
-           legend_loc="lower right")
+    _style(ax, r"Polarización $v_a$", r"Componente gigante $S$")
     _save(fig, out_path, show)
     return ax
 
@@ -387,7 +432,7 @@ def plot_timeseries_multi_eta(rows, model, rho, column, out_path, show=False,
                    label="inicio del estacionario")
 
     ax.set_ylim(0.0, 1.05)
-    _style(ax, r"Tiempo $t$", ylabel)
+    _style(ax, r"Tiempo $t$ [pasos]", ylabel)
     _save(fig, out_path, show)
     return ax
 
@@ -493,7 +538,8 @@ def main():
                         help="CSV del barrido de percolacion (extra: S_rho.png)")
     args = parser.parse_args()
 
-    PLOTS_DIR.mkdir(parents=True, exist_ok=True)
+    for d in (TIMESERIES_DIR, ETA_DIR, PHASE_DIR, EXTRA_PLOTS_DIR):
+        d.mkdir(parents=True, exist_ok=True)
     rows = load_summary(args.summary)
     written = []
 
@@ -503,58 +549,63 @@ def main():
 
     # --- Inciso (b): evolucion temporal de va, un modelo por figura ---------
     for model in ("vicsek", "voter"):
-        path = PLOTS_DIR / f"va_t_{model}_rho{_rho_filename_tag(TIMESERIES_RHO)}.png"
+        path = TIMESERIES_DIR / f"va_t_{model}_rho{_rho_filename_tag(TIMESERIES_RHO)}.png"
         plot_timeseries_multi_eta(rows, model, TIMESERIES_RHO, "va", path, args.show)
         emit(path)
 
     # --- Inciso (d), primera parte: evolucion temporal de S -----------------
     # Diapositivas separadas de va: la catedra pidio no mezclar los dos
-    # observables. A rho=2 el sistema esta muy por encima del umbral de
-    # percolacion y S(t)~1 para todo eta, asi que se agrega la densidad
-    # subcritica, donde S si tiene estructura.
+    # observables. Las tres densidades del enunciado (a rho=2 el sistema esta
+    # muy por encima del umbral de percolacion y S(t)~1 para todo eta, pero se
+    # incluye igual para completar la grilla que pide el informe) mas la
+    # densidad subcritica, donde S si tiene estructura.
     for model in ("vicsek", "voter"):
-        for rho in (TIMESERIES_RHO, TIMESERIES_RHO_CLUSTER):
-            path = PLOTS_DIR / f"S_t_{model}_rho{_rho_filename_tag(rho)}.png"
+        for rho in tuple(STANDARD_RHOS) + (TIMESERIES_RHO_CLUSTER,):
+            path = TIMESERIES_DIR / f"S_t_{model}_rho{_rho_filename_tag(rho)}.png"
             plot_timeseries_multi_eta(rows, model, rho, "S", path, args.show)
             emit(path)
 
     # --- Inciso (c): va(eta) ------------------------------------------------
     for model in ("vicsek", "voter"):
-        path = PLOTS_DIR / f"va_eta_{model}.png"
+        path = ETA_DIR / f"va_eta_{model}.png"
         plot_eta_curve(rows, "va", [model], STANDARD_RHOS, path, args.show)
         emit(path)
 
     # --- Inciso (f) sobre (c): comparacion, figura de cierre ----------------
-    path = PLOTS_DIR / "va_eta_comparacion.png"
+    path = ETA_DIR / "va_eta_comparacion.png"
     plot_eta_curve(rows, "va", ["vicsek", "voter"], STANDARD_RHOS, path, args.show)
     emit(path)
 
     # --- Inciso (d), segunda parte: S(eta) ----------------------------------
     for model in ("vicsek", "voter"):
-        path = PLOTS_DIR / f"S_eta_{model}_super.png"
+        path = ETA_DIR / f"S_eta_{model}_super.png"
         plot_eta_curve(rows, "S", [model], STANDARD_RHOS, path, args.show, ylim=(0.0, 1.05))
         emit(path)
-        path = PLOTS_DIR / f"S_eta_{model}_sub.png"
+        path = ETA_DIR / f"S_eta_{model}_sub.png"
         plot_eta_curve(rows, "S", [model], CLUSTER_RHOS, path, args.show, ylim=(0.0, 1.05))
         emit(path)
 
     for tag, rhos in (("super", STANDARD_RHOS), ("sub", CLUSTER_RHOS)):
-        path = PLOTS_DIR / f"S_eta_comparacion_{tag}.png"
+        path = ETA_DIR / f"S_eta_comparacion_{tag}.png"
         plot_eta_curve(rows, "S", ["vicsek", "voter"], rhos, path, args.show, ylim=(0.0, 1.05))
         emit(path)
+
+    # --- S(eta) de dos paneles (informe: figura unica fig:S-eta) ------------
+    path = ETA_DIR / "S_eta.png"
+    plot_S_eta_dual(rows, path, args.show)
+    emit(path)
 
     # --- Inciso (e): va vs S ------------------------------------------------
     all_rhos = tuple(STANDARD_RHOS) + tuple(CLUSTER_RHOS)
     for model in ("vicsek", "voter"):
-        path = PLOTS_DIR / f"va_vs_S_{model}.png"
+        path = PHASE_DIR / f"va_vs_S_{model}.png"
         plot_va_vs_S(rows, [model], all_rhos, path, args.show)
         emit(path)
-    path = PLOTS_DIR / "va_vs_S_comparacion.png"
+    path = PHASE_DIR / "va_vs_S_comparacion.png"
     plot_va_vs_S(rows, ["vicsek", "voter"], all_rhos, path, args.show)
     emit(path)
 
     # --- Extras (backup / apendice): no los pide el enunciado ---------------
-    EXTRA_PLOTS_DIR.mkdir(parents=True, exist_ok=True)
     rows_chi = compute_chi(rows)
     path = EXTRA_PLOTS_DIR / "chi_eta.png"
     plot_chi_eta(rows_chi, path, args.show)
