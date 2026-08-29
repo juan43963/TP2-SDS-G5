@@ -1,5 +1,6 @@
 #include "simulation.h"
 
+#include <chrono>
 #include <cmath>
 
 double circularMeanHeading(int i, const std::vector<VicsekParticle>& particles,
@@ -60,7 +61,16 @@ Simulation::Simulation(std::vector<VicsekParticle> particles, double L, double r
 
 void Simulation::step() {
     // Pass 1: rebuild the neighbor grid from the current (old) positions.
+    // Timed in place (tick/tock around the CIM call, inside the time step) so
+    // point (g) can average the per-step neighbor-search cost over the run
+    // instead of charging it process startup, particle generation and
+    // trajectory I/O.
+    const auto tick = std::chrono::steady_clock::now();
     grid_.rebuild(particles_);
+    const auto tock = std::chrono::steady_clock::now();
+    cimLastMs_ = std::chrono::duration<double, std::milli>(tock - tick).count();
+    cimTotalMs_ += cimLastMs_;
+    ++cimCalls_;
 
     const int n = static_cast<int>(particles_.size());
     const NeighborList& neighbors = grid_.neighbors();
@@ -74,13 +84,18 @@ void Simulation::step() {
         thetaNew_[static_cast<size_t>(i)] = addAngularNoise(raw, eta_, rng_);
     }
 
-    // Pass 3: advance positions using the new heading, wrap under PBC, then
-    // commit theta last -- position and orientation update together.
+    // Pass 3: advance positions using the OLD heading -- Teorica 2, diap. 42
+    // writes x_i(t+1) = x_i(t) + v_i(t)*dt, and v_i(t) is derived from
+    // theta_i(t), not from the heading just computed. Consequence: the noise
+    // drawn this step only steers the particle from the NEXT step onwards.
+    // theta(t+1) is committed last, after the displacement has already used
+    // theta(t).
     for (int i = 0; i < n; ++i) {
-        double vx, vy;
-        headingToVelocity(thetaNew_[static_cast<size_t>(i)], v0_, vx, vy);
-
         VicsekParticle& p = particles_[static_cast<size_t>(i)];
+
+        double vx, vy;
+        headingToVelocity(p.theta, v0_, vx, vy);
+
         p.x = periodic_ ? periodicWrap(p.x + vx * dt_, L_) : p.x + vx * dt_;
         p.y = periodic_ ? periodicWrap(p.y + vy * dt_, L_) : p.y + vy * dt_;
         p.theta = thetaNew_[static_cast<size_t>(i)];

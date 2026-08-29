@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
-"""Driver de barrido parametrico para tp2 (Vicsek/Votante) -- Fase 3.
+"""Driver de barrido parametrico para tp2 (Vicsek/Votante).
 
-Nucleo de reproducibilidad del barrido (plan 03-01): semilla determinista
-derivada de (rho, eta, model, repeat_index), layout de archivos de salida
-por corrida, una corrida individual (run_one) y el resumen de estado
-estacionario (summarize_run) aplicado identicamente a va y a S.
+Reproducibilidad: semilla determinista derivada de (rho, eta, model,
+repeat_index), una ruta de salida por corrida que incluye el numero de pasos,
+una corrida individual (run_one) y el resumen de estado estacionario
+(summarize_run) aplicado identicamente a va y a S.
 
-Orquestacion completa del barrido (plan 03-02, sobre las mismas funciones,
-sin modificarlas): mini-barrido exploratorio de baja resolucion para ubicar
-la transicion orden-desorden por (model, rho), grilla de eta gruesa-lejos +
-fina-cerca, ejecucion paralela del grid completo via un pool de procesos
-con aislamiento de fallos por combinacion, y agregacion K-semillas -> CSV.
+Orquestacion: grilla de eta FIJA (ver ETA_GRID), la misma para los dos
+modelos, ejecucion paralela via pool de procesos con aislamiento de fallos por
+combinacion, y agregacion sobre las K semillas -> CSV con media y desvio.
+
+El barrido ya no arranca con un mini-barrido exploratorio para ubicar la
+transicion por modelo. Ese mecanismo elegia una grilla de eta distinta para
+Vicsek y para el votante (con lo cual las curvas no eran comparables punto a
+punto) y ademas escribia sus corridas de 500 pasos en las mismas rutas que el
+barrido de 2000, dejando datos truncados indistinguibles de los buenos.
 
     python3 python/sweep.py --selftest    # corre las verificaciones internas
     python3 python/sweep.py               # corre el barrido completo por defecto
@@ -36,13 +40,43 @@ L_DEFAULT = 10.0
 DEFAULT_STEPS = 2000
 RUN_TIMEOUT_S = 300  # limite por corrida individual de tp2 (SWEEP-01 aislamiento de fallos)
 STEADY_STATE_FRACTION = 0.5  # descarta la primera mitad de los pasos como transitorio
-DEFAULT_K_SEEDS = 5  # minimo de semillas por punto (SWEEP-03)
+DEFAULT_K_SEEDS = 10  # semillas por punto: barras de error = std sobre realizaciones
 
-COARSE_ETA_POINTS = 9  # grilla gruesa global: 9 puntos espaciados pi/4 en [0, 2*pi]
-FINE_ETA_POINTS = 8  # puntos extra insertados dentro del bracket de transicion detectado
-K_EXPLORE = 2  # semillas por punto del mini-barrido exploratorio
-STEPS_EXPLORE = 500  # pasos por corrida del mini-barrido exploratorio
-VA_THRESHOLD = 0.5  # umbral de va usado para ubicar el cruce orden-desorden
+# Grilla de eta FIJA e IDENTICA para los dos modelos.
+#
+# Antes esta grilla se elegia por modelo con `explore_transition()`, lo que daba
+# a Vicsek 8 puntos apretados en [2.36, 3.14] y al votante 8 en [0, 0.785], con
+# saltos de 0.785 en todo el resto. Consecuencia: las curvas va(eta) de los dos
+# modelos no compartian ni un punto fuera de la grilla gruesa, asi que la
+# comparacion del inciso (f) no era punto a punto.
+#
+# Base uniforme de paso 0.2 en [0, 2*pi] (32 puntos) mas el extremo 2*pi, y un
+# refinamiento de paso 0.05 en [0, 0.4]: el votante colapsa ahi, mientras que
+# Vicsek transiciona cerca de eta ~ 2.6-3.1, ya bien cubierto por el paso base.
+ETA_GRID = sorted({
+    round(e, 6)
+    for e in [i * 0.2 for i in range(32)]
+            + [2.0 * math.pi]
+            + [0.05, 0.10, 0.15, 0.25, 0.30, 0.35]
+})
+
+# Pasos por corrida segun la densidad. No es una constante unica a proposito:
+# el tiempo que el sistema tarda en alcanzar el estado estacionario crece al
+# bajar N, asi que las densidades del estudio de clusters (N = 11 a 32) se
+# corren mas largo que las del enunciado (N = 200 a 800).
+#
+# El largo se fijo midiendo la duracion del transitorio con 20 semillas: a
+# rho = 2 el observable ya es estacionario a t = 1000, mientras que a
+# rho = 1/pi y 1/(3pi) sigue evolucionando hasta t ~ 4000. Con 10000 pasos la
+# ventana de promedio [5000, 10000] cae enteramente en el estacionario.
+SUBCRITICAL_STEPS = 10000
+
+
+def steps_for(rho: float, base_steps: int = DEFAULT_STEPS) -> int:
+    """Pasos a correr para esta densidad (ver SUBCRITICAL_STEPS)."""
+    return SUBCRITICAL_STEPS if rho < 1.0 else base_steps
+
+
 STANDARD_RHOS = [2.0, 4.0, 8.0]  # densidades del enunciado (SWEEP-01)
 CLUSTER_RHOS = [round(1.0 / math.pi, 4), round(1.0 / (2.0 * math.pi), 4), round(1.0 / (3.0 * math.pi), 4)]  # 1/pi, 1/(2pi), 1/(3pi)
 DEFAULT_RHOS = STANDARD_RHOS + CLUSTER_RHOS
@@ -62,9 +96,20 @@ def derive_seed(rho: float, eta: float, model: str, repeat_index: int) -> int:
     return int(digest[:16], 16) & ((1 << 64) - 1)
 
 
-def sweep_output_path(model: str, rho: float, eta: float, seed: int) -> Path:
-    """Layout de archivos de barrido: data/sweep/{model}/rho{rho}/eta{eta}/seed{seed}.txt."""
-    return SWEEP_DATA_DIR / model / f"rho{rho:g}" / f"eta{eta:.6f}" / f"seed{seed}.txt"
+def sweep_output_path(model: str, rho: float, eta: float, seed: int,
+                       steps: int = DEFAULT_STEPS) -> Path:
+    """Layout: data/sweep/{model}/rho{rho}/eta{eta}/seed{seed}_s{steps}.txt.
+
+    El numero de pasos va en el NOMBRE a proposito. Antes no estaba, y el
+    mini-barrido exploratorio (500 pasos) escribia en la misma ruta que el
+    barrido bueno (2000 pasos): quedaban corridas cortas pisando corridas
+    largas, indistinguibles salvo por `wc -l`. analyze.py las levantaba sin
+    notarlo y dibujaba va(t) sobre 500 pasos. Con los pasos en la ruta, pedir
+    una corrida de 2000 pasos y encontrar solo una de 500 da un archivo
+    faltante (ruidoso) en vez de datos equivocados (silencioso).
+    """
+    return (SWEEP_DATA_DIR / model / f"rho{rho:g}" / f"eta{eta:.6f}"
+            / f"seed{seed}_s{steps}.txt")
 
 
 def run_one(model: str, rho: float, eta: float, seed: int, steps: int = DEFAULT_STEPS,
@@ -75,7 +120,7 @@ def run_one(model: str, rho: float, eta: float, seed: int, steps: int = DEFAULT_
     para no volcar posiciones/velocidades completas en corridas de barrido
     (SWEEP-02, RESEARCH.md Pitfall 7).
     """
-    out_path = sweep_output_path(model, rho, eta, seed)
+    out_path = sweep_output_path(model, rho, eta, seed, steps)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     args = [
@@ -104,13 +149,18 @@ def run_one(model: str, rho: float, eta: float, seed: int, steps: int = DEFAULT_
     return out_path
 
 
-def summarize_run(log_path: Path, steady_fraction: float = STEADY_STATE_FRACTION
-                   ) -> tuple[float, float]:
+def summarize_run(log_path: Path, steady_fraction: float = STEADY_STATE_FRACTION,
+                   expected_steps: int | None = None) -> tuple[float, float]:
     """Media de va y S sobre la ventana de estado estacionario (SWEEP-05).
 
     Corte fijo: se descarta la primera `steady_fraction` de los pasos como
     transitorio. La MISMA ventana alimenta tanto la media de va como la de
     S, aplicando el criterio identicamente a ambos observables.
+
+    Si se pasa `expected_steps`, se exige que el log tenga exactamente
+    `expected_steps + 1` filas (t=0..steps). Es la segunda guarda contra
+    promediar una corrida truncada junto a corridas completas: la primera es
+    el sufijo _s{steps} en la ruta (ver sweep_output_path).
     """
     rows = []
     with open(log_path) as f:
@@ -122,6 +172,13 @@ def summarize_run(log_path: Path, steady_fraction: float = STEADY_STATE_FRACTION
             rows.append((t, va, S))
     if not rows:
         raise RuntimeError(f"scalar log vacio: {log_path}")
+    if expected_steps is not None and len(rows) != expected_steps + 1:
+        raise RuntimeError(
+            f"scalar log truncado: {log_path} tiene {len(rows)} filas, se esperaban "
+            f"{expected_steps + 1} (t=0..{expected_steps}). Una corrida corta pisando "
+            f"una larga es exactamente el defecto que el sufijo _s{{steps}} de "
+            f"sweep_output_path() previene -- borrar data/sweep y re-correr."
+        )
 
     cutoff = int(len(rows) * steady_fraction)
     window = rows[cutoff:] if cutoff < len(rows) else rows[-1:]
@@ -129,68 +186,6 @@ def summarize_run(log_path: Path, steady_fraction: float = STEADY_STATE_FRACTION
         statistics.mean(r[1] for r in window),
         statistics.mean(r[2] for r in window),
     )
-
-
-def build_coarse_eta_grid() -> list[float]:
-    """Grilla gruesa global: COARSE_ETA_POINTS puntos espaciados en [0, 2*pi]."""
-    return [i * (2.0 * math.pi) / (COARSE_ETA_POINTS - 1) for i in range(COARSE_ETA_POINTS)]
-
-
-def explore_transition(model: str, rho: float, k_explore: int = K_EXPLORE,
-                        steps_explore: int = STEPS_EXPLORE,
-                        va_threshold: float = VA_THRESHOLD) -> tuple[float, float]:
-    """Mini-barrido exploratorio de baja resolucion (SWEEP-02).
-
-    Corre la grilla gruesa de eta con pocas semillas/pasos por punto y
-    devuelve el bracket [eta_low, eta_high] donde la va media de estado
-    estacionario cruza por debajo de va_threshold por primera vez, ubicado
-    de forma independiente para cada (model, rho).
-    """
-    coarse = build_coarse_eta_grid()
-    means = []
-    for eta in coarse:
-        va_means = []
-        for repeat_index in range(k_explore):
-            seed = derive_seed(rho, eta, model, repeat_index)
-            log_path = run_one(model, rho, eta, seed, steps=steps_explore)
-            va_mean, _ = summarize_run(log_path)
-            va_means.append(va_mean)
-        means.append(statistics.mean(va_means))
-
-    for i in range(len(coarse) - 1):
-        if means[i] >= va_threshold > means[i + 1]:
-            return (coarse[i], coarse[i + 1])
-
-    # Sin cruce detectado en la grilla gruesa. Dos escenarios posibles:
-    #  - el sistema esta ordenado en todo el rango (means[0] arriba del umbral,
-    #    la transicion -- si existe -- esta mas alla de eta=2*pi): fallback de
-    #    alto eta.
-    #  - el sistema ya esta desordenado en eta=0 (means[0] por debajo del
-    #    umbral, tipico del votante tras solo STEPS_EXPLORE pasos: coarsening
-    #    lento, no garantiza va~1 en eta=0 como si lo hace Vicsek): la
-    #    transicion, si existe en un sentido util, esta cerca de eta=0, no de
-    #    eta=2*pi -- fallback de bajo eta en ese caso.
-    if means[0] < va_threshold:
-        print(f"advertencia: sin cruce detectado para model={model} rho={rho:g} "
-              f"(means[0]={means[0]:.3f} < umbral); usando fallback de bajo eta",
-              file=sys.stderr)
-        return (coarse[0], coarse[1])
-
-    print(f"advertencia: sin cruce detectado para model={model} rho={rho:g} "
-          f"(means[0]={means[0]:.3f}); usando fallback de alto eta", file=sys.stderr)
-    return (coarse[-2], coarse[-1])
-
-
-def build_eta_grid(eta_low: float, eta_high: float) -> list[float]:
-    """Grilla combinada: gruesa global + fina dentro del bracket de transicion.
-
-    Mas resolucion cerca de la transicion orden-desorden que en el resto del
-    rango, deduplicada y ordenada (redondeada para evitar duplicados por
-    ruido de punto flotante).
-    """
-    coarse = build_coarse_eta_grid()
-    fine = [eta_low + i * (eta_high - eta_low) / (FINE_ETA_POINTS - 1) for i in range(FINE_ETA_POINTS)]
-    return sorted({round(e, 6) for e in coarse + fine})
 
 
 def _run_and_summarize(args: tuple) -> dict:
@@ -205,7 +200,7 @@ def _run_and_summarize(args: tuple) -> dict:
     seed = derive_seed(rho, eta, model, repeat_index)
     try:
         log_path = run_one(model, rho, eta, seed, steps=steps)
-        va_mean, s_mean = summarize_run(log_path)
+        va_mean, s_mean = summarize_run(log_path, expected_steps=steps)
         return {"ok": True, "model": model, "rho": rho, "eta": eta, "seed": seed,
                 "va_mean": va_mean, "S_mean": s_mean}
     except Exception as exc:
@@ -222,7 +217,10 @@ def run_sweep(tasks: list, steps: int = DEFAULT_STEPS, workers: int | None = Non
     abortar el pool ni descartar el resto de los resultados.
     """
     workers = workers or os.cpu_count() or 1
-    args = [(model, rho, eta, repeat_index, steps) for (model, rho, eta, repeat_index) in tasks]
+    # El largo de cada corrida lo fija la densidad, no un valor global: las
+    # densidades subcriticas necesitan mas pasos para llegar al estacionario.
+    args = [(model, rho, eta, repeat_index, steps_for(rho, steps))
+            for (model, rho, eta, repeat_index) in tasks]
     with multiprocessing.Pool(workers) as pool:
         raw = pool.map(_run_and_summarize, args)
     results = [r for r in raw if r["ok"]]
@@ -283,10 +281,21 @@ def _selftest():
     assert seed_a != seed_b, "derive_seed no decorrelaciona por repeat_index"
     assert seed_a != seed_c, "derive_seed no decorrelaciona por model"
 
-    # 3. layout documentado de sweep_output_path.
-    expected_path = SWEEP_DATA_DIR / "vicsek" / "rho2" / "eta0.300000" / "seed42.txt"
+    # 3. layout documentado de sweep_output_path, con los pasos en el nombre.
+    expected_path = (SWEEP_DATA_DIR / "vicsek" / "rho2" / "eta0.300000"
+                     / f"seed42_s{DEFAULT_STEPS}.txt")
     assert sweep_output_path("vicsek", 2.0, 0.3, 42) == expected_path, (
         "sweep_output_path no coincide con el layout documentado"
+    )
+
+    # 3b. GUARDA CENTRAL: dos corridas identicas salvo por el numero de pasos
+    #     NO pueden compartir ruta. Es lo que evita que un barrido corto pise
+    #     uno largo y quede indistinguible (el defecto que dejo las figuras
+    #     va(t) dibujadas sobre 500 pasos en vez de 2000).
+    short_path = sweep_output_path("vicsek", 2.0, 0.3, 42, steps=500)
+    long_path = sweep_output_path("vicsek", 2.0, 0.3, 42, steps=2000)
+    assert short_path != long_path, (
+        "sweep_output_path: corridas de 500 y 2000 pasos comparten ruta"
     )
 
     # 4. summarize_run aplica una unica ventana compartida a va y a S.
@@ -300,6 +309,18 @@ def _selftest():
         assert va_mean == 7.0 and s_mean == 14.0, (
             f"summarize_run: esperado (7.0, 14.0), obtuvo ({va_mean}, {s_mean})"
         )
+
+        # 4b. summarize_run debe rechazar un log truncado cuando se le dice
+        #     cuantos pasos esperaba (10 filas = t=0..9, o sea 9 pasos).
+        summarize_run(synthetic_path, expected_steps=9)  # no debe lanzar
+        try:
+            summarize_run(synthetic_path, expected_steps=2000)
+        except RuntimeError as exc:
+            assert "truncado" in str(exc), f"RuntimeError inesperado: {exc}"
+        else:
+            raise AssertionError(
+                "summarize_run no lanzo ante un log con menos filas que expected_steps"
+            )
     finally:
         synthetic_path.unlink()
 
@@ -330,20 +351,34 @@ def _selftest():
         else:
             raise AssertionError("run_one no lanzo RuntimeError ante una corrida invalida")
 
-    # 7. build_eta_grid combina el extremo de la grilla gruesa con puntos
-    #    finos genuinamente insertados dentro del bracket detectado (no solo
-    #    la grilla gruesa repetida).
-    grid = build_eta_grid(1.0, 1.5)
-    assert grid[0] == 0.0, f"build_eta_grid: extremo bajo esperado 0.0, obtuvo {grid[0]}"
-    # tolerancia 1e-5, no 1e-9: build_eta_grid redondea a 6 decimales para
-    # dedupear puntos por ruido de punto flotante, asi que el maximo error
-    # de redondeo esperado es 5e-7.
-    assert abs(grid[-1] - 2.0 * math.pi) < 1e-5, (
-        f"build_eta_grid: extremo alto esperado 2*pi, obtuvo {grid[-1]}"
+    # 7b. ETA_GRID, la grilla que realmente usa el barrido: cubre [0, 2*pi],
+    #     esta ordenada y sin duplicados, y resuelve las DOS transiciones
+    #     (la del votante cerca de 0, la de Vicsek cerca de 2.6-3.1).
+    assert ETA_GRID[0] == 0.0, f"ETA_GRID deberia arrancar en 0.0, arranca en {ETA_GRID[0]}"
+    assert abs(ETA_GRID[-1] - 2.0 * math.pi) < 1e-5, (
+        f"ETA_GRID deberia terminar en 2*pi, termina en {ETA_GRID[-1]}"
     )
-    coarse_set = set(build_coarse_eta_grid())
-    assert any(1.0 < e < 1.5 and e not in coarse_set for e in grid), (
-        "build_eta_grid no inserto puntos finos dentro del bracket [1.0, 1.5]"
+    assert ETA_GRID == sorted(set(ETA_GRID)), "ETA_GRID tiene duplicados o esta desordenada"
+    assert sum(1 for e in ETA_GRID if 0.0 < e <= 0.4) >= 6, (
+        "ETA_GRID sin resolucion suficiente en eta bajo (transicion del votante)"
+    )
+    assert sum(1 for e in ETA_GRID if 2.4 <= e <= 3.2) >= 4, (
+        "ETA_GRID sin resolucion suficiente cerca de la transicion de Vicsek"
+    )
+
+    # 9. steps_for: las densidades subcriticas corren mas largo que las del
+    #    enunciado, y sus corridas no comparten ruta con una de largo estandar.
+    for rho in CLUSTER_RHOS:
+        assert steps_for(rho) == SUBCRITICAL_STEPS, (
+            f"steps_for({rho}) deberia dar {SUBCRITICAL_STEPS} (densidad subcritica)"
+        )
+    for rho in STANDARD_RHOS:
+        assert steps_for(rho) == DEFAULT_STEPS, (
+            f"steps_for({rho}) deberia dar {DEFAULT_STEPS} (densidad del enunciado)"
+        )
+    assert (sweep_output_path("vicsek", CLUSTER_RHOS[0], 0.6, 1, steps_for(CLUSTER_RHOS[0]))
+            != sweep_output_path("vicsek", CLUSTER_RHOS[0], 0.6, 1, DEFAULT_STEPS)), (
+        "una corrida subcritica larga comparte ruta con una de largo estandar"
     )
 
     # 8. aislamiento de fallos en un batch mixto: una combinacion invalida
@@ -379,10 +414,8 @@ def main():
                         help=f"semillas por punto del barrido completo (default {DEFAULT_K_SEEDS}, SWEEP-03)")
     parser.add_argument("--steps", type=int, default=DEFAULT_STEPS,
                         help=f"pasos por corrida del barrido completo (default {DEFAULT_STEPS})")
-    parser.add_argument("--k-explore", type=int, default=K_EXPLORE,
-                        help=f"semillas por punto del mini-barrido exploratorio (default {K_EXPLORE})")
-    parser.add_argument("--steps-explore", type=int, default=STEPS_EXPLORE,
-                        help=f"pasos por corrida del mini-barrido exploratorio (default {STEPS_EXPLORE})")
+    parser.add_argument("--eta-grid", type=float, nargs="+", default=ETA_GRID,
+                        help=f"grilla de eta a barrer (default: {len(ETA_GRID)} puntos fijos en [0, 2*pi])")
     parser.add_argument("--workers", type=int, default=None,
                         help="procesos en paralelo del pool (default: os.cpu_count())")
     parser.add_argument("--out", type=Path, default=SWEEP_DATA_DIR / "summary.csv",
@@ -396,18 +429,26 @@ def main():
     if not TP2_BIN.exists():
         sys.exit(f"error: no existe {TP2_BIN}. Correr `make` primero.")
 
+    # Grilla fija y compartida por los dos modelos: sin mini-barrido
+    # exploratorio previo. Ver el comentario de ETA_GRID para el porque.
+    eta_grid = args.eta_grid
+    print(f"grilla de eta: {len(eta_grid)} puntos, "
+          f"[{eta_grid[0]:.3f}, {eta_grid[-1]:.3f}], identica para todos los modelos")
+
     tasks = []
     for model in args.models:
         for rho in args.rhos:
-            eta_low, eta_high = explore_transition(
-                model, rho, k_explore=args.k_explore, steps_explore=args.steps_explore
-            )
-            print(f"exploracion: model={model} rho={rho:g} -> "
-                  f"bracket [{eta_low:.4f}, {eta_high:.4f}]")
-            eta_grid = build_eta_grid(eta_low, eta_high)
             for eta in eta_grid:
                 for repeat_index in range(args.k_seeds):
                     tasks.append((model, rho, eta, repeat_index))
+
+    largos = sorted({steps_for(rho, args.steps) for rho in args.rhos})
+    print(f"total: {len(tasks)} corridas "
+          f"({len(args.models)} modelos x {len(args.rhos)} densidades x "
+          f"{len(eta_grid)} eta x {args.k_seeds} semillas)")
+    for n in largos:
+        rs = [f"{r:g}" for r in args.rhos if steps_for(r, args.steps) == n]
+        print(f"  {n} pasos para rho = {', '.join(rs)}")
 
     results, failures = run_sweep(tasks, steps=args.steps, workers=args.workers)
     aggregate_to_csv(results, args.out)

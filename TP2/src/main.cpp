@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <exception>
@@ -30,6 +31,8 @@ struct Options {
     double eta = 0.0;
     std::string out = "data/dynamic.txt";
     std::string scalarLog;  // empty = disabled (default)
+    std::string timingLog;  // empty = disabled (default)
+    bool csv = false;
 };
 
 void usage() {
@@ -53,6 +56,8 @@ void usage() {
         "  --eta <real>     amplitud del ruido angular                  (default 0.0)\n"
         "  --out <path>     archivo de trayectoria de salida            (default data/dynamic.txt)\n"
         "  --scalar-log <path>  log escalar opcional '(t va S)' por paso   (default: deshabilitado)\n"
+        "  --timing-log <path>  log '(paso ms_cim)' por paso              (default: deshabilitado)\n"
+        "  --csv            salida en una linea CSV                      (punto g)\n"
         "  -h, --help       esta ayuda\n");
 }
 
@@ -79,6 +84,8 @@ Options parseArgs(int argc, char** argv) {
         {"eta", required_argument, nullptr, 'e'},
         {"out", required_argument, nullptr, 'o'},
         {"scalar-log", required_argument, nullptr, 'x'},
+        {"timing-log", required_argument, nullptr, 't'},
+        {"csv", no_argument, nullptr, 'C'},
         {"help", no_argument, nullptr, 'h'},
         {nullptr, 0, nullptr, 0}
     };
@@ -101,6 +108,8 @@ Options parseArgs(int argc, char** argv) {
             case 'e': o.eta = std::stod(optarg); break;
             case 'o': o.out = optarg; break;
             case 'x': o.scalarLog = optarg; break;
+            case 't': o.timingLog = optarg; break;
+            case 'C': o.csv = true; break;
             case 'h': usage(); std::exit(0);
             default: fail("opcion invalida (probar --help)");
         }
@@ -137,8 +146,15 @@ int main(int argc, char** argv) try {
                    o.seed);
 
     const bool scalarLogEnabled = !o.scalarLog.empty();
+    const bool timingLogEnabled = !o.timingLog.empty();
     if (scalarLogEnabled && o.scalarLog == o.out) {
         fail("--out y --scalar-log no pueden apuntar al mismo archivo");
+    }
+    if (timingLogEnabled && o.timingLog == o.out) {
+        fail("--out y --timing-log no pueden apuntar al mismo archivo");
+    }
+    if (timingLogEnabled && scalarLogEnabled && o.timingLog == o.scalarLog) {
+        fail("--scalar-log y --timing-log no pueden apuntar al mismo archivo");
     }
 
     const std::filesystem::path outPath(o.out);
@@ -158,6 +174,22 @@ int main(int argc, char** argv) try {
         if (!scalarOut) fail("no se pudo abrir " + o.scalarLog);
     }
 
+    std::ofstream timingOut;
+    if (timingLogEnabled) {
+        const std::filesystem::path timingPath(o.timingLog);
+        if (!timingPath.parent_path().empty()) {
+            std::filesystem::create_directories(timingPath.parent_path());
+        }
+        timingOut.open(o.timingLog);
+        if (!timingOut) fail("no se pudo abrir " + o.timingLog);
+    }
+
+    // Per-step CIM times, kept here rather than inside Simulation: the engine
+    // only needs the running mean, the dispersion across steps is a reporting
+    // concern (point g's error bars).
+    std::vector<double> cimMs;
+    cimMs.reserve(static_cast<size_t>(o.steps));
+
     writeTrajectoryFrame(trajOut, sim.particles(), 0.0, o.v0);
     if (scalarLogEnabled) {
         // The grid never gets populated until a rebuild happens -- reuse the
@@ -168,6 +200,10 @@ int main(int argc, char** argv) try {
     }
     for (int step = 0; step < o.steps; ++step) {
         sim.step();
+        cimMs.push_back(sim.lastCimMs());
+        if (timingLogEnabled) {
+            timingOut << (step + 1) << ' ' << sim.lastCimMs() << '\n';
+        }
         writeTrajectoryFrame(trajOut, sim.particles(), static_cast<double>(step + 1) * o.dt, o.v0);
         if (scalarLogEnabled) {
             // step() only rebuilt the grid from the PRE-step snapshot, so
@@ -189,11 +225,49 @@ int main(int argc, char** argv) try {
     const double va = polarization(sim.particles());
     const double S = giantComponentFraction(sim.neighbors());
 
+    // Mean +/- stdev of the per-step CIM cost. This is the observable point (g)
+    // compares against TP1: it never includes process startup, particle
+    // generation, trajectory I/O, nor the syncNeighbors() rebuilds above.
+    //
+    // The slowest 1% is discarded above 100 measurements, which is exactly what
+    // TP1 does (TP1/src/main.cpp, `if (o.repeat >= 100)`). Same rule on both
+    // sides so the two means are computed the same way. Without it an OS
+    // scheduling hiccup in one step out of 2000 pushes the standard deviation
+    // above the mean, and on a log axis the error bar runs off the plot.
+    int cimDiscarded = 0;
+    if (cimMs.size() >= 100) {
+        std::sort(cimMs.begin(), cimMs.end());
+        cimDiscarded = static_cast<int>(cimMs.size() / 100);
+        cimMs.resize(cimMs.size() - static_cast<size_t>(cimDiscarded));
+    }
+
+    double cimMean = 0.0, cimStd = 0.0;
+    if (!cimMs.empty()) {
+        for (const double t : cimMs) cimMean += t;
+        cimMean /= static_cast<double>(cimMs.size());
+    }
+    if (cimMs.size() >= 2) {
+        double acc = 0.0;
+        for (const double t : cimMs) acc += (t - cimMean) * (t - cimMean);
+        cimStd = std::sqrt(acc / static_cast<double>(cimMs.size() - 1));
+    }
+
+    if (o.csv) {
+        // Machine-parseable single line, mirroring TP1's --csv convention so
+        // python/benchmark.py can read both engines the same way.
+        std::printf("%d,%.10g,%.10g,%d,%d,%s,%.10g,%llu,%lld,%.6f,%.6f\n",
+                    o.N, o.L, o.rc, o.M, o.steps, o.model.c_str(), o.eta, o.seed,
+                    sim.cimCalls(), cimMean, cimStd);
+        return 0;
+    }
+
     std::printf(
         "TP2 motor: N=%d L=%.2f rc=%.2f M=%d steps=%d seed=%llu model=%s eta=%.4f va=%.4f "
-        "S=%.4f scalar_log=%s -- OK\n",
+        "S=%.4f cim_mean_ms=%.6f cim_std_ms=%.6f cim_calls=%lld scalar_log=%s timing_log=%s -- OK\n",
         o.N, o.L, o.rc, o.M, o.steps, o.seed, o.model.c_str(), o.eta, va, S,
-        scalarLogEnabled ? o.scalarLog.c_str() : "(disabled)");
+        cimMean, cimStd, sim.cimCalls(),
+        scalarLogEnabled ? o.scalarLog.c_str() : "(disabled)",
+        timingLogEnabled ? o.timingLog.c_str() : "(disabled)");
 
     return 0;
 } catch (const std::exception& e) {

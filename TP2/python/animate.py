@@ -27,7 +27,8 @@ import matplotlib.animation as animation  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
-from sweep import TP2_BIN, L_DEFAULT, RUN_TIMEOUT_S, explore_transition  # noqa: E402
+from sweep import TP2_BIN, L_DEFAULT, RUN_TIMEOUT_S  # noqa: E402
+from analyze import SWEEP_SUMMARY_CSV, load_summary, pick_eta_levels  # noqa: E402
 
 ANIM_DATA_DIR = TP2_DIR / "data" / "animation"
 PLOTS_DIR = TP2_DIR / "data" / "plots"
@@ -37,35 +38,21 @@ SEED_CHARACTERISTIC = 1000  # constante explicita, distinta de cualquier semilla
 ANGLE_CMAP = "hsv"
 FRAME_STRIDE = 4
 FPS = 20
-ETA_BIAS_DEFAULT = 0.5  # punto medio del bracket
-# Sesgo hacia el borde ordenado (bajo) del bracket para vicsek: la estructura
-# clasica de bandas/coexistencia de Vicsek aparece justo por debajo del ruido
-# critico, no en el punto medio ni en el borde desordenado -- decision del
-# checkpoint humano de Task 3 tras confirmar que el punto medio (eta=2.75,
-# borde alto de [2.36, 3.14]) no mostraba bandas visibles en ningun frame.
-ETA_BIAS_VICSEK = 0.15
+def run_characteristic(model: str, eta: float, tag: str,
+                        rho: float = RHO_CHARACTERISTIC,
+                        steps: int = STEPS_CHARACTERISTIC) -> Path:
+    """Corrida dedicada de trayectoria completa a (rho, eta), para animar.
 
-
-def run_characteristic(model: str, rho: float = RHO_CHARACTERISTIC,
-                        steps: int = STEPS_CHARACTERISTIC,
-                        eta_bias: float = ETA_BIAS_DEFAULT) -> tuple[Path, float]:
-    """Corrida dedicada de trayectoria completa a `rho`, eta dentro del bracket real.
-
-    Reusa `explore_transition` (Fase 3) para ubicar el bracket [eta_low, eta_high]
-    de este (model, rho) y usa `eta_low + eta_bias*(eta_high-eta_low)` como eta
-    caracteristico -- nunca un valor hardcodeado. `eta_bias=0.5` (default) es el
-    punto medio del bracket; valores menores sesgan hacia el borde ordenado
-    (bajo), donde vicsek muestra bandas. Mismas convenciones de subprocess que
-    sweep.py::run_one (lista de args, capture_output=True/text=True, nunca
-    shell=True).
+    El eta llega desde afuera, elegido con `analyze.pick_eta_levels` sobre el
+    barrido ya hecho -- o sea, del mismo va(eta) medido que alimenta las
+    figuras, no de un mini-barrido aparte ni de un valor hardcodeado. Mismas
+    convenciones de subprocess que sweep.py::run_one (lista de args,
+    capture_output=True/text=True, nunca shell=True).
     """
     import subprocess
 
-    eta_low, eta_high = explore_transition(model, rho)
-    eta = eta_low + eta_bias * (eta_high - eta_low)
-
     ANIM_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = ANIM_DATA_DIR / f"{model}_rho{rho:g}_traj.txt"
+    out_path = ANIM_DATA_DIR / f"{model}_rho{rho:g}_{tag}_traj.txt"
 
     args = [
         str(TP2_BIN),
@@ -85,7 +72,7 @@ def run_characteristic(model: str, rho: float = RHO_CHARACTERISTIC,
         ) from exc
     if proc.returncode != 0:
         raise RuntimeError(f"tp2 fallo (animate model={model}): {proc.stderr.strip()}")
-    return out_path, eta
+    return out_path
 
 
 def read_trajectory(path) -> list[tuple[float, np.ndarray]]:
@@ -205,14 +192,25 @@ def main():
     if not TP2_BIN.exists():
         sys.exit(f"error: no existe {TP2_BIN}. Correr `make` primero.")
 
+    if not SWEEP_SUMMARY_CSV.exists():
+        sys.exit(f"error: no existe {SWEEP_SUMMARY_CSV}. Correr python/sweep.py primero.")
+
     PLOTS_DIR.mkdir(parents=True, exist_ok=True)
+    rows = load_summary(SWEEP_SUMMARY_CSV)
+
+    # Dos situaciones caracteristicas por modelo, como pide el enunciado (a):
+    # una claramente ordenada y una claramente desordenada. Los eta salen del
+    # va(eta) ya medido, no de valores elegidos a ojo. El "ordenado" es el
+    # mayor eta que todavia tiene va >= 0.9, o sea el borde ordenado de la
+    # transicion: es ahi donde Vicsek muestra las bandas, no en eta ~ 0.
     for model in ("vicsek", "voter"):
-        eta_bias = ETA_BIAS_VICSEK if model == "vicsek" else ETA_BIAS_DEFAULT
-        traj_path, eta = run_characteristic(model, eta_bias=eta_bias)
-        frames = read_trajectory(traj_path)
-        out_path = PLOTS_DIR / f"animation_{model}_rho2.gif"
-        render_animation(frames, out_path, show=args.show)
-        print(f"animacion: model={model} eta={eta:.4f} (bias={eta_bias:g}) -> {out_path}")
+        eta_low, _eta_mid, eta_high = pick_eta_levels(rows, model, RHO_CHARACTERISTIC)
+        for tag, eta in (("ordenado", eta_low), ("desordenado", eta_high)):
+            traj_path = run_characteristic(model, eta, tag)
+            frames = read_trajectory(traj_path)
+            out_path = PLOTS_DIR / f"animation_{model}_rho2_{tag}.gif"
+            render_animation(frames, out_path, show=args.show)
+            print(f"animacion: model={model} {tag} eta={eta:.4f} -> {out_path}")
 
 
 if __name__ == "__main__":

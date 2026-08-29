@@ -418,6 +418,46 @@ void testPolarizationRisesForBothModels() {
     }
 }
 
+void testCimTimingCountsOnlySteps() {
+    // Punto (g): el cronometro del CIM debe contar exactamente un rebuild por
+    // paso temporal. syncNeighbors() tambien reconstruye la grilla, pero es un
+    // costo de analisis (medir S sobre la configuracion correcta), no parte del
+    // paso -- si se colara al contador, el tiempo por paso saldria al doble y
+    // la comparacion contra TP1 no querria decir nada.
+    const double L = 10.0, rc = 1.0;
+    const int M = maxValidGridM(L, rc);
+    const int steps = 50;
+
+    std::vector<VicsekParticle> particles = generateVicsekParticles(200, L, 99);
+    Simulation sim(std::move(particles), L, rc, /*v0=*/0.03, /*dt=*/1.0, M, /*periodic=*/true,
+                    Model::Vicsek, /*eta=*/0.5, /*seed=*/99);
+
+    check(sim.cimCalls() == 0, "cimCalls() deberia arrancar en 0 antes de cualquier paso");
+
+    for (int step = 0; step < steps; ++step) {
+        sim.step();
+        // Intercalado a proposito: replica el patron de main.cpp con
+        // --scalar-log, donde hay un syncNeighbors() por paso.
+        sim.syncNeighbors();
+    }
+
+    check(sim.cimCalls() == steps,
+          "cimCalls() deberia valer " + std::to_string(steps) + " (un rebuild por paso, sin "
+          "contar syncNeighbors), obtuvo " + std::to_string(sim.cimCalls()));
+    check(sim.meanCimMs() > 0.0,
+          "meanCimMs() deberia ser positivo tras " + std::to_string(steps) + " pasos (obtuvo " +
+              std::to_string(sim.meanCimMs()) + ")");
+    check(sim.lastCimMs() > 0.0,
+          "lastCimMs() deberia ser positivo tras el ultimo paso (obtuvo " +
+              std::to_string(sim.lastCimMs()) + ")");
+
+    // Sin pasos no hay division por cero: la media es exactamente 0.
+    std::vector<VicsekParticle> fresh = generateVicsekParticles(10, L, 100);
+    Simulation idle(std::move(fresh), L, rc, 0.03, 1.0, M, true);
+    check(idle.meanCimMs() == 0.0,
+          "meanCimMs() con cero pasos deberia ser 0.0, no una division por cero");
+}
+
 }  // namespace
 
 int main() {
@@ -449,6 +489,8 @@ int main() {
     testGiantComponentFraction();
     std::printf("- polarizacion va(t) creciente para ambos modelos (vicsek y votante)\n");
     testPolarizationRisesForBothModels();
+    std::printf("- cronometro del CIM: un rebuild por paso, syncNeighbors excluido\n");
+    testCimTimingCountsOnlySteps();
 
     std::printf("\n%d verificaciones, %d fallas\n", checks, failures);
     if (failures == 0) std::printf("OK\n");

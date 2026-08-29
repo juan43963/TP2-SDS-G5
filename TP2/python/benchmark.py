@@ -1,44 +1,57 @@
 #!/usr/bin/env python3
-"""Comparacion de tiempos TP1 (CIM, busqueda de vecinos) vs TP2 (paso completo) -- Fase 5.
+"""Inciso (g): tiempo de ejecucion del CIM en TP2 vs TP1.
 
-Enunciado punto (g): "tomar algunas simulaciones que tengan un numero de
-particulas similar a las estudiadas en el TP1 y registrar los tiempos de
-ejecucion del CIM. Luego compararlas con los tiempos obtenidos en el TP1."
+    "Tomar algunas simulaciones que tengan un numero de particulas similar a
+     las estudiadas en el TP1 y registrar los tiempos de ejecucion del CIM.
+     Luego compararlas con los tiempos obtenidos en el TP1."
 
-No hay datos historicos de TP1 persistidos en el repo (`TP1/data/` esta
-gitignoreado), asi que ambos lados se miden frescos en esta corrida:
+QUE SE MIDE (y que NO)
+----------------------
+Se compara UNA sola operacion, la misma de los dos lados: la busqueda de
+vecinos por el Cell Index Method.
 
-- TP1: invoca `TP1/python/benchmark.py --study n` SIN modificarlo (solo
-  subprocess), y parsea su CSV de salida (`TP1/data/bench_punto4.csv`,
-  filtrando study=="punto4.1") para el tiempo puro de busqueda de vecinos
-  del CIM. Esas corridas usan el L fijo de TP1 (L_DEFAULT=20 en
-  TP1/python/benchmark.py), no modificable desde aca sin tocar ese script.
-- TP2: invoca el binario `tp2` real, cronometrado por fuera con
-  time.perf_counter() alrededor del subprocess, para el tiempo de paso
-  completo del motor (rebuild de grilla CIM + busqueda de vecinos +
-  integracion + escritura de trayectoria por paso a os.devnull, ya que
-  `tp2` no tiene un flag para desactivar esa escritura), dividido por la
-  cantidad de --steps. Estas corridas usan L_BENCH=10 (el L por defecto
-  de este TP2).
+- TP2: `Simulation::step()` cronometra con `steady_clock` justo antes y justo
+  despues de `grid_.rebuild()`, DENTRO del paso temporal. Cada paso deja su
+  propia medicion y el binario reporta la media y el desvio sobre los pasos
+  (`--csv`). No entra el arranque del proceso, ni la generacion inicial de
+  particulas, ni la escritura de la trayectoria, ni los `syncNeighbors()` que
+  el motor hace aparte para medir S.
+- TP1: `./cim --csv --repeat R` ya cronometraba la busqueda pura con
+  `steady_clock` (TP1/src/main.cpp).
 
-Son magnitudes distintas (una operacion vs un paso completo de simulacion,
-este ultimo con I/O de trayectoria incluido) medidas ademas a densidades
-distintas (TP1: L=20 => N/400 part/u^2; TP2: L=10 => N/100 part/u^2, 4x mas
-denso para el mismo N) -- el grafico y el CSV las etiquetan como tales,
-nunca como si fueran una comparacion apples-to-apples.
+La version anterior de este script media otra cosa: envolvia el proceso `tp2`
+entero con `time.perf_counter()` y dividia por la cantidad de pasos, con lo
+cual cargaba al CIM el arranque del binario y el formateo de la trayectoria a
+texto. Ese numero no era comparable con el de TP1.
 
-    python3 python/benchmark.py                # N-sweep completo por defecto
-    python3 python/benchmark.py --n-values 100 --repeat-tp1 20 --repeat-tp2 3
+COMO SE IGUALAN LAS CONDICIONES
+-------------------------------
+Para que la comparacion no dependa de parametros distintos, se fuerza en los
+dos binarios: L=10, rc=1, contorno periodico y el mismo M. Ademas TP1 corre
+con `--rmin 0 --rmax 0`, o sea con particulas puntuales igual que TP2: asi el
+predicado de vecindad pasa a ser centro-a-centro de los dos lados (TP1 usa
+borde-a-borde cuando las particulas tienen radio) y el M_max coincide, porque
+el criterio de TP1 es L/M > rc + 2*rmax y con rmax=0 se reduce al de TP2.
+
+Los dos lados descartan el 1% de las mediciones mas lentas. Es la regla que TP1
+ya traia (`if (o.repeat >= 100)` en TP1/src/main.cpp) y que TP2 replica sobre
+sus mediciones por paso, de modo que las dos medias se calculen igual. Sin ese
+recorte, un solo hipo del scheduler entre 2000 pasos deja el desvio por encima
+de la media y, en escala logaritmica, la barra de error se sale del grafico.
+
+Lo unico que queda distinto es la CONFIGURACION de las particulas: TP1 las
+sortea uniformemente al azar, TP2 las toma de una simulacion de Vicsek en
+curso, donde el alineamiento las agrupa. Esa diferencia es justamente lo que
+la comparacion pone a prueba.
+
+    python3 python/benchmark.py
+    python3 python/benchmark.py --n-values 200 400 800
 """
 
 import argparse
 import csv
-import os
-import re
-import statistics
 import subprocess
 import sys
-import time
 from pathlib import Path
 
 import matplotlib
@@ -48,231 +61,172 @@ import matplotlib.pyplot as plt
 
 TP2_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = TP2_DIR.parent
-TP1_DIR = REPO_ROOT / "TP1"
-TP1_BENCHMARK_PY = TP1_DIR / "python" / "benchmark.py"
-TP1_BENCH_CSV = TP1_DIR / "data" / "bench_punto4.csv"
-TP1_BIN = TP1_DIR / "cim"
+TP1_BIN = REPO_ROOT / "TP1" / "cim"
 TP2_BIN = TP2_DIR / "tp2"
 PLOTS_DIR = TP2_DIR / "data" / "plots"
 
-# Copia intencional del default --n-sweep de TP1/python/benchmark.py -- no se
-# importa TP1 (PROJECT.md descarta explicitamente una libreria compartida
-# entre TP1 y TP2, decision ya tomada en Fase 1).
-N_SWEEP = [10, 25, 50, 100, 200, 300, 400, 500, 600, 700, 850, 1000]
-
+# Condiciones comunes forzadas en los dos binarios.
 L_BENCH = 10.0
 RC_BENCH = 1.0
-STEPS_BENCH = 200
-REPEAT_BENCH = 5
-SEED_BENCH = 1
+PERIODIC = True
 
-CSV_FIELDS = ["N", "tp1_search_mean_ms", "tp1_search_std_ms",
-              "tp2_step_mean_ms", "tp2_step_std_ms"]
+# N a comparar. Copia del barrido por defecto de TP1/python/benchmark.py, mas
+# los tres N que salen de las densidades del enunciado con L=10 (rho=2,4,8).
+N_SWEEP = sorted({10, 25, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 1000})
+N_ENUNCIADO = (200, 400, 800)
+
+REPEAT_TP1 = 200     # >= 100 activa el recorte del 1% mas lento en TP1
+STEPS_TP2 = 2000     # 2000 mediciones de CIM, una por paso (idem recorte del 1%)
+SEED_BENCH = 1
+MODEL_BENCH = "vicsek"
+ETA_BENCH = 1.5      # dentro de la fase ordenada: el caso con mas agrupamiento
+
+CSV_FIELDS = ["N", "M", "tp1_mean_ms", "tp1_std_ms", "tp2_mean_ms", "tp2_std_ms", "ratio"]
 
 COLOR_TP1 = "#dc2626"
 COLOR_TP2 = "#2563eb"
+FS = 20  # mismo tamano de fuente que analyze.py (pedido de la catedra)
 
 
-def run_tp1_timings(n_values, repeat=100):
-    """Corre TP1/python/benchmark.py --study n (sin modificarlo) y parsea su CSV.
+def run_tp1(n, repeat=REPEAT_TP1, seed=SEED_BENCH):
+    """Busqueda de vecinos pura de TP1. Devuelve (M, mean_ms, std_ms).
 
-    Devuelve una lista de dicts {N, mean_ms, std_ms} para study=="punto4.1"
-    (tiempo puro de busqueda de vecinos del CIM, L=20 fijo -- el modo
-    "densidad libre" de TP1), restringida a los N pedidos.
-
-    Nota de acoplamiento fragil: `--study n` de TP1 corre, para cada N,
-    TRES mediciones (punto4.1, punto4.1_brute, punto4.2 a densidad fija con
-    L=sqrt(N/rho) y M recalculado) aunque este script solo consuma
-    punto4.1. Si punto4.1_brute o punto4.2 fallan para cualquier N pedido
-    (p.ej. `--brute` con un N grande, o un M<1 en la corrida de densidad
-    fija), TP1/python/benchmark.py sale con codigo != 0 y ademas NO
-    persiste su CSV -- lo escribe una unica vez al final del barrido
-    completo (`save_csv` se llama despues del loop) -- asi que toda la
-    corrida se pierde, incluidas las N de punto4.1 que ya se habian
-    calculado. No se modifica TP1/python/benchmark.py para evitar esto
-    (esta documentado como "SIN modificarlo"); en su lugar, el mensaje de
-    error abajo intenta indicar hasta que N llego a imprimir progreso antes
-    de la falla, para orientar el diagnostico.
+    `--rmin 0 --rmax 0` vuelve puntuales a las particulas de TP1, que por
+    defecto tienen radio en [0.23, 0.26]. Sin eso, TP1 mide vecindad
+    borde-a-borde y su M_max baja de 9 a 6, o sea que ni la grilla ni el
+    predicado coincidirian con los de TP2.
     """
-    if not TP1_BIN.exists():
-        sys.exit(f"error: no existe {TP1_BIN}. Correr `make` en TP1/ primero.")
-
-    args = [sys.executable, str(TP1_BENCHMARK_PY), "--study", "n",
-            "--n-sweep", *(str(n) for n in n_values), "--repeat", str(repeat)]
-    proc = subprocess.run(args, cwd=TP1_DIR, capture_output=True, text=True)
+    args = [str(TP1_BIN), "--N", str(n), "--L", f"{L_BENCH:.10g}",
+            "--rc", f"{RC_BENCH:.10g}", "--rmin", "0", "--rmax", "0",
+            "--seed", str(seed), "--repeat", str(repeat), "--csv"]
+    if PERIODIC:
+        args.append("--periodic")
+    proc = subprocess.run(args, capture_output=True, text=True)
     if proc.returncode != 0:
-        completed = re.findall(r"^\s*N=\s*(\d+)\s*\|", proc.stdout, re.MULTILINE)
-        progress = (f" N completadas antes de la falla (segun stdout): {completed}."
-                    if completed else " Ninguna N completo su progreso antes de la falla.")
+        raise RuntimeError(f"cim fallo (N={n}): {proc.stderr.strip()}")
+    # N,L,M,rc,periodic,method,pairs,repeat,mean_ms,stdev_ms,discarded
+    f = proc.stdout.strip().split(",")
+    m, mean_ms, std_ms, discarded = int(f[2]), float(f[8]), float(f[9]), int(f[10])
+    if discarded != repeat // 100:
         raise RuntimeError(
-            f"TP1/python/benchmark.py --study n fallo: {proc.stderr.strip()}\n"
-            f"Nota: --study n corre tambien punto4.1_brute y punto4.2 (no usados por "
-            f"este script) y puede fallar por esas sub-mediciones para alguna N aunque "
-            f"punto4.1 fuera valido; ademas TP1 solo escribe su CSV al final del "
-            f"barrido, asi que ningun resultado parcial quedo persistido.{progress}"
+            f"cim descarto {discarded} corridas de {repeat}, se esperaba {repeat // 100} "
+            f"(1%). Si no recorta, su media no se calcula igual que la de TP2."
         )
-
-    wanted = set(n_values)
-    rows = []
-    with open(TP1_BENCH_CSV) as f:
-        for row in csv.DictReader(f):
-            if row["study"] != "punto4.1":
-                continue
-            n = int(row["N"])
-            if n not in wanted:
-                continue
-            rows.append({"N": n, "mean_ms": float(row["mean_ms"]), "std_ms": float(row["std_ms"])})
-    rows.sort(key=lambda r: r["N"])
-    return rows
+    return m, mean_ms, std_ms
 
 
-def run_tp2_timings(n_values, steps=STEPS_BENCH, repeat=REPEAT_BENCH):
-    """Cronometra `tp2` de punta a punta (rebuild de grilla + vecinos + integracion + escritura).
+def run_tp2(n, m, steps=STEPS_TP2, seed=SEED_BENCH):
+    """Busqueda de vecinos por paso de TP2. Devuelve (M, mean_ms, std_ms).
 
-    Para cada N corre el binario `repeat` veces, mide el wall-clock total con
-    time.perf_counter() alrededor del subprocess y divide por `steps` para
-    obtener el costo promedio por paso. Devuelve una lista de dicts
-    {N, mean_ms, std_ms}.
-
-    Nota: `tp2` escribe un frame de trayectoria por paso (aunque `--out`
-    apunte a os.devnull, sigue pagando el costo de formatear los floats a
-    texto), y no expone un flag para saltear esa escritura durante el
-    benchmark -- por eso el numero medido incluye esa I/O, no solo
-    grid+busqueda+integracion.
+    Los tiempos salen del cronometro interno del motor (tick/tock alrededor de
+    grid_.rebuild() dentro de step()), no de cronometrar el proceso por fuera.
+    `--out /dev/null` sigue costando el formateo de la trayectoria, pero ese
+    costo cae fuera de la ventana medida.
     """
-    if not TP2_BIN.exists():
-        sys.exit(f"error: no existe {TP2_BIN}. Correr `make` en TP2/ primero.")
+    args = [str(TP2_BIN), "--N", str(n), "--L", f"{L_BENCH:.10g}",
+            "--rc", f"{RC_BENCH:.10g}", "--M", str(m), "--steps", str(steps),
+            "--seed", str(seed), "--model", MODEL_BENCH, "--eta", f"{ETA_BENCH:.10g}",
+            "--out", "/dev/null", "--csv"]
+    args.append("--periodic" if PERIODIC else "--no-periodic")
+    proc = subprocess.run(args, capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(f"tp2 fallo (N={n}): {proc.stderr.strip()}")
+    # N,L,rc,M,steps,model,eta,seed,cim_calls,cim_mean_ms,cim_std_ms
+    f = proc.stdout.strip().split(",")
+    m_used, calls, mean_ms, std_ms = int(f[3]), int(f[8]), float(f[9]), float(f[10])
+    if calls != steps:
+        raise RuntimeError(
+            f"tp2 reporto {calls} mediciones de CIM para {steps} pasos: el cronometro "
+            f"esta contando rebuilds que no son del paso temporal."
+        )
+    return m_used, mean_ms, std_ms
 
+
+def collect(n_values, repeat_tp1=REPEAT_TP1, steps_tp2=STEPS_TP2):
+    """Corre ambos binarios para cada N y devuelve las filas combinadas."""
     rows = []
     for n in n_values:
-        per_step_ms = []
-        for _ in range(repeat):
-            args = [str(TP2_BIN), "--N", str(n), "--L", f"{L_BENCH:.10g}",
-                     "--rc", f"{RC_BENCH:.10g}", "--steps", str(steps),
-                     "--seed", str(SEED_BENCH), "--out", os.devnull]
-            start = time.perf_counter()
-            proc = subprocess.run(args, capture_output=True, text=True)
-            elapsed_s = time.perf_counter() - start
-            if proc.returncode != 0:
-                raise RuntimeError(f"tp2 fallo (N={n}): {proc.stderr.strip()}")
-            per_step_ms.append((elapsed_s * 1000.0) / steps)
-        mean_ms = statistics.mean(per_step_ms)
-        std_ms = statistics.stdev(per_step_ms) if repeat >= 2 else 0.0
-        rows.append({"N": n, "mean_ms": mean_ms, "std_ms": std_ms})
+        m1, t1_mean, t1_std = run_tp1(n, repeat=repeat_tp1)
+        m2, t2_mean, t2_std = run_tp2(n, m1, steps=steps_tp2)
+        if m1 != m2:
+            raise RuntimeError(f"M distinto entre TP1 ({m1}) y TP2 ({m2}) para N={n}")
+        rows.append({
+            "N": n, "M": m1,
+            "tp1_mean_ms": t1_mean, "tp1_std_ms": t1_std,
+            "tp2_mean_ms": t2_mean, "tp2_std_ms": t2_std,
+            "ratio": t2_mean / t1_mean if t1_mean > 0 else float("nan"),
+        })
+        marca = "  <- densidad del enunciado" if n in N_ENUNCIADO else ""
+        print(f"  N={n:5d}  M={m1:2d}  TP1 {t1_mean:8.4f} +/- {t1_std:.4f} ms   "
+              f"TP2 {t2_mean:8.4f} +/- {t2_std:.4f} ms   TP2/TP1 ={rows[-1]['ratio']:5.2f}{marca}")
     return rows
 
 
-def merge_and_save_csv(tp1_rows, tp2_rows, out_path=None):
-    """Join por N y persiste el CSV comparativo. Devuelve la lista combinada."""
-    if out_path is None:
-        out_path = PLOTS_DIR / "benchmark_timings.csv"
-
-    tp1_by_n = {r["N"]: r for r in tp1_rows}
-    tp2_by_n = {r["N"]: r for r in tp2_rows}
-    if tp1_by_n.keys() != tp2_by_n.keys():
-        raise KeyError(
-            f"N de TP1 y TP2 no coinciden: TP1={sorted(tp1_by_n)} TP2={sorted(tp2_by_n)}"
-        )
-
-    combined = []
-    for n in sorted(tp1_by_n):
-        t1, t2 = tp1_by_n[n], tp2_by_n[n]
-        combined.append({
-            "N": n,
-            "tp1_search_mean_ms": t1["mean_ms"],
-            "tp1_search_std_ms": t1["std_ms"],
-            "tp2_step_mean_ms": t2["mean_ms"],
-            "tp2_step_std_ms": t2["std_ms"],
-        })
-
+def save_csv(rows, out_path):
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
         writer.writeheader()
-        writer.writerows(combined)
-    print(f"datos: {out_path}")
-    return combined
+        writer.writerows(rows)
+    print(f"datos:  {out_path}")
 
 
-def plot_benchmark(rows, out_path=None, show=False):
-    """Grafico log-log comparativo: busqueda de vecinos TP1 vs paso completo TP2.
-
-    Si show=True usa el backend interactivo y muestra la figura sin guardarla
-    (ver `--show` en el CLI); si show=False (default) guarda el PNG en
-    out_path y no abre ninguna ventana.
-    """
-    if out_path is None:
-        out_path = PLOTS_DIR / "benchmark_tp1_vs_tp2.png"
-
+def plot_benchmark(rows, out_path, show=False):
+    """Tiempo de busqueda de vecinos vs N, log-log, para los dos TP."""
     n = [r["N"] for r in rows]
-    fig, ax = plt.subplots(figsize=(8, 5.5))
-    ax.errorbar(n, [r["tp1_search_mean_ms"] for r in rows],
-                yerr=[r["tp1_search_std_ms"] for r in rows],
-                marker="o", capsize=3, linewidth=1.4, markersize=5, color=COLOR_TP1,
-                label="TP1: busqueda de vecinos (CIM), L=20")
-    ax.errorbar(n, [r["tp2_step_mean_ms"] for r in rows],
-                yerr=[r["tp2_step_std_ms"] for r in rows],
-                marker="s", capsize=3, linewidth=1.4, markersize=5, color=COLOR_TP2,
-                label=f"TP2: paso completo (rebuild grilla + busqueda + integracion "
-                      f"+ escritura), L={L_BENCH:g}")
+    fig, ax = plt.subplots(figsize=(9.0, 6.5))
+    ax.errorbar(n, [r["tp1_mean_ms"] for r in rows], yerr=[r["tp1_std_ms"] for r in rows],
+                marker="o", markersize=7, capsize=3, linewidth=1.8, color=COLOR_TP1,
+                label="TP1: CIM aislado")
+    ax.errorbar(n, [r["tp2_mean_ms"] for r in rows], yerr=[r["tp2_std_ms"] for r in rows],
+                marker="s", markersize=7, capsize=3, linewidth=1.8, color=COLOR_TP2,
+                label="TP2: CIM dentro del paso temporal")
 
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlabel("N (numero de particulas)")
-    ax.set_ylabel("tiempo [ms]")
-    ax.set_title("TP1 vs TP2 -- tiempo de computo por operacion vs N\n"
-                 "(magnitudes distintas: busqueda pura de vecinos vs paso completo del motor\n"
-                 f"incl. escritura de trayectoria por paso; densidades distintas: TP1 L=20 "
-                 f"vs TP2 L={L_BENCH:g})")
-    ax.grid(alpha=0.25, which="both")
-    ax.legend(frameon=False, fontsize=9)
+    ax.set_xlabel(r"$N$", fontsize=FS)
+    ax.set_ylabel("Tiempo de búsqueda de vecinos [ms]", fontsize=FS)
+    ax.tick_params(axis="both", which="major", labelsize=FS - 3)
+    ax.grid(False)
+    ax.legend(fontsize=FS - 5, frameon=False)
 
     if show:
         plt.show()
-    else:
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        fig.savefig(out_path, dpi=150, bbox_inches="tight")
-        print(f"figura: {out_path}")
+        return
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    print(f"figura: {out_path}")
 
 
 def main():
-    ap = argparse.ArgumentParser(
-        description="Compara tiempos de TP1 (CIM) vs TP2 (paso completo)"
-    )
+    ap = argparse.ArgumentParser(description="Inciso (g): tiempos de CIM, TP2 vs TP1")
     ap.add_argument("--n-values", type=int, nargs="+", default=N_SWEEP,
                     help=f"valores de N a comparar (default {N_SWEEP})")
-    ap.add_argument("--repeat-tp1", type=int, default=100,
-                    help="corridas de TP1/python/benchmark.py por N (default 100, igual al default de TP1)")
-    ap.add_argument("--repeat-tp2", type=int, default=REPEAT_BENCH,
-                    help=f"corridas de tp2 por N (default {REPEAT_BENCH})")
-    ap.add_argument("--steps-tp2", type=int, default=STEPS_BENCH,
-                    help=f"pasos por corrida de tp2 (default {STEPS_BENCH})")
+    ap.add_argument("--repeat-tp1", type=int, default=REPEAT_TP1,
+                    help=f"corridas de la busqueda en TP1 (default {REPEAT_TP1}; debe ser >=100 "
+                         f"para que recorte el 1% igual que TP2)")
+    ap.add_argument("--steps-tp2", type=int, default=STEPS_TP2,
+                    help=f"pasos de simulacion en TP2 (default {STEPS_TP2})")
     ap.add_argument("--show", action="store_true", help="backend interactivo, no guarda")
     args = ap.parse_args()
 
-    if args.steps_tp2 < 1:
-        sys.exit(f"error: --steps-tp2 debe ser >= 1 (recibido {args.steps_tp2})")
-    if args.repeat_tp1 < 1:
-        sys.exit(f"error: --repeat-tp1 debe ser >= 1 (recibido {args.repeat_tp1})")
-    if args.repeat_tp2 < 1:
-        sys.exit(f"error: --repeat-tp2 debe ser >= 1 (recibido {args.repeat_tp2})")
+    for binario in (TP1_BIN, TP2_BIN):
+        if not binario.exists():
+            sys.exit(f"error: no existe {binario}. Correr `make` en su carpeta primero.")
+    if args.repeat_tp1 < 100:
+        sys.exit("error: --repeat-tp1 debe ser >= 100; por debajo de ese umbral TP1 no "
+                 "recorta el 1% mas lento y su media deja de calcularse como la de TP2")
 
-    print("nota: TP1 mide a L=20 (densidad libre de TP1/python/benchmark.py) y TP2 mide a "
-          f"L={L_BENCH:g}; el paso de TP2 incluye escritura de trayectoria por paso a "
-          "os.devnull -- no son magnitudes directamente comparables, ver docstring del modulo.")
+    print(f"condiciones comunes: L={L_BENCH:g}, rc={RC_BENCH:g}, "
+          f"contorno {'periodico' if PERIODIC else 'con paredes'}, mismo M, "
+          f"particulas puntuales en los dos")
+    print(f"TP1: {args.repeat_tp1} busquedas por N | "
+          f"TP2: {args.steps_tp2} pasos por N (una medicion de CIM por paso)\n")
 
-    print(f"TP1: N={args.n_values}, repeat={args.repeat_tp1}")
-    tp1_rows = run_tp1_timings(args.n_values, repeat=args.repeat_tp1)
-
-    print(f"TP2: N={args.n_values}, steps={args.steps_tp2}, repeat={args.repeat_tp2}")
-    tp2_rows = run_tp2_timings(args.n_values, steps=args.steps_tp2, repeat=args.repeat_tp2)
-
-    combined = merge_and_save_csv(tp1_rows, tp2_rows)
-    plot_benchmark(combined, show=args.show)
-
-    for r in combined:
-        print(f"  N={r['N']:5d}  TP1 (vecinos) {r['tp1_search_mean_ms']:8.4f} ms  "
-              f"TP2 (paso completo) {r['tp2_step_mean_ms']:8.4f} ms")
+    rows = collect(args.n_values, repeat_tp1=args.repeat_tp1, steps_tp2=args.steps_tp2)
+    save_csv(rows, PLOTS_DIR / "benchmark_timings.csv")
+    plot_benchmark(rows, PLOTS_DIR / "benchmark_tp1_vs_tp2.png", show=args.show)
 
 
 if __name__ == "__main__":
