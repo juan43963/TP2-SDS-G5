@@ -1,0 +1,127 @@
+% ---------------------------------------------------------------------------
+%  estudio.sty -- estilo comun de los PDF de estudio del TP2 (Grupo 5).
+%
+%  Solo usa paquetes de TeX Live "basic": nada de tcolorbox, titlesec,
+%  enumitem ni mdframed, que no estan instalados en la maquina del grupo.
+%  Las cajas de aviso se arman con \fcolorbox + \parbox.
+% ---------------------------------------------------------------------------
+\ProvidesPackage{estudio}
+
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[T1]{fontenc}
+\RequirePackage[spanish,es-noquoting,es-tabla]{babel}
+\RequirePackage[a4paper,margin=2.3cm]{geometry}
+% amsmath va ANTES de newtxmath, y amssymb no se carga: newtxmath ya provee
+% esos simbolos y cargarlo redefine \Bbbk (error fatal "already defined").
+\RequirePackage{amsmath}
+\RequirePackage{newtxtext,newtxmath}
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{xcolor}
+\RequirePackage{parskip}
+\RequirePackage{fancyhdr}
+\RequirePackage{microtype}
+\RequirePackage{hyperref}
+\hypersetup{hidelinks}
+
+% --- Paleta -----------------------------------------------------------------
+\definecolor{azul}{RGB}{20,70,125}
+\definecolor{verde}{RGB}{25,110,70}
+\definecolor{rojo}{RGB}{160,30,40}
+\definecolor{gris}{RGB}{95,95,95}
+\definecolor{ocre}{RGB}{150,105,20}
+
+% --- Notacion de la guia (3.5): vectores en negrita sin italica --------------
+\newcommand{\vect}[1]{\mathbf{#1}}
+
+% --- Encabezados de seccion coloreados, sin titlesec -------------------------
+\makeatletter
+\renewcommand\section{\@startsection{section}{1}{\z@}%
+  {-2.4ex \@plus -1ex \@minus -.2ex}{1.4ex \@plus.2ex}%
+  {\normalfont\Large\bfseries\color{azul}}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+  {-2.0ex \@plus -1ex \@minus -.2ex}{1.0ex \@plus.2ex}%
+  {\normalfont\large\bfseries\color{azul!80!black}}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+  {-1.6ex \@plus -1ex \@minus -.2ex}{0.8ex \@plus.2ex}%
+  {\normalfont\normalsize\bfseries\color{gris}}}
+\makeatother
+
+% --- Encabezado y pie -------------------------------------------------------
+\newcommand{\cuadernillo}[1]{\gdef\@cuadernillo{#1}}
+\makeatletter
+\gdef\@cuadernillo{}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\color{gris} TP2 --- Bandadas --- Grupo 5}
+\fancyhead[R]{\footnotesize\color{gris} \@cuadernillo}
+\fancyfoot[C]{\footnotesize\color{gris}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\makeatother
+
+% --- Cajas de aviso ---------------------------------------------------------
+% #1 color, #2 rotulo, #3 texto.
+\newcommand{\estcaja}[3]{%
+  \par\medskip\noindent
+  \fcolorbox{#1!45}{#1!6}{%
+    \parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+      \textcolor{#1}{\bfseries #2}\par\smallskip #3}}%
+  \par\medskip}
+
+% Idea central que hay que poder decir de memoria.
+\newcommand{\clave}[1]{\estcaja{verde}{Lo que tenés que poder decir}{#1}}
+% Trampa: lo que NO hay que decir, o donde te pueden pinchar.
+\newcommand{\ojo}[1]{\estcaja{rojo}{Cuidado}{#1}}
+% Numero duro salido de los datos.
+\newcommand{\dato}[1]{\estcaja{azul}{El número}{#1}}
+% Contexto fisico de fondo.
+\newcommand{\teoria}[1]{\estcaja{ocre}{Por qué es así}{#1}}
+
+% --- Guion: encabezado de diapositiva ---------------------------------------
+% #1 numero de diapositiva, #2 titulo, #3 tiempo objetivo, #4 expositor.
+\newcommand{\diapo}[4]{%
+  \par\medskip\noindent
+  \colorbox{azul!12}{%
+    \parbox{\dimexpr\linewidth-2\fboxsep\relax}{%
+      \textcolor{azul}{\bfseries Diapositiva #1 \textbullet\ #2}%
+      \hfill{\footnotesize\color{gris} #3 \textbullet\ expositor #4}}}%
+  \par\smallskip}
+
+% --- Preguntas y respuestas -------------------------------------------------
+\newcounter{qa}
+\newcommand{\pregunta}[1]{%
+  \par\medskip\refstepcounter{qa}%
+  \noindent\textcolor{rojo}{\bfseries P\theqa.}\ \textbf{#1}\par\smallskip}
+\newcommand{\respuesta}[1]{%
+  \noindent\textcolor{verde}{\bfseries R.}\ #1\par}
+
+% --- Portada ----------------------------------------------------------------
+% #1 numero, #2 titulo, #3 subtitulo/alcance.
+\newcommand{\portada}[3]{%
+  \begin{titlepage}
+    \centering
+    \vspace*{2.5cm}
+    {\footnotesize\color{gris}\scshape 72.25 Simulación de Sistemas \textbullet\ ITBA \textbullet\ 2C 2026\par}
+    \vspace{0.4cm}
+    {\Large\bfseries Trabajo Práctico N\textdegree{}2 --- Simulación de bandadas\par}
+    \vspace{0.2cm}
+    {\large Modelo de Vicsek y modelo de votante\par}
+    \vspace{2.2cm}
+    {\color{azul}\rule{0.75\linewidth}{1.2pt}\par}
+    \vspace{0.7cm}
+    {\Large\color{gris} Guía de estudio #1 de 4\par}
+    \vspace{0.35cm}
+    {\Huge\bfseries\color{azul} #2\par}
+    \vspace{0.7cm}
+    {\large #3\par}
+    \vspace{0.5cm}
+    {\color{azul}\rule{0.75\linewidth}{1.2pt}\par}
+    \vfill
+    {\color{gris} Grupo 5 --- Comisión S\par}
+    {\color{gris} Lucas Di Candia \textbullet\ Juan Francisco Palermo \textbullet\ Gonzalo Sharif Curi Martinez\par}
+    \vspace{0.6cm}
+    {\footnotesize\color{gris} Documento interno de preparación de la defensa oral. No se entrega.\par}
+    \vspace{1.2cm}
+  \end{titlepage}}
+
+\endinput

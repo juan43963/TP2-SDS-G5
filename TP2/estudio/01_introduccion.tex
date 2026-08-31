@@ -1,0 +1,375 @@
+\documentclass[11pt]{article}
+\usepackage{estudio}
+\cuadernillo{1 --- Introducción}
+
+\begin{document}
+
+\portada{1}{Introducción}{%
+  Diapositivas 1 a 4 \textbullet\ expositor A \textbullet\ 1:45\\[4pt]
+  Sistema real, materia activa y modelo matemático}
+
+\tableofcontents
+\clearpage
+
+% ===========================================================================
+\section{Cómo se usa esta guía}
+
+Son cuatro cuadernillos, uno por sección de la presentación. Cada uno tiene la
+misma estructura:
+
+\begin{enumerate}
+  \item \textbf{Guion}: qué decir en cada diapositiva y cuánto tiempo tenés.
+  \item \textbf{El fondo}: la teoría que sostiene lo que estás diciendo.
+  \item \textbf{Preguntas y respuestas}: lo que te pueden preguntar y qué contestar.
+\end{enumerate}
+
+El reparto acordado es: \textbf{A} expone Introducción y después los resultados
+de Vicsek; \textbf{B} expone Implementación y después los del votante;
+\textbf{C} expone Simulaciones y después las comparaciones, el benchmark y las
+conclusiones. La rotación es A\,$\to$\,B\,$\to$\,C\,$\to$\,A\,$\to$\,B\,$\to$\,C.
+
+\ojo{La guía de la cátedra (punto 3.1) dice que \emph{todos} los miembros del
+grupo deben estar en condiciones de exponer la presentación completa, y que si
+hay preguntas al final las responden en orden, sin superponerse (punto 3.2).
+Por eso los cuatro cuadernillos los leen los tres, aunque cada uno exponga solo
+su parte.}
+
+\subsection{El presupuesto de tiempo}
+
+La presentación tiene 28 páginas: 1 de título, 5 divisorias de sección,
+1 de cierre y \textbf{21 de contenido}. Trece minutos son 780 segundos, así que
+el promedio real es de unos \textbf{36 segundos por diapositiva de contenido}.
+
+\dato{Ese número es el que manda. Una diapositiva de gráfico bien explicada
+lleva 30--35 s; una de animación, 40--45 s; una de ecuaciones, 50--60 s. No hay
+margen para introducir, contextualizar ni repetir. Si te pasás 10 s en cada una
+de las primeras diez diapositivas, llegás a conclusiones con dos minutos menos
+de los que necesitás.}
+
+Distribución cerrada, ya descontado el tiempo de las divisorias:
+
+\begin{center}
+\begin{tabular}{llcc}
+\toprule
+Expositor & Bloque & Diapositivas & Tiempo \\
+\midrule
+A & Introducción            & 1--4   & 1:45 \\
+B & Implementación          & 5--7   & 1:37 \\
+C & Simulaciones            & 8--10  & 1:35 \\
+A & Resultados: Vicsek      & 11--16 & 2:40 \\
+B & Resultados: votante     & 17--21 & 2:30 \\
+C & Comparaciones y cierre  & 22--28 & 2:40 \\
+\midrule
+\multicolumn{3}{l}{\textbf{Total}} & \textbf{12:47} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Quedan 13 segundos de colchón sobre los 13:00. Es poquísimo: ensayen con
+cronómetro y con las transiciones entre personas incluidas, que es donde se
+pierden los segundos.
+
+% ===========================================================================
+\section{Guion: diapositivas 1 a 4}
+
+\diapo{1}{Portada}{15 s}{A}
+
+Nombre del trabajo, los tres integrantes, materia y comisión. No leas la
+diapositiva entera.
+
+\begin{quote}
+\itshape
+``Buenos días. Trabajo Práctico 2 de Simulación de Sistemas, grupo 5. Vamos a
+presentar un autómata celular off-lattice de bandadas de agentes
+autopropulsados, comparando el modelo estándar de Vicsek contra el modelo de
+votante. Arranco yo con la introducción.''
+\end{quote}
+
+\diapo{3}{Sistema real}{38 s}{A}
+
+La foto es una murmuración de estorninos. Los cuatro \textit{bullets} de la
+diapositiva son el orden en que hay que decirlo, y cada uno es una frase, no un
+párrafo.
+
+\begin{quote}
+\itshape
+``El sistema real son las bandadas: estorninos, cardúmenes de peces, colonias
+bacterianas. Lo característico es que \emph{no hay un líder}: cada individuo
+decide su dirección mirando únicamente a los vecinos que tiene al lado, y del
+comportamiento local emerge un orden global coherente. Esto es un ejemplo de
+materia activa, que es todo sistema donde la energía entra localmente, en cada
+agente, y no desde un forzado externo.''
+\end{quote}
+
+\clave{Los tres conceptos que tenés que dejar plantados acá, porque los usan las
+otras tres secciones: \textbf{(1)} interacción puramente local,
+\textbf{(2)} orden global emergente sin coordinación central,
+\textbf{(3)} materia activa = energía inyectada en cada partícula.}
+
+\ojo{No te extiendas con la biología. La cátedra pide una \emph{somera}
+descripción del sistema real (guía 2.1, máximo 3 diapositivas). El contenido
+técnico va en las secciones siguientes; acá solo estás situando el problema.}
+
+\diapo{4}{Modelo matemático}{50 s}{A}
+
+Es la diapositiva más densa de tu bloque: tres ecuaciones y la definición del
+ruido. Ordená así:
+
+\begin{enumerate}
+  \item \textbf{Vicsek}: cada partícula adopta la dirección \emph{promedio} de
+    sus vecinos dentro del radio de interacción, más un ruido angular.
+  \item \textbf{Votante}: no promedia; elige \emph{un} vecino al azar y copia su
+    dirección, más el mismo ruido.
+  \item \textbf{Posición}: común a los dos modelos, y la rapidez es constante
+    ---lo único que cambia es la dirección.
+  \item \textbf{Ruido}: uniforme en $[-\eta/2,\ \eta/2]$. $\eta$ es el único
+    parámetro de control.
+  \item \textbf{Adimensionalidad}: $\Delta t$, $v$ y $\eta$ no tienen unidades
+    físicas.
+\end{enumerate}
+
+\begin{quote}
+\itshape
+``El modelo matemático de Vicsek, de 1995, dice que cada partícula toma la
+dirección promedio de las que tiene dentro de un radio de interacción, más un
+ruido angular. El promedio se escribe como el arcotangente del cociente entre el
+seno medio y el coseno medio. El modelo de votante cambia una sola cosa: en vez
+de promediar, la partícula elige un vecino al azar con distribución uniforme y
+copia su dirección, con el mismo ruido. La posición se actualiza igual en los
+dos casos, con rapidez constante: lo único que evoluciona es la dirección. El
+ruido es uniforme entre menos eta medios y eta medios, y es el único parámetro
+de control del desorden. Todas las magnitudes son adimensionales.''
+\end{quote}
+
+\clave{La frase que tiene que quedar sonando, porque es la tesis de todo el
+trabajo: \emph{``la única diferencia entre los dos modelos es promediar sobre
+todos los vecinos versus copiar a uno solo elegido al azar''}. Todo lo que
+mostramos después se explica con eso.}
+
+\ojo{Acá \emph{no} se habla de $L=10$, ni de $\rho=2,4,8$, ni del Cell Index
+Method. La guía 2.1 es explícita: en Introducción va el modelo matemático
+general, ``sin especificar ningún sistema particular, ni métodos sobre cómo se
+resuelve el modelo''. Los valores concretos son de C (diapositiva 9) y el método
+es de B (diapositiva 7). Si te adelantás, le sacás contenido a tus compañeros y
+la cátedra lo penaliza.}
+
+Cerrá pasándole la palabra a B:
+
+\begin{quote}
+\itshape
+``Con el modelo matemático planteado, [B] sigue con cómo lo llevamos a un
+modelo computacional.''
+\end{quote}
+
+% ===========================================================================
+\section{El fondo: lo que hay detrás de esas cuatro diapositivas}
+
+\subsection{Por qué esto es un autómata celular, y por qué \textit{off-lattice}}
+
+El TP se titula ``Autómatas Celulares''. Un autómata celular clásico tiene tres
+ingredientes: un conjunto de agentes con estado discreto, una regla de
+actualización \emph{local} (el estado nuevo depende solo de un vecindario), y
+actualización \emph{sincrónica} (todos cambian a la vez, mirando la misma foto
+del sistema).
+
+Nuestro modelo tiene los tres, pero con una diferencia: las partículas no viven
+en las celdas fijas de una grilla, sino en posiciones continuas del plano, y se
+\emph{mueven}. Por eso es \textit{off-lattice}. La consecuencia práctica es
+importante: el vecindario de una partícula no es fijo, se redefine en cada paso
+según quién esté a distancia menor que $r_c$. Esa es exactamente la razón por la
+que hace falta el Cell Index Method y por la que la grilla se reconstruye en
+cada paso (diapositiva 7).
+
+\teoria{En un autómata celular de red, el vecindario de una celda es siempre el
+mismo (los 4 u 8 de al lado). Acá el vecindario es dinámico y hay que
+recalcularlo, y eso es lo que convierte la búsqueda de vecinos en el cuello de
+botella del motor. El TP1 existió justamente para resolver ese problema.}
+
+\subsection{Materia activa}
+
+Un fluido común se mueve porque algo lo empuja desde afuera. En materia activa
+cada partícula tiene su propio motor: consume energía y la convierte en
+movimiento dirigido. Eso rompe el balance detallado y saca al sistema del
+equilibrio termodinámico, lo que permite fenómenos que en equilibrio están
+prohibidos ---como el orden orientacional de largo alcance en dos dimensiones,
+que es precisamente lo que observa Vicsek.
+
+En nuestro modelo la actividad está en que $|\vect{v}_i| = v$ es constante y no
+nula: la partícula nunca se frena, siempre está inyectando movimiento. El ruido
+$\eta$ hace el papel de la temperatura, y la regla de alineación hace el papel
+de la interacción atractiva entre espines.
+
+\subsection{La analogía con el modelo XY, y por qué importa}
+
+La regla de Vicsek es, formalmente, la de un ferromagneto XY: cada ``espín''
+(la dirección $\theta_i$) tiende a alinearse con sus vecinos, y la temperatura
+(el ruido $\eta$) lo desordena. La diferencia crucial es que los espines de un
+XY están clavados en una red, y los nuestros \emph{se mueven}.
+
+Eso no es un detalle. El teorema de Mermin--Wagner prohíbe el orden de largo
+alcance en un XY bidimensional a temperatura finita. Vicsek encontró que su
+modelo \emph{sí} ordena en 2D, y la razón es el movimiento: las partículas
+transportan información de orientación a través del sistema, generando una
+interacción de alcance efectivo mucho mayor que $r_c$.
+
+\teoria{Esta es la razón por la que el paper de Vicsek de 1995 se llama
+``\textit{Novel type of phase transition in a system of self-driven
+particles}''. Lo novedoso no es que haya transición de fase, es que la haya
+\emph{en dos dimensiones}, donde el equilibrio la prohíbe.}
+
+\subsection{Transición de fase y parámetro de orden}
+
+Un parámetro de orden es una cantidad que vale (aproximadamente) cero en la fase
+desordenada y algo distinto de cero en la ordenada. Acá es la polarización
+$v_a$, que define C en la diapositiva 10. Al aumentar $\eta$ el sistema pasa de
+una bandada coherente ($v_a \approx 1$) a movimiento incoherente
+($v_a \approx 0$): eso es la transición orden--desorden que caracterizamos en
+todo el trabajo.
+
+\subsection{Por qué el ruido es uniforme y no gaussiano}
+
+Es la convención del paper original de Vicsek: $\Delta\theta$ uniforme en
+$[-\eta/2,\ \eta/2]$. Tiene dos ventajas prácticas. Primero, $\eta$ queda
+acotado: en $\eta = 2\pi$ el ruido cubre toda la circunferencia y el sistema
+está máximamente desordenado, lo que da un rango de barrido natural y cerrado,
+$\eta \in [0,\ 2\pi]$. Segundo, es directamente comparable con la bibliografía.
+Con un ruido gaussiano habría que elegir un corte arbitrario y el rango no
+tendría un extremo natural.
+
+\subsection{Por qué el modelo de votante}
+
+Viene de Loscar, Baglietto y Vázquez (2021). El modelo de votante clásico es un
+modelo de opinión: un individuo adopta la opinión de un vecino al azar. Acá la
+``opinión'' es la dirección de movimiento, y es \emph{multiestado} porque
+$\theta$ es continuo en vez de binario.
+
+La diferencia con Vicsek es de mecanismo, no de grado, y esto conviene tenerlo
+claro desde la introducción porque es lo que explica todos los resultados:
+
+\begin{itemize}
+  \item \textbf{Vicsek promedia}: el promedio de $k$ direcciones ruidosas
+    atenúa el ruido individual por un factor $\sim k^{-1/2}$. Más vecinos
+    $\Rightarrow$ más robusto al ruido.
+  \item \textbf{El votante copia}: transmite el ruido íntegro, sin atenuar. La
+    cantidad de vecinos no ayuda a filtrar nada.
+\end{itemize}
+
+\clave{Si te preguntan en la introducción ``¿qué esperan que pase?'', la
+respuesta correcta ---y que después los datos confirman--- es: \emph{el votante
+debería perder el orden a ruidos mucho más chicos que Vicsek, porque no atenúa
+el ruido}. Y efectivamente: Vicsek cruza $v_a = 0{,}5$ en $\eta \approx 2{,}9$ a
+$\rho=2$, y el votante en $\eta \approx 0{,}37$. Casi un orden de magnitud.}
+
+% ===========================================================================
+\section{Preguntas y respuestas}
+
+\subsection{Sobre el sistema y el modelo}
+
+\pregunta{¿Por qué esto es un autómata celular si las partículas no están en una
+red?}
+\respuesta{Porque conserva las tres propiedades que definen un autómata celular:
+estado por agente, regla de actualización local sobre un vecindario, y
+actualización sincrónica. Lo que cambia es que el vecindario no es fijo: las
+partículas viven en posiciones continuas y se mueven, así que el vecindario se
+recalcula en cada paso según quién esté a distancia menor que $r_c$. Por eso se
+lo llama autómata off-lattice.}
+
+\pregunta{¿Qué es materia activa y por qué este sistema lo es?}
+\respuesta{Es un sistema donde la energía se inyecta localmente, en cada agente,
+en lugar de venir de un forzado externo. Acá cada partícula se mueve con rapidez
+constante y no nula: tiene su propio motor. Eso saca al sistema del equilibrio
+termodinámico, y es lo que permite que haya orden de largo alcance en dos
+dimensiones.}
+
+\pregunta{¿Por qué el ruido es uniforme y no gaussiano?}
+\respuesta{Es la convención del paper original de Vicsek, y hace que $\eta$
+tenga un rango natural cerrado: en $\eta = 2\pi$ el ruido cubre toda la
+circunferencia y el sistema está máximamente desordenado. Por eso barrimos
+$\eta$ entre $0$ y $2\pi$. Con un ruido gaussiano habría que elegir un corte
+arbitrario.}
+
+\pregunta{¿Por qué el ruido va entre $-\eta/2$ y $+\eta/2$ y no entre $-\eta$ y
+$+\eta$?}
+\respuesta{Para que $\eta$ sea directamente la \emph{amplitud} total del ruido:
+el ancho del intervalo es exactamente $\eta$. Así, $\eta = 2\pi$ significa que
+el ángulo nuevo es uniforme sobre toda la circunferencia, que es el desorden
+máximo. Es la convención de Vicsek 1995.}
+
+\pregunta{¿Por qué la rapidez es constante? ¿No sería más realista que varíe?}
+\respuesta{Es una simplificación deliberada del modelo mínimo: se quiere aislar
+el efecto del alineamiento direccional, así que se fija el módulo de la
+velocidad y se deja evolucionar solo la dirección. Si la rapidez también
+variara, habría un segundo mecanismo de ordenamiento mezclado y no se podría
+atribuir la transición únicamente a la competencia entre alineación y ruido.}
+
+\pregunta{¿Qué unidades tienen $\eta$, $v$ y $\Delta t$?}
+\respuesta{Ninguna, son adimensionales. El modelo no está calibrado contra un
+sistema físico concreto: es un modelo mínimo. Lo único que importa son las
+razones entre escalas ---por ejemplo, que $v\,\Delta t = 0{,}03$ sea el 3\% de
+$r_c$, o sea que una partícula se mueva poco respecto de su radio de
+interacción en un paso.}
+
+\pregunta{¿Por qué $\eta$ llega hasta $2\pi$ y no más?}
+\respuesta{Porque más no agrega nada. Con $\eta = 2\pi$ el ruido ya es uniforme
+sobre toda la circunferencia: la dirección nueva es completamente aleatoria e
+independiente de la de los vecinos. Es el desorden máximo alcanzable, y
+aumentar $\eta$ no cambia la distribución resultante.}
+
+\subsection{Sobre la comparación entre modelos}
+
+\pregunta{¿Cuál es exactamente la diferencia entre Vicsek y el votante?}
+\respuesta{Una sola: cómo se combinan las orientaciones del vecindario. Vicsek
+toma el promedio circular de todos los vecinos; el votante elige uno solo al
+azar, con distribución uniforme, y copia su ángulo. Todo lo demás ---el
+vecindario, el ruido, la actualización de la posición, las condiciones de
+contorno--- es idéntico. Comparten el mismo código salvo esa función.}
+
+\pregunta{¿Qué esperaban que pasara antes de correr las simulaciones?}
+\respuesta{Que el votante perdiera el orden a ruidos mucho menores. El
+argumento es que promediar $k$ direcciones ruidosas atenúa el ruido por un
+factor del orden de $k^{-1/2}$, mientras que copiar a un único vecino lo
+transmite íntegro. Los datos lo confirman: a $\rho = 2$, Vicsek cruza
+$v_a = 0{,}5$ en $\eta \approx 2{,}9$ y el votante en $\eta \approx 0{,}37$.}
+
+\pregunta{¿De dónde sale el modelo de votante?}
+\respuesta{De Loscar, Baglietto y Vázquez, \textit{Physical Review E} 104,
+034111 (2021). El modelo de votante clásico es un modelo de opinión donde un
+individuo copia la opinión de un vecino al azar; acá la ``opinión'' es la
+dirección de movimiento y es multiestado, porque el ángulo es una variable
+continua.}
+
+\subsection{Sobre la física de fondo}
+
+\pregunta{¿Esto es una transición de fase de verdad? ¿De qué orden?}
+\respuesta{Es una transición orden--desorden controlada por el ruido, con la
+polarización como parámetro de orden. Sobre el orden de la transición no nos
+pronunciamos: determinarlo requiere un análisis de tamaño finito con varios
+valores de $N$ a densidad constante, que no está en el alcance del TP. Nosotros
+la caracterizamos, mostramos que existe y ubicamos dónde ocurre; no
+clasificamos su orden.}
+
+\pregunta{¿Qué relación tiene esto con el modelo XY?}
+\respuesta{La regla de Vicsek es formalmente la de un ferromagneto XY: cada
+dirección tiende a alinearse con sus vecinas y el ruido hace de temperatura. La
+diferencia es que los espines del XY están fijos en una red y los nuestros se
+mueven. Eso es lo relevante: el teorema de Mermin--Wagner prohíbe el orden de
+largo alcance en un XY bidimensional a temperatura finita, y el modelo de
+Vicsek sí ordena en 2D. El movimiento transporta información de orientación y
+genera una interacción de alcance efectivo mucho mayor que $r_c$.}
+
+\pregunta{¿Por qué es interesante que ordene en dos dimensiones?}
+\respuesta{Porque en equilibrio no podría. Ese es el aporte del paper de Vicsek
+de 1995, y por eso se titula ``un nuevo tipo de transición de fase''. El sistema
+está fuera del equilibrio ---es materia activa--- así que Mermin--Wagner no
+aplica.}
+
+\subsection{Sobre la presentación misma}
+
+\pregunta{¿Por qué no muestran los valores de los parámetros en la
+introducción?}
+\respuesta{Porque la guía de la cátedra separa el modelo matemático general
+(sección de Introducción) de la descripción del sistema particular que se
+simula (sección de Simulaciones). Los valores concretos de $L$, $r_c$, $v$ y las
+densidades están en la diapositiva 9.}
+
+\end{document}

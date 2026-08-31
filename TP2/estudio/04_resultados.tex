@@ -1,0 +1,738 @@
+\documentclass[11pt]{article}
+\usepackage{estudio}
+\cuadernillo{4 --- Resultados y conclusiones}
+
+\begin{document}
+
+\portada{4}{Resultados y conclusiones}{%
+  Diapositivas 11 a 28 \textbullet\ expositores A, B y C \textbullet\ 7:50\\[4pt]
+  Los catorce gráficos, por qué dieron así, y el cierre}
+
+\tableofcontents
+\clearpage
+
+% ===========================================================================
+\section{Cómo está armada la sección}
+
+Resultados tiene \textbf{14 diapositivas de contenido} sobre 21 totales: es
+dos tercios de la presentación y donde se juega la nota. El orden sigue el punto
+2.4 de la guía de la cátedra: para cada modelo, primero animación, después
+observable contra tiempo, después input contra observable.
+
+\begin{center}
+\begin{tabular}{clll}
+\toprule
+Exp. & Diapositivas & Contenido & Tiempo \\
+\midrule
+A & 11--16 & Vicsek: animación, $v_a(t)$, $v_a(\eta)$, $S(t)$, $S(\eta)$ & 2:40 \\
+B & 17--21 & Votante: los mismos cinco & 2:30 \\
+C & 22--28 & Comparaciones, $v_a$ vs $S$, benchmark, conclusiones & 2:40 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Correspondencia con los incisos del enunciado: (a) diapositivas 12 y 17;
+(b) 13 y 18; (c) 14, 19 y 22; (d) 15, 16, 20, 21 y 23; (e) 24; (f) se resuelve
+superponiendo los dos modelos en 22, 23 y 24; (g) 25.
+
+\ojo{\textbf{Promedio real: 34 segundos por diapositiva de gráfico.} Eso alcanza
+para: decir qué hay en los ejes, señalar la tendencia, y dar el número clave. No
+alcanza para describir la figura entera. Elegí \emph{una} cosa por diapositiva y
+decila bien.}
+
+% ===========================================================================
+\section{Guion A: Vicsek (diapositivas 11 a 16)}
+
+\diapo{11}{Divisoria: Resultados}{2 s}{A}
+
+\diapo{12}{Vicsek: dinámica característica}{45 s}{A}
+
+Dos animaciones lado a lado: $\eta = 1{,}0$ (ordenado) y $\eta = 4{,}0$
+(desordenado), ambas a $\rho = 2$ ($N = 200$). Color según el ángulo de la
+velocidad.
+
+\begin{quote}
+\itshape
+``Estas son dos animaciones características del modelo de Vicsek, las dos a
+densidad 2, o sea 200 partículas. Cada flecha es la velocidad de una partícula,
+con origen en su posición, y el color codifica el ángulo. A la izquierda, con
+ruido 1, se ve la fase ordenada: casi todas las flechas apuntan igual y el color
+es prácticamente uniforme, la bandada se mueve como un bloque. A la derecha, con
+ruido 4, el color está completamente mezclado: cada partícula va para donde
+quiere y no hay movimiento colectivo. Entre esos dos extremos está la transición
+que vamos a caracterizar.''
+\end{quote}
+
+\clave{El recurso visual más potente que tenés es el \textbf{color}: uniforme
+= ordenado, mezclado = desordenado. Usalo, porque se entiende de inmediato y te
+ahorra veinte segundos de explicación.}
+
+\diapo{13}{Vicsek: evolución temporal de la polarización}{33 s}{A}
+
+$v_a(t)$ a $\rho = 2$, tres niveles de ruido superpuestos, con líneas verticales
+punteadas marcando el inicio de la ventana de medición.
+
+\begin{quote}
+\itshape
+``Acá está la polarización en función del tiempo, a densidad 2, para tres
+niveles de ruido. Las tres arrancan del mismo lugar, alrededor de 0,07, que es
+el valor esperado para 200 partículas con direcciones al azar. Con ruido bajo la
+polarización crece rápido y se estabiliza cerca de 1 en menos de 200 pasos; con
+ruido alto se queda abajo, porque el sistema ya nace desordenado y no hay nada
+que relajar. Las líneas verticales punteadas marcan dónde empieza la ventana
+sobre la que promediamos, y son las que devuelve el criterio automático que
+explicó [C]: el escalar que reportamos de acá en adelante es el promedio sobre
+esa ventana.''
+\end{quote}
+
+\clave{Esta diapositiva justifica \emph{todas} las que siguen. Es donde
+explicás de dónde sale el escalar. No la apures.}
+
+\diapo{14}{Vicsek: polarización en función del ruido}{33 s}{A}
+
+$v_a(\eta)$ para las densidades, con barras de error.
+
+\begin{quote}
+\itshape
+``Esta es la curva principal del modelo de Vicsek: polarización en función del
+ruido, para cada densidad, con las barras de error sobre 10 realizaciones. Las
+tres curvas arrancan en 1 y decaen de forma monótona hacia el piso de tamaño
+finito. Lo importante es que \emph{la curva se corre hacia la derecha al
+aumentar la densidad}: el sistema tolera más ruido cuanto más denso es. Tomando
+como referencia el cruce por 0,5, pasa de ruido 2,9 en densidad 2, a 3,2 en
+densidad 4, a 3,4 en densidad 8. La razón es directa: con más vecinos, el
+promedio circular atenúa mejor el ruido individual.''
+\end{quote}
+
+\dato{2,90 --- 3,19 --- 3,44 para $\rho = 2, 4, 8$. Son números medidos, no
+redondeos: memorizalos.}
+
+\diapo{15}{Vicsek: evolución temporal de la componente gigante}{22 s}{A}
+
+$S(t)$ a $\rho = 1/\pi$ ($N = 32$).
+
+\begin{quote}
+\itshape
+``Lo mismo para el segundo observable, la fracción de la componente gigante. Lo
+mostramos a densidad $1/\pi$, o sea 32 partículas, y ya explico por qué: en las
+densidades del enunciado esta curva es una línea recta en 1 y no muestra nada.
+Acá sí se ve dinámica: con ruido bajo las partículas se agrupan y la componente
+gigante crece; con ruido alto la red se fragmenta y $S$ cae.''
+\end{quote}
+
+\ojo{Anticipá vos el ``¿y las tres densidades del enunciado?'', porque si no te
+lo van a preguntar. La respuesta está una diapositiva más adelante y en la nota
+al costado de la 23: a $\rho = 2, 4, 8$ vale $S \approx 1$ para todo $\eta$.}
+
+\diapo{16}{Vicsek: componente gigante en función del ruido}{25 s}{A}
+
+$S(\eta)$.
+
+\begin{quote}
+\itshape
+``Y esta es la curva de la componente gigante contra el ruido. En las
+densidades del enunciado $S$ se queda arriba de 0,9 en todo el rango: el
+observable está degenerado, no distingue la fase ordenada de la desordenada. La
+razón es geométrica: el número medio de vecinos vale 6,3, 12,6 y 25,1, todos muy
+por encima del umbral de percolación, que está en 4,5. La red percola sin
+importar cuán ordenado esté el sistema. En las densidades subcríticas, en
+cambio, sí discrimina: $S$ cae de casi 1 a menos de 0,2.''
+\end{quote}
+
+\clave{El número \textbf{4,5} es el umbral de percolación, y \textbf{6,3 /
+12,6 / 25,1} son los $\langle k \rangle$ del enunciado. Con esos cuatro números
+convertís ``el observable no dio nada'' en ``el observable dio exactamente lo
+que la geometría predice''. Es la diferencia entre un resultado nulo y un
+resultado explicado.}
+
+Cerrá pasándole la palabra a B.
+
+% ===========================================================================
+\section{Guion B: modelo de votante (diapositivas 17 a 21)}
+
+Tu bloque es paralelo al de A, así que \textbf{no repitas las definiciones}: los
+ejes, el criterio de estacionario y las barras de error ya los explicaron. Vos
+mostrás las diferencias.
+
+\diapo{17}{Votante: dinámica característica}{40 s}{B}
+
+Dos animaciones a $\rho = 2$: $\eta = 0{,}05$ (ordenado) y $\eta = 1{,}0$
+(desordenado).
+
+\begin{quote}
+\itshape
+``Las mismas dos situaciones para el modelo de votante, también a densidad 2.
+Lo primero que hay que notar son los valores de ruido: para tener una bandada
+ordenada acá hace falta ruido 0,05, mientras que en Vicsek alcanzaba con 1. Y ya
+con ruido 1 el votante está completamente desordenado, cuando Vicsek a ese
+mismo ruido seguía ordenado. La región ordenada del votante es casi un orden de
+magnitud más angosta. Además, mirando el panel ordenado, se ve que el color
+varía más entre partículas próximas que en Vicsek: copiar a un solo vecino no
+promedia el ruido.''
+\end{quote}
+
+\clave{Tu bloque entero tiene una sola tesis: \emph{el votante pierde el orden
+muchísimo antes}. Plantala acá, en la primera diapositiva, con los números
+$0{,}05$ contra $1{,}0$.}
+
+\diapo{18}{Votante: evolución temporal de la polarización}{28 s}{B}
+
+\begin{quote}
+\itshape
+``La evolución temporal de la polarización del votante, a la misma densidad 2.
+Comparada con la de Vicsek hay dos diferencias claras: converge mucho más lento,
+y es mucho más ruidosa. Vicsek llegaba a polarización 0,8 en menos de 200 pasos;
+el votante puede tardar más de mil, y la dispersión entre semillas es grande.
+Eso es porque el orden no se construye promediando, se construye por
+engrosamiento: dominios de orientación parecida que crecen copiándose entre
+vecinos.''
+\end{quote}
+
+\diapo{19}{Votante: polarización en función del ruido}{32 s}{B}
+
+\begin{quote}
+\itshape
+``La curva de polarización contra ruido del votante. La forma es la misma
+---decae monótonamente--- pero la escala del eje horizontal es completamente
+distinta: el colapso ocurre entre 0 y 0,5, no entre 2 y 4. Y hay algo que a
+primera vista sorprende: acá la dependencia con la densidad está
+\emph{invertida}. El cruce por 0,5 pasa de ruido 0,37 en densidad 2, a 0,29 en
+densidad 4, a 0,19 en densidad 8. O sea que cuanto más denso, \emph{menos} ruido
+tolera, exactamente al revés que Vicsek.''
+\end{quote}
+
+\ojo{\textbf{Esta es la diapositiva donde más probablemente te pregunten}, y la
+pregunta va a ser ``¿por qué se invierte?''. La respuesta completa está en la
+sección \ref{sec:inversion}. Estudiala hasta poder decirla sin pensar. En una
+frase: \emph{el votante ordena por engrosamiento, y el tiempo de consenso crece
+con $N$; a 2000 pasos, el sistema de 800 partículas todavía no terminó de
+ordenarse ni siquiera con ruido cero}.}
+
+\diapo{20}{Votante: evolución temporal de la componente gigante}{22 s}{B}
+
+\begin{quote}
+\itshape
+``La componente gigante contra el tiempo para el votante, otra vez a densidad
+$1/\pi$ por el mismo motivo que antes. El comportamiento es cualitativamente
+igual al de Vicsek: se agrupa a ruido bajo y se fragmenta a ruido alto.''
+\end{quote}
+
+\diapo{21}{Votante: componente gigante en función del ruido}{28 s}{B}
+
+\begin{quote}
+\itshape
+``Y la componente gigante contra el ruido. La conclusión es la misma que en
+Vicsek, y esto es importante: en las densidades del enunciado $S$ se queda
+arriba de 0,92 en todo el rango, degenerado, porque el argumento de percolación
+es puramente geométrico y no depende de la regla de alineación. En las
+densidades subcríticas vuelve a discriminar. O sea que el observable $S$ no
+distingue entre los dos modelos: distingue entre regímenes de densidad.''
+\end{quote}
+
+\clave{Ese cierre ---``$S$ no distingue modelos, distingue densidades''--- es un
+buen remate para tu bloque y le arma el pie a C, que arranca con las
+comparaciones.}
+
+% ===========================================================================
+\section{Guion C: comparaciones y cierre (diapositivas 22 a 28)}
+
+\diapo{22}{Comparación: polarización}{35 s}{C}
+
+Los dos modelos superpuestos, solo las medias.
+
+\begin{quote}
+\itshape
+``Acá están los dos modelos superpuestos en la misma figura, solo las medias
+para que se lea. La diferencia de escala es lo que salta: las curvas de Vicsek
+están corridas casi un orden de magnitud a la derecha respecto de las del
+votante. Y las dos familias se comportan de manera opuesta con la densidad: en
+Vicsek las curvas se corren a la derecha al aumentar la densidad, y en el
+votante se corren a la izquierda. Ese cruce de tendencias es el resultado
+central de la comparación.''
+\end{quote}
+
+\diapo{23}{Comparación: componente gigante}{30 s}{C}
+
+Solo las densidades subcríticas, con la nota al costado sobre $\rho = 2, 4, 8$.
+
+\begin{quote}
+\itshape
+``La comparación de la componente gigante, y acá mostramos solo las densidades
+subcríticas por lo que ya se dijo: en las tres densidades del enunciado $S$ vale
+aproximadamente 1 para todo ruido en los dos modelos, así que la figura sería
+tres pares de líneas rectas. En el régimen subcrítico, en cambio, la caída es
+clara, y los dos modelos dan curvas muy parecidas: la conectividad es un
+fenómeno geométrico y no depende de cómo se alinean las partículas.''
+\end{quote}
+
+\diapo{24}{Polarización en función de la componente gigante}{33 s}{C}
+
+Inciso (e). Cada punto es un valor de $\eta$.
+
+\begin{quote}
+\itshape
+``El inciso (e) pide relacionar directamente los dos observables. Cada punto es
+un valor de ruido. Y el resultado es negativo para las densidades del enunciado,
+y hay que decirlo como tal: los puntos se apilan sobre la franja de $S$ cercano
+a 1 y se extienden sobre todo el rango de polarización. O sea, el sistema
+recorre desde totalmente ordenado hasta totalmente desordenado sin que la
+conectividad cambie: orden direccional y conectividad espacial están
+desacoplados. En las densidades subcríticas, en cambio, los puntos se alinean
+sobre una diagonal: ahí sí, más orden va con más conectividad, porque las dos
+cosas son manifestaciones del mismo agrupamiento dinámico.''
+\end{quote}
+
+\clave{Un resultado negativo bien explicado vale igual que uno positivo. Lo que
+la cátedra castiga no es que $S$ no correlacione con $v_a$, es que no sepas
+\emph{por qué}. Decilo con la palabra ``desacoplados'' y con el argumento de
+percolación.}
+
+\diapo{25}{Tiempo de ejecución del Cell Index Method}{30 s}{C}
+
+Inciso (g), escala doble logarítmica.
+
+\begin{quote}
+\itshape
+``El inciso (g) pide comparar los tiempos del CIM contra los del TP1. Medimos
+exactamente la misma operación de los dos lados: la búsqueda de vecinos.
+En TP2 está cronometrada dentro del paso temporal, alrededor de la
+reconstrucción de la grilla, y no incluye ni el arranque del proceso ni la
+escritura de la trayectoria. Igualamos las condiciones: misma caja, mismo radio,
+mismo número de celdas y partículas puntuales en los dos binarios. El resultado
+es que las dos series tienen la misma pendiente logarítmica, 1,43 y 1,46, o sea
+el mismo escalado con el número de partículas. En valor absoluto el CIM de TP2
+es más rápido, porque la grilla es un objeto persistente que no reasigna memoria
+en cada llamada. Y la pendiente da superlineal en los dos casos porque el
+barrido aumenta el número de partículas con la caja fija, así que también
+aumenta la densidad.''
+\end{quote}
+
+\ojo{Ese último punto es el que te pueden pinchar: ``el CIM es $\mathcal{O}(N)$,
+¿por qué la pendiente es 1,4?''. La respuesta es que la linealidad vale
+\emph{a densidad constante}, y este barrido no la mantiene. Ver P16.}
+
+\diapo{27}{Conclusiones}{25 s}{C}
+
+Cinco puntos. \textbf{No los leas}: están escritos. Enunciá los tres que
+importan y dejá que la cátedra lea el resto.
+
+\begin{quote}
+\itshape
+``Para cerrar. En los dos modelos hay una transición de orden a desorden
+controlada por el ruido. En Vicsek el ruido tolerado crece con la densidad,
+porque promediar sobre más vecinos atenúa mejor el ruido; en el votante la
+dependencia se invierte y la región ordenada es un orden de magnitud más
+angosta, porque copiar a un solo vecino transmite el ruido íntegro. La
+componente gigante resultó degenerada en las tres densidades del enunciado, por
+un argumento de percolación puramente geométrico, y solo discrimina en el
+régimen subcrítico. Y el Cell Index Method conserva el mismo escalado al
+integrarse dentro del motor dinámico. Muchas gracias.''
+\end{quote}
+
+\ojo{\textbf{Verificar antes del viernes:} la diapositiva 27 cita para el
+votante los valores $\eta = 0{,}34$, $0{,}26$ y $0{,}21$. Recalculados sobre
+\texttt{data/sweep/summary.csv} dan \textbf{0,37, 0,29 y 0,19}. Los de Vicsek
+(2,9 / 3,2 / 3,4) sí coinciden exactamente. La conclusión cualitativa ---la
+inversión--- no cambia, pero los tres números del votante hay que corregirlos o
+confirmar de dónde salieron.}
+
+\diapo{28}{Muchas gracias}{5 s}{C}
+
+Sin la palabra ``¿preguntas?'' (guía 2.6). Quedate en esta diapositiva mientras
+responden.
+
+% ===========================================================================
+\section{Por qué nos dio eso}
+
+Esta sección es el corazón del cuadernillo. Cada resultado con su mecanismo.
+
+\subsection{Vicsek: por qué el ruido crítico crece con la densidad}
+
+Es el resultado ``esperado'' y el argumento es cuantitativo. La partícula toma
+el promedio circular de $k = \langle k \rangle$ direcciones, cada una con su
+propio ruido independiente. Promediar $k$ variables aleatorias independientes
+reduce la dispersión del promedio por un factor $k^{-1/2}$.
+
+Entonces: más densidad $\Rightarrow$ más vecinos $\Rightarrow$ mejor filtrado
+del ruido $\Rightarrow$ hace falta más $\eta$ para destruir el orden. Los datos:
+
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+$N$ & 11 & 16 & 32 & 200 & 400 & 800 \\
+$\langle k \rangle$ & 0{,}33 & 0{,}50 & 1{,}00 & 6{,}3 & 12{,}6 & 25{,}1 \\
+\midrule
+$\eta$ con $v_a = 0{,}5$ & 2{,}07 & 2{,}07 & 2{,}22 & 2{,}90 & 3{,}19 & 3{,}44 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\dato{Monótono creciente sobre las seis densidades, sin una sola excepción. Es
+el comportamiento de libro.}
+
+\subsection{El votante y la inversión con la densidad}
+\label{sec:inversion}
+
+\textbf{Este es el resultado que hay que saber defender.} Los datos:
+
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+$N$ & 11 & 16 & 32 & 200 & 400 & 800 \\
+\midrule
+$\eta$ con $v_a = 0{,}5$ & 1{,}03 & 0{,}79 & 0{,}70 & 0{,}37 & 0{,}29 & 0{,}19 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Monótono \emph{decreciente} sobre las seis densidades: exactamente al revés que
+Vicsek. ¿Por qué?
+
+\textbf{Primero, por qué el votante no gana nada con más vecinos.} En Vicsek, el
+promedio sobre $k$ vecinos atenúa el ruido. En el votante no hay promedio: la
+partícula copia a \emph{uno} y hereda su ángulo tal cual, con el ruido íntegro.
+Aumentar $k$ no mejora el filtrado, porque no hay filtrado. Eso ya explica por
+qué el votante es mucho más frágil que Vicsek a cualquier densidad.
+
+\textbf{Segundo, por qué empeora con la densidad.} Acá está la clave, y es un
+efecto de \emph{tiempo finito}. El votante no ordena por promediado sino por
+\emph{engrosamiento}: se forman dominios de orientación parecida que crecen
+copiándose entre vecinos, como en un proceso de coalescencia de dominios. El
+tiempo que tarda el sistema en llegar al consenso \textbf{crece con el número de
+partículas}. Como todas las corridas son de 2000 pasos, el sistema de 800
+partículas está mucho más lejos del consenso que el de 200 al momento de medir.
+
+\dato{\textbf{La prueba, medida sobre nuestros propios datos y con ruido
+exactamente cero} ($\eta = 0$, o sea sin nada que desordene):
+\vspace{4pt}
+
+\begin{tabular}{lcccc}
+\toprule
+$N$ & 11 & 16 & 32 & 800 \\
+\midrule
+$v_a$ en $t = 2000$ & 1{,}000 & 0{,}989 & 0{,}999 & \textbf{0{,}978 $\pm$ 0{,}052} \\
+\bottomrule
+\end{tabular}
+\vspace{6pt}
+
+Con \emph{cero} ruido, el sistema de 800 partículas no llega al consenso en 2000
+pasos, y con una dispersión entre semillas enorme. Los sistemas chicos sí. La
+curva completa de $N=800$ a $\eta = 0$: $v_a$ vale $0{,}35$ en $t = 100$,
+$0{,}62$ en $t = 500$, $0{,}85$ en $t = 1000$ y $0{,}98$ en $t = 2000$: todavía
+está subiendo cuando termina la corrida.}
+
+\clave{La respuesta de una frase: \emph{``el votante ordena por engrosamiento,
+no por promediado, y el tiempo de consenso crece con $N$; a 2000 pasos el
+sistema de 800 partículas todavía no terminó de ordenarse ni siquiera con ruido
+cero, así que su polarización medida es más baja y la curva parece corrida hacia
+ruidos menores''}.}
+
+\ojo{Cuidado con cómo lo enunciás. No digas ``el ruido crítico del votante baja
+con la densidad'' como si fuera una propiedad del punto crítico: lo honesto es
+decir que \emph{a tiempo de simulación fijo}, el sistema más grande está menos
+polarizado, y que eso corre aparentemente la transición. Distinguir un efecto de
+tiempo finito de una propiedad del límite termodinámico es exactamente el tipo
+de rigor que la cátedra premia.}
+
+\teoria{Por qué el tiempo de consenso crece con $N$: en el modelo de votante
+clásico, el consenso se alcanza por fluctuaciones de dominio, y en dos
+dimensiones el tiempo característico escala como $N \ln N$. El mecanismo es
+difusivo ---las paredes entre dominios hacen una caminata aleatoria--- mientras
+que en Vicsek el promediado alinea globalmente en un tiempo que casi no depende
+de $N$. Nuestros datos son consistentes con eso, aunque no lo medimos con
+suficientes valores de $N$ como para verificar el exponente, y por eso no lo
+afirmamos en la presentación.}
+
+Hay además una segunda diferencia dinámica, visible en las diapositivas 13 y 18:
+la convergencia del votante es mucho más lenta y más dispersa. A $\rho = 8$ y
+$\eta = 0{,}2$, Vicsek llega a $v_a \geq 0{,}8$ entre los pasos 10 y 174 en las
+10 semillas y termina en $0{,}998 \pm 0{,}000$; el votante lo alcanza recién
+entre los pasos 454 y 1596, solo en 7 de las 10 semillas, y termina en
+$0{,}379 \pm 0{,}188$.
+
+\subsection{Por qué $S \approx 1$ en las densidades del enunciado}
+
+Es geometría pura, y no tiene nada que ver con la dinámica de alineación.
+
+Para partículas distribuidas al azar con densidad $\rho$ y radio de conexión
+$r_c$, el número medio de vecinos es $\langle k \rangle = \rho \pi r_c^2$. Ese
+es exactamente el parámetro de control de la \emph{percolación del grafo
+geométrico aleatorio} en dos dimensiones, cuyo umbral está en
+$\langle k \rangle_c \approx 4{,}5$.
+
+\begin{center}
+\begin{tabular}{lccc|ccc}
+\toprule
+$\rho$ & 2 & 4 & 8 & $1/\pi$ & $1/2\pi$ & $1/3\pi$ \\
+$\langle k \rangle$ & 6{,}3 & 12{,}6 & 25{,}1 & 1{,}00 & 0{,}50 & 0{,}33 \\
+\midrule
+$S$ mínimo (Vicsek) & 0{,}91 & 0{,}99 & 1{,}00 & 0{,}15 & 0{,}17 & 0{,}17 \\
+$S$ mínimo (votante) & 0{,}92 & 1{,}00 & 1{,}00 & 0{,}16 & 0{,}17 & 0{,}17 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Las tres del enunciado están \emph{todas} por encima del umbral, así que la red
+percola incluso antes de considerar la dinámica: aunque las partículas
+estuvieran distribuidas completamente al azar, ya formarían un cluster gigante.
+Por eso $S$ no distingue fases ahí. Las tres subcríticas están holgadamente por
+debajo, y ahí toda componente gigante que aparezca es producto del
+\emph{agrupamiento dinámico}.
+
+\clave{La forma correcta de presentar esto no es ``$S$ no nos dio nada'', es
+``\emph{$S$ dio exactamente lo que predice la percolación geométrica, y por eso
+agregamos densidades subcríticas donde el observable sí discrimina}''. Un
+resultado degenerado que sabés predecir es un resultado.}
+
+Detalle fino, por si preguntan por la forma de la curva: en $\rho = 2$, $S$ baja
+levemente hasta un mínimo de $0{,}905$ alrededor de $\eta \approx 3{,}8$ y
+después \emph{vuelve a subir} hasta $0{,}991$ a ruido máximo. No es monótona.
+La interpretación es geométrica: a ruido máximo las partículas se distribuyen de
+manera casi uniforme, y a densidad supercrítica una distribución uniforme
+percola igual de bien que una bandada compacta. El mínimo está en el medio,
+donde el sistema forma bandas densas y deja regiones vacías.
+
+\subsection{Por qué $v_a$ y $S$ están desacoplados (inciso e)}
+
+Es consecuencia directa de lo anterior. En las densidades del enunciado, $S$
+está clavado cerca de 1 mientras $v_a$ recorre todo su rango: la nube de puntos
+es una franja horizontal. La correlación lineal es despreciable y ni siquiera es
+monótona, porque $S$ baja y vuelve a subir.
+
+En las densidades subcríticas los puntos se ordenan sobre una diagonal, porque
+ahí las dos cosas ---orden direccional y conectividad--- son manifestaciones del
+mismo agrupamiento: a ruido bajo las partículas se alinean, se juntan y forman
+un cluster; al aumentar el ruido la bandada se disgrega y las dos cantidades
+caen juntas.
+
+\subsection{El benchmark del CIM (inciso g)}
+
+Qué se mide, exactamente lo mismo de los dos lados: la búsqueda de vecinos.
+
+\begin{itemize}
+  \item \textbf{TP2}: cronómetro adentro de \texttt{step()}, justo antes y justo
+    después de la reconstrucción de la grilla. No entra el arranque del proceso,
+    ni la generación de partículas, ni la escritura de la trayectoria, ni las
+    reconstrucciones extra que hace el motor para medir $S$.
+  \item \textbf{TP1}: la medición de la búsqueda pura que ya traía su binario.
+\end{itemize}
+
+Cómo se igualan las condiciones: se fuerza $L = 10$, $r_c = 1$, contorno
+periódico y el mismo $M$ en los dos binarios, y TP1 corre con radio de partícula
+cero para que el predicado de vecindad sea centro a centro igual que en TP2. Los
+dos descartan el 1\% de las mediciones más lentas, que es la regla que ya traía
+TP1.
+
+Resultados:
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+ & TP1 & TP2 \\
+\midrule
+Pendiente log-log (todos los $N$) & 1{,}43 & 1{,}46 \\
+Tiempo en $N = 200$ & 0{,}042 ms & 0{,}029 ms \\
+Tiempo en $N = 800$ & 0{,}396 ms & 0{,}329 ms \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Dos lecturas. \textbf{Primera}: las pendientes son prácticamente idénticas, o
+sea que integrar el CIM dentro de un motor dinámico no degrada el escalado.
+\textbf{Segunda}: en valor absoluto TP2 es entre un 20\% y un 50\% más rápido,
+porque la grilla es un objeto persistente que vacía y rellena sus buffers en
+lugar de reasignarlos en cada llamada, como hacía TP1.
+
+\ojo{\textbf{Por qué la pendiente no es 1.} El CIM es $\mathcal{O}(N)$
+\emph{a densidad constante}. Este barrido aumenta $N$ de 10 a 1000 con la caja
+fija en $L = 10$, así que la densidad va de $0{,}1$ a $10$ y el número medio de
+vecinos por partícula pasa de $0{,}3$ a $31$. Hay más trabajo por partícula a
+medida que crece $N$, y por eso las dos series salen superlineales. Es una
+consecuencia del diseño del barrido, no un defecto del método.}
+
+% ===========================================================================
+\section{Preguntas y respuestas}
+
+\subsection{Sobre la transición y la comparación de modelos}
+
+\pregunta{¿Por qué en Vicsek el ruido crítico crece con la densidad?}
+\respuesta{Porque la regla promedia. Promediar $k$ direcciones con ruido
+independiente reduce la dispersión del promedio por un factor $k^{-1/2}$, así
+que con más vecinos el ruido individual se filtra mejor y hace falta más $\eta$
+para destruir el orden. Medido en el cruce por $v_a = 0{,}5$: 2,90 para
+$\rho=2$, 3,19 para $\rho=4$ y 3,44 para $\rho=8$, y sigue siendo monótono si se
+incluyen las tres densidades subcríticas.}
+
+\pregunta{¿Por qué en el votante la dependencia con la densidad está invertida?}
+\respuesta{Por dos motivos que se suman. Primero, el votante no promedia, así
+que más vecinos no le dan ninguna ventaja: copia a uno solo y hereda el ruido
+íntegro. Y segundo, que es lo que explica la inversión: el votante ordena por
+engrosamiento de dominios, y el tiempo hasta el consenso crece con el número de
+partículas. Como todas las corridas son de 2000 pasos, el sistema de 800
+partículas está mucho más lejos del consenso que el de 200 al momento de medir.
+Lo verificamos con ruido exactamente cero: a $\eta = 0$ y $t = 2000$, los
+sistemas de 11, 16 y 32 partículas llegan a $v_a \approx 1$, mientras que el de
+800 se queda en $0{,}978$ con una dispersión de $0{,}05$, y su curva todavía
+está subiendo cuando termina la corrida.}
+
+\pregunta{Entonces, ¿el ruido crítico del votante realmente baja con la
+densidad, o es un artefacto?}
+\respuesta{Lo que medimos es que \emph{a tiempo de simulación fijo} el sistema
+más grande está menos polarizado, y eso corre la curva hacia ruidos menores. No
+afirmamos que sea una propiedad del punto crítico en el límite termodinámico:
+para eso habría que correr hasta el consenso en cada tamaño, o hacer un análisis
+de escaleo de tamaño finito, que no está en el alcance del TP. Lo reportamos
+como lo que es, un efecto de tiempo finito, y lo respaldamos con la medición a
+ruido cero.}
+
+\pregunta{¿Por qué el votante es tanto más frágil al ruido que Vicsek?}
+\respuesta{Porque no atenúa el ruido. Vicsek promedia sobre todo el vecindario y
+el ruido se cancela parcialmente; el votante copia a un vecino y se lleva su
+ruido completo. Por eso la región ordenada del votante es casi un orden de
+magnitud más angosta: a densidad 2, Vicsek cruza $v_a = 0{,}5$ en $\eta = 2{,}9$
+y el votante en $\eta = 0{,}37$.}
+
+\pregunta{¿Por qué la convergencia del votante es más lenta y más dispersa?}
+\respuesta{Porque el mecanismo es distinto. Vicsek alinea globalmente en cada
+paso vía el promedio; el votante forma dominios locales que crecen copiándose,
+y las paredes entre dominios se mueven de forma difusiva. Medido a $\rho = 8$ y
+$\eta = 0{,}2$: Vicsek llega a $v_a \geq 0{,}8$ entre los pasos 10 y 174 en las
+10 semillas y termina en $0{,}998$; el votante recién entre los pasos 454 y
+1596, y solo en 7 de las 10 semillas.}
+
+\pregunta{Si corrieran más pasos, ¿cambiaría el resultado del votante?}
+\respuesta{Sí, y es la consecuencia honesta de nuestro propio análisis: con
+corridas más largas el sistema de 800 partículas alcanzaría el consenso y su
+curva se correría hacia ruidos mayores, probablemente hasta recuperar la
+tendencia creciente con la densidad. No lo corrimos porque el barrido completo
+son 4680 simulaciones, pero está identificado como el paso siguiente.}
+
+\subsection{Sobre la componente gigante}
+
+\pregunta{¿Por qué $S$ vale casi 1 en todas las densidades del enunciado?}
+\respuesta{Por percolación geométrica. El número medio de vecinos es
+$\langle k \rangle = \rho\pi r_c^2$, y ese es el parámetro de control de la
+percolación del grafo geométrico aleatorio en 2D, cuyo umbral está en
+$\approx 4{,}5$. Las tres densidades del enunciado dan 6,3, 12,6 y 25,1: todas
+por encima. La red percola aunque las partículas estén distribuidas
+completamente al azar, así que $S$ no puede distinguir la fase ordenada de la
+desordenada.}
+
+\pregunta{Entonces $S$ no sirve como observable.}
+\respuesta{No sirve \emph{en ese régimen}, y saber por qué es el resultado. Por
+eso agregamos tres densidades subcríticas, con $\langle k \rangle$ de 1, 0,5 y
+0,33, holgadamente por debajo del umbral: ahí una configuración uniforme no
+percola, así que toda componente gigante que aparezca es producto del
+agrupamiento dinámico, y el observable sí discrimina entre fases: $S$ cae de
+casi 1 a menos de 0,2.}
+
+\pregunta{¿Por qué mostraron $S(t)$ solo a $\rho = 1/\pi$ y no a las tres
+densidades del enunciado?}
+\respuesta{Porque a $\rho = 2, 4, 8$ la curva es una línea recta en 1: $S$ ya
+vale prácticamente 1 en la condición inicial y se queda ahí toda la corrida, no
+hay transitorio de conectividad que mostrar. La figura no aportaría información
+y por eso elegimos la densidad donde sí hay dinámica. El valor
+constante en las densidades del enunciado está indicado explícitamente al
+costado de la diapositiva 23, y las seis series están en el informe.}
+
+\pregunta{La curva de $S(\eta)$ a $\rho = 2$ no es monótona, ¿por qué?}
+\respuesta{Baja hasta un mínimo de $0{,}905$ cerca de $\eta \approx 3{,}8$ y
+después vuelve a subir hasta $0{,}991$. La interpretación es geométrica: a ruido
+máximo las partículas quedan distribuidas de manera casi uniforme, y a densidad
+supercrítica una distribución uniforme percola igual de bien que una bandada
+compacta. El mínimo está en el medio, donde el sistema forma bandas densas y
+deja regiones vacías, que es lo que más fragmenta la red.}
+
+\pregunta{¿$S$ distingue entre los dos modelos?}
+\respuesta{No, y es esperable: la conectividad es un fenómeno geométrico que
+depende de dónde están las partículas, no de cómo deciden su dirección. Las
+curvas de los dos modelos son muy parecidas en los dos regímenes. Lo que $S$
+distingue es el régimen de densidad, no el modelo.}
+
+\subsection{Sobre la relación $v_a$--$S$ (inciso e)}
+
+\pregunta{¿Qué concluyen del gráfico de $v_a$ contra $S$?}
+\respuesta{Que en las densidades del enunciado los dos observables están
+desacoplados: el sistema recorre desde $v_a \approx 1$ hasta $v_a \approx 0$ sin
+que $S$ se mueva de la franja cercana a 1. La correlación es despreciable y ni
+siquiera es monótona. En las densidades subcríticas, en cambio, los puntos se
+ordenan sobre una diagonal, porque ahí orden direccional y conectividad son
+manifestaciones del mismo agrupamiento dinámico. Es un resultado negativo en un
+régimen y positivo en el otro, y la causa de la diferencia es el umbral de
+percolación.}
+
+\subsection{Sobre el benchmark}
+
+\pregunta{¿Qué midieron exactamente en el inciso (g)?}
+\respuesta{La búsqueda de vecinos, la misma operación de los dos lados. En TP2
+está cronometrada adentro del paso temporal, alrededor de la reconstrucción de
+la grilla: no incluye el arranque del proceso, ni la generación de partículas,
+ni la escritura de la trayectoria, ni las reconstrucciones adicionales que
+hacemos para medir $S$. En TP1 es la medición de la búsqueda pura que ya traía
+su binario.}
+
+\pregunta{¿Cómo se aseguran de que la comparación sea justa?}
+\respuesta{Forzamos los mismos parámetros en los dos binarios: $L = 10$,
+$r_c = 1$, contorno periódico y el mismo $M$. Además corremos TP1 con radio de
+partícula cero, para que su predicado de vecindad sea centro a centro igual que
+el de TP2, y para que el $M$ máximo válido coincida. Y los dos descartan el 1\%
+de las mediciones más lentas, que es la regla que ya usaba TP1.}
+
+\pregunta{El CIM es $\mathcal{O}(N)$, ¿por qué la pendiente da 1,4 y no 1?}
+\respuesta{Porque la linealidad vale a densidad constante, y este barrido no la
+mantiene: aumentamos $N$ de 10 a 1000 con la caja fija en $L = 10$, así que la
+densidad va de 0,1 a 10 y el número medio de vecinos por partícula pasa de 0,3 a
+31. Con más partículas por celda, cada una hace más comparaciones, y el
+escalado resulta superlineal. Lo relevante para el inciso es que las dos series
+tienen la \emph{misma} pendiente ---1,43 y 1,46---, o sea que integrar el CIM
+dentro del motor dinámico no degrada el escalado.}
+
+\pregunta{¿Por qué el CIM de TP2 es más rápido que el de TP1?}
+\respuesta{Porque la grilla es un objeto persistente: los vectores de celdas y
+de listas de vecinos se vacían y se vuelven a llenar en cada paso, sin liberar
+ni volver a reservar memoria. El TP1 creaba y destruía sus buffers en cada
+llamada. Sobre el orden de $10^6$ reconstrucciones que hace el barrido, esa
+diferencia se nota: entre un 20\% y un 50\% menos de tiempo.}
+
+\subsection{Preguntas transversales}
+
+\pregunta{¿Por qué $v_a$ no llega a cero a ruido máximo?}
+\respuesta{Por tamaño finito. En la fase desordenada las direcciones son
+independientes, así que la suma vectorial es una caminata aleatoria y
+$v_a \approx N^{-1/2}$. Para $N = 200$ eso predice 0,071 y medimos 0,063; para
+$N = 800$ predice 0,035 y medimos 0,031. El acuerdo es muy bueno en las seis
+densidades.}
+
+\pregunta{¿Determinaron el ruido crítico?}
+\respuesta{Usamos el cruce por $v_a = 0{,}5$ como referencia operativa para
+comparar las curvas, que es lo que mostramos. Calculamos además la
+susceptibilidad y su máximo, pero no lo incluimos en la presentación porque con
+estos tamaños el pico es ancho y chato y la posición del máximo no es estable
+entre subconjuntos de semillas: reportarlo con tres cifras sugeriría una
+precisión que los datos no respaldan. El enunciado tampoco lo pide.}
+
+\pregunta{¿Cómo saben que las curvas no cambiarían con otra semilla?}
+\respuesta{Cada punto es el promedio de 10 realizaciones independientes con
+semillas derivadas por hash, y las barras de error son el desvío entre esas 10
+medias. Fuera de la región de transición las barras son muy chicas; donde
+crecen es cerca del punto crítico, que es exactamente donde se espera que el
+sistema fluctúe más.}
+
+\pregunta{¿Por qué las animaciones son solo a $\rho = 2$?}
+\respuesta{Porque es la densidad donde la dinámica se ve mejor: con 200
+partículas se distinguen las flechas individuales y a la vez hay suficiente
+estructura colectiva. A $\rho = 8$ son 800 flechas y la figura se satura. El
+enunciado pide animaciones para ``pocas situaciones características'', y elegimos
+mostrar el contraste ordenado/desordenado, que es lo que hace legible la
+transición.}
+
+\pregunta{¿Qué harían distinto si tuvieran más tiempo?}
+\respuesta{Tres cosas concretas. Correr el votante mucho más allá de 2000 pasos
+para separar el efecto de tiempo finito del comportamiento asintótico, que es la
+limitación principal que identificamos. Hacer un análisis de escaleo de tamaño
+finito a densidad constante, variando $L$ y $N$ juntos, para poder hablar del
+punto crítico en el límite termodinámico. Y correr el benchmark a densidad
+constante, para verificar el escalado lineal del CIM en lugar de solo comparar
+pendientes entre TP1 y TP2.}
+
+\end{document}

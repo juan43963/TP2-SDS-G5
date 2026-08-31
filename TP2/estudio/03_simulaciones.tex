@@ -1,0 +1,484 @@
+\documentclass[11pt]{article}
+\usepackage{estudio}
+\cuadernillo{3 --- Simulaciones}
+
+\begin{document}
+
+\portada{3}{Simulaciones}{%
+  Diapositivas 8 a 10 \textbullet\ expositor C \textbullet\ 1:35\\[4pt]
+  Sistema simulado, observables y criterio de medición}
+
+\tableofcontents
+\clearpage
+
+% ===========================================================================
+\section{Qué se cuenta acá}
+
+La guía de la cátedra (punto 2.3) pide cuatro cosas en esta sección:
+
+\begin{enumerate}
+  \item Descripción del sistema \emph{particular}: geometría, parámetros fijos,
+    inputs y outputs. Con un esquema.
+  \item Definición \textbf{matemática} de los observables. Si algo se promedia,
+    hay que explicitar qué se suma y sobre qué se divide.
+  \item Número de repeticiones.
+  \item Tiempos de las simulaciones.
+\end{enumerate}
+
+Las diapositivas 9 y 10 están armadas exactamente sobre esos cuatro puntos.
+
+\clave{Esta es la sección donde la cátedra verifica que sepas \emph{qué medís y
+cómo}. Es la que tiene más preguntas posibles por minuto de exposición, porque
+cada número de la diapositiva 10 es una decisión metodológica. Estudiá bien la
+sección de criterio de estacionario: es lo que más se pregunta.}
+
+% ===========================================================================
+\section{Guion: diapositivas 8 a 10}
+
+\diapo{8}{Divisoria: Simulaciones}{2 s}{C}
+
+Tu señal de entrada.
+
+\diapo{9}{Sistema simulado}{38 s}{C}
+
+A la izquierda el esquema de la caja con las partículas, sus vectores, el radio
+$r_c$ y las flechas de contorno periódico. A la derecha los parámetros.
+
+\begin{quote}
+\itshape
+``El sistema es una caja cuadrada de lado 10 con condiciones periódicas de
+contorno, o sea que lo que sale por un lado entra por el opuesto: no hay
+paredes. El radio de interacción es 1 y el paso temporal es 1. La rapidez es
+$3 \times 10^{-2}$, elegida de forma que en un paso una partícula recorra el
+3\% de su radio de interacción, así el vecindario cambia de a poco. El input que
+barremos es el ruido, entre 0 y $2\pi$, que es todo el rango posible. Y el
+número de partículas sale de la densidad, como $\rho$ por $L$ al cuadrado:
+estudiamos las tres densidades del enunciado, 2, 4 y 8, y agregamos tres
+densidades mucho más bajas para el estudio de clusters, de modo que $N$ va de 11
+a 800.''
+\end{quote}
+
+\ojo{No leas la lista de parámetros número por número: están escritos, la
+cátedra los lee. Lo que tenés que aportar con la voz es \emph{por qué} son esos:
+que $v\,\Delta t$ es el 3\% de $r_c$, que $[0, 2\pi]$ cubre todo el ruido
+posible, y que hay tres densidades extra que no están en el enunciado.}
+
+\diapo{10}{Observables}{55 s}{C}
+
+Es la diapositiva más importante de tu primer bloque y la más densa: dos
+definiciones matemáticas más el bloque de metodología.
+
+\begin{quote}
+\itshape
+``Medimos dos observables. El primero es la polarización: el módulo de la suma
+vectorial de todas las velocidades, dividido por $N$ y por la rapidez. Está
+normalizado entre 0 y 1: vale 1 si todas las partículas apuntan exactamente en
+la misma dirección, y tiende a 0 si las direcciones se reparten de forma
+isótropa. Es el parámetro de orden. El segundo es la fracción de la componente
+gigante: armamos el grafo donde cada partícula es un nodo y hay una arista entre
+las que están a distancia menor que $r_c$ ---exactamente la misma relación de
+vecindad que usa la dinámica---, buscamos la componente conexa más grande y
+reportamos qué fracción del total de partículas contiene. Los dos observables
+son series temporales, y el escalar que reportamos es su promedio en el estado
+estacionario. Cada punto se corre con 10 realizaciones independientes; las
+corridas son de $2 \times 10^3$ pasos para las densidades del enunciado y de
+$1 \times 10^4$ para las subcríticas, que tardan más en estacionarse. La ventana
+de promedio no es fija: se mide para cada nivel de ruido.''
+\end{quote}
+
+\clave{Las tres cosas que no podés omitir: \textbf{(1)} $v_a$ está normalizado
+entre 0 y 1 y es el parámetro de orden; \textbf{(2)} el grafo de clusters usa
+\emph{la misma} relación de vecindad que la dinámica, no otra; \textbf{(3)} la
+ventana de promedio se \emph{mide}, no se fija de antemano.}
+
+Cerrá pasándole la palabra a A:
+
+\begin{quote}
+\itshape
+``Con eso definido, [A] arranca con los resultados del modelo de Vicsek.''
+\end{quote}
+
+% ===========================================================================
+\section{El fondo: cada número de las diapositivas 9 y 10}
+
+\subsection{Los parámetros geométricos}
+
+\begin{center}
+\begin{tabular}{llp{7.6cm}}
+\toprule
+Símbolo & Valor & Por qué \\
+\midrule
+$L$        & 10                & Lo fija el enunciado. \\
+$r_c$      & 1                 & Radio de interacción; fija la escala local. \\
+$\Delta t$ & 1                 & Unidad de tiempo; el paso del autómata. \\
+$v$        & $3\times10^{-2}$  & $v\,\Delta t = 0{,}03 = 3\%$ de $r_c$. \\
+Contorno   & periódico         & Evita bordes: no hay partículas privilegiadas. \\
+$M$        & 9                 & Máximo con lado de celda $>r_c$ (cuadernillo 2). \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\teoria{La elección de $v$ es la que más se puede preguntar. Si $v\,\Delta t$
+fuera comparable a $r_c$, una partícula cambiaría por completo de vecindario en
+un solo paso y la ``interacción local'' dejaría de ser local: el sistema se
+volvería un campo medio. Si fuera muchísimo menor, las partículas casi no se
+mezclarían y el modelo tendería al XY en red, que en 2D no ordena. El valor
+$0{,}03\,r_c$ está en el régimen intermedio que usa la bibliografía: hay
+mezcla, pero el vecindario cambia gradualmente.}
+
+\subsection{Las seis densidades y por qué hay tres de más}
+
+$N = \rho L^2$, y el número medio de vecinos geométricos es
+$\langle k \rangle = \rho\,\pi r_c^2$.
+
+\begin{center}
+\begin{tabular}{lccl}
+\toprule
+$\rho$ & $N$ & $\langle k \rangle$ & Para qué \\
+\midrule
+8                   & 800 & 25{,}1 & Enunciado, todos los incisos \\
+4                   & 400 & 12{,}6 & Enunciado, todos los incisos \\
+2                   & 200 & \phantom{0}6{,}3 & Enunciado, todos los incisos \\
+\midrule
+\multicolumn{2}{l}{\emph{umbral de percolación}} & \phantom{0}4{,}5 & \\
+\midrule
+$1/\pi \approx 0{,}318$    & 32 & 1{,}00 & Estudio de clusters \\
+$1/(2\pi) \approx 0{,}159$ & 16 & 0{,}50 & Estudio de clusters \\
+$1/(3\pi) \approx 0{,}106$ & 11 & 0{,}33 & Estudio de clusters \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\dato{Las tres densidades del enunciado tienen $\langle k \rangle$ = 6,3, 12,6 y
+25,1: \textbf{todas por encima del umbral de percolación} $\approx 4{,}5$. Eso
+significa que la red de vecinos percola \emph{sin importar} el grado de orden
+direccional, y por eso $S \approx 1$ en todo el rango de $\eta$. Las tres
+densidades subcríticas se agregaron ---por indicación de la cátedra--- para que
+el observable $S$ tenga algo que mostrar. Es el resultado que explica A en la
+diapositiva 16 y vos en la 23.}
+
+\subsection{La grilla de ruido}
+
+39 valores de $\eta$ en $[0,\ 2\pi]$, \textbf{la misma para los dos modelos}:
+
+\begin{itemize}
+  \item base uniforme de paso $0{,}2$, más el extremo $2\pi$;
+  \item refinamiento de paso $0{,}05$ en $[0,\ 0{,}4]$.
+\end{itemize}
+
+El refinamiento en ruido bajo no es decorativo: el votante colapsa ahí. Su cruce
+de $v_a = 0{,}5$ cae entre $0{,}19$ y $0{,}37$ según la densidad, o sea dentro
+de los dos primeros puntos de la grilla base. Sin refinar, la transición del
+votante quedaría sin resolver. Vicsek, en cambio, transiciona cerca de
+$\eta \approx 2{,}6$--$3{,}4$, donde el paso $0{,}2$ alcanza de sobra.
+
+\clave{Que la grilla sea \emph{idéntica} para los dos modelos es lo que hace que
+la comparación del inciso (f) sea punto a punto. Si cada modelo tuviera su
+propia grilla, las curvas superpuestas no compartirían abscisas y la
+comparación no sería legítima.}
+
+En total: 39 valores de $\eta$ $\times$ 6 densidades $\times$ 2 modelos =
+\textbf{468 puntos de barrido}, cada uno con 10 semillas: 4680 corridas.
+
+\subsection{Las 10 realizaciones y de dónde salen las semillas}
+
+Cada punto (modelo, $\rho$, $\eta$) se corre con $K = 10$ semillas
+independientes. La semilla \textbf{nunca} se toma del reloj: se deriva como los
+64 bits más significativos de
+$\mathrm{sha256}(\text{modelo}\,|\,\rho\,|\,\eta\,|\,k)$, con los números
+formateados a precisión fija.
+
+Dos ventajas:
+
+\begin{itemize}
+  \item \textbf{Reproducibilidad}: todo el barrido se puede regenerar bit a bit.
+  \item \textbf{Descorrelación}: dos valores de $\eta$ arbitrariamente próximos
+    producen semillas sin ninguna relación entre sí. Si las semillas fueran, por
+    ejemplo, correlativas, puntos vecinos de la curva compartirían fluctuaciones
+    y las barras de error subestimarían la incerteza real.
+\end{itemize}
+
+\subsection{Los largos de corrida: 2000 y 10\,000 pasos}
+
+No es una constante única, y hay que saber por qué. El tiempo que tarda el
+sistema en llegar al estacionario \emph{crece al bajar $N$}. Midiendo la
+duración del transitorio con 20 semillas:
+
+\begin{itemize}
+  \item a $\rho = 2$ ($N = 200$) el observable ya es estacionario en $t = 1000$;
+  \item a $\rho = 1/\pi$ y $1/(3\pi)$ ($N = 32$ y $11$) sigue evolucionando
+    hasta $t \approx 4000$.
+\end{itemize}
+
+Por eso las densidades del enunciado se corren $2\times10^3$ pasos y las
+subcríticas $1\times10^4$: con 10\,000 pasos, la ventana de promedio cae
+enteramente dentro del estacionario.
+
+\subsection{El criterio de estado estacionario (la pregunta más probable)}
+
+Es la parte metodológicamente más fina del trabajo. El escalar que reportamos es
+el promedio de la serie temporal sobre una ventana, y esa ventana \textbf{se
+mide para cada punto de barrido}, no se fija de antemano.
+
+\textbf{Por qué no fijarla.} La duración del transitorio depende fuertemente del
+ruido. A $\eta$ grande el sistema nace ya desordenado y el estacionario arranca
+en $t = 0$: no hay nada que descartar. A $\eta$ chico la polarización tarda
+$\sim 10^2$ pasos en llegar a su meseta. Un corte fijo tendría que valer el peor
+caso de todos, y estaría tirando datos útiles en la gran mayoría de los puntos.
+
+\textbf{Cómo se mide.} El procedimiento, idéntico para $v_a$ y para $S$:
+
+\begin{enumerate}
+  \item Se promedian punto a punto las $K = 10$ series del punto de barrido.
+  \item Esa curva de ensamble se parte en \textbf{40 bloques} y se promedia cada
+    uno.
+  \item La meseta se estima con los bloques de la \emph{segunda mitad},
+    estacionaria por construcción: da un valor medio $\mu$ y una dispersión
+    entre bloques $\sigma$.
+  \item Se define una banda de tolerancia
+    $\max(0{,}05\,|\mu|,\ 3\sigma)$ alrededor de $\mu$.
+  \item El corte es el final del \textbf{último} bloque que se sale de la banda:
+    o sea, el primer instante a partir del cual la curva ya no vuelve a
+    apartarse.
+  \item Tope duro: el corte nunca cae después de la \textbf{mitad} de la
+    corrida.
+\end{enumerate}
+
+\teoria{Los dos detalles que hacen que esto funcione. \textbf{Primero}, por qué
+se promedia entre semillas antes de detectar: una corrida individual tiene
+fluctuaciones lentas que \emph{no} son transitorio ---la serie se aparta y
+vuelve al mismo valor---; el promedio de ensamble las cancela y deja solo la
+relajación sistemática desde la condición inicial. \textbf{Segundo}, por qué la
+banda es el máximo de dos términos: el término relativo ($5\%$) manda cuando la
+serie es limpia, y el de $3\sigma$ manda cerca de la transición, donde la
+fluctuación es grande y un criterio relativo cortaría siempre al tope.}
+
+\textbf{Ventanas separadas para $v_a$ y $S$.} Cada observable recibe su propia
+ventana, con el mismo criterio. No comparten corte porque no comparten
+transitorio: $S$ ya arranca cerca de su valor estacionario en la condición
+inicial ---las partículas nacen conectadas--- mientras que $v_a$ tiene que
+relajar desde ángulos al azar. Forzar una ventana única significaría promediar
+uno de los dos sobre menos datos de los que tiene.
+
+\clave{Los cortes se guardan en un archivo y son \emph{los mismos} que dibujan
+las líneas verticales de las figuras de evolución temporal (diapositivas 13, 15,
+18, 20). O sea: cada figura muestra literalmente la ventana sobre la que se
+promedió. Eso es exactamente lo que pide el enunciado en el inciso (b), ``mostrar
+con líneas verticales el inicio del mismo''.}
+
+\subsection{Qué son las barras de error}
+
+Son el \textbf{desvío estándar de las 10 medias de estado estacionario}, una por
+semilla. Es decir: cuantifican la incerteza \emph{de la media entre
+realizaciones}, no la amplitud de la fluctuación temporal del observable dentro
+de una corrida.
+
+\ojo{Las dos magnitudes son muy distintas. En Vicsek a $\rho = 2$, cerca de la
+transición, la fluctuación temporal dentro de una corrida es del orden de
+$0{,}12$, mientras que el desvío entre semillas es $\approx 0{,}014$: casi diez
+veces menor. Si te preguntan ``¿qué representa la barra de error?'', la
+respuesta es \emph{la dispersión entre realizaciones independientes}, y conviene
+que lo digas con esas palabras.}
+
+\subsection{La condición inicial}
+
+Posiciones $x$ e $y$ sorteadas uniformemente en $[0, L)$ de forma independiente,
+y orientación uniforme en $[-\pi, \pi]$. No hay criterio de no solapamiento
+---a diferencia del generador del TP1--- porque acá las partículas son
+puntuales.
+
+El sistema parte entonces espacialmente homogéneo y direccionalmente isótropo,
+lo que implica $v_a(0) \approx N^{-1/2}$.
+
+\subsection{El piso de tamaño finito: $N^{-1/2}$}
+
+Este número aparece por todos lados en los resultados y conviene entenderlo
+ahora. En la fase desordenada las $N$ direcciones son esencialmente
+independientes, así que la suma vectorial es una caminata aleatoria de $N$ pasos
+unitarios: su módulo típico es $\sqrt{N}$, y al dividir por $N$ queda
+$v_a \approx N^{-1/2}$.
+
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+$N$ & 11 & 16 & 32 & 200 & 400 & 800 \\
+\midrule
+$N^{-1/2}$ & 0{,}30 & 0{,}25 & 0{,}18 & 0{,}071 & 0{,}050 & 0{,}035 \\
+$v_a$ medido en $\eta = 2\pi$ & 0{,}27 & 0{,}22 & 0{,}16 & 0{,}063 & 0{,}044 & 0{,}031 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\dato{El acuerdo es excelente en las seis densidades. O sea: \textbf{$v_a$ nunca
+llega a cero, y no tiene por qué llegar}. El valor de saturación a ruido máximo
+no es un resultado del modelo, es un efecto de tamaño finito perfectamente
+entendido. Si alguien pregunta ``¿por qué la curva no baja a cero?'', esta tabla
+es la respuesta.}
+
+% ===========================================================================
+\section{Preguntas y respuestas}
+
+\subsection{Sobre los parámetros}
+
+\pregunta{¿Por qué $v = 0{,}03$?}
+\respuesta{Para que en un paso una partícula recorra el 3\% de su radio de
+interacción, o sea que el vecindario cambie gradualmente. Si $v\,\Delta t$ fuera
+comparable a $r_c$, la partícula cambiaría de vecindario entero en un paso y la
+interacción dejaría de ser local. Si fuera muchísimo menor, no habría mezcla y
+el sistema tendería al modelo XY en red, que en dos dimensiones no ordena.}
+
+\pregunta{¿Por qué $\Delta t = 1$?}
+\respuesta{Es la unidad de tiempo del autómata: un paso. Todas las magnitudes
+son adimensionales, así que fijar $\Delta t = 1$ solo define la escala temporal;
+lo que tiene significado físico es el producto $v\,\Delta t$ relativo a $r_c$.}
+
+\pregunta{¿Por qué condiciones periódicas y no paredes?}
+\respuesta{Para que no haya partículas privilegiadas. Con paredes, las del borde
+tendrían menos vecinos y un comportamiento distinto, y aparecería un efecto de
+superficie que contaminaría la medición del orden global. Las condiciones
+periódicas hacen que todas las partículas sean equivalentes.}
+
+\pregunta{¿De dónde salen las densidades $1/\pi$, $1/2\pi$ y $1/3\pi$? No están
+en el enunciado.}
+\respuesta{Las agregamos por indicación de la cátedra, para el estudio de
+clusters. Están elegidas para que $\langle k \rangle = \rho\pi r_c^2$ dé
+exactamente 1, 0,5 y 0,33, o sea holgadamente por debajo del umbral de
+percolación $\approx 4{,}5$. En las tres densidades del enunciado
+$\langle k \rangle$ vale 6,3, 12,6 y 25,1, todas por encima del umbral, y por
+eso ahí $S \approx 1$ para todo $\eta$ y el observable no discrimina.}
+
+\pregunta{¿Por qué barren $\eta$ hasta $2\pi$?}
+\respuesta{Porque con $\eta = 2\pi$ el ruido ya es uniforme sobre toda la
+circunferencia: la dirección nueva es completamente aleatoria. Es el desorden
+máximo alcanzable y más allá no cambia nada.}
+
+\pregunta{¿Por qué la grilla de $\eta$ no es uniforme?}
+\respuesta{La base es uniforme de paso 0,2, y le agregamos un refinamiento de
+paso 0,05 entre 0 y 0,4 porque ahí colapsa el votante: su transición cae entre
+0,19 y 0,37 según la densidad, o sea dentro de los dos primeros puntos de la
+grilla base. Sin refinar, la transición del votante quedaría sin resolver.
+Vicsek transiciona cerca de 2,6--3,4, donde el paso 0,2 alcanza.}
+
+\pregunta{¿Usan la misma grilla de $\eta$ para los dos modelos?}
+\respuesta{Sí, exactamente la misma, 39 valores. Es lo que hace que la
+comparación entre modelos sea punto a punto: las curvas superpuestas comparten
+abscisas.}
+
+\subsection{Sobre los observables}
+
+\pregunta{¿Por qué $v_a$ está dividido por $N$ y por $v$?}
+\respuesta{Para normalizarlo entre 0 y 1. El módulo de la suma de las $N$
+velocidades vale como máximo $N v$, que se alcanza cuando todas apuntan igual;
+dividiendo por $Nv$ el observable queda adimensional y comparable entre
+densidades distintas.}
+
+\pregunta{¿Por qué $v_a$ no llega a cero a ruido máximo?}
+\respuesta{Por tamaño finito. En la fase desordenada las direcciones son
+independientes, así que la suma vectorial es una caminata aleatoria de $N$ pasos
+unitarios y su módulo típico es $\sqrt{N}$: al dividir por $N$ queda
+$v_a \approx N^{-1/2}$. Para $N = 200$ eso da 0,071 y medimos 0,063; para
+$N = 800$ da 0,035 y medimos 0,031. El acuerdo es muy bueno en las seis
+densidades.}
+
+\pregunta{¿Cómo definen un cluster?}
+\respuesta{Como una componente conexa del grafo donde los nodos son las
+partículas y hay arista entre las que están a distancia menor que $r_c$. Es
+\emph{exactamente} la misma relación de vecindad que usa la dinámica: el
+observable se calcula recorriendo la misma lista de adyacencia que produjo el
+Cell Index Method, no se vuelve a buscar vecinos ni se hace fuerza bruta
+aparte. Así la definición de cluster coincide por construcción con la de
+vecindad.}
+
+\pregunta{¿Cómo calculan la componente conexa más grande?}
+\respuesta{Recorrido en profundidad con pila explícita y vector de visitados,
+sobre la lista de adyacencia. Se recorre cada componente una vez y se queda el
+máximo tamaño, dividido por $N$.}
+
+\pregunta{Con contorno periódico, ¿un cluster puede darle la vuelta a la caja?}
+\respuesta{Sí, y no le damos ningún tratamiento especial: forma parte del
+fenómeno. Lo único que pasa es que al visualizarlo, el cluster aparece partido
+en los bordes de la caja, pero en el grafo es una sola componente.}
+
+\subsection{Sobre la metodología de medición}
+
+\pregunta{¿Cómo determinan cuándo empieza el estado estacionario?}
+\respuesta{Se mide para cada punto de barrido, no se fija. Promediamos las 10
+series del punto entre sí, partimos esa curva de ensamble en 40 bloques,
+estimamos la meseta con los bloques de la segunda mitad, y definimos una banda
+de tolerancia igual al máximo entre el 5\% del valor de la meseta y 3 desvíos
+entre bloques. El corte es el final del último bloque que se sale de esa banda,
+o sea el primer instante a partir del cual la curva ya no vuelve a apartarse.
+Además hay un tope: nunca cae después de la mitad de la corrida.}
+
+\pregunta{¿Por qué promedian entre semillas antes de detectar el corte?}
+\respuesta{Porque una corrida individual tiene fluctuaciones lentas que no son
+transitorio: la serie se aparta y vuelve al mismo valor. Si detectáramos sobre
+una sola corrida, esas excursiones se leerían como transitorio y el corte
+saldría tardísimo. El promedio de ensamble las cancela y deja solo la relajación
+sistemática desde la condición inicial.}
+
+\pregunta{¿Por qué la banda es el máximo entre dos criterios?}
+\respuesta{Porque los dos regímenes necesitan cosas distintas. Cuando la serie
+es limpia manda el criterio relativo del 5\%. Cerca de la transición, donde la
+fluctuación es grande, un criterio relativo cortaría siempre en el tope, y ahí
+manda el de 3 desvíos entre bloques.}
+
+\pregunta{¿Por qué $v_a$ y $S$ tienen ventanas distintas?}
+\respuesta{Porque no comparten transitorio. $S$ ya arranca cerca de su valor
+estacionario en la condición inicial, porque las partículas nacen conectadas;
+$v_a$ tiene que relajar desde una configuración de ángulos al azar. Forzar una
+ventana única significaría promediar uno de los dos sobre menos datos de los que
+tiene disponibles. El criterio aplicado es idéntico, lo que cambia es el
+resultado.}
+
+\pregunta{¿Qué representan las barras de error?}
+\respuesta{El desvío estándar de las 10 medias de estado estacionario, una por
+semilla. O sea la dispersión entre realizaciones independientes, no la
+fluctuación temporal dentro de una corrida. Las dos magnitudes difieren mucho:
+cerca de la transición, en Vicsek a $\rho = 2$, la fluctuación temporal es
+$\approx 0{,}12$ y el desvío entre semillas $\approx 0{,}014$.}
+
+\pregunta{¿Por qué 10 realizaciones y no más?}
+\respuesta{Es un compromiso con el volumen del barrido: 468 puntos por 10
+semillas son 4680 corridas. Con 10 semillas las barras de error son chicas fuera
+de la región de transición; donde la dispersión crece es justamente cerca del
+punto crítico, que es lo esperable porque ahí es donde el sistema fluctúa más.}
+
+\pregunta{¿Por qué las corridas subcríticas son de 10\,000 pasos y las otras de
+2000?}
+\respuesta{Porque el tiempo hasta el estacionario crece al bajar $N$. Lo
+medimos con 20 semillas: a $\rho = 2$ el observable ya es estacionario en
+$t = 1000$, mientras que a $\rho = 1/\pi$ y $1/(3\pi)$ sigue evolucionando hasta
+$t \approx 4000$. Con 10\,000 pasos la ventana de promedio cae enteramente en el
+estacionario.}
+
+\pregunta{¿Cómo eligen las semillas? ¿Son aleatorias?}
+\respuesta{No, son deterministas: cada semilla es el hash SHA-256 de la clave
+formada por modelo, densidad, ruido e índice de repetición, truncado a 64 bits.
+Nunca se siembra desde el reloj. Eso da dos cosas: el barrido completo es
+reproducible bit a bit, y dos valores de $\eta$ arbitrariamente próximos
+producen semillas sin relación entre sí, así que no hay correlaciones espurias
+entre puntos vecinos de la curva.}
+
+\pregunta{¿Cuál es la condición inicial?}
+\respuesta{Posiciones uniformes e independientes en la caja y orientaciones
+uniformes en $[-\pi,\pi]$. No hay criterio de no solapamiento porque las
+partículas son puntuales. El sistema parte espacialmente homogéneo y
+direccionalmente isótropo, con $v_a(0) \approx N^{-1/2}$.}
+
+\subsection{Sobre el output (fuera del guion, pero lo pueden preguntar)}
+
+\pregunta{¿En qué formato sale la simulación?}
+\respuesta{Texto plano, en dos archivos independientes. Uno es la trayectoria
+completa: por cada paso, una línea con el tiempo y después $N$ líneas con
+posición y velocidad. El otro es un registro escalar con una línea por paso, con
+el tiempo, $v_a$ y $S$; es el que consume el barrido, porque volcar la
+trayectoria completa de miles de corridas sería inmanejable.}
+
+\pregunta{¿La animación se genera durante la simulación?}
+\respuesta{No, y es un requisito explícito del enunciado. La simulación escribe
+texto plano y el módulo de animación se ejecuta después, como un proceso
+independiente que toma ese texto como entrada. Así la velocidad de la animación
+no queda supeditada a la velocidad de la simulación.}
+
+\end{document}
