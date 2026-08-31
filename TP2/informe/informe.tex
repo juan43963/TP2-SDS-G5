@@ -1,3 +1,13 @@
+% =====================================================================
+%  TP2 - Simulacion de Sistemas - Grupo 5 (Comision S)
+%  Informe
+%
+%  Mismas secciones que presentacion/presentacion.tex (requisito del
+%  enunciado, punto d). La seccion Resultados esta subdividida por inciso,
+%  en el mismo orden en que aparecen en las diapositivas.
+%
+%      pdflatex informe.tex        (dos pasadas por el indice)
+% =====================================================================
 \documentclass[11pt]{article}
 
 \usepackage[utf8]{inputenc}
@@ -25,33 +35,19 @@
 \graphicspath{{../data/plots/}{../data/plots/timeseries/}{../data/plots/eta/}{../data/plots/phase/}{../data/plots/benchmark/}{../data/plots/extra/}{./figs/}{../presentacion/}{./}}
 
 % ---------------------------------------------------------------------------
-% Convencion de simbolos (docs/GuiaInformes.md): escalares en italica sin
+% Convencion de simbolos (docs/GuiaInformes.pdf): escalares en italica sin
 % negrita (default de LaTeX en modo matematico); vectores en negrita sin
 % italica; unidades y numeros sin negrita ni italica.
 % ---------------------------------------------------------------------------
 \newcommand{\vect}[1]{\mathbf{#1}}
 \newcommand{\uni}[1]{\ensuremath{\mathrm{#1}}}
 
-% ---------------------------------------------------------------------------
-% Marcas de revision. Este documento es un borrador interno: \pregunta{...}
-% deja una marca visible en el punto exacto del texto y la acumula en la
-% seccion "Pendientes" del final (requiere dos pasadas de pdflatex).
-% ---------------------------------------------------------------------------
-\definecolor{marcarojo}{RGB}{178,24,43}
-\newcounter{pregunta}
-\makeatletter
-\newcommand{\listofpreguntas}{\@starttoc{lop}}
-\newcommand{\l@pregunta}[2]{%
-  \par\smallskip\noindent\hangindent=2.1em\hangafter=1 #1\par}
-% Robusta: \pregunta aparece dentro de un \caption (argumento movil), asi que
-% no debe expandirse al escribirse en los archivos auxiliares.
-\DeclareRobustCommand{\pregunta}[1]{%
-  \refstepcounter{pregunta}%
-  \addcontentsline{lop}{pregunta}{%
-    \protect\textcolor{marcarojo}{\protect\textbf{[PREGUNTAR \thepregunta]}}~#1}%
-  {\color{marcarojo}\textbf{[PREGUNTAR \thepregunta:}\ \textit{#1}\textbf{]}}%
-}
-\makeatother
+% Enlaces a las animaciones del inciso (a). Se declaran una sola vez aca para
+% que informe y presentacion queden con las mismas cuatro URL.
+\newcommand{\urlvicsekord}{\url{https://youtu.be/PENDIENTE-1}}
+\newcommand{\urlvicsekdes}{\url{https://youtu.be/PENDIENTE-2}}
+\newcommand{\urlvotord}{\url{https://youtu.be/PENDIENTE-3}}
+\newcommand{\urlvotdes}{\url{https://youtu.be/PENDIENTE-4}}
 
 \begin{document}
 
@@ -73,7 +69,8 @@
 
 \vspace{1.5cm}
 
-{\large\itshape Simulación de bandadas: modelo de Vicsek y modelo de votante\par}
+{\large\itshape Autómata off-lattice de bandadas de agentes autopropulsados:\\
+modelo de Vicsek y modelo de votante\par}
 
 \vspace{2cm}
 
@@ -106,129 +103,56 @@ Fecha de entrega: 04/09/2026
 \section{Introducción}
 \label{sec:introduccion}
 
+\subsection{Sistema real}
+\label{sec:sistema-real}
+
 Una bandada es un conjunto de agentes autopropulsados que se desplazan a
-rapidez aproximadamente constante y ajustan su dirección de movimiento en
-función de la de sus vecinos inmediatos. El resultado macroscópico --- un
-movimiento colectivo coherente, sin líder ni coordinación global --- se observa
-en sistemas biológicos muy diversos, desde las murmuraciones de estorninos
-hasta los cardúmenes de peces (Fig.~\ref{fig:bandadas-reales}). Que un orden de
-largo alcance emerja de reglas puramente locales es lo que convierte a estos
-sistemas en un caso de estudio central de la materia activa.
+rapidez aproximadamente constante y que ajustan su dirección de movimiento en
+función de la de sus vecinos inmediatos. El resultado macroscópico es un
+movimiento colectivo coherente que se sostiene sin líder y sin coordinación
+global, y se observa en sistemas biológicos muy diversos: murmuraciones de
+estorninos como la de la Fig.~\ref{fig:bandadas-reales}, cardúmenes de peces y
+colonias bacterianas. La característica que unifica a todos estos sistemas es
+que la energía no se inyecta desde el exterior sino localmente, en cada agente,
+lo que los ubica dentro de la clase de la materia activa.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.48\textwidth,height=4.6cm,keepaspectratio]%
-    {012-017_Notas_316-0-1140-1.jpg}
-  \hfill
-  \includegraphics[width=0.48\textwidth,height=4.6cm,keepaspectratio]%
-    {stara2.jpg}
-  \caption[Murmuraciones de estorninos.]%
-    {Murmuraciones de estorninos (\textit{Sturnus vulgaris}): ejemplo
+  \includegraphics[width=0.62\textwidth,height=6.2cm,keepaspectratio]{stara2.jpg}
+  \caption{Murmuración de estorninos (\textit{Sturnus vulgaris}), ejemplo
     natural del fenómeno que modela este trabajo. Miles de individuos
-    mantienen una orientación colectiva coherente ajustando su dirección
-    únicamente en función de los vecinos próximos, sin control centralizado.
-    Se observan además las estructuras de densidad no uniforme (frentes densos
-    y regiones diluidas) que el modelo de Vicsek reproduce cerca de la
-    transición orden-desorden.
-    \pregunta{Falta acreditar la fuente y verificar la licencia de ambas
-    fotografías antes de la entrega; los archivos
-    \texttt{figs/012-017\_Notas\_316-0-1140-1.jpg} y \texttt{figs/stara2.jpg}
-    fueron incorporados sin registro de origen ni de condiciones de uso.}}
+    sostienen una orientación colectiva coherente ajustando su dirección
+    únicamente en función de los vecinos próximos. Se aprecian además las
+    estructuras de densidad no uniforme, con frentes densos y regiones
+    diluidas, que el modelo de Vicsek reproduce cerca de la transición
+    orden-desorden.}
   \label{fig:bandadas-reales}
 \end{figure}
 
-Vicsek \textit{et al.} [1] propusieron un modelo mínimo fuera de red
-(\textit{off-lattice}) para este tipo de sistemas: cada partícula adopta, en
-cada paso de tiempo, la dirección promedio de las partículas que se encuentran
-dentro de un radio de interacción $r_c$, perturbada por un ruido angular de
-amplitud $\eta$. A pesar de su simplicidad, el modelo exhibe una transición de
-fase orden-desorden al aumentar $\eta$, con un parámetro de orden --- la
-polarización $v_a$ --- que pasa de valores cercanos a 1 (bandada coherente) a
-valores cercanos a 0 (movimiento desordenado).
+Que un orden de largo alcance emerja de reglas puramente locales es lo que
+convierte a estos sistemas en un caso de estudio central. El objetivo de este
+trabajo es implementar el modelo mínimo que captura ese fenómeno, el autómata
+off-lattice propuesto por Vicsek \textit{et al.} [1], caracterizar su
+transición orden-desorden en función de la amplitud del ruido, y compararlo
+contra una regla de interacción alternativa, el modelo de votante [2].
 
-Este trabajo implementa y caracteriza ese modelo estándar y lo compara contra
-una regla de interacción alternativa, el modelo de votante [2], en la cual cada
-partícula no promedia sino que copia directamente la orientación de un único
-vecino elegido al azar, sujeta al mismo ruido $\eta$. El sistema se simula en
-una caja cuadrada de lado $L=10$ con condiciones periódicas de contorno, para
-las tres densidades $\rho = 2$, 4 y 8 que fija el enunciado, reutilizando el
-Cell Index Method (CIM) desarrollado en el Trabajo Práctico 1 para la búsqueda
-eficiente de vecinos.
+\subsection{Modelo matemático}
+\label{sec:modelo-matematico}
 
-En síntesis, se caracteriza la transición orden-desorden de ambos modelos
-mediante dos observables: la polarización $v_a$ y la fracción de partículas en
-la componente conexa más grande de la red de vecinos, $S$. Se encuentra que el
-modelo de Vicsek sostiene el régimen ordenado hasta ruidos apreciablemente
-mayores que el modelo de votante, y que en ambos casos el ruido crítico crece
-con la densidad. El observable $S$ resulta degenerado ($S \approx 1$ para todo
-$\eta$) en las tres densidades del enunciado, porque el número medio de vecinos
-geométricos supera holgadamente el umbral de percolación continua
-bidimensional; para exhibir la transición de conectividad se agrega un estudio
-complementario a densidades subcríticas. Finalmente se verifica que el motor
-conserva el comportamiento de escalado del CIM observado en el Trabajo
-Práctico 1.
-
-% ===========================================================================
-\section{Modelo}
-\label{sec:modelo}
-
-\subsection{Dinámica de las partículas}
-\label{sec:dinamica}
-
-El sistema consta de $N$ partículas puntuales en una caja cuadrada de lado $L$
-con condiciones periódicas de contorno. La partícula $i$ queda descripta por su
-posición $\vect{r}_i(t)$ y su ángulo de orientación $\theta_i(t)$, y se desplaza
-con rapidez constante $v_0$ en la dirección que indica ese ángulo. La velocidad
-es, por lo tanto, una variable derivada:
+El sistema consta de $N$ partículas puntuales dentro de una caja cuadrada de
+lado $L$ con condiciones periódicas de contorno. La partícula $i$ queda
+descripta por su posición $\vect{r}_i(t)$ y por su ángulo de orientación
+$\theta_i(t)$, y se desplaza con rapidez constante $v$ en la dirección que
+indica ese ángulo, de modo que la velocidad es una variable derivada:
 
 \begin{equation}
-  \vect{v}_i(t) = v_0 \left( \cos\theta_i(t),\ \sin\theta_i(t) \right).
+  \vect{v}_i(t) = v \left( \cos\theta_i(t),\ \sin\theta_i(t) \right).
   \label{eq:velocidad}
 \end{equation}
 
-La actualización es sincrónica: todas las partículas calculan su nuevo estado a
-partir de la misma fotografía del sistema en el instante $t$, y recién después
-se confirman los cambios. La posición se actualiza según
-
-\begin{equation}
-  \vect{r}_i(t+\Delta t) = \vect{r}_i(t)
-    + v_0 \left( \cos\theta_i(t+\Delta t),\ \sin\theta_i(t+\Delta t) \right) \Delta t,
-  \label{eq:posicion}
-\end{equation}
-
-seguida de la envoltura periódica de cada coordenada dentro de $[0, L)$. Nótese
-que la Ec.~\eqref{eq:posicion} desplaza a la partícula en la dirección
-\emph{recién calculada}, de modo que el ruido sorteado en el paso $t$ afecta
-inmediatamente el desplazamiento de ese mismo paso.
-\pregunta{La diapositiva 42 de la Teórica 2 escribe
-$\vect{x}_i(t+1) = \vect{x}_i(t) + \vect{v}_i(t)\,\Delta t$, es decir con la
-velocidad \emph{vieja}: la partícula avanzaría en la dirección que traía y el
-ruido recién afectaría el desplazamiento del paso siguiente. La implementación
-usa la convención opuesta (girar y después avanzar). Medido sobre Vicsek,
-$\rho=2$, 5 semillas, la diferencia en $v_a$ llega a $0{,}10$ (unas $5\sigma$)
-en la región de transición, con la convención actual dando un sistema
-sistemáticamente menos polarizado. Hay que confirmar cuál se espera; corregirlo
-es una línea de código pero obliga a rehacer el barrido completo y todas las
-figuras.}
-
-El vecindario $\mathcal{N}_i$ de la partícula $i$ es autoinclusivo: contiene a
-la propia partícula $i$ y a toda partícula $j$ cuya distancia de imagen mínima a
-$i$ sea estrictamente menor que $r_c$. Es el mismo conjunto para ambas reglas de
-interacción, que difieren únicamente en cómo combinan las orientaciones de sus
-elementos. La convención autoinclusiva garantiza que la regla esté bien definida
-incluso cuando una partícula queda momentáneamente aislada.
-\pregunta{El enunciado no especifica qué hace una partícula sin vecinos dentro
-de $r_c$ en el modelo de votante. Se adoptó la convención de ``auto-voto'':
-conserva su propia orientación más el ruido, en analogía con Vicsek. No es un
-caso de borde marginal: en el estudio de clusters a densidades subcríticas
-($N=11$ a $32$) las partículas aisladas son frecuentes y la convención afecta
-una fracción no despreciable de las actualizaciones.}
-
-\subsection{Reglas de interacción}
-\label{sec:reglas}
-
-En el \emph{modelo estándar de Vicsek} [1], la nueva orientación es el promedio
-circular de las orientaciones del vecindario, más el ruido angular:
+En el \emph{modelo estándar de Vicsek} [1] la nueva orientación de cada
+partícula es el promedio circular de las orientaciones de las partículas que se
+encuentran dentro de su radio de interacción $r_c$, más un ruido angular:
 
 \begin{equation}
   \theta_i(t+\Delta t) = \operatorname{atan2}\!\left(
@@ -238,16 +162,24 @@ circular de las orientaciones del vecindario, más el ruido angular:
   \label{eq:vicsek}
 \end{equation}
 
-La suma separada de senos y cosenos evita la discontinuidad que introduciría
-promediar ángulos directamente en torno a $\pm\pi$. En el \emph{modelo de
-votante} [2], en cambio, la partícula no promedia: elige un único vecino $j$ con
-distribución uniforme sobre $\mathcal{N}_i$ y copia su orientación,
+Sumar por separado senos y cosenos evita la discontinuidad que introduciría
+promediar ángulos directamente en el entorno de $\pm\pi$. En el \emph{modelo de
+votante} [2] la partícula no promedia: elige un único vecino $j$ con
+distribución uniforme sobre su vecindario y copia su orientación,
 
 \begin{equation}
   \theta_i(t+\Delta t) = \theta_j(t) + \Delta\theta_i,
   \qquad j \sim \mathcal{U}(\mathcal{N}_i).
   \label{eq:votante}
 \end{equation}
+
+El vecindario $\mathcal{N}_i$ es el mismo para las dos reglas y es
+autoinclusivo: contiene a la propia partícula $i$ y a toda partícula $j$ cuya
+distancia de imagen mínima a $i$ sea menor que $r_c$. Esa convención garantiza
+que ambas reglas estén bien definidas incluso cuando una partícula queda
+momentáneamente sin vecinos, caso en el que conserva su propia orientación más
+el ruido. La diferencia entre las Ecs.~\eqref{eq:vicsek} y~\eqref{eq:votante} es
+la única diferencia entre los dos modelos.
 
 En ambos casos el ruido angular se incorpora de forma idéntica, como una
 variable aleatoria uniforme
@@ -259,121 +191,95 @@ variable aleatoria uniforme
 
 independiente entre partículas y entre pasos, siendo $\eta$ el único parámetro
 de control del desorden. El ángulo resultante se renormaliza al intervalo
-$[-\pi, \pi]$; sin esa renormalización el modelo de votante --- que copia
-verbatim un ángulo ya comprometido en lugar de recalcularlo con
-$\operatorname{atan2}$ --- acumularía una caminata aleatoria angular no acotada.
+$[-\pi, \pi]$. Esa renormalización es necesaria en el modelo de votante, que
+copia un ángulo ya comprometido en lugar de recalcularlo con
+$\operatorname{atan2}$ y sin ella acumularía una caminata aleatoria angular no
+acotada.
 
-La diferencia entre las Ecs.~\eqref{eq:vicsek} y~\eqref{eq:votante} es la única
-diferencia entre ambos modelos: Vicsek promedia sobre todo el vecindario, el
-votante copia a un solo elemento elegido al azar. Cabe anticipar que promediar
-sobre $|\mathcal{N}_i|$ orientaciones atenúa el ruido individual por un factor
-del orden de $|\mathcal{N}_i|^{-1/2}$, mientras que copiar a un único vecino
-transmite el ruido íntegro; el modelo de votante debería, entonces, perder el
-orden a ruidos mucho menores.
-
-\subsection{Observables: polarización y componente gigante}
-\label{sec:observables}
-
-El parámetro de orden primario es la \emph{polarización}, definida como el
-módulo de la velocidad media normalizada por la rapidez individual,
+La actualización de la posición es común a los dos modelos:
 
 \begin{equation}
-  v_a(t) = \frac{1}{N v_0}
-    \left\| \sum_{i=1}^{N} \vect{v}_i(t) \right\|
-  = \frac{1}{N} \sqrt{
-    \left( \sum_{i=1}^{N} \cos\theta_i(t) \right)^{\!2}
-    + \left( \sum_{i=1}^{N} \sin\theta_i(t) \right)^{\!2} } .
-  \label{eq:polarizacion}
+  \vect{r}_i(t+\Delta t) = \vect{r}_i(t) + \vect{v}_i(t)\,\Delta t ,
+  \label{eq:posicion}
 \end{equation}
 
-Vale $v_a = 1$ cuando todas las partículas comparten orientación y tiende a
-$0$ cuando las orientaciones se distribuyen isotrópicamente. En un sistema
-finito el valor esperado en la fase desordenada no es exactamente cero sino del
-orden de $N^{-1/2}$, lo que fija un piso de tamaño finito ($\approx 0{,}071$
-para $N=200$ y $\approx 0{,}035$ para $N=800$) que es visible en los
-resultados de la Sección~\ref{sec:va-eta}.
+seguida de la envoltura periódica de cada coordenada dentro de $[0, L)$. El
+desplazamiento usa la velocidad del instante $t$, es decir la derivada de
+$\theta_i(t)$ y no de la orientación recién calculada, de manera que el ruido
+sorteado en un paso recién orienta a la partícula a partir del paso siguiente.
 
-El segundo observable caracteriza la conectividad espacial en lugar del orden
-direccional. Se define un \emph{cluster} como una componente conexa del grafo
-cuyos nodos son las partículas y cuyas aristas unen pares a distancia menor que
-$r_c$ --- exactamente la relación de vecindad de las
-Ecs.~\eqref{eq:vicsek}--\eqref{eq:votante}. El observable es la fracción de
-partículas en el cluster más grande,
+Cabe anticipar cuál debería ser el efecto de la diferencia entre las dos
+reglas. En la Ec.~\eqref{eq:vicsek} el promedio se toma sobre $|\mathcal{N}_i|$
+orientaciones cuyos ruidos son independientes, de modo que la dispersión del
+resultado se reduce en un factor del orden de $|\mathcal{N}_i|^{-1/2}$. La
+Ec.~\eqref{eq:votante}, en cambio, hereda el ruido íntegro de un único vecino y
+no lo atenúa en absoluto. Es esperable entonces que el modelo de votante pierda
+el orden a ruidos considerablemente menores que el modelo de Vicsek.
 
-\begin{equation}
-  S(t) = \frac{1}{N} \max_{c \,\in\, \mathcal{C}(t)} |c| ,
-  \label{eq:componente-gigante}
-\end{equation}
-
-donde $\mathcal{C}(t)$ es el conjunto de componentes conexas en el instante $t$.
-Bajo condiciones periódicas un cluster puede cerrarse sobre sí mismo dando la
-vuelta al toro; eso forma parte del fenómeno y no recibe tratamiento especial,
-aunque al visualizarlo el cluster aparece partido en los bordes de la caja.
-
-Como parámetro derivado se emplea además la \emph{susceptibilidad}
-
-\begin{equation}
-  \chi(\eta) = N \operatorname{Var}(v_a) ,
-  \label{eq:susceptibilidad}
-\end{equation}
-
-cuyo máximo sobre la grilla de $\eta$ se toma como estimador del ruido crítico
-$\eta_c$. La varianza se calcula entre las medias de estado estacionario de las
-distintas semillas de un mismo punto $(\text{modelo}, \rho, \eta)$.
+Todas las magnitudes del modelo son adimensionales. Ni $\Delta t$, ni $v$, ni
+$\eta$ tienen unidades físicas asociadas, siguiendo la convención del enunciado
+y de la referencia [1].
 
 % ===========================================================================
 \section{Implementación}
 \label{sec:implementacion}
 
-El motor de simulación está escrito en C++20 (\texttt{TP2/src/}) y produce
-exclusivamente archivos de texto plano; el análisis, los gráficos y la animación
-se realizan en Python sobre esos archivos. La Fig.~\ref{fig:arquitectura}
-resume la arquitectura resultante.
+\subsection{Arquitectura del motor}
+\label{sec:arquitectura}
+
+El motor de simulación está escrito en C++20 (\texttt{TP2/src/}) y no usa
+ninguna dependencia externa. Produce exclusivamente archivos de texto plano; el
+análisis, los gráficos y la animación se realizan en Python sobre esos
+archivos. La Fig.~\ref{fig:arquitectura} resume la arquitectura resultante.
 
 \begin{figure}[htbp]
   \centering
   \resizebox{\textwidth}{!}{\input{figs/arquitectura.tex}}
   \caption{Arquitectura del motor de simulación. La clase \texttt{Simulation}
-    concentra el estado (partículas, grilla, buffer auxiliar de orientaciones y
-    generador pseudoaleatorio). Cada paso reconstruye la grilla del CIM
+    concentra el estado completo de una corrida: el vector de partículas, la
+    grilla del CIM, el buffer auxiliar de orientaciones y el generador
+    pseudoaleatorio. Cada paso reconstruye la grilla
     (\texttt{Grid::rebuild}) para obtener la lista de adyacencia
     \texttt{NeighborList}, que alimenta dos consumidores independientes: la
-    regla de interacción --- fase 1, que produce \texttt{thetaNew\_} --- y el
-    cálculo de observables. La fase 2 integra las posiciones con las
-    orientaciones nuevas. Ambas ramas convergen en salidas de texto plano que
-    consume el módulo Python. La flecha punteada de la derecha indica la
-    resincronización \texttt{syncNeighbors()}, que reconstruye la grilla una
-    segunda vez sobre las posiciones ya avanzadas cuando el registro escalar
-    está activo.}
+    regla de interacción, que produce \texttt{thetaNew\_}, y el cálculo de
+    observables. La integración de posiciones cierra el paso y realimenta el
+    estado. Ambas ramas terminan en salidas de texto plano que consume la capa
+    de Python. La flecha punteada de la derecha indica la resincronización
+    \texttt{syncNeighbors()}, que reconstruye la grilla una segunda vez sobre
+    las posiciones ya avanzadas cuando el registro escalar está activo, de modo
+    que $v_a$ y $S$ se midan sobre la misma configuración.}
   \label{fig:arquitectura}
 \end{figure}
 
-\subsection{Estructuras de datos y CIM reutilizado}
-\label{sec:cim}
-
 La partícula se representa con la estructura
 \texttt{VicsekParticle \{ int id; double x, y, theta; \}}
-(\texttt{src/include/parti\-cle.h}), que agrega la orientación a la partícula
-puntual de TP1 y prescinde del radio, ya que en este trabajo las partículas no
+(\texttt{src/include/particle.h}), que agrega la orientación a la partícula
+puntual del TP1 y prescinde del radio, ya que en este trabajo las partículas no
 tienen extensión. Sobre ella operan las funciones geométricas
 \texttt{periodicWrap} (envoltura de una coordenada en $[0,L)$),
-\texttt{periodicDelta} (convención de imagen mínima),
-\texttt{withinRadius} (predicado de vecindad) y \texttt{headingToVelocity}
-(Ec.~\eqref{eq:velocidad}), todas \texttt{inline} en el encabezado para que sean
-idénticas en todos los puntos del programa que las usan.
+\texttt{periodicDelta} (convención de imagen mínima), \texttt{withinRadius}
+(predicado de vecindad) y \texttt{headingToVelocity}
+(Ec.~\eqref{eq:velocidad}). Todas son \texttt{inline} en el encabezado, para que
+sean idénticas en todos los puntos del programa que las usan y no haya
+posibilidad de que la geometría de la dinámica y la de los observables se
+separen.
 
-La búsqueda de vecinos reutiliza el Cell Index Method de TP1, reorganizado en el
-tipo \texttt{Grid} (\texttt{src/include/grid.h}). A diferencia del
-\texttt{computeCIM} de TP1, que reconstruía la grilla y reasignaba todos sus
-buffers en cada llamada, \texttt{Grid} es un objeto persistente: los vectores
-\texttt{cells} y \texttt{neighbors\_} se limpian y se vuelven a llenar en cada
-invocación de \texttt{Grid::rebuild(particles)}, sin liberar ni volver a
-reservar memoria. Esto importa porque el barrido paramétrico ejecuta del orden
-de $10^6$ reconstrucciones.
+\subsection{Búsqueda de vecinos: el CIM reutilizado del TP1}
+\label{sec:cim}
 
-El número de celdas por lado se determina con
-\texttt{maxValidGridM(L, rc)}, que devuelve el mayor entero $M$ tal que el lado
-de celda $L/M$ sea estrictamente mayor que $r_c$:
+La búsqueda de vecinos reutiliza el Cell Index Method desarrollado en el TP1,
+reorganizado en el tipo \texttt{Grid} (\texttt{src/include/grid.h}). La
+diferencia importante respecto de la implementación anterior es que
+\texttt{Grid} es un objeto persistente: sus vectores de celdas y de listas de
+adyacencia se vacían y se vuelven a llenar en cada invocación de
+\texttt{Grid::rebuild(particles)}, sin liberar ni volver a reservar memoria. El
+\texttt{computeCIM} del TP1 reconstruía y reasignaba todos sus buffers en cada
+llamada, algo que no importa cuando la búsqueda se ejecuta una vez pero sí
+cuando el barrido paramétrico completo la ejecuta del orden de $10^6$ veces.
+
+El número de celdas por lado se determina con \texttt{maxValidGridM(L, rc)},
+que devuelve el mayor entero $M$ tal que el lado de celda $L/M$ sea
+estrictamente mayor que $r_c$:
 
 \begin{equation}
   M = \max\left(1,\ m\right),
@@ -385,90 +291,86 @@ de celda $L/M$ sea estrictamente mayor que $r_c$:
   \label{eq:M}
 \end{equation}
 
-Con los valores de este trabajo, $L=10$ y $r_c=1$, el cociente $L/r_c = 10$ es
-entero, de modo que se resta uno y queda $M = 9$, con lado de celda
-$L/M = 10/9 \approx 1{,}11$. La resta es necesaria: con $M=10$ el lado de celda
-sería exactamente $r_c$ y un par de partículas separadas por una distancia
-apenas menor que $r_c$ podría caer en celdas no adyacentes, perdiéndose como
-vecinas.
+Con $L=10$ y $r_c=1$ el cociente $L/r_c$ es entero, de modo que se resta uno y
+queda $M = 9$, con lado de celda $L/M \approx 1{,}11$. La resta es necesaria:
+con $M=10$ el lado de celda sería exactamente $r_c$ y un par de partículas
+separadas por una distancia apenas menor que $r_c$ podría caer en celdas no
+adyacentes y perderse como vecinas.
 
-La condición periódica interviene en dos lugares distintos y separados. Primero,
-en la \emph{indexación}: la celda de una partícula se obtiene con
+La condición periódica interviene en dos lugares separados. En la
+\emph{indexación}, la celda de una partícula se obtiene con
 $\lfloor x/(L/M) \rfloor$ acotado al rango $[0, M-1]$, y los índices de las
-celdas vecinas se cierran sobre el toro con la operación
+celdas vecinas se cierran sobre el toro con
 $\texttt{wrap}(i, M) = ((i \bmod M) + M) \bmod M$, de manera que la última fila
-de celdas es adyacente a la primera. Segundo, en la \emph{distancia}: el
-predicado \texttt{withinRadius} aplica la convención de imagen mínima
+de celdas resulta adyacente a la primera. En la \emph{distancia}, el predicado
+\texttt{withinRadius} aplica la convención de imagen mínima
 $\Delta = d - L\,\mathrm{round}(d/L)$ a cada componente antes de comparar contra
 $r_c^2$. El constructor de \texttt{Grid} exige $L/2 > r_c$, condición que
 garantiza que la imagen mínima sea única. Como $M = 9 \geq 3$, se emplea el
-recorrido de medio vecindario (5 celdas por celda: la propia más las de arriba,
-derecha, arriba-derecha y arriba-izquierda), registrando cada par encontrado en
-las listas de ambas partículas.
+recorrido de medio vecindario, es decir 5 celdas por celda (la propia más las
+de arriba, derecha, arriba-derecha y arriba-izquierda), registrando cada par
+encontrado en las listas de ambas partículas.
 
-\subsection{Actualización sincrónica y reglas de interacción}
+\subsection{Paso temporal: actualización sincrónica}
 \label{sec:step}
 
-La clase \texttt{Simulation} (\texttt{src/engine/simulation.h}) encapsula el
-estado completo de una corrida: el vector de partículas \texttt{particles\_}, la
-grilla persistente \texttt{grid\_}, el buffer auxiliar de orientaciones
-\texttt{thetaNew\_} y el generador \texttt{std::mt19937\_64 rng\_}. Su método
-\texttt{step()} ejecuta el paso sincrónico en dos fases claramente separadas,
-precedidas por la reconstrucción de la grilla:
+El método \texttt{Simulation::step()} ejecuta un paso completo en tres etapas
+claramente separadas:
 
 \begin{enumerate}
-  \item \texttt{grid\_.rebuild(particles\_)} recalcula la lista de adyacencia
-    sobre las posiciones del instante $t$.
-  \item \textbf{Fase 1 (orientaciones).} Para cada partícula se evalúa
-    \texttt{circularMeanHeading} (Ec.~\eqref{eq:vicsek}) o
-    \texttt{voterHeading} (Ec.~\eqref{eq:votante}) según el valor del
+  \item \textbf{Vecinos.} \texttt{grid\_.rebuild(particles\_)} recalcula la
+    lista de adyacencia sobre las posiciones del instante $t$.
+  \item \textbf{Ángulos.} Para cada partícula se evalúa
+    \texttt{circularMeanHeading} (Ec.~\eqref{eq:vicsek}) o \texttt{voterHeading}
+    (Ec.~\eqref{eq:votante}) según el valor del
     \texttt{enum class Model \{ Vicsek, Voter \}} fijado en construcción, y el
     resultado pasa por \texttt{addAngularNoise} (Ec.~\eqref{eq:ruido}). El
-    resultado se deposita en \texttt{thetaNew\_}; el campo \texttt{theta} de
-    \texttt{particles\_} no se escribe en ningún punto de este bucle, de modo
-    que ninguna partícula puede ver una orientación ya actualizada de otra
-    dentro del mismo paso.
-  \item \textbf{Fase 2 (posiciones).} Recién ahora se avanza cada partícula con
-    \texttt{headingToVelocity} sobre la orientación nueva, se aplica
-    \texttt{periodicWrap} y se confirma \texttt{theta}.
+    resultado se deposita en el buffer auxiliar \texttt{thetaNew\_}; el campo
+    \texttt{theta} de las partículas no se escribe en ningún punto de este
+    bucle.
+  \item \textbf{Posiciones.} Recién ahora se avanza cada partícula con la
+    velocidad derivada de su orientación \emph{vieja}
+    (Ec.~\eqref{eq:posicion}), se aplica \texttt{periodicWrap} y se confirma la
+    orientación nueva.
 \end{enumerate}
 
+El doble buffer de la segunda etapa es lo que hace que la actualización sea
+efectivamente sincrónica: ninguna partícula puede ver la orientación ya
+actualizada de otra dentro del mismo paso, y por lo tanto el resultado no
+depende del orden en que se recorra el vector de partículas. Sin esa separación
+las partículas de índice alto verían un estado mezclado y la dinámica dejaría
+de ser la del modelo.
+
 El ruido angular se incorpora a través de una única función compartida,
-\texttt{addAngularNoise}, de modo que ambos modelos usan exactamente la misma
-distribución y el mismo flujo de números aleatorios; la selección del vecino en
+\texttt{addAngularNoise}, de modo que los dos modelos usan exactamente la misma
+distribución y el mismo flujo de números aleatorios. La selección del vecino en
 \texttt{voterHeading} se realiza con una distribución entera uniforme sobre
 $[0, |\mathcal{N}_i|]$, donde el último índice corresponde a la propia
-partícula (auto-voto), lo que mantiene el sorteo bien definido incluso con
-vecindario externo vacío.
+partícula, lo que mantiene el sorteo bien definido incluso con vecindario
+externo vacío.
 
 \subsection{Cálculo de observables}
 \label{sec:calculo-observables}
 
 Los dos observables se calculan en \texttt{src/utils/observables.cpp}.
 \texttt{polarization(particles)} implementa la Ec.~\eqref{eq:polarizacion}
-directamente sobre el vector de partículas.
-\texttt{giantComponentFraction(neighbors)} implementa la
+directamente sobre el vector de partículas. Por su parte,
+\texttt{giantComponentFraction} implementa la
 Ec.~\eqref{eq:componente-gigante} recorriendo en profundidad, con una pila
-explícita y un vector de visitados, la \emph{misma} lista de adyacencia
-\texttt{NeighborList} que produjo el CIM: no vuelve a buscar vecinos ni recurre
-a un cálculo por fuerza bruta, de modo que la definición de cluster coincide
-por construcción con la de vecindad usada por la dinámica.
+explícita y un vector de visitados, la \emph{misma} lista de adyacencia que
+produjo el CIM. No vuelve a buscar vecinos ni recurre a un cálculo por fuerza
+bruta, de modo que la definición de cluster coincide por construcción con la de
+vecindad que usa la dinámica.
 
-Hay, sin embargo, una salvedad sobre el número de reconstrucciones por paso.
-El método \texttt{step()} reconstruye la grilla a partir de las posiciones
-\emph{previas} al paso, que es lo que la regla de interacción necesita; al
-terminar el paso, esa lista queda desactualizada respecto de las posiciones ya
-avanzadas. Para que $S(t)$ y $v_a(t)$ se midan sobre la misma configuración, el
-programa principal invoca \texttt{Simulation::syncNeighbors()}, que ejecuta un
-segundo \texttt{rebuild} sobre las posiciones finales del paso.
-\pregunta{Con el registro escalar activo --- que es el modo en que se ejecuta
-todo el barrido paramétrico --- la grilla se reconstruye dos veces por paso, no
-una: una vez en \texttt{step()} para la dinámica y otra en
-\texttt{syncNeighbors()} para los observables. La lista de adyacencia es la
-misma estructura y el observable de clusters no recalcula vecinos por su
-cuenta, pero el costo del CIM por paso está duplicado respecto de lo que sugiere
-la descripción del motor, y eso afecta directamente la medición del punto (g)
-(Sección~\ref{sec:benchmark}).}
+La lista de adyacencia que deja \texttt{step()} corresponde a las posiciones
+previas al paso, que es lo que la regla de interacción necesita, pero queda
+desactualizada respecto de las posiciones ya avanzadas. Para que $v_a(t)$ y
+$S(t)$ se midan sobre la misma configuración, el programa principal invoca
+\texttt{Simulation::syncNeighbors()}, que ejecuta una segunda reconstrucción
+sobre las posiciones finales del paso. Esa reconstrucción adicional queda
+deliberadamente fuera del cronómetro del CIM, porque es un costo de análisis y
+no una parte del paso de simulación; incluirla duplicaría el tiempo reportado
+en el inciso (g) y volvería incomparable la medición contra el TP1.
 
 \subsection{Formato de salida y módulo de animación}
 \label{sec:salida}
@@ -479,738 +381,894 @@ entre sí:
 \begin{itemize}
   \item \textbf{Trayectoria completa} (\texttt{--out}), generada por
     \texttt{writeTrajectoryFrame}: por cada paso, una línea con el tiempo $t$
-    seguida de $N$ líneas \texttt{x y vx vy}. El formato es autodescriptivo ---
-    las líneas de un solo campo delimitan fotogramas y las de cuatro campos son
-    partículas --- y se escriben las componentes de velocidad ya calculadas, no
-    el ángulo.
+    seguida de $N$ líneas \texttt{x y vx vy}. El formato es autodescriptivo,
+    porque las líneas de un solo campo delimitan fotogramas y las de cuatro
+    campos son partículas, y se escriben las componentes de velocidad ya
+    calculadas en lugar del ángulo.
   \item \textbf{Registro escalar} (\texttt{--scalar-log}): una línea
     \texttt{t va S} por paso. Es el formato que consume el barrido paramétrico,
-    porque volcar la trayectoria completa de $10^3$ corridas de $2000$ pasos
-    sería inmanejable.
+    porque volcar la trayectoria completa de miles de corridas de $2\times10^3$
+    pasos sería inmanejable en disco.
 \end{itemize}
 
 Esta separación cumple el requisito explícito del enunciado: la animación se
-ejecuta como un proceso posterior e independiente
-(\texttt{python/animate.py}) que toma la trayectoria de texto como entrada, de
-modo que la velocidad de reproducción no queda supeditada a la velocidad de la
-simulación. El módulo de animación representa cada partícula como un vector
-velocidad con origen en su posición, coloreado según el ángulo
-$\operatorname{atan2}(v_y, v_x)$ mediante un mapa de color cíclico con límites
-fijos, para que un color dado signifique siempre el mismo ángulo a lo largo de
-toda la animación.
+ejecuta como un proceso posterior e independiente (\texttt{python/animate.py})
+que toma la trayectoria de texto como entrada, de modo que la velocidad de
+reproducción no queda supeditada a la velocidad de la simulación. El módulo de
+animación representa cada partícula como un vector velocidad con origen en su
+posición, coloreado según el ángulo $\operatorname{atan2}(v_y, v_x)$ mediante un
+mapa de color cíclico con límites fijos, para que un color dado signifique
+siempre el mismo ángulo a lo largo de toda la animación.
 
 El resto de la capa de análisis está en \texttt{python/sweep.py} (orquestación
 del barrido y promedios de estado estacionario), \texttt{python/analyze.py}
-(figuras y tabla de $\eta_c$) y \texttt{python/benchmark.py} (comparación de
-tiempos contra TP1).
+(figuras de los incisos b a e) y \texttt{python/benchmark.py} (comparación de
+tiempos contra el TP1 del inciso g).
 
 % ===========================================================================
 \section{Simulaciones}
 \label{sec:simulaciones}
 
-\subsection{Parámetros y geometría}
+\subsection{Sistema simulado y parámetros}
 \label{sec:parametros}
 
 Todas las corridas usan la geometría que impone el enunciado: caja cuadrada de
 lado $L = 10$ con condiciones periódicas de contorno y radio de interacción
-$r_c = 1$. La rapidez es $v_0 = 0{,}03$ y el paso temporal $\Delta t = 1$, de
-modo que en un paso una partícula recorre el $3\%$ de su radio de
-interacción. Todas las magnitudes son adimensionales, sin asociación a unidades
-físicas, siguiendo la convención del enunciado y de la referencia [1].
+$r_c = 1$. La rapidez es $v = 3\times10^{-2}$ y el paso temporal $\Delta t = 1$,
+de modo que en un paso una partícula recorre el $3\%$ de su radio de
+interacción. El único parámetro de entrada del estudio es la amplitud del ruido
+angular $\eta$, que se barre sobre el intervalo completo $[0,\ 2\pi]$.
 
 El número de partículas se deriva de la densidad como $N = \rho L^2$. La
 Tabla~\ref{tab:parametros} resume las combinaciones estudiadas. A las tres
-densidades del enunciado se agregan las tres densidades subcríticas
-$\rho = 1/\pi$, $1/(2\pi)$ y $1/(3\pi)$ que la cátedra indicó considerar
-únicamente para el estudio de clusters.
+densidades del enunciado se agregan tres densidades subcríticas,
+$\rho = 1/\pi$, $1/(2\pi)$ y $1/(3\pi)$, que la cátedra indicó considerar para
+el estudio de clusters. El motivo de esa elección se explica en la
+Sección~\ref{sec:S-eta-vicsek}: el número medio de vecinos geométricos
+$\langle k \rangle = \rho \pi r_c^2$ es el parámetro de control de la
+percolación del grafo de vecinos, y las tres densidades del enunciado caen todas
+muy por encima de su umbral.
 
 \begin{table}[htbp]
   \centering
   \caption{Parámetros de las corridas. Con $L=10$ y $r_c=1$ fijos, la densidad
     determina tanto el número de partículas $N = \rho L^2$ como el número medio
     de vecinos geométricos $\langle k \rangle = \rho \pi r_c^2$. El umbral de
-    percolación continua bidimensional es
-    $\langle k \rangle_c \approx 4{,}51$ [3].}
+    percolación del grafo geométrico aleatorio bidimensional es
+    $\langle k \rangle_c \approx 4{,}51$ [3]. Todos los puntos se corren con
+    $K = 10$ realizaciones independientes.}
   \label{tab:parametros}
-  \begin{tabular}{lccl}
+  \begin{tabular}{lccll}
     \toprule
-    $\rho$ & $N = \rho L^2$ & $\langle k \rangle = \rho \pi r_c^2$ & Uso \\
+    $\rho$ & $N$ & $\langle k \rangle$ & Pasos por corrida & Uso \\
     \midrule
-    8                          & 800 & 25{,}13 & Enunciado (todos los incisos) \\
-    4                          & 400 & 12{,}57 & Enunciado (todos los incisos) \\
-    2                          & 200 & \phantom{0}6{,}28 & Enunciado (todos los incisos) \\
+    8                          & 800 & 25{,}13 & $2\times10^{3}$ & Enunciado (todos los incisos) \\
+    4                          & 400 & 12{,}57 & $2\times10^{3}$ & Enunciado (todos los incisos) \\
+    2                          & 200 & \phantom{0}6{,}28 & $2\times10^{3}$ & Enunciado (todos los incisos) \\
     \midrule
-    \multicolumn{2}{l}{Umbral $\langle k \rangle_c$} & \phantom{0}4{,}51 & --- \\
+    \multicolumn{2}{l}{Umbral $\langle k \rangle_c$ [3]} & \phantom{0}4{,}51 & & \\
     \midrule
-    $1/\pi \approx 0{,}318$    & \phantom{0}32 & \phantom{0}1{,}00 & Estudio de clusters \\
-    $1/(2\pi) \approx 0{,}159$ & \phantom{0}16 & \phantom{0}0{,}50 & Estudio de clusters \\
-    $1/(3\pi) \approx 0{,}106$ & \phantom{0}11 & \phantom{0}0{,}33 & Estudio de clusters \\
+    $1/\pi \approx 0{,}318$    & \phantom{0}32 & \phantom{0}1{,}00 & $1\times10^{4}$ & Estudio de clusters \\
+    $1/(2\pi) \approx 0{,}159$ & \phantom{0}16 & \phantom{0}0{,}50 & $1\times10^{4}$ & Estudio de clusters \\
+    $1/(3\pi) \approx 0{,}106$ & \phantom{0}11 & \phantom{0}0{,}33 & $1\times10^{4}$ & Estudio de clusters \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\pregunta{Con $L=10$ fijo, las densidades del estudio de clusters dan
-$N = 32$, 16 y 11 partículas: un factor $\sim 25$ menos que las del enunciado, y
-con ello efectos de tamaño finito dominantes (con $N=11$ el piso de $v_a$ por
-tamaño finito es $\approx 0{,}30$). Falta confirmar si esa es la intención o si
-para ese estudio se espera agrandar $L$ manteniendo $N$ comparable.}
+La duración de las corridas no es la misma para todas las densidades porque el
+tiempo que el sistema tarda en alcanzar el estado estacionario crece al bajar
+$N$. Midiendo la duración del transitorio con 20 semillas se verificó que a
+$\rho = 2$ el observable ya es estacionario en $t = 10^3$, mientras que a
+$\rho = 1/\pi$ y $1/(3\pi)$ sigue evolucionando hasta $t \sim 4\times10^3$. Por
+eso las densidades del enunciado se corren $2\times10^3$ pasos y las
+subcríticas $1\times10^4$.
 
 La condición inicial se genera con \texttt{generateVicsekParticles}
 (\texttt{src/utils/generator.cpp}): las coordenadas $x$ e $y$ de cada partícula
 se sortean de forma independiente con distribución uniforme en $[0, L)$, y la
 orientación inicial con distribución uniforme en $[-\pi, \pi]$. No se aplica
-ningún criterio de no solapamiento --- a diferencia del generador de TP1 ---
-porque aquí las partículas son puntuales. El sistema parte, entonces, de una
-configuración espacialmente homogénea y direccionalmente isótropa, es decir
-$v_a(0) \approx N^{-1/2}$.
-\pregunta{El programa principal pasa la \emph{misma} semilla al generador de la
-condición inicial y al generador de ruido de \texttt{Simulation}. Son dos
-objetos \texttt{mt19937\_64} distintos, pero inicializados con el mismo estado,
-de modo que la secuencia de números crudos que fija las posiciones iniciales es
-la misma que después alimenta el ruido angular. No invalida los resultados
-(las transformaciones aplicadas difieren), pero introduce una correlación
-innecesaria entre condición inicial y ruido que convendría eliminar sembrando
-ambos generadores por separado.}
+ningún criterio de no solapamiento, a diferencia del generador del TP1, porque
+aquí las partículas son puntuales. El sistema parte entonces de una
+configuración espacialmente homogénea y direccionalmente isótropa.
 
-\subsection{Grilla de ruido y ubicación de la transición}
-\label{sec:grilla-eta}
+\subsection{Observables}
+\label{sec:observables}
 
-La grilla de valores de $\eta$ se construye en dos etapas. La primera es una
-\emph{grilla gruesa} global de 9 puntos equiespaciados en $[0, 2\pi]$, con paso
-$\pi/4 \approx 0{,}785$. Esa resolución basta para describir la forma general de
-la curva pero no para localizar la transición.
+El observable primario es la \emph{polarización}, definida como el módulo de la
+velocidad media normalizado por la rapidez individual:
 
-La segunda etapa refina la grilla dentro del intervalo donde ocurre la
-transición. Ese intervalo se ubica de forma independiente para cada combinación
-(modelo, $\rho$) mediante un barrido exploratorio de baja resolución
-(2 semillas y 500 pasos por punto, sobre la grilla gruesa), buscando el primer
-par de puntos consecutivos entre los cuales la polarización media de estado
-estacionario cruza por debajo del umbral $v_a = 0{,}5$. Dentro del intervalo
-hallado se insertan 8 puntos equiespaciados; la grilla final es la unión
-ordenada y deduplicada de ambos conjuntos, de 15 puntos por combinación.
+\begin{equation}
+  v_a(t) = \frac{1}{N v}
+    \left\| \sum_{i=1}^{N} \vect{v}_i(t) \right\|
+  = \frac{1}{N} \sqrt{
+    \left( \sum_{i=1}^{N} \cos\theta_i(t) \right)^{\!2}
+    + \left( \sum_{i=1}^{N} \sin\theta_i(t) \right)^{\!2} } .
+  \label{eq:polarizacion}
+\end{equation}
 
-De esta construcción sale el valor $\eta = 0{,}1122$ que aparece repetidamente
-en los resultados: para el modelo de votante el barrido exploratorio no detecta
-cruce, porque a 500 pasos el sistema todavía no alcanzó $v_a \geq 0{,}5$ ni
-siquiera en el primer punto de la grilla, y se aplica el retroceso a bajo ruido
-que devuelve el intervalo $[0,\ \pi/4]$. Los 8 puntos finos quedan entonces
-espaciados $(\pi/4)/7 = 0{,}1122$, y ese es el primer valor no nulo de la grilla
-del votante.
+Vale $v_a = 1$ cuando todas las partículas comparten orientación y tiende a $0$
+cuando las orientaciones se distribuyen isotrópicamente. En un sistema finito el
+valor esperado en la fase desordenada no es exactamente cero: como las
+orientaciones son independientes, la suma vectorial es una caminata aleatoria de
+$N$ pasos y por lo tanto $v_a \approx N^{-1/2}$. Ese piso de tamaño finito vale
+$0{,}071$ para $N = 200$ y $0{,}035$ para $N = 800$, y es visible en todas las
+curvas de la Sección~\ref{sec:resultados}.
 
-\pregunta{El paso de la grilla gruesa es $\pi/4 \approx 0{,}785$, pero el ruido
-crítico del votante cae en el rango $0{,}11$--$0{,}22$ (Sección~\ref{sec:chi}),
-es decir por debajo del primer punto no nulo de la grilla gruesa. El barrido
-exploratorio, que sólo dispone de esa grilla, no puede resolver la transición
-del votante: la ubica siempre por retroceso, no por medición. Para caracterizar
-el votante haría falta un barrido específico en $\eta \in [0,\ 0{,}2]$ con paso
-del orden de $0{,}01$.}
+El segundo observable caracteriza la conectividad espacial en lugar del orden
+direccional. Se define un \emph{cluster} como una componente conexa del grafo
+cuyos nodos son las partículas y cuyas aristas unen pares a distancia menor que
+$r_c$, es decir exactamente la relación de vecindad de las
+Ecs.~\eqref{eq:vicsek} y~\eqref{eq:votante}. El observable es la fracción de
+partículas que comprende el cluster más grande:
 
-\subsection{Semillas y reproducibilidad}
-\label{sec:semillas}
+\begin{equation}
+  S(t) = \frac{1}{N} \max_{c \,\in\, \mathcal{C}(t)} |c| ,
+  \label{eq:componente-gigante}
+\end{equation}
 
-Cada punto $(\text{modelo}, \rho, \eta)$ del barrido se corre con $K = 10$
-semillas independientes. La semilla no se toma nunca del reloj: se deriva de
-forma determinística como los 64 bits más significativos de
+donde $\mathcal{C}(t)$ es el conjunto de componentes conexas en el instante $t$.
+Bajo condiciones periódicas un cluster puede cerrarse sobre sí mismo dando la
+vuelta al toro; eso forma parte del fenómeno y no recibe tratamiento especial,
+aunque al visualizarlo el cluster aparezca partido en los bordes de la caja.
+
+\subsection{Grilla de ruido, semillas y realizaciones}
+\label{sec:grilla-semillas}
+
+La grilla de valores de $\eta$ es fija y es la misma para los dos modelos, lo
+que permite que la comparación del inciso (f) sea punto a punto. Está formada
+por una base uniforme de paso $0{,}2$ sobre $[0,\ 2\pi]$, más el extremo
+$2\pi$, más un refinamiento de paso $0{,}05$ sobre $[0,\ 0{,}4]$. El
+refinamiento es necesario porque el modelo de votante colapsa dentro de ese
+intervalo, mientras que la transición de Vicsek cae cerca de $\eta \approx 3$ y
+queda bien cubierta por el paso base. La grilla resultante tiene 39 puntos por
+combinación de modelo y densidad, lo que da un total de 468 puntos de barrido y
+4680 simulaciones.
+
+Cada punto $(\text{modelo}, \rho, \eta)$ se corre con $K = 10$ semillas
+independientes. La semilla no se toma nunca del reloj: se deriva de forma
+determinística como los 64 bits más significativos de
 $\mathrm{sha256}(\text{modelo} \mid \rho \mid \eta \mid k)$, con $k$ el índice
-de repetición y los valores numéricos formateados con precisión fija. La
-función de hash garantiza que dos valores de $\eta$ arbitrariamente próximos
-produzcan semillas sin relación entre sí, evitando correlaciones espurias entre
-puntos vecinos de la curva, y que todo el barrido sea reproducible bit a bit.
+de repetición y los valores numéricos formateados con precisión fija. La función
+de hash garantiza dos cosas. Primero, que dos valores de $\eta$ arbitrariamente
+próximos produzcan semillas sin relación entre sí, lo que evita correlaciones
+espurias entre puntos vecinos de una misma curva. Segundo, que todo el barrido
+sea reproducible bit a bit.
 
-Cada corrida del barrido consta de 2000 pasos. Las barras de error de todas las
-figuras son el desvío estándar de las $K = 10$ medias de estado estacionario, una
-por semilla; es decir, cuantifican la incerteza de la media, no la amplitud de
-la fluctuación temporal del observable dentro de una corrida.
-\pregunta{La fluctuación temporal de $v_a(t)$ dentro del estado estacionario de
-una sola corrida es cerca de diez veces mayor que el desvío entre semillas que
-se grafica (medido en Vicsek, $\rho=2$, $\eta=2{,}356$: $\approx 0{,}12$ contra
-$0{,}014$). Hay que confirmar cuál de las dos magnitudes se espera como barra de
-error, y si $K=10$ alcanza en la región de transición, donde la dispersión entre
-semillas es mayor.}
+Las barras de error de todas las figuras de esta sección son el desvío estándar
+de las $K = 10$ medias de estado estacionario, una por semilla. Cuantifican por
+lo tanto la dispersión entre realizaciones independientes y no la amplitud de la
+fluctuación temporal del observable dentro de una corrida, que es una magnitud
+distinta y bastante mayor.
 
 \subsection{Criterio de estado estacionario}
 \label{sec:estacionario}
 
 El valor escalar de cada observable se obtiene promediando su serie temporal
 sobre una ventana de estado estacionario. El inicio de esa ventana no es una
-fracción fija de la corrida: se \emph{mide} para cada punto de barrido
-$(\text{modelo}, \rho, \eta)$ y para cada observable, porque la duración del
-transitorio depende fuertemente del ruido. A $\eta$ grande el sistema nace ya
-desordenado y el estacionario arranca en $t = 0$; a $\eta$ chico la
-polarización tarda $\sim 10^2$ pasos en alcanzar su meseta.
+fracción fija de la corrida sino que se mide para cada punto de barrido y para
+cada observable por separado, porque la duración del transitorio depende
+fuertemente del ruido. A $\eta$ grande el sistema nace ya desordenado y el
+estacionario arranca en $t = 0$; a $\eta$ chico la polarización tarda del orden
+de $10^2$ pasos en alcanzar su meseta.
 
 El criterio, idéntico para $v_a$ y para $S$, es el siguiente. Las $K$ series de
-un punto de barrido se promedian punto a punto: el promedio de ensamble cancela
-las fluctuaciones lentas de una corrida individual ---que no son transitorio,
-porque la serie se aparta y vuelve al mismo valor--- y deja sólo la relajación
-sistemática desde la condición inicial. Esa curva se parte en 40 bloques; la
-meseta se estima con los bloques de la segunda mitad, estacionaria por
-construcción, y se define una banda de tolerancia
+un punto de barrido se promedian punto a punto. El promedio de ensamble cancela
+las fluctuaciones lentas de una corrida individual, que no son transitorio
+porque la serie se aparta y vuelve al mismo valor, y deja sólo la relajación
+sistemática desde la condición inicial. Esa curva promedio se parte en 40
+bloques; la meseta se estima con los bloques de la segunda mitad, estacionaria
+por construcción, y se define una banda de tolerancia
 $\max(0{,}05\,|\mu|,\ 3\sigma)$ alrededor de su valor medio $\mu$, con $\sigma$
 la dispersión entre esos bloques. El inicio del estacionario es el final del
 último bloque que se sale de la banda, es decir el primer instante a partir del
 cual la curva ya no vuelve a apartarse. El resultado queda acotado a la primera
 mitad de la corrida: si la serie no muestra una meseta limpia, el criterio
-degrada al corte conservador del $50\%$ en vez de devolver una ventana
+degrada al corte conservador del $50\%$ en lugar de devolver una ventana
 optimista.
 
 Los cortes se persisten en \texttt{data/sweep/steady\_state.csv} y son los
-mismos que dibujan las líneas verticales de las figuras de evolución temporal,
-de modo que cada figura muestra literalmente la ventana sobre la que se
-promedió. Para las densidades del enunciado la mediana de los cortes de $v_a$
-es de $10^2$ pasos, contra los $1000$ que imponía la convención fija anterior:
-el criterio medido recupera para la estadística la parte de la corrida que el
-corte fijo descartaba. Los valores medios cambian poco al hacerlo
-($\max|\Delta v_a| = 0{,}04$ sobre los 468 puntos del barrido), como
-corresponde a dos cortes que caen ambos dentro del estacionario, pero la
-ventana de promediado resulta entre dos y cinco veces más larga.
+mismos que dibujan las líneas verticales de las figuras de evolución temporal de
+la Sección~\ref{sec:resultados}, de modo que cada una de esas figuras muestra
+literalmente la ventana sobre la que se promedió.
 
 % ===========================================================================
 \section{Resultados}
 \label{sec:resultados}
 
 Las subsecciones que siguen corresponden a los incisos del enunciado del
-siguiente modo: la Sección~\ref{sec:animaciones} al inciso (a), la
-Sección~\ref{sec:va-t} al inciso (b), la Sección~\ref{sec:va-eta} al inciso (c),
-la Sección~\ref{sec:clusters} al inciso (d), la Sección~\ref{sec:va-vs-S} al
-inciso (e) y la Sección~\ref{sec:benchmark} al inciso (g); la
-Sección~\ref{sec:chi} presenta un análisis complementario de susceptibilidad no
-solicitado explícitamente. El inciso (f) no tiene subsección propia: se resuelve
-superponiendo ambos modelos de interacción en todas las figuras de las
-Secciones~\ref{sec:va-t} a~\ref{sec:va-vs-S}.
+siguiente modo. La Sección~\ref{sec:vicsek} desarrolla los incisos (a) a (d)
+para el modelo estándar y la Sección~\ref{sec:votante} los repite para el
+modelo de votante, que es la primera mitad del inciso (f). La
+Sección~\ref{sec:comparacion} resuelve la segunda mitad del inciso (f)
+superponiendo ambos modelos en las figuras de los incisos (c) y (d). La
+Sección~\ref{sec:va-vs-S} corresponde al inciso (e) y la
+Sección~\ref{sec:benchmark} al inciso (g).
 
-\subsection{Animaciones características}
-\label{sec:animaciones}
+\subsection{Modelo de Vicsek}
+\label{sec:vicsek}
 
-La Fig.~\ref{fig:frames} muestra un fotograma representativo de la dinámica
-simulada para cada modelo a $\rho = 2$. Las animaciones completas se generaron
-con el módulo independiente de Python a partir de las trayectorias en texto
-plano que escribe el motor. En el fotograma de Vicsek se aprecia la
-correlación direccional de largo alcance característica de la fase ordenada:
-regiones extensas de flechas casi paralelas, del mismo color. En el del votante,
-en cambio, la orientación varía apreciablemente entre partículas próximas,
-reflejando que la copia de un único vecino no promedia el ruido.
+\subsubsection{Animaciones características (inciso a)}
+\label{sec:animacion-vicsek}
+
+La Fig.~\ref{fig:frames-vicsek} muestra un fotograma de cada una de las dos
+animaciones características del modelo de Vicsek, ambas a $\rho = 2$. Los dos
+niveles de ruido no se eligieron a ojo sino sobre el $v_a(\eta)$ ya medido: el
+caso ordenado es el mayor $\eta$ de la grilla que todavía cumple
+$v_a \geq 0{,}9$ y el desordenado es el menor que ya cumple
+$v_a \leq 0{,}2$.
+
+El contraste entre los dos paneles es directo. A $\eta = 1{,}0$ el color es casi
+uniforme sobre toda la caja, lo que significa que las velocidades comparten
+orientación y que la bandada se desplaza como un bloque; se aprecian además las
+regiones de densidad no homogénea, con zonas densas y zonas prácticamente
+vacías, características de la fase ordenada. A $\eta = 4{,}0$ los colores están
+completamente mezclados a escala de unos pocos radios de interacción, es decir
+que cada partícula se mueve en una dirección esencialmente independiente de la
+de sus vecinas.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.47\textwidth]{frame_vicsek_rho2.png}
+  \includegraphics[width=0.44\textwidth]{frame_vicsek_rho2_ordenado.png}
   \hfill
-  \includegraphics[width=0.47\textwidth]{frame_voter_rho2.png}
-  \caption{Fotograma característico de las animaciones, $\rho = 2$
-    ($N = 200$), $L = 10$, $r_c = 1$, $v_0 = 0{,}03$, semilla única
-    (no promediado). Izquierda: modelo de Vicsek, $\eta = 2{,}474$, $t = 700$.
-    Derecha: modelo de votante, $\eta = 0{,}393$, $t = 500$. Cada flecha
-    representa la velocidad instantánea de una partícula, con origen en su
-    posición y color asignado según el ángulo
-    $\operatorname{atan2}(v_y, v_x)$.}
-  \label{fig:frames}
+  \includegraphics[width=0.44\textwidth]{frame_vicsek_rho2_desordenado.png}
+  \caption{Fotogramas de las animaciones características del modelo de Vicsek
+    en $t = 850$, para $\rho = 2$ ($N = 200$), $L = 10$, $r_c = 1$,
+    $v = 3\times10^{-2}$, $\Delta t = 1$, corrida única de $1\times10^{3}$
+    pasos. Izquierda: $\eta = 1{,}0$, fase ordenada. Derecha: $\eta = 4{,}0$,
+    fase desordenada. Cada flecha representa la velocidad instantánea de una
+    partícula, con origen en su posición y color asignado según el ángulo
+    $\operatorname{atan2}(v_y, v_x)$ mediante un mapa cíclico de límites fijos.}
+  \label{fig:frames-vicsek}
 \end{figure}
 
-\pregunta{Los valores de $\eta$ de la Fig.~\ref{fig:frames} se obtuvieron
-reconstruyendo el intervalo de transición que usa \texttt{python/animate.py}
-($\eta_{\text{low}} + \text{sesgo}\,(\eta_{\text{high}}-\eta_{\text{low}})$, con
-sesgo $0{,}15$ para Vicsek y $0{,}5$ para el votante). Hay que verificarlos
-contra la salida real del script antes de la entrega, porque el intervalo se
-recalcula en cada ejecución.}
+Las animaciones completas de las que provienen los dos fotogramas están
+disponibles en \urlvicsekord\ (caso ordenado) y en \urlvicsekdes\ (caso
+desordenado).
 
-\pregunta{El enunciado pide animaciones ``para pocas situaciones
-características''. Actualmente hay una sola por modelo, ambas a $\rho=2$ y
-ambas dentro del intervalo de transición: falta el contraste entre un caso
-claramente ordenado ($\eta \approx 0$) y uno claramente desordenado
-($\eta \approx 2\pi$), que es lo que hace legible la transición en una
-animación. Faltan también animaciones a las otras densidades.}
-
-\pregunta{Los enlaces a los videos de las animaciones no están publicados. Hay
-que subir \texttt{data/plots/animation\_vicsek\_rho2.gif} y
-\texttt{animation\_voter\_rho2.gif} y reemplazar este marcador por las URL
-definitivas, tanto en el informe como en la presentación (que debe llevarlos
-como enlaces explícitos, sin animaciones embebidas).}
-
-\subsection{Evolución temporal de \texorpdfstring{$v_a$}{va} y criterio de medición}
-\label{sec:va-t}
+\subsubsection{Evolución temporal de la polarización (inciso b)}
+\label{sec:va-t-vicsek}
 
 Antes de reducir cada corrida a un escalar es necesario verificar que la ventana
-de promediado cae efectivamente en el estado estacionario. Las
-Figs.~\ref{fig:va-t-vicsek} y~\ref{fig:va-t-voter} muestran la evolución
-temporal de $v_a$ para una corrida característica de cada modelo a $\rho = 2$,
-con una línea vertical por nivel de ruido, del color de su curva, que marca el
-inicio de la ventana de medición correspondiente.
+de promediado cae efectivamente en el estado estacionario. La
+Fig.~\ref{fig:va-t-vicsek} muestra la evolución temporal de $v_a$ para una
+corrida a $\rho = 2$ con tres niveles de ruido superpuestos, con una línea
+vertical por curva que marca el inicio de la ventana de medición devuelta por el
+criterio de la Sección~\ref{sec:estacionario}.
 
-En el modelo de Vicsek, $v_a(t)$ crece de forma monótona y suave desde la
-condición inicial desordenada --- medida sobre las diez semillas,
-$v_a(0)$ va de $0{,}044$ a $0{,}101$, consistente con el piso de tamaño finito
-$N^{-1/2} = 0{,}071$ --- y alcanza $v_a \geq 0{,}8$ entre los pasos $39$ y
-$160$ según la semilla. En el modelo de votante la convergencia es notoriamente
-más lenta y más ruidosa --- consistente con un proceso de engrosamiento
-(\textit{coarsening}) por copia local en lugar de un promediado global ---, y el
-mismo umbral se alcanza recién entre los pasos $114$ y $827$ según la semilla.
-Una vez dentro de la ventana, ambas series fluctúan en torno a un valor estable
-sin tendencia apreciable, y es ese promedio el que se reporta como valor escalar
-del observable en las secciones siguientes.
+Las tres curvas arrancan del mismo valor, del orden de $0{,}07$, que es el
+esperado para $N = 200$ partículas con orientaciones al azar. A partir de ahí el
+comportamiento depende del ruido. A $\eta = 1{,}00$ la polarización crece de
+forma monótona y rápida y se estabiliza en torno a $0{,}92$ en menos de $200$
+pasos. A $\eta = 2{,}80$, cerca de la transición, la serie tarda un tiempo
+comparable en llegar a su meseta pero fluctúa con una amplitud mucho mayor, del
+orden de $0{,}2$, que es el comportamiento esperado en la región crítica. A
+$\eta = 4{,}00$ no hay transitorio que descartar: el sistema nace desordenado y
+permanece así, fluctuando alrededor de $0{,}15$.
 
-Esa diferencia entre modelos es exactamente la razón por la que el corte se
-mide punto a punto en lugar de fijarse de antemano. A $\rho = 2$ los cortes de
-$v_a$ que devuelve el criterio de la Sección~\ref{sec:estacionario} tienen
-mediana $150$ en Vicsek y $50$ en el votante, y van desde $0$ ---en la zona
-desordenada no hay transitorio que descartar, el sistema nace en su estado
-estacionario--- hasta el tope de $1000$ en los pocos puntos donde la
-fluctuación es tan grande que el criterio no llega a identificar una meseta
-limpia y degrada al corte conservador. Un corte fijo tendría que haber valido el
-peor de todos esos casos para ser seguro, y así descarta la mitad de la corrida
-también en la gran mayoría de los puntos donde no hacía falta.
+Esa dependencia del transitorio con el ruido es exactamente el motivo por el
+cual el corte se mide punto a punto en lugar de fijarse de antemano. Un corte
+fijo tendría que haber valido para el peor de los casos, y descartaría la mitad
+de la corrida también en la mayoría de los puntos donde no hace falta. El
+escalar que se reporta en las secciones siguientes es el promedio de la serie
+sobre la ventana que marcan esas líneas verticales.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.72\textwidth]{va_t_vicsek_rho2.png}
-  \caption{Evolución temporal de la polarización $v_a$, modelo de Vicsek,
-    $\rho = 2$ ($N = 200$), $L = 10$, $r_c = 1$, $v_0 = 0{,}03$, 2000 pasos,
-    una semilla del conjunto de $K = 10$ del barrido. Tres niveles de ruido
-    superpuestos: ordenado, cerca de la transición y desordenado. Cada línea
-    vertical punteada, del color de su curva, marca el inicio de la ventana de
-    estado estacionario medida para ese ruido
-    (Sección~\ref{sec:estacionario}).}
+  \includegraphics[width=0.78\textwidth]{va_t_vicsek_rho2.png}
+  \caption{Evolución temporal de la polarización $v_a$ para el modelo de
+    Vicsek, con tres niveles de ruido superpuestos. Parámetros: $\rho = 2$
+    ($N = 200$), $L = 10$, $r_c = 1$, $v = 3\times10^{-2}$, $\Delta t = 1$,
+    $2\times10^{3}$ pasos, una realización del conjunto de $K = 10$ del
+    barrido. Cada línea vertical punteada, del color de su curva, marca el
+    inicio de la ventana de estado estacionario medida para ese ruido según el
+    criterio de la Sección~\ref{sec:estacionario}. Los valores escalares que se
+    reportan en las figuras siguientes son promedios sobre esas ventanas.}
   \label{fig:va-t-vicsek}
 \end{figure}
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.72\textwidth]{va_t_voter_rho2.png}
-  \caption{Evolución temporal de la polarización $v_a$, modelo de votante,
-    $\rho = 2$ ($N = 200$), $L = 10$, $r_c = 1$, $v_0 = 0{,}03$, 2000 pasos,
-    una semilla del conjunto de $K = 10$ del barrido, con los mismos tres
-    niveles de ruido y el mismo criterio de corte que la
-    Fig.~\ref{fig:va-t-vicsek}. Los valores de $\eta$ son mucho menores que en
-    Vicsek: la región ordenada del votante es un orden de magnitud más angosta.}
-  \label{fig:va-t-voter}
-\end{figure}
+\subsubsection{Polarización en función del ruido (inciso c)}
+\label{sec:va-eta-vicsek}
 
-Las dos figuras están a valores de $\eta$ distintos a propósito. La grilla de
-ruido es la misma para los dos modelos (Sección~\ref{sec:grilla-eta}), pero los tres
-niveles que se grafican se eligen por modelo a partir del $v_a$ medido ---el
-mayor $\eta$ todavía ordenado, el más cercano a $v_a = 0{,}5$ y el menor ya
-desordenado---, de modo que cada figura muestre la transición del modelo que
-ilustra. La comparación punto a punto entre modelos es la de la
-Sección~\ref{sec:va-eta}, sobre la grilla completa.
+La Fig.~\ref{fig:va-eta-vicsek} presenta la polarización media de estado
+estacionario en función del ruido, para las tres densidades del enunciado. Las
+tres curvas parten de $v_a \approx 1$ en $\eta = 0$, decaen de forma monótona y
+saturan en el piso de tamaño finito, que vale $0{,}063$, $0{,}044$ y $0{,}031$
+para $N = 200$, $400$ y $800$ respectivamente. Esos valores medidos están todos
+alrededor de un $12\%$ por debajo de la predicción $N^{-1/2}$ de la
+Sección~\ref{sec:observables}, con la misma proporción en las tres densidades,
+lo que confirma que la saturación es un efecto de tamaño finito y no un
+residuo de orden.
 
-\subsection{Polarización en función del ruido}
-\label{sec:va-eta}
+El resultado central de esta figura es que la curva se corre sistemáticamente
+hacia la derecha al aumentar la densidad, es decir que el sistema tolera más
+ruido cuanto más denso es. Tomando como referencia operativa el cruce por
+$v_a = 0{,}5$, obtenido por interpolación lineal entre los dos puntos
+consecutivos de la grilla que lo encierran, el cruce pasa de $\eta = 2{,}85$ en
+$\rho = 2$ a $\eta = 3{,}19$ en $\rho = 4$ y a $\eta = 3{,}44$ en $\rho = 8$
+(Tabla~\ref{tab:cruce}). La explicación es la anticipada en la
+Sección~\ref{sec:modelo-matematico}: al aumentar la densidad aumenta
+$\langle k \rangle$, el promedio circular de la Ec.~\eqref{eq:vicsek} se toma
+sobre más orientaciones independientes y atenúa mejor el ruido individual, de
+modo que hace falta más $\eta$ para destruir el orden.
 
-La Fig.~\ref{fig:va-eta} presenta la polarización media de estado estacionario
-en función del ruido, para las tres densidades del enunciado y ambos modelos
-superpuestos. Ambas familias de curvas parten de $v_a \approx 1$ en $\eta = 0$ y
-decaen hacia el piso de tamaño finito al aumentar el ruido, pero con formas
-netamente distintas.
-
-El modelo de Vicsek sostiene $v_a > 0{,}95$ hasta $\eta \approx 0{,}79$ y decae
-después de manera gradual, cruzando $v_a = 0{,}5$ en torno a
-$\eta \approx 2{,}6$ para $\rho = 2$, $\eta \approx 3{,}1$ para $\rho = 4$ y
-$\eta \approx 3{,}5$ para $\rho = 8$. El desplazamiento sistemático de la curva
-hacia la derecha al aumentar la densidad es la firma esperada del mecanismo de
-alineación: con más vecinos, el promedio circular de la Ec.~\eqref{eq:vicsek}
-atenúa mejor el ruido individual y hace falta más $\eta$ para destruir el orden.
-
-El modelo de votante colapsa mucho antes. A $\rho = 2$ la polarización ya cae de
-$1{,}00$ a $0{,}82$ con sólo $\eta = 0{,}11$ y a $0{,}60$ con $\eta = 0{,}22$,
-mientras que Vicsek a ese mismo ruido permanece indistinguible de $1$. Para
-$\eta \geq 1$ el votante está desordenado en las tres densidades. La
-comparación cuantifica lo anticipado en la Sección~\ref{sec:reglas}: copiar la
-orientación de un único vecino transmite el ruido íntegro, mientras que
-promediar sobre $\langle k \rangle$ vecinos lo atenúa. Nótese además que a
-$\eta = 0$ el votante ya no alcanza $v_a = 1$ para $\rho = 4$ y $\rho = 8$
-($0{,}96$ y $0{,}91$ respectivamente, con desvíos de $0{,}03$ y $0{,}18$): sin
-ruido alguno, el engrosamiento por copia local no llega a consensuar una única
-orientación en 2000 pasos para los sistemas más grandes.
+Las barras de error son pequeñas en los extremos de la curva y crecen en la
+región de transición, donde alcanzan $\pm 0{,}04$ para $\rho = 2$. Ese
+comportamiento es el esperado: es cerca del punto crítico donde el sistema
+fluctúa más y donde dos realizaciones con la misma configuración de parámetros
+pueden terminar en estados apreciablemente distintos.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.82\textwidth]{va_eta_comparacion.png}
+  \includegraphics[width=0.78\textwidth]{va_eta_vicsek.png}
   \caption{Polarización media de estado estacionario $v_a$ en función de la
-    amplitud del ruido angular $\eta$, para $\rho \in \{2, 4, 8\}$
-    ($N = 200$, 400 y 800) y ambos modelos de interacción (Vicsek: línea
-    sólida; votante: línea de trazos). Parámetros comunes: $L = 10$,
-    $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$, 2000 pasos por corrida,
-    promedio sobre la ventana de estado estacionario medida para cada punto
-    (Sección~\ref{sec:estacionario}). Barras de error: desvío estándar entre
-    $K = 10$ semillas independientes por punto.}
-  \label{fig:va-eta}
-\end{figure}
-
-\subsection{Análisis de clusters}
-\label{sec:clusters}
-
-\subsubsection{Evolución temporal de \texorpdfstring{$S$}{S}}
-\label{sec:S-t}
-
-La Fig.~\ref{fig:S-t} muestra la evolución temporal de la fracción del cluster
-gigante para las tres densidades del enunciado y ambos modelos. El
-comportamiento es cualitativamente distinto del de $v_a$: mientras la
-polarización parte de un valor bajo y crece durante un transitorio apreciable,
-$S$ ya vale prácticamente $1$ en la condición inicial ($S(0)$ entre $0{,}985$ y
-$1{,}000$ en las seis series) y se mantiene allí durante toda la corrida. Es
-decir, no hay transitorio de conectividad que medir, y la ventana de estado
-estacionario es en este caso una formalidad. A $\rho = 8$ la serie de Vicsek
-vale exactamente $1$ en los 2000 pasos y la del votante no baja de $0{,}999$; a
-$\rho = 4$ las excursiones mínimas son $0{,}975$ y $0{,}995$. Sólo a
-$\rho = 2$ --- la única de las tres densidades cuyo $\langle k \rangle$ se
-acerca al umbral de percolación --- las fluctuaciones son visibles: $S$ baja
-puntualmente a $0{,}960$ en Vicsek y a $0{,}900$ en el votante, es decir hasta
-unas 20 de las 200 partículas transitoriamente fuera del cluster principal.
-Ni siquiera en ese caso la red llega a fragmentarse en dos componentes
-comparables.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.32\textwidth]{S_t_vicsek_rho2.png}\hfill
-  \includegraphics[width=0.32\textwidth]{S_t_vicsek_rho4.png}\hfill
-  \includegraphics[width=0.32\textwidth]{S_t_vicsek_rho8.png}
-
-  \vspace{0.35cm}
-
-  \includegraphics[width=0.32\textwidth]{S_t_voter_rho2.png}\hfill
-  \includegraphics[width=0.32\textwidth]{S_t_voter_rho4.png}\hfill
-  \includegraphics[width=0.32\textwidth]{S_t_voter_rho8.png}
-  \caption{Evolución temporal de la fracción del cluster gigante $S$ para las
-    tres densidades del enunciado. Fila superior: modelo de Vicsek,
-    $\eta = 0{,}7854$. Fila inferior: modelo de votante, $\eta = 0{,}1122$.
-    Columnas, de izquierda a derecha: $\rho = 2$ ($N = 200$), $\rho = 4$
-    ($N = 400$) y $\rho = 8$ ($N = 800$). Parámetros comunes: $L = 10$,
-    $r_c = 1$, $v_0 = 0{,}03$, 2000 pasos, una semilla del conjunto de $K = 10$
-    del barrido. Cada línea vertical punteada marca el inicio de la ventana de
-    estado estacionario, medido por nivel de ruido.}
-  \label{fig:S-t}
-\end{figure}
-
-\pregunta{Las seis series de la Fig.~\ref{fig:S-t} son de una única semilla, no
-el promedio de las $K=10$, y cada fila está a un $\eta$ distinto (heredado del
-mismo criterio de selección que las Figs.~\ref{fig:va-t-vicsek}
-y~\ref{fig:va-t-voter}), de modo que la comparación entre modelos que pide el
-inciso (f) tampoco es limpia acá. Conviene rehacerlas a un $\eta$ común y con
-la media sobre semillas.}
-
-\subsubsection{\texorpdfstring{$S$}{S} en el estacionario en función de \texorpdfstring{$\eta$}{eta}}
-\label{sec:S-eta}
-
-La Fig.~\ref{fig:S-eta} presenta el valor medio de $S$ en el estado estacionario
-en función del ruido, con el mismo procedimiento aplicado a $v_a$ en la
-Sección~\ref{sec:va-eta}. El panel izquierdo corresponde a las tres densidades
-del enunciado y el derecho a las tres densidades subcríticas del estudio de
-clusters.
-
-En el panel izquierdo, $S$ se mantiene por encima de $0{,}96$ en todo el rango
-de $\eta$, para los dos modelos y las tres densidades, y a $\rho = 8$ es
-indistinguible de $1$ en toda la curva. El observable es, en ese régimen,
-prácticamente degenerado: no distingue la fase ordenada de la desordenada. Lo
-único que se aprecia es una depresión leve y no monótona en $\rho = 2$, donde
-$S$ baja de $1{,}000$ en $\eta = 0$ hasta un mínimo de $0{,}960$ alrededor de
-$\eta \approx 3{,}1$ --- es decir, cerca del ruido crítico de Vicsek --- y luego
-vuelve a subir hasta $0{,}995$ a ruido máximo. Esa forma es coherente con la
-interpretación geométrica: a ruido alto las partículas se distribuyen de manera
-casi uniforme, y a densidad supercrítica una distribución uniforme percola
-igual de bien que una bandada compacta.
-
-En el panel derecho, en cambio, el observable sí discrimina. A densidades
-subcríticas la red de vecinos de una configuración uniforme \emph{no} percola,
-de modo que toda componente gigante que aparezca es producto del agrupamiento
-dinámico: a ruido bajo las partículas se alinean, se juntan y forman un único
-cluster; al aumentar $\eta$ la bandada se disgrega y $S$ cae hacia el valor
-residual de unas pocas partículas por cluster.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{S_eta.png}
-  \caption{Fracción media del cluster gigante $S$ en el estado estacionario en
-    función del ruido angular $\eta$, con ambos modelos superpuestos (Vicsek:
-    línea sólida; votante: línea de trazos). Panel izquierdo: densidades del
-    enunciado, $\rho \in \{2, 4, 8\}$ ($N = 200$, 400, 800), régimen
-    supercrítico ($\langle k \rangle > 4{,}51$). Panel derecho: densidades del
-    estudio de clusters, $\rho \in \{1/\pi,\ 1/(2\pi),\ 1/(3\pi)\}$
-    ($N = 32$, 16, 11), régimen subcrítico. Parámetros comunes: $L = 10$,
-    $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$, 2000 pasos, promedio sobre el
+    amplitud del ruido angular $\eta$, para el modelo de Vicsek y las tres
+    densidades del enunciado, $\rho = 2$, 4 y 8 ($N = 200$, 400 y 800).
+    Parámetros comunes: $L = 10$, $r_c = 1$, $v = 3\times10^{-2}$,
+    $\Delta t = 1$, $2\times10^{3}$ pasos por corrida, promedio sobre la
     ventana de estado estacionario medida para cada punto. Barras de error:
-    desvío estándar entre $K = 10$ semillas.}
-  \label{fig:S-eta}
+    desvío estándar entre $K = 10$ realizaciones independientes por punto.}
+  \label{fig:va-eta-vicsek}
 \end{figure}
 
-\subsubsection{Régimen subcrítico y umbral de percolación}
-\label{sec:percolacion}
+\subsubsection{Evolución temporal de la componente gigante (inciso d)}
+\label{sec:S-t-vicsek}
 
-La degeneración de $S$ observada en el panel izquierdo de la
-Fig.~\ref{fig:S-eta} admite una explicación puramente geométrica. Para
-partículas distribuidas al azar con densidad $\rho$ y radio de conexión $r_c$,
-el número medio de vecinos es $\langle k \rangle = \rho \pi r_c^2$, y ese es
-exactamente el parámetro de control de la percolación del grafo geométrico
-aleatorio bidimensional. Su umbral es $\langle k \rangle_c \approx 4{,}51$ [3],
-valor que equivale --- por el factor 4 que introduce trabajar con discos de
-radio $r_c/2$ en lugar de $r_c$ --- al umbral clásico de discos totalmente
-penetrables. Como muestra la Tabla~\ref{tab:parametros}, las tres densidades del
-enunciado dan $\langle k \rangle = 6{,}28$, $12{,}57$ y $25{,}13$: todas por
-encima del umbral, de modo que la red percola antes incluso de considerar la
-dinámica de alineación. Las tres densidades del estudio de clusters, en cambio,
-dan $\langle k \rangle = 1{,}00$, $0{,}50$ y $0{,}33$, holgadamente por debajo.
+La Fig.~\ref{fig:S-t-vicsek} muestra la evolución temporal de la fracción del
+cluster gigante, con el mismo formato que la Fig.~\ref{fig:va-t-vicsek} pero a
+$\rho = 1/\pi$ ($N = 32$). La densidad es distinta a propósito: en las tres
+densidades del enunciado la serie $S(t)$ es prácticamente una recta en $1$,
+porque $S$ ya vale casi exactamente $1$ en la condición inicial y se mantiene
+allí durante toda la corrida, de modo que no hay transitorio de conectividad que
+mostrar. El motivo de esa degeneración se explica en la
+Sección~\ref{sec:S-eta-vicsek}.
 
-\pregunta{El valor $\langle k \rangle_c \approx 4{,}51$ se cita aquí como [3]
-(Quintanilla y Ziff, 2007), pero no se verificó contra el trabajo original: hay
-que confirmar el número, la forma exacta en que la fuente lo expresa (umbral en
-fracción de área, en densidad reducida o en número medio de vecinos) y la
-equivalencia por el factor 4 que se afirma en el texto.}
-
-Para contrastar empíricamente esa predicción se ejecutó un barrido
-complementario en densidad, a ruido nulo, cubriendo el umbral analítico
-$\rho_c = \langle k \rangle_c / (\pi r_c^2) \approx 1{,}44$. El resultado es la
-Fig.~\ref{fig:S-rho}, y no reproduce la transición esperada: $S$ se mantiene
-entre $0{,}67$ y $1{,}00$ en todo el rango barrido, sin caída apreciable por
-debajo de $\rho_c$, con una dispersión entre semillas que crece mucho al bajar
-la densidad (hasta $\pm 0{,}15$ a $\rho = 0{,}15$, donde $N = 15$). El motivo
-se discute a continuación: la figura no mide lo que su ruido nulo sugiere.
+A $\rho = 1/\pi$ sí hay dinámica. La serie es escalonada porque con $N = 32$ una
+sola partícula que entra o sale del cluster mueve $S$ en $1/32 \approx 0{,}03$,
+y las tres curvas parten del mismo valor bajo, entre $0{,}2$ y $0{,}3$, que
+corresponde a la configuración uniforme inicial. A $\eta = 0{,}60$ la
+polarización agrupa a las partículas y $S$ crece hasta fluctuar en torno a
+$0{,}9$; a $\eta = 4{,}00$ la red queda fragmentada y $S$ se mantiene alrededor
+de $0{,}3$. La amplitud de la fluctuación es considerable en los tres casos, lo
+que justifica que las corridas subcríticas sean cinco veces más largas que las
+del enunciado: sobre $1\times10^4$ pasos la ventana de promediado contiene
+suficientes excursiones como para que la media sea representativa.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.82\textwidth]{S_rho.png}
+  \includegraphics[width=0.78\textwidth]{S_t_vicsek_rho1_pi.png}
+  \caption{Evolución temporal de la fracción del cluster gigante $S$ para el
+    modelo de Vicsek, con tres niveles de ruido superpuestos. Parámetros:
+    $\rho = 1/\pi$ ($N = 32$), $L = 10$, $r_c = 1$, $v = 3\times10^{-2}$,
+    $\Delta t = 1$, $1\times10^{4}$ pasos, una realización del conjunto de
+    $K = 10$ del barrido. Las líneas verticales punteadas marcan el inicio de
+    la ventana de estado estacionario medida para cada ruido. Se muestra una
+    densidad subcrítica porque a $\rho = 2$, 4 y 8 la serie vale $S \approx 1$
+    en todo el rango de tiempo y no exhibe transitorio.}
+  \label{fig:S-t-vicsek}
+\end{figure}
+
+\subsubsection{Componente gigante en función del ruido (inciso d)}
+\label{sec:S-eta-vicsek}
+
+La Fig.~\ref{fig:S-eta-vicsek} presenta el valor medio de $S$ en el estado
+estacionario en función del ruido, con el mismo procedimiento que se aplicó a
+$v_a$ en la Sección~\ref{sec:va-eta-vicsek}, para las seis densidades de la
+Tabla~\ref{tab:parametros}. Las dos familias de curvas se comportan de manera
+completamente distinta.
+
+En las tres densidades del enunciado el observable está degenerado. A $\rho = 8$
+la curva es indistinguible de $1$ en todo el rango de ruido y a $\rho = 4$ no
+baja de $0{,}99$. Sólo a $\rho = 2$ hay estructura visible, y aun así es leve:
+$S$ baja desde $1{,}000$ en $\eta = 0$ hasta un mínimo de $0{,}921$ en
+$\eta \approx 3{,}4$ y luego vuelve a subir hasta $0{,}993$ a ruido máximo, es
+decir que la curva ni siquiera es monótona. La interpretación de esa forma es
+geométrica: a ruido máximo las partículas quedan distribuidas de manera casi
+uniforme, y a densidad supercrítica una distribución uniforme percola tan bien
+como una bandada compacta; el mínimo cae en el medio, donde el sistema forma
+bandas densas y deja regiones vacías, que es la configuración que más fragmenta
+la red.
+
+La causa de la degeneración es cuantificable y no tiene nada que ver con la
+regla de alineación. Para partículas distribuidas al azar con densidad $\rho$ y
+radio de conexión $r_c$, el número medio de vecinos es
+$\langle k \rangle = \rho \pi r_c^2$, y ése es exactamente el parámetro de
+control de la percolación del grafo geométrico aleatorio bidimensional, cuyo
+umbral está en $\langle k \rangle_c \approx 4{,}51$ [3]. Como muestra la
+Tabla~\ref{tab:parametros}, las tres densidades del enunciado dan
+$\langle k \rangle = 6{,}28$, $12{,}57$ y $25{,}13$, todas por encima del
+umbral. La red de vecinos percola aunque las partículas estén distribuidas
+completamente al azar, de modo que $S$ no puede distinguir la fase ordenada de
+la desordenada en ese régimen.
+
+En las tres densidades subcríticas, con $\langle k \rangle$ de $1{,}00$,
+$0{,}50$ y $0{,}33$, el observable sí discrimina. Una configuración uniforme no
+percola, así que toda componente gigante que aparezca es producto del
+agrupamiento dinámico: a ruido bajo las partículas se alinean, se juntan y
+forman un único cluster con $S \approx 0{,}9$, y al aumentar $\eta$ la bandada
+se disgrega y $S$ cae hasta valores entre $0{,}15$ y $0{,}18$, que corresponden a
+unas pocas partículas por cluster. Las barras de error son grandes en todo el
+rango, como corresponde a sistemas de 11 a 32 partículas.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{S_eta_vicsek.png}
   \caption{Fracción media del cluster gigante $S$ en el estado estacionario en
-    función de la densidad $\rho$, a ruido nulo ($\eta = 0$), para ambos
-    modelos. Diez densidades $\rho = 0{,}15\,i$ con $i = 1,\dots,10$
-    ($N$ entre 15 y 150 con $L = 10$), $r_c = 1$, $v_0 = 0{,}03$,
-    $\Delta t = 1$, promedio sobre la ventana de estado estacionario medida
-    para cada punto. Barras de error: desvío estándar entre $K = 5$ semillas
-    independientes (este barrido usa 5 semillas, no 10). La línea
-    vertical punteada marca el umbral analítico de percolación
-    $\rho_c = \langle k \rangle_c / (\pi r_c^2) \approx 1{,}436$ [3].}
-  \label{fig:S-rho}
+    función del ruido angular $\eta$, para el modelo de Vicsek y las seis
+    densidades de la Tabla~\ref{tab:parametros}. Parámetros comunes: $L = 10$,
+    $r_c = 1$, $v = 3\times10^{-2}$, $\Delta t = 1$; $2\times10^{3}$ pasos para
+    $\rho = 2$, 4 y 8 y $1\times10^{4}$ pasos para las tres densidades
+    subcríticas; promedio sobre la ventana de estado estacionario medida para
+    cada punto. Barras de error: desvío estándar entre $K = 10$ realizaciones
+    independientes por punto.}
+  \label{fig:S-eta-vicsek}
 \end{figure}
 
-\pregunta{Esta figura no mide percolación geométrica pura, aunque $\eta = 0$
-sugiera lo contrario: cada punto es el promedio de estado estacionario tras 2000
-pasos de dinámica \emph{sin ruido}, es decir el caso de alineación máxima, en el
-que las partículas se agrupan y elevan $S$ muy por encima del valor geométrico
-(de hecho $v_a \approx 1$ en los veinte puntos del barrido). La medición
-correcta es $S$ en $t = 0$, sobre la configuración uniforme inicial, valor que
-el registro escalar ya guarda en su primera línea y que no se está usando.
-Evaluado sobre esos mismos datos, $S(t=0)$ vale $0{,}16$--$0{,}28$ para
-$\rho \leq 0{,}90$ y sube a $0{,}56$, $0{,}74$ y $0{,}96$ en
-$\rho = 1{,}05$, $1{,}35$ y $1{,}50$: la transición de percolación
-\emph{sí} aparece, y en torno al $\rho_c$ predicho. Hay que rehacer la figura
-con ese criterio; tal como está, no sostiene la afirmación del texto.}
+\subsection{Modelo de votante (inciso f)}
+\label{sec:votante}
 
-\pregunta{Verificar que la redacción final distinga con claridad la media de su
-dispersión en esta figura. La versión anterior del informe afirmaba
-$S \geq 0{,}85$ en todo el rango mientras la figura mostraba puntos bajando
-hasta $\approx 0{,}15$; lo que llegaba tan abajo eran los extremos de las
-barras de error, no las medias. En la versión regenerada la media mínima es
-$0{,}67$ (votante, $\rho = 0{,}15$) y el extremo inferior de su barra de error
-llega a $0{,}58$.}
+Esta sección repite para el modelo de votante los cuatro incisos de la
+Sección~\ref{sec:vicsek}, con las mismas figuras, los mismos parámetros y el
+mismo criterio de medición. Las definiciones no se repiten.
 
-\subsection{Relación entre polarización y componente gigante}
-\label{sec:va-vs-S}
+\subsubsection{Animaciones características (inciso a)}
+\label{sec:animacion-votante}
 
-La Fig.~\ref{fig:va-vs-S} confronta directamente ambos observables, con un punto
-por cada combinación (modelo, $\rho$, $\eta$) del barrido. Para las densidades
-del enunciado la nube colapsa sobre la franja $S \geq 0{,}96$ y se extiende
-sobre todo el rango de polarización: el sistema recorre desde $v_a \approx 1$
-hasta $v_a \approx 0{,}03$ sin que la conectividad cambie de forma apreciable.
-La correlación lineal entre ambos observables es, en efecto, despreciable
-($r = +0{,}16$ para Vicsek a $\rho = 2$, la más alta de las seis combinaciones
-supercríticas), y ni siquiera es monótona: como se vio en la
-Sección~\ref{sec:S-eta}, $S$ baja y vuelve a subir a lo largo del recorrido en
-$\eta$. La conclusión para el inciso (e) en las densidades del enunciado es, por
-lo tanto, negativa y hay que decirlo como tal: orden direccional y conectividad
-espacial son fenómenos desacoplados en ese régimen.
+La Fig.~\ref{fig:frames-votante} muestra las dos situaciones características del
+modelo de votante, elegidas con el mismo criterio automático que las de la
+Fig.~\ref{fig:frames-vicsek} y a la misma densidad.
 
-A densidades subcríticas la situación se invierte y la relación se vuelve
-informativa: los puntos se ordenan a lo largo de una diagonal, con los estados
-más polarizados asociados a componentes gigantes grandes y los estados
-desordenados a redes fragmentadas. Allí sí, orden y conectividad son
-manifestaciones del mismo agrupamiento dinámico.
+Lo primero que se destaca son los valores de ruido. Para obtener una bandada
+ordenada en el modelo de votante hace falta $\eta = 0{,}05$, mientras que en
+Vicsek alcanzaba con $\eta = 1{,}0$; y con $\eta = 1{,}0$ el votante ya está
+completamente desordenado, cuando a ese mismo ruido Vicsek seguía ordenado. La
+región ordenada del modelo de votante es casi un orden de magnitud más angosta.
+Lo segundo es que, aun en el panel ordenado, el color varía más entre partículas
+próximas que en el caso de Vicsek: copiar la orientación de un único vecino no
+promedia el ruido, y esa dispersión residual sobrevive incluso en pleno régimen
+ordenado.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.86\textwidth]{va_vs_S_comparacion.png}
-  \caption{Fracción del cluster gigante $S$ en función de la polarización
-    $v_a$, ambas en el estado estacionario, distinguiendo densidad por color y
-    modelo por marcador (Vicsek: círculos; votante: cruces). Cada punto
-    corresponde a un valor de $\eta$ de la grilla del barrido, promediado sobre
-    $K = 10$ semillas. Se incluyen las densidades del enunciado
-    ($\rho = 2$, 4, 8; $N = 200$, 400, 800) y las del estudio de clusters
-    ($\rho = 1/\pi$, $1/(2\pi)$, $1/(3\pi)$; $N = 32$, 16, 11). Parámetros
-    comunes: $L = 10$, $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$, 2000 pasos,
-    promedio sobre la ventana de estado estacionario medida para cada punto.}
-  \label{fig:va-vs-S}
+  \includegraphics[width=0.44\textwidth]{frame_voter_rho2_ordenado.png}
+  \hfill
+  \includegraphics[width=0.44\textwidth]{frame_voter_rho2_desordenado.png}
+  \caption{Fotogramas de las animaciones características del modelo de votante
+    en $t = 850$, para $\rho = 2$ ($N = 200$), $L = 10$, $r_c = 1$,
+    $v = 3\times10^{-2}$, $\Delta t = 1$, corrida única de $1\times10^{3}$
+    pasos. Izquierda: $\eta = 0{,}05$, fase ordenada. Derecha: $\eta = 1{,}0$,
+    fase desordenada. Misma convención de color que la
+    Fig.~\ref{fig:frames-vicsek}. Nótese que los dos valores de $\eta$ son un
+    orden de magnitud menores que los del modelo de Vicsek.}
+  \label{fig:frames-votante}
 \end{figure}
 
-\subsection{Susceptibilidad y ruido crítico}
-\label{sec:chi}
+Las animaciones completas están disponibles en \urlvotord\ (caso ordenado) y en
+\urlvotdes\ (caso desordenado).
 
-Para asignar un número a la ubicación de la transición se calcula la
-susceptibilidad de la Ec.~\eqref{eq:susceptibilidad} sobre la grilla ya
-muestreada. La Fig.~\ref{fig:chi-eta} muestra el resultado y la
-Tabla~\ref{tab:eta-c} recoge la posición de su máximo.
+\subsubsection{Evolución temporal de la polarización (inciso b)}
+\label{sec:va-t-votante}
 
-Ambos modelos exhiben el pico esperado, pero en regiones muy distintas del eje
-de ruido. En Vicsek el máximo se ubica en $\eta_c = 2{,}58$, $3{,}25$ y $3{,}81$
-para $\rho = 2$, 4 y 8: crece monótonamente con la densidad, como predice el
-argumento de atenuación del ruido por promediado. En el votante, en cambio, el
-máximo cae siempre en los dos primeros puntos no nulos de la grilla o
-directamente en $\eta = 0$, confirmando que su región ordenada es
-extremadamente angosta.
+La Fig.~\ref{fig:va-t-votante} muestra la evolución temporal de $v_a$ para el
+modelo de votante a $\rho = 2$. Comparada con la Fig.~\ref{fig:va-t-vicsek} hay
+dos diferencias claras.
+
+La primera es la velocidad de convergencia. Vicsek alcanzaba su meseta en menos
+de $200$ pasos; el votante a $\eta = 0{,}10$ tarda del orden de $10^3$, y el
+criterio de estado estacionario ubica en consecuencia el corte en $t = 900$
+contra los $150$ de Vicsek. La segunda es la amplitud de la fluctuación: incluso
+dentro del estacionario, la curva de $\eta = 0{,}35$ recorre todo el rango entre
+$0{,}2$ y $0{,}9$. Las dos diferencias responden al mismo mecanismo. El modelo de
+votante no construye el orden promediando globalmente en cada paso, sino por
+engrosamiento de dominios de orientación parecida que crecen copiándose entre
+vecinos, y las paredes entre dominios se mueven de forma difusiva. El resultado
+es una relajación mucho más lenta y una dispersión mucho mayor entre
+realizaciones.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.82\textwidth]{chi_eta.png}
-  \caption{Susceptibilidad $\chi = N \operatorname{Var}(v_a)$ en función del
-    ruido angular $\eta$, para $\rho \in \{2, 4, 8\}$ ($N = 200$, 400, 800) y
-    ambos modelos (Vicsek: línea sólida; votante: línea de trazos). La varianza
-    se calcula entre las $K = 10$ medias de estado estacionario de cada punto.
-    Parámetros comunes: $L = 10$, $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$,
-    2000 pasos, promedio sobre la ventana de estado estacionario medida para
-    cada punto.}
-  \label{fig:chi-eta}
+  \includegraphics[width=0.78\textwidth]{va_t_voter_rho2.png}
+  \caption{Evolución temporal de la polarización $v_a$ para el modelo de
+    votante, con tres niveles de ruido superpuestos. Parámetros: $\rho = 2$
+    ($N = 200$), $L = 10$, $r_c = 1$, $v = 3\times10^{-2}$, $\Delta t = 1$,
+    $2\times10^{3}$ pasos, una realización del conjunto de $K = 10$ del
+    barrido. Las líneas verticales punteadas marcan el inicio de la ventana de
+    estado estacionario medida para cada ruido, con el mismo criterio de la
+    Fig.~\ref{fig:va-t-vicsek}. Los tres valores de $\eta$ son mucho menores
+    que los de Vicsek porque la región ordenada del votante es un orden de
+    magnitud más angosta.}
+  \label{fig:va-t-votante}
+\end{figure}
+
+\subsubsection{Polarización en función del ruido (inciso c)}
+\label{sec:va-eta-votante}
+
+La Fig.~\ref{fig:va-eta-votante} presenta la curva $v_a(\eta)$ del modelo de
+votante para las tres densidades del enunciado. La forma cualitativa es la misma
+que en Vicsek, un decaimiento monótono desde $v_a \approx 1$ hasta el piso de
+tamaño finito, pero la escala del eje horizontal es completamente distinta: el
+colapso ocurre entre $\eta = 0$ y $\eta \approx 0{,}5$, no entre $2$ y $4$. Los
+pisos de saturación coinciden con los de Vicsek hasta la tercera cifra, como
+debe ser, porque dependen sólo de $N$ y no de la regla de interacción.
+
+Hay además dos resultados que merecen comentario aparte.
+
+El primero es que a $\eta = 0$ el votante ya no alcanza $v_a = 1$: mide
+$0{,}969 \pm 0{,}088$ para $\rho = 2$, $0{,}976 \pm 0{,}066$ para $\rho = 4$ y
+$0{,}911 \pm 0{,}142$ para $\rho = 8$. Sin ruido alguno, el engrosamiento por
+copia local no llega a consensuar una única orientación en $2\times10^3$ pasos
+para los sistemas más grandes.
+
+El segundo, y es el resultado más llamativo del trabajo, es que la dependencia
+con la densidad está \emph{invertida} respecto de Vicsek. El cruce por
+$v_a = 0{,}5$ pasa de $\eta = 0{,}34$ en $\rho = 2$ a $\eta = 0{,}26$ en
+$\rho = 4$ y a $\eta = 0{,}21$ en $\rho = 8$: cuanto más denso el sistema,
+\emph{menos} ruido tolera. Sobre las seis densidades de la
+Tabla~\ref{tab:cruce} la tendencia es monótona decreciente sin excepción.
+
+La explicación tiene dos partes. La primera es que el votante no gana nada con
+más vecinos, porque no promedia: copia a uno solo y hereda su ángulo con el
+ruido íntegro, de modo que aumentar $\langle k \rangle$ no mejora el filtrado
+que en Vicsek explicaba el corrimiento hacia la derecha. La segunda, que es la
+que produce la inversión, es un efecto de tiempo finito. Como el orden se
+construye por engrosamiento de dominios, el tiempo hasta el consenso crece con
+el número de partículas, y todas las corridas tienen la misma duración de
+$2\times10^3$ pasos. El sistema de $800$ partículas está por lo tanto mucho más
+lejos del consenso que el de $200$ al momento de medir. La medición a
+$\eta = 0$ del párrafo anterior es precisamente la verificación de eso: sin nada
+que desordene, los sistemas de 11, 16 y 32 partículas llegan a $v_a \approx 1$
+mientras que el de 800 se queda en $0{,}911$ con una dispersión de $0{,}14$
+entre realizaciones.
+
+Corresponde entonces enunciar el resultado con cuidado. Lo que se midió es que,
+\emph{a tiempo de simulación fijo}, el sistema más grande está menos polarizado,
+y eso corre la curva hacia ruidos menores. No se afirma que el ruido crítico del
+votante decrezca con la densidad como propiedad del límite termodinámico: para
+sostener eso habría que correr hasta el consenso en cada tamaño o hacer un
+análisis de escaleo de tamaño finito, ninguno de los dos dentro del alcance de
+este trabajo.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{va_eta_voter.png}
+  \caption{Polarización media de estado estacionario $v_a$ en función de la
+    amplitud del ruido angular $\eta$, para el modelo de votante y las tres
+    densidades del enunciado, $\rho = 2$, 4 y 8 ($N = 200$, 400 y 800).
+    Parámetros comunes y barras de error idénticos a los de la
+    Fig.~\ref{fig:va-eta-vicsek}. El eje horizontal cubre el mismo rango
+    $[0,\ 2\pi]$ que en Vicsek, pero todo el decaimiento ocurre dentro del
+    primer décimo del intervalo.}
+  \label{fig:va-eta-votante}
 \end{figure}
 
 \begin{table}[htbp]
   \centering
-  \caption{Ubicación del máximo de la susceptibilidad, $\eta_c$, sobre la
-    grilla de $\eta$ efectivamente muestreada ($L = 10$, $r_c = 1$,
-    $v_0 = 0{,}03$, 2000 pasos, $K = 10$ semillas por punto). Los valores del
-    votante caen en los dos primeros puntos no nulos de la grilla o en su
-    extremo inferior, y deben leerse como cotas superiores, no como
-    mediciones.}
-  \label{tab:eta-c}
-  \begin{tabular}{lcc}
+  \caption{Valor de $\eta$ en el que la polarización media de estado
+    estacionario cruza $v_a = 0{,}5$, obtenido por interpolación lineal entre
+    los dos puntos consecutivos de la grilla que encierran el cruce. Se usa como
+    referencia operativa para comparar el ancho de la región ordenada, no como
+    estimación del ruido crítico. Parámetros: $L = 10$, $r_c = 1$,
+    $v = 3\times10^{-2}$, $\Delta t = 1$, $K = 10$ realizaciones por punto. La
+    columna de Vicsek es monótona creciente en las tres densidades del
+    enunciado; los tres valores subcríticos son iguales entre sí dentro del paso
+    de la grilla, que es $0{,}2$ en esa región. La columna del votante es
+    monótona decreciente sobre las seis densidades.}
+  \label{tab:cruce}
+  \begin{tabular}{lccc}
     \toprule
-    Modelo & $\rho$ & $\eta_c$ \\
+    $\rho$ & $N$ & Vicsek & Votante \\
     \midrule
-    Vicsek  & 2 & 2{,}58 \\
-    Vicsek  & 4 & 3{,}25 \\
-    Vicsek  & 8 & 3{,}81 \\
+    8        & 800 & 3{,}44 & 0{,}21 \\
+    4        & 400 & 3{,}19 & 0{,}26 \\
+    2        & 200 & 2{,}85 & 0{,}34 \\
     \midrule
-    Votante & 2 & 0{,}11 \\
-    Votante & 4 & 0{,}22 \\
-    Votante & 8 & 0{,}00 \\
+    $1/\pi$    & \phantom{0}32 & 2{,}16 & 0{,}65 \\
+    $1/(2\pi)$ & \phantom{0}16 & 2{,}01 & 0{,}87 \\
+    $1/(3\pi)$ & \phantom{0}11 & 2{,}08 & 0{,}98 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\pregunta{El valor $\eta_c = 0{,}00$ del votante a $\rho = 8$ no es una
-medición: es el extremo inferior de la grilla, y significa que el máximo de
-$\chi$ está en el borde o fuera del rango muestreado por abajo. Los tres valores
-del votante son además no monótonos en $\rho$, cuando lo esperable es que
-$\eta_c$ crezca con la densidad. Conviene reportarlos como cota superior
-($\eta_c \leq 0{,}22$) en lugar de como valores puntuales, o bien resolver
-la transición del votante con un barrido fino en $\eta \in [0,\ 0{,}2]$.}
+\subsubsection{Evolución temporal de la componente gigante (inciso d)}
+\label{sec:S-t-votante}
 
-\pregunta{Con $N = 200$ el pico de $\chi$ es ancho y chato: corriendo cuatro
-grupos independientes de 5 semillas, la posición del máximo salta entre
-$2{,}36$, $2{,}58$ y $2{,}80$. Reportar $\eta_c$ con tres cifras sugiere una
-precisión que los datos no respaldan; la incerteza real es del orden de
-$\pm 0{,}4$. Falta confirmar si la cátedra espera $\eta_c$ (el enunciado no lo
-pide) y, en tal caso, si alcanza con informarlo como rango.}
-
-\subsection{Tiempos de ejecución del CIM}
-\label{sec:benchmark}
-
-La Fig.~\ref{fig:benchmark} compara, en escala doblemente logarítmica, los
-tiempos de la búsqueda de vecinos del CIM medidos en el Trabajo Práctico 1
-contra los del paso completo del motor de este trabajo, en función del número de
-partículas, sobre el mismo barrido $N \in [10,\ 1000]$ que usó TP1.
-
-En valor absoluto el paso completo de TP2 es entre 4 y 9 veces más caro que la
-búsqueda pura de vecinos de TP1 ($0{,}113$ contra $0{,}013$ \uni{ms} en
-$N = 100$; $1{,}92$ contra $0{,}50$ \uni{ms} en $N = 1000$), lo que es esperable
-dado que incluye la reconstrucción de la grilla, la actualización de
-orientaciones, la integración de posiciones y la escritura del fotograma de
-trayectoria. Ajustando una recta a los puntos con $N \geq 100$, las pendientes
-logarítmicas resultan $1{,}53$ para TP1 y $1{,}19$ para TP2. Ninguna de las dos
-es la pendiente unitaria que caracteriza al CIM, y la razón es metodológica: el
-barrido aumenta $N$ a caja fija, de modo que también aumenta la densidad y con
-ella el número medio de vecinos por partícula. El costo del CIM es lineal en $N$
-\emph{a densidad constante}; a caja constante el trabajo por partícula crece con
-$N$, y la pendiente esperada es superlineal. La comparación confirma entonces
-que el motor de TP2 no introduce una degradación de orden respecto de TP1, pero
-no permite verificar el escalado lineal del CIM.
-
-\pregunta{Las pendientes ($1{,}53$ y $1{,}19$) no son tan parecidas como se
-afirmaba en la versión anterior del informe, y la diferencia probablemente sea
-un artefacto de medición más que un efecto real: el tiempo de TP2 se cronometra
-por fuera del proceso, de modo que el arranque del binario (unos
-$5$ \uni{ms}, es decir $\approx 0{,}024$ \uni{ms} por paso sobre 200 pasos)
-entra como una constante aditiva que domina el punto $N = 10$ y aplana
-artificialmente la curva. Descontando ese piso, la pendiente de TP2 sube a
-$1{,}27$, todavía por debajo de la de TP1. Conviene instrumentar el motor por
-dentro antes de sacar conclusiones sobre pendientes.}
+La Fig.~\ref{fig:S-t-votante} muestra $S(t)$ para el modelo de votante, otra vez
+a $\rho = 1/\pi$ y por el mismo motivo que en la Sección~\ref{sec:S-t-vicsek}. El
+comportamiento es cualitativamente idéntico al de Vicsek: las tres series parten
+del valor bajo de la configuración uniforme inicial, la de ruido bajo crece
+hasta fluctuar cerca de $0{,}8$ y la de ruido alto se estabiliza alrededor de
+$0{,}3$. La coincidencia no es casual y se retoma en la
+Sección~\ref{sec:comparacion-S}: la conectividad es un fenómeno geométrico que
+depende de dónde están las partículas y no de cómo deciden su dirección.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.86\textwidth]{benchmark_tp1_vs_tp2.png}
-  \caption{Tiempo de cómputo por operación en función del número de partículas
-    $N$, en escala doblemente logarítmica. Serie TP1: búsqueda de vecinos del
-    CIM (\texttt{computeCIM}), $L = 20$, $r_c = 1$, 100 repeticiones por punto.
-    Serie TP2: paso completo del motor (reconstrucción de la grilla, búsqueda
-    de vecinos, actualización de orientaciones, integración de posiciones y
-    escritura del fotograma de trayectoria), $L = 10$, $r_c = 1$,
-    $v_0 = 0{,}03$, $\eta = 0$, modelo de Vicsek, 200 pasos y 5 repeticiones
-    por punto. Doce valores de $N$ entre 10 y 1000, los mismos del barrido de
-    TP1. Las dos series miden magnitudes distintas y a densidades distintas: no
-    son comparables en valor absoluto.}
-  \label{fig:benchmark}
+  \includegraphics[width=0.78\textwidth]{S_t_voter_rho1_pi.png}
+  \caption{Evolución temporal de la fracción del cluster gigante $S$ para el
+    modelo de votante, con tres niveles de ruido superpuestos. Parámetros
+    idénticos a los de la Fig.~\ref{fig:S-t-vicsek}: $\rho = 1/\pi$
+    ($N = 32$), $L = 10$, $r_c = 1$, $v = 3\times10^{-2}$, $\Delta t = 1$,
+    $1\times10^{4}$ pasos, una realización del conjunto de $K = 10$.}
+  \label{fig:S-t-votante}
 \end{figure}
 
-\pregunta{Tal como está, la comparación del inciso (g) no es válida en valor
-absoluto por dos motivos acumulados. Primero, mide magnitudes distintas: la
-serie de TP1 es sólo la búsqueda de vecinos, mientras que la de TP2 es un paso
-completo con integración y escritura de trayectoria incluidas, medido además
-por fuera del proceso con el arranque del binario dentro del cronómetro.
-Segundo, las densidades difieren: TP1 usa el $L = 20$ fijo de su propio script y
-TP2 usa $L = 10$, o sea cuatro veces más denso para el mismo $N$. Para que la
-comparación sea legítima habría que instrumentar dentro del motor de TP2
-únicamente \texttt{Grid::rebuild} más la búsqueda de vecinos, y correr esa
-medición a $L = 20$.}
+\subsubsection{Componente gigante en función del ruido (inciso d)}
+\label{sec:S-eta-votante}
+
+La Fig.~\ref{fig:S-eta-votante} cierra el bloque del modelo de votante con la
+curva $S(\eta)$ para las seis densidades. La conclusión es la misma que en
+Vicsek, y ese es justamente el punto: en las tres densidades del enunciado el
+observable está degenerado, con $S \geq 0{,}93$ en todo el rango de ruido y con
+la misma depresión leve y no monótona a $\rho = 2$, cuyo mínimo vale $0{,}937$;
+en las tres densidades subcríticas el observable vuelve a discriminar, cayendo
+desde valores cercanos a $0{,}9$ hasta valores entre $0{,}15$ y $0{,}18$.
+
+Que las dos familias de curvas sean tan parecidas a las de la
+Fig.~\ref{fig:S-eta-vicsek} confirma el argumento de percolación de la
+Sección~\ref{sec:S-eta-vicsek}. El umbral $\langle k \rangle_c$ depende
+únicamente de la densidad y del radio de conexión, no de la regla con la que las
+partículas eligen su orientación, de modo que $S$ no distingue entre los dos
+modelos: distingue entre regímenes de densidad.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{S_eta_voter.png}
+  \caption{Fracción media del cluster gigante $S$ en el estado estacionario en
+    función del ruido angular $\eta$, para el modelo de votante y las seis
+    densidades de la Tabla~\ref{tab:parametros}. Parámetros comunes y barras de
+    error idénticos a los de la Fig.~\ref{fig:S-eta-vicsek}.}
+  \label{fig:S-eta-votante}
+\end{figure}
+
+\subsection{Comparación entre modelos (inciso f)}
+\label{sec:comparacion}
+
+\subsubsection{Polarización}
+\label{sec:comparacion-va}
+
+La Fig.~\ref{fig:va-eta-comparacion} superpone las seis curvas $v_a(\eta)$ de
+las Figs.~\ref{fig:va-eta-vicsek} y~\ref{fig:va-eta-votante} sobre los mismos
+ejes. La comparación es punto a punto porque los dos modelos comparten la misma
+grilla de $\eta$ (Sección~\ref{sec:grilla-semillas}).
+
+Lo primero que se ve es la diferencia de escala. Las tres curvas de Vicsek están
+corridas casi un orden de magnitud hacia la derecha respecto de las del votante:
+a $\rho = 2$ el cruce por $v_a = 0{,}5$ pasa de $\eta = 0{,}34$ en el votante a
+$\eta = 2{,}85$ en Vicsek, un factor $8{,}4$. Esa diferencia es la consecuencia
+directa del contraste entre las Ecs.~\eqref{eq:vicsek} y~\eqref{eq:votante}, ya
+anticipada en la Sección~\ref{sec:modelo-matematico}: promediar sobre
+$\langle k \rangle$ vecinos atenúa el ruido individual, copiar a uno solo lo
+transmite íntegro.
+
+Lo segundo, y es el resultado central de la comparación, es que las dos familias
+se comportan de manera opuesta frente a la densidad. En Vicsek las curvas se
+corren hacia la derecha al aumentar $\rho$ y en el votante se corren hacia la
+izquierda. Ese cruce de tendencias, con las causas discutidas en la
+Sección~\ref{sec:va-eta-votante}, es la diferencia cualitativa entre los dos
+modelos que este trabajo pone de manifiesto.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{va_eta_comparacion.png}
+  \caption{Polarización media de estado estacionario $v_a$ en función del ruido
+    angular $\eta$ para los dos modelos superpuestos, con $\rho = 2$, 4 y 8
+    ($N = 200$, 400 y 800). Vicsek en línea sólida y votante en línea de
+    trazos; el color distingue la densidad. Parámetros comunes: $L = 10$,
+    $r_c = 1$, $v = 3\times10^{-2}$, $\Delta t = 1$, $2\times10^{3}$ pasos por
+    corrida, promedio sobre la ventana de estado estacionario medida para cada
+    punto. Barras de error: desvío estándar entre $K = 10$ realizaciones.}
+  \label{fig:va-eta-comparacion}
+\end{figure}
+
+\subsubsection{Componente gigante}
+\label{sec:comparacion-S}
+
+La Fig.~\ref{fig:S-eta-comparacion} superpone las curvas $S(\eta)$ de los dos
+modelos. Se muestran únicamente las tres densidades subcríticas: como quedó
+establecido en las Secciones~\ref{sec:S-eta-vicsek} y~\ref{sec:S-eta-votante},
+a $\rho = 2$, 4 y 8 el observable vale $S \approx 1$ para todo $\eta$ en los dos
+modelos, de manera que la figura correspondiente serían seis rectas
+superpuestas.
+
+En el régimen subcrítico la caída es clara y las curvas de los dos modelos son
+muy parecidas entre sí, con una diferencia sistemática apenas apreciable a
+ruido intermedio, donde Vicsek sostiene valores de $S$ algo mayores que el
+votante para la misma densidad. Esa diferencia es coherente con lo visto en la
+polarización: a un mismo $\eta$ dentro de ese rango Vicsek está más ordenado, y
+más orden direccional implica más agrupamiento. Fuera de ese detalle, la
+conclusión es que la conectividad no distingue entre modelos.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{S_eta_comparacion_sub.png}
+  \caption{Fracción media del cluster gigante $S$ en el estado estacionario en
+    función del ruido angular $\eta$ para los dos modelos superpuestos, en las
+    tres densidades subcríticas $\rho = 1/\pi$, $1/(2\pi)$ y $1/(3\pi)$
+    ($N = 32$, 16 y 11). Vicsek en línea sólida y votante en línea de trazos;
+    el color distingue la densidad. Parámetros comunes: $L = 10$, $r_c = 1$,
+    $v = 3\times10^{-2}$, $\Delta t = 1$, $1\times10^{4}$ pasos por corrida,
+    promedio sobre la ventana de estado estacionario medida para cada punto.
+    Barras de error: desvío estándar entre $K = 10$ realizaciones. Las tres
+    densidades del enunciado no se incluyen porque dan $S \approx 1$ para todo
+    $\eta$ en ambos modelos.}
+  \label{fig:S-eta-comparacion}
+\end{figure}
+
+\subsection{Polarización en función de la componente gigante (inciso e)}
+\label{sec:va-vs-S}
+
+La Fig.~\ref{fig:va-vs-S} confronta directamente los dos observables, con un
+punto por cada valor de $\eta$ de la grilla, un panel por modelo y las barras de
+error de ambos observables. Se incluye una densidad supercrítica, $\rho = 2$,
+que es la que más estructura mostraba en las curvas anteriores, junto con las
+tres subcríticas.
+
+Para la densidad del enunciado el resultado es negativo y corresponde
+enunciarlo como tal. Los puntos de $\rho = 2$ se apilan sobre la franja
+$S \geq 0{,}92$ y se extienden sobre todo el rango de polarización, desde
+$v_a \approx 1$ hasta $v_a \approx 0{,}06$: el sistema recorre desde totalmente
+ordenado hasta totalmente desordenado sin que la conectividad cambie de forma
+apreciable. La correlación lineal entre los dos observables es despreciable
+($r = +0{,}33$ para Vicsek a $\rho = 2$, y $r = +0{,}01$ y $+0{,}06$ para
+$\rho = 8$ y $4$), y ni siquiera es monótona, porque como se vio en la
+Sección~\ref{sec:S-eta-vicsek} la curva $S(\eta)$ baja y vuelve a subir. Orden
+direccional y conectividad espacial son fenómenos desacoplados en ese régimen.
+
+En las tres densidades subcríticas la situación se invierte y la relación se
+vuelve informativa. Los puntos se ordenan a lo largo de una diagonal en los dos
+paneles, con coeficientes de correlación entre $+0{,}97$ y $+0{,}99$: los
+estados más polarizados están asociados a componentes gigantes grandes y los
+estados desordenados a redes fragmentadas. Allí sí, orden y conectividad son dos
+manifestaciones del mismo agrupamiento dinámico, porque el cluster gigante no
+existe por geometría sino que lo produce la alineación.
+
+La causa de la diferencia entre los dos regímenes es la misma que explicaba la
+degeneración de $S$: el umbral de percolación. Por encima de él la red percola
+de todos modos y $S$ deja de contener información sobre el orden; por debajo,
+$S$ mide directamente cuánto agrupó la dinámica.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{va_vs_S_paneles.png}
+  \caption{Fracción del cluster gigante $S$ en función de la polarización
+    $v_a$, ambas en el estado estacionario. Panel izquierdo: modelo de Vicsek.
+    Panel derecho: modelo de votante. Cada punto corresponde a un valor de
+    $\eta$ de la grilla del barrido y el color distingue la densidad. Se
+    incluyen la densidad del enunciado $\rho = 2$ ($N = 200$) y las tres
+    subcríticas $\rho = 1/\pi$, $1/(2\pi)$ y $1/(3\pi)$ ($N = 32$, 16 y 11).
+    Parámetros comunes: $L = 10$, $r_c = 1$, $v = 3\times10^{-2}$,
+    $\Delta t = 1$. Las barras de error, en ambas direcciones, son el desvío
+    estándar entre $K = 10$ realizaciones.}
+  \label{fig:va-vs-S}
+\end{figure}
+
+\subsection{Tiempos de ejecución del CIM (inciso g)}
+\label{sec:benchmark}
+
+El inciso (g) pide registrar los tiempos de ejecución del CIM en simulaciones
+con un número de partículas similar al del TP1 y compararlos con los tiempos
+obtenidos allí. Para que la comparación tenga sentido, lo primero fue asegurar
+que las dos mediciones correspondan a la misma operación y a las mismas
+condiciones.
+
+Lo que se mide de los dos lados es únicamente la búsqueda de vecinos. En el TP2
+el cronómetro está dentro de \texttt{Simulation::step()}, inmediatamente antes y
+después de la reconstrucción de la grilla, de modo que no entran ni el arranque
+del proceso, ni la generación inicial de partículas, ni la escritura de la
+trayectoria, ni las reconstrucciones adicionales que el motor hace para medir
+$S$ (Sección~\ref{sec:calculo-observables}). En el TP1 se usa la medición de la
+búsqueda pura que su propio binario ya reportaba. Las condiciones se igualan
+forzando en los dos binarios $L = 10$, $r_c = 1$, contorno periódico y el mismo
+$M$, y corriendo el TP1 con radio de partícula nulo para que su predicado de
+vecindad sea de centro a centro igual que el del TP2 y para que el $M$ máximo
+válido coincida. Los dos lados descartan además el $1\%$ de las mediciones más
+lentas, que es la regla que ya traía el TP1, de manera que las dos medias se
+calculen del mismo modo.
+
+La Fig.~\ref{fig:benchmark} presenta el resultado en escala doblemente
+logarítmica sobre trece valores de $N$ entre 10 y 1000, los mismos del barrido
+del TP1 más los tres que salen de las densidades del enunciado. Las dos series
+se superponen dentro de las barras de error en 11 de los 13 puntos; las dos
+excepciones son $N = 10$ y $N = 25$, donde el CIM del TP2 resulta más rápido.
+Sobre los nueve puntos con $N \geq 200$ el cociente entre ambos tiempos promedia
+$1{,}06$ y no se aparta más de un $30\%$ de la unidad en ningún punto. En los
+tres valores del enunciado los tiempos por búsqueda son $0{,}027$ contra
+$0{,}032$ \uni{ms} en $N = 200$, $0{,}099$ contra $0{,}127$ \uni{ms} en
+$N = 400$ y $0{,}427$ contra $0{,}446$ \uni{ms} en $N = 800$, para TP1 y TP2
+respectivamente.
+
+Ajustando una recta a los logaritmos, las pendientes resultan $1{,}50$ para el
+TP1 y $1{,}62$ para el TP2 sobre el rango completo, y $1{,}86$ y $1{,}83$ si el
+ajuste se restringe a $N \geq 100$. La conclusión que corresponde al inciso es
+que las dos series escalan del mismo modo con el número de partículas, es decir
+que integrar el CIM dentro de un motor dinámico, donde la grilla se reconstruye
+en cada paso sobre posiciones que cambian y sobre una configuración agrupada por
+la alineación en lugar de uniforme, no degrada su comportamiento respecto de
+usarlo de forma aislada.
+
+Queda por explicar por qué las pendientes son superlineales cuando el CIM es de
+orden $\mathcal{O}(N)$. La respuesta es que la linealidad vale \emph{a densidad
+constante}, y este barrido no la mantiene: aumenta $N$ de 10 a 1000 con la caja
+fija en $L = 10$, de modo que la densidad recorre de $0{,}1$ a $10$ y el número
+medio de vecinos por partícula pasa de $0{,}3$ a $31$. Con más partículas por
+celda cada una realiza más comparaciones, y el trabajo por partícula crece con
+$N$. Es una consecuencia del diseño del barrido, heredado del TP1, y no un
+defecto del método. Verificar el escalado lineal exigiría variar $L$ junto con
+$N$ para mantener $\rho$ fija, lo que queda fuera de lo que pide el inciso.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{benchmark_tp1_vs_tp2.png}
+  \caption{Tiempo de la búsqueda de vecinos por el Cell Index Method en función
+    del número de partículas $N$, en escala doblemente logarítmica. Serie TP1:
+    búsqueda aislada, $2\times10^{2}$ repeticiones por punto. Serie TP2:
+    búsqueda cronometrada dentro del paso temporal, una medición por paso sobre
+    $2\times10^{3}$ pasos por punto. Condiciones forzadas iguales en ambos
+    binarios: $L = 10$, $r_c = 1$, $M = 9$, contorno periódico y partículas
+    puntuales; el TP2 corre el modelo de Vicsek con $\eta = 1{,}5$, dentro de
+    la fase ordenada. Ambos lados descartan el $1\%$ de las mediciones más
+    lentas. Barras de error: desvío estándar entre las mediciones de cada
+    punto.}
+  \label{fig:benchmark}
+\end{figure}
 
 % ===========================================================================
 \section{Conclusiones}
 \label{sec:conclusiones}
 
-Ambas reglas de interacción producen una transición orden-desorden controlada
-por el ruido angular $\eta$, pero de robustez muy distinta. El modelo estándar
-de Vicsek sostiene un régimen ordenado hasta ruidos varias veces mayores que el
-modelo de votante: su ruido crítico, estimado por el máximo de la
-susceptibilidad, pasa de $\eta_c \approx 2{,}6$ a $\rho = 2$ hasta
-$\eta_c \approx 3{,}8$ a $\rho = 8$, mientras que el del votante no supera
-$0{,}22$ en ninguna de las tres densidades. El resultado es la consecuencia
-directa de la diferencia entre las Ecs.~\eqref{eq:vicsek} y~\eqref{eq:votante}:
-promediar sobre $\langle k \rangle$ vecinos atenúa el ruido individual, copiar a
-uno solo lo transmite íntegro. La dinámica temporal refuerza la misma lectura:
-Vicsek converge al estado ordenado de forma monótona y rápida, mientras que el
-votante lo hace por engrosamiento, más lentamente y con mucha mayor dispersión
-entre semillas.
+Las dos reglas de interacción producen una transición de orden a desorden
+controlada por la amplitud del ruido angular $\eta$. En ambos modelos la
+polarización decrece de forma monótona desde $v_a \approx 1$ en $\eta = 0$ hasta
+el piso de tamaño finito $N^{-1/2}$, y en ambos casos la transición está bien
+resuelta por la grilla de ruido empleada.
 
-En ambos modelos el ruido crítico crece con la densidad, como corresponde a un
-mecanismo de alineación que se fortalece al aumentar el número de vecinos. Esa
-tendencia es clara y monótona en Vicsek; en el votante no puede verificarse con
-los datos disponibles, porque su transición cae por debajo de la resolución de
-la grilla de $\eta$ empleada.
+La diferencia entre los dos modelos es de escala y de tendencia. La región
+ordenada del modelo de votante es casi un orden de magnitud más angosta que la
+de Vicsek: a $\rho = 2$ el cruce por $v_a = 0{,}5$ ocurre en $\eta = 0{,}34$
+contra $\eta = 2{,}85$. La causa es la diferencia entre promediar y copiar. En
+Vicsek el promedio circular sobre $\langle k \rangle$ orientaciones con ruidos
+independientes reduce la dispersión del resultado, mientras que el votante
+hereda el ruido íntegro de un único vecino y no lo atenúa. Esa misma diferencia
+explica que en Vicsek el ruido tolerado crezca con la densidad, con el cruce por
+$v_a = 0{,}5$ pasando de $2{,}85$ a $3{,}19$ y a $3{,}44$ para $\rho = 2$, 4 y 8.
+
+En el modelo de votante la dependencia con la densidad se invierte, con el mismo
+cruce pasando de $0{,}34$ a $0{,}26$ y a $0{,}21$, y la inversión es monótona
+sobre las seis densidades estudiadas. La interpretación que sostienen los datos
+es que se trata de un efecto de tiempo finito: el votante ordena por
+engrosamiento de dominios, cuyo tiempo de consenso crece con el número de
+partículas, y a $2\times10^3$ pasos el sistema de 800 partículas todavía no
+terminó de ordenarse ni siquiera con ruido exactamente cero, donde mide
+$v_a = 0{,}911 \pm 0{,}142$. Correr el votante mucho más allá de $2\times10^3$
+pasos para separar ese efecto del comportamiento asintótico es la limitación
+principal identificada en este trabajo y el paso siguiente natural.
 
 La fracción del cluster gigante resultó ser un observable degenerado en las tres
-densidades del enunciado: $S > 0{,}96$ en todo el rango de ruido, sin
-correlación apreciable con la polarización ($r = +0{,}16$ en el mejor de los
-casos, $\rho = 2$ con Vicsek) y sin monotonía. La causa es geométrica y
-cuantificable: el número medio de vecinos $\langle k \rangle = \rho \pi r_c^2$
-vale $6{,}28$, $12{,}57$ y $25{,}13$ para $\rho = 2$, 4 y 8, todos por encima
-del umbral de percolación $\langle k \rangle_c \approx 4{,}51$, de modo que la
-red de vecinos percola cualquiera sea el grado de orden direccional. El estudio
-complementario a densidades subcríticas confirma que es allí, y sólo allí, donde
-$S$ discrimina entre fases y donde la relación $v_a$--$S$ del inciso (e) tiene
-contenido: la componente gigante aparece por agrupamiento dinámico y se
-desintegra al aumentar el ruido.
+densidades del enunciado, con $S \geq 0{,}92$ en todo el rango de ruido para los
+dos modelos. La causa es geométrica y cuantificable: el número medio de vecinos
+$\langle k \rangle = \rho \pi r_c^2$ vale $6{,}28$, $12{,}57$ y $25{,}13$, todos
+por encima del umbral de percolación $\langle k \rangle_c \approx 4{,}51$, de
+modo que la red de vecinos percola cualquiera sea el grado de orden direccional.
+Como el umbral no depende de la regla de alineación, $S$ tampoco distingue entre
+los dos modelos: lo que distingue es el régimen de densidad. El estudio a
+densidades subcríticas confirma que es allí donde el observable discrimina entre
+fases, cayendo desde $S \approx 0{,}9$ hasta valores entre $0{,}15$ y $0{,}18$.
 
-Finalmente, la comparación de tiempos muestra que el paso completo del motor de
-TP2 cuesta entre 4 y 9 veces más que la búsqueda pura de vecinos de TP1, un
-sobrecosto atribuible a la integración y a la escritura de trayectoria, sin
-degradación del orden de complejidad al integrar el CIM dentro de un motor
-dinámico. La medición no permite, en cambio, verificar el escalado lineal del
-CIM: al aumentar $N$ a caja fija también aumenta la densidad, de modo que ambas
-series resultan superlineales ($1{,}53$ y $1{,}19$ de pendiente logarítmica),
-y la de TP2 está además contaminada por el costo constante de arranque del
-proceso. Instrumentar la medición dentro del motor y correrla a densidad
-constante es el paso pendiente para cerrar el inciso (g) de forma concluyente.
+Ese mismo argumento resuelve el inciso (e). En las densidades del enunciado los
+dos observables están desacoplados, con correlaciones lineales de $+0{,}01$ a
+$+0{,}33$ y sin monotonía; en las subcríticas los puntos se ordenan sobre una
+diagonal con correlaciones entre $+0{,}97$ y $+0{,}99$, porque allí orden
+direccional y conectividad son dos manifestaciones del mismo agrupamiento
+dinámico.
+
+Finalmente, la comparación de tiempos del inciso (g) muestra que la búsqueda de
+vecinos del CIM medida dentro del paso temporal se superpone con la medida de
+forma aislada en el TP1 en 11 de los 13 valores de $N$ ensayados, con un
+cociente medio de $1{,}06$ para $N \geq 200$ y pendientes logarítmicas de
+$1{,}50$ y $1{,}62$. Integrar el CIM dentro de un motor dinámico, que lo invoca
+en cada paso sobre configuraciones agrupadas por la alineación, no degrada su
+escalado con el número de partículas. La superlinealidad común a las dos series
+se explica porque el barrido aumenta $N$ con la caja fija y por lo tanto no
+mantiene constante la densidad, condición bajo la cual el método es lineal.
 
 % ===========================================================================
 \section*{Referencias}
@@ -1223,19 +1281,10 @@ constante es el paso pendiente para cerrar el inciso (g) de forma concluyente.
   \item[{[2]}] E. S. Loscar, G. Baglietto, F. Vazquez, ``Noisy multistate voter
     model for flocking in finite dimensions'', Physical Review E, vol. 104,
     no. 3, 034111 (2021).
-  \item[{[3]}] J. A. Quintanilla, R. M. Ziff, ``Asymmetry in the percolation
-    thresholds of fully penetrable disks with two different radii'', Physical
-    Review E, vol. 76, no. 5, 051115 (2007).
+  \item[{[3]}] J. Quintanilla, S. Torquato, R. M. Ziff, ``Efficient measurement
+    of the percolation threshold for fully penetrable discs'', Journal of
+    Physics A: Mathematical and General, vol. 33, no. 42, pp. L399--L407
+    (2000).
 \end{enumerate}
-
-% ===========================================================================
-\section*{Pendientes}
-\addcontentsline{toc}{section}{Pendientes}
-
-Este documento es un borrador interno de revisión: no corresponde a la versión
-de entrega. Se listan a continuación todas las marcas \textbf{[PREGUNTAR]}
-insertadas en el texto, en orden de aparición.
-
-\listofpreguntas
 
 \end{document}

@@ -30,7 +30,7 @@
       \texttt{grid\_}, \texttt{thetaNew\_}, \texttt{rng\_}}};
 
   % ---------------- Fase 1: CIM ----------------
-  \node[proceso, below=1.0cm of estado] (rebuild)
+  \node[box=4.9cm, fill=white, below=1.0cm of estado] (rebuild)
     {\texttt{Grid::rebuild(particles\_)}\\[1pt]
      {\scriptsize grilla $M\times M$, celdas indexadas con\\
       \texttt{cellIndex}; vecinos con \texttt{wrap}\\ y \texttt{withinRadius}}};
@@ -50,7 +50,7 @@
   \node[proceso, below right=1.15cm and 0.55cm of nl] (obs)
     {\textbf{Observables}\\[2pt]
      {\scriptsize \texttt{polarization(particles\_)}\\
-      \texttt{giantComponentFraction(}\\ \texttt{grid\_.neighbors())}}};
+      \texttt{giantComponentFraction}\\ \texttt{(grid\_.neighbors())}}};
 
   % ---------------- Fase 2: integracion ----------------
   \node[proceso, below=1.0cm of regla] (integra)
@@ -91,9 +91,14 @@
   \draw[flecha] (integra.west) -- ++(-1.15,0) node[etiqueta, midway, above] {}
     |- node[etiqueta, pos=0.25, rotate=90, above] {paso siguiente} (estado.west);
 
-  % resincronizacion del grid para los observables
-  \draw[flecha2] (integra.east) -- ++(0.5,0) |- ($(rebuild.east)+(0,-0.32)$)
-    node[etiqueta, pos=0.28, right=1pt, align=left]
-    {\texttt{syncNeighbors()}:\\ segundo \texttt{rebuild} sobre\\ las posiciones ya\\ avanzadas (solo si el\\ \texttt{scalar-log} est\'a activo)};
+  % Resincronizacion del grid para los observables. Se rutea por la derecha de
+  % TODO el diagrama (mas alla de la columna de observables) para no cruzar la
+  % bifurcacion NeighborList -> {regla, observables}, que es donde la version
+  % anterior de esta figura superponia la etiqueta con la caja NeighborList.
+  \coordinate (syncx) at ($(obs.east)+(1.35,0)$);
+  \draw[flecha2] (integra.east) -- (integra.east -| syncx)
+    -- (rebuild.east -| syncx)
+    -- node[etiqueta, above, midway] {\texttt{syncNeighbors()}}
+       ($(rebuild.east)+(0,-0.32)$);
 
 \end{tikzpicture}
