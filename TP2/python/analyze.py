@@ -38,6 +38,7 @@ if "--show" not in sys.argv:
     matplotlib.use("Agg")
 import matplotlib.colors
 import matplotlib.pyplot as plt
+import numpy as np
 
 TP2_DIR = Path(__file__).resolve().parent.parent
 SWEEP_SUMMARY_CSV = TP2_DIR / "data" / "sweep" / "summary.csv"
@@ -62,8 +63,11 @@ from sweep import (
     DEFAULT_K_SEEDS,
     DEFAULT_STEPS,
     L_DEFAULT,
-    STEADY_STATE_FRACTION,
+    STEADY_STATE_CSV,
+    steady_state_path_for,
     derive_seed,
+    read_scalar_log,
+    read_steady_state_csv,
     run_one,
     steps_for,
     sweep_output_path,
@@ -75,30 +79,103 @@ from sweep import (
 
 FS = 20  # tamano de fuente pedido por la catedra
 
+# Ubicaciones de leyenda ADENTRO del area de ejes, en orden de preferencia.
+_INSIDE_LOCS = ("upper right", "upper left", "lower right", "lower left",
+                "center right", "center left", "upper center", "lower center",
+                "center")
+_LEGEND_PAD_PT = 6.0  # margen alrededor de la caja de la leyenda, en puntos
 
-def _style(ax, xlabel, ylabel, legend=True, legend_loc=None):
+
+def _artist_points(ax):
+    """Puntos de la data del eje en coordenadas de pantalla.
+
+    Cada segmento de curva se densifica para que el test de superposicion
+    detecte una leyenda que cae ENCIMA de una linea, no solo sobre un vertice.
+    Se transforma con la transformada de cada artista (no con `ax.transData`)
+    para que las lineas verticales de `axvline`, que usan una transformada
+    mixta, tambien queden bien ubicadas.
+    """
+    points = []
+    for line in ax.lines:
+        vertices = line.get_path().vertices
+        if len(vertices) == 0:
+            continue
+        display = line.get_transform().transform(vertices)
+        points.append(display)
+        if len(display) > 1:
+            a, b = display[:-1], display[1:]
+            for f in (0.25, 0.5, 0.75):
+                points.append(a + (b - a) * f)
+    for coll in ax.collections:
+        offsets = coll.get_offsets()
+        if len(offsets):
+            points.append(coll.get_offset_transform().transform(offsets))
+    if not points:
+        return None
+    return np.vstack(points)
+
+
+def _overlap_count(ax, legend) -> int:
+    """Cuantos puntos de la data quedan tapados por la caja de la leyenda."""
+    points = _artist_points(ax)
+    if points is None:
+        return 0
+    fig = ax.figure
+    fig.canvas.draw()
+    box = legend.get_window_extent(fig.canvas.get_renderer())
+    pad = _LEGEND_PAD_PT * fig.dpi / 72.0
+    inside = ((points[:, 0] >= box.x0 - pad) & (points[:, 0] <= box.x1 + pad) &
+              (points[:, 1] >= box.y0 - pad) & (points[:, 1] <= box.y1 + pad))
+    return int(inside.sum())
+
+
+def _place_legend(ax, fontsize=None, title=None):
+    """Leyenda adentro si hay lugar libre, afuera si se superpone con la data.
+
+    La catedra pidio la leyenda ADENTRO de la figura, con la excepcion
+    explicita de las figuras donde no queda un hueco claro (las evoluciones
+    temporales, donde las curvas cruzan todo el ancho). En vez de decidirlo a
+    mano figura por figura, se prueban las nueve posiciones internas de
+    matplotlib y se mide cuantos puntos de la data taparia cada una; si ninguna
+    queda limpia, la leyenda se va afuera a la derecha.
+    """
+    handles, labels = ax.get_legend_handles_labels()
+    if not handles:
+        return None
+    fontsize = FS - 5 if fontsize is None else fontsize
+    kwargs = {"fontsize": fontsize, "frameon": False}
+    if title is not None:
+        kwargs["title"] = title
+        kwargs["title_fontsize"] = FS - 3
+
+    best_loc, best_overlap = None, None
+    for loc in _INSIDE_LOCS:
+        legend = ax.legend(handles, labels, loc=loc, **kwargs)
+        overlap = _overlap_count(ax, legend)
+        if overlap == 0:
+            return legend
+        if best_overlap is None or overlap < best_overlap:
+            best_loc, best_overlap = loc, overlap
+
+    del best_loc  # ninguna posicion interna quedo limpia: afuera
+    return ax.legend(handles, labels, loc="center left",
+                     bbox_to_anchor=(1.02, 0.5), **kwargs)
+
+
+def _style(ax, xlabel, ylabel, legend=True, legend_title=None):
     """Aplica las reglas de figura de la catedra a un eje.
 
-    Sin titulo (va en la diapositiva / epigrafe), sin grilla, fuente grande.
-
-    Leyenda: por defecto AFUERA del area de ejes (a la derecha), nunca
-    superpuesta a la data. `loc="best"` (el default anterior) la dejaba
-    adentro del grafico y, sin caja de fondo, quedaba ilegible cuando caia
-    sobre una curva o una nube de puntos. `_save` guarda con
-    `bbox_inches="tight"`, asi que la leyenda afuera no recorta nada, solo
-    ensancha el PNG. Un llamador puede pedir una esquina especifica adentro
-    con `legend_loc` si el grafico tiene una zona genuinamente vacia.
+    Sin titulo (va en la diapositiva / epigrafe), sin grilla, fuente grande, y
+    la leyenda ubicada por `_place_legend`. `_save` guarda con
+    `bbox_inches="tight"`, asi que una leyenda que termina afuera no recorta
+    nada, solo ensancha el PNG.
     """
     ax.set_xlabel(xlabel, fontsize=FS)
     ax.set_ylabel(ylabel, fontsize=FS)
     ax.tick_params(axis="both", which="major", labelsize=FS - 3)
     ax.grid(False)
     if legend:
-        if legend_loc is None:
-            ax.legend(fontsize=FS - 5, frameon=False,
-                      loc="center left", bbox_to_anchor=(1.02, 0.5))
-        else:
-            ax.legend(fontsize=FS - 5, frameon=False, loc=legend_loc)
+        _place_legend(ax, title=legend_title)
 
 
 def _save(fig, out_path, show=False):
@@ -228,13 +305,22 @@ def _series(rows, model, rho):
 # ---------------------------------------------------------------------------
 
 def plot_eta_curve(rows, column, models, rhos, out_path, show=False,
-                   ylabel=None, ylim=None):
-    """Observable escalar (`va` o `S`) vs eta, con barras de error.
+                   ylabel=None, ylim=None, errorbars=True, color_by="rho"):
+    """Observable escalar (`va` o `S`) vs eta.
 
-    `models` de un solo elemento produce la figura por modelo; con los dos,
-    la figura de comparacion del inciso (f). El color codifica la densidad y
-    el estilo de linea el modelo, asi que la comparacion se lee sin cambiar el
-    significado de los colores respecto de las figuras individuales.
+    `models` de un solo elemento produce la figura por modelo; con los dos, la
+    figura de comparacion del inciso (f).
+
+    `color_by="rho"` (default) codifica la densidad con el color y el modelo con
+    el estilo de linea: es lo que corresponde en las figuras de un solo modelo y
+    en el informe. `color_by="model"` da un color por modelo y deja la densidad
+    en el marcador: la catedra marco que en la comparacion superpuesta la
+    distincion lleno/trazos "no se distingue nada" y pidio colores distintos.
+
+    `errorbars=False` dibuja solo el promedio. Tambien viene de la misma
+    correccion: en la comparacion las barras de error de las dos familias de
+    curvas se pisan entre si, y las barras ya se mostraron en las figuras
+    individuales de cada modelo.
 
     Barras de error: desvio estandar sobre las realizaciones independientes
     (Teorica 0, diap. 61 -- se reporta mu +/- sigma).
@@ -253,10 +339,12 @@ def plot_eta_curve(rows, column, models, rhos, out_path, show=False,
             label = f"${_rho_label(rho)}$"
             if len(models) > 1:
                 label = f"{MODEL_LABEL[model]}, {label}"
+            color = MODEL_COLOR[model] if color_by == "model" else _rho_color(rho)
+            linestyle = "-" if color_by == "model" else LINESTYLE[model]
             ax.errorbar([r["eta"] for r in group],
                         [r[mean_key] for r in group],
-                        yerr=[r[std_key] for r in group],
-                        color=_rho_color(rho), linestyle=LINESTYLE[model],
+                        yerr=[r[std_key] for r in group] if errorbars else None,
+                        color=color, linestyle=linestyle,
                         marker=_rho_marker(rho), markersize=6, capsize=3,
                         linewidth=1.8, label=label)
 
@@ -324,6 +412,43 @@ def plot_va_vs_S(rows, models, rhos, out_path, show=False):
     return ax
 
 
+def plot_va_vs_S_paneles(rows, rhos, out_path, show=False):
+    """`va` vs `S` en dos paneles (Vicsek | votante) a la misma escala.
+
+    Version de la figura del inciso (e) corregida segun la catedra:
+
+      - un panel por modelo en vez de las dos familias superpuestas, porque con
+        12 series en un solo eje "es mucha leyenda";
+      - la MISMA escala en los dos paneles, para poder compararlos de un vistazo;
+      - barras de error en las DOS direcciones: tanto `va` como `S` son promedios
+        con dispersion entre realizaciones, y al graficar uno contra el otro cada
+        eje conserva su barra;
+      - una sola de las densidades altas (las tres dan `S ~ 1` para todo eta, o
+        sea el mismo punto degenerado repetido tres veces).
+    """
+    fig, axes = plt.subplots(1, 2, figsize=(16.0, 6.5), sharex=True, sharey=True)
+    for ax, model in zip(axes, ("vicsek", "voter")):
+        for rho in sorted(rhos, reverse=True):
+            group = _series(rows, model, rho)
+            if not group:
+                continue
+            ax.errorbar([r["va_mean"] for r in group], [r["S_mean"] for r in group],
+                        xerr=[r["va_std"] for r in group],
+                        yerr=[r["S_std"] for r in group],
+                        color=_rho_color(rho), marker=_rho_marker(rho),
+                        markersize=7, linestyle="none", capsize=3, linewidth=1.2,
+                        label=f"${_rho_label(rho)}$")
+        ax.set_xlim(0.0, 1.0)
+        ax.set_ylim(0.0, 1.0)
+        # Que panel es cual: la catedra pidio "una figura que diga votante y la
+        # otra Vicsek". Va como titulo de la leyenda, no como titulo de figura,
+        # y asi lo ubica `_place_legend` en el hueco libre junto con ella.
+        _style(ax, r"Polarización $v_a$", r"Componente gigante $S$",
+               legend_title=MODEL_LABEL[model])
+    _save(fig, out_path, show)
+    return axes
+
+
 # ---------------------------------------------------------------------------
 # Inciso (b): evolucion temporal del observable primario
 # ---------------------------------------------------------------------------
@@ -352,22 +477,19 @@ def pick_eta_levels(rows, model, rho):
     return eta_low, eta_mid, eta_high
 
 
-def read_scalar_log(path: Path) -> list[tuple[float, float, float]]:
-    """Lee un scalar-log `t va S` como lista de tuplas."""
-    rows = []
-    with open(path) as f:
-        for line in f:
-            parts = line.split()
-            if not parts:
-                continue
-            t, va, s = (float(x) for x in parts)
-            rows.append((t, va, s))
-    return rows
+def steady_start_for(model: str, rho: float, eta: float, steps: int,
+                     column: str, starts: dict) -> int | None:
+    """Corte de estacionario de un punto de barrido, leido de steady_state.csv.
 
-
-def steady_state_index(n_rows: int, fraction: float = STEADY_STATE_FRACTION) -> int:
-    """Indice de corte de estado estacionario."""
-    return int(n_rows * fraction)
+    La busqueda es tolerante en `rho` y `eta` porque las claves del CSV vienen
+    de floats formateados y las de aca de floats parseados; devuelve None si el
+    punto no esta (el CSV se genera junto con summary.csv, asi que faltar es
+    sintoma de un barrido a medias, no algo normal).
+    """
+    for (m, r, e, s), value in starts.items():
+        if m == model and s == steps and abs(r - rho) < 1e-3 and abs(e - eta) < 1e-4:
+            return value[0] if column == "va" else value[1]
+    return None
 
 
 def _log_path(model, rho, eta, steps=None):
@@ -398,38 +520,53 @@ def _log_path(model, rho, eta, steps=None):
 
 
 def plot_timeseries_multi_eta(rows, model, rho, column, out_path, show=False,
-                               steps=None):
+                               steps=None, starts=None):
     """Evolucion temporal del observable primario con tres niveles de ruido.
 
     Ruido bajo, medio y alto SUPERPUESTOS en la misma figura (un color por
     eta), como pidio la catedra. No se promedian eta distintos: cada curva es
     una realizacion de su propio eta.
 
-    La linea vertical marca el inicio del estado estacionario, que es donde
-    empieza la ventana sobre la que se promedia para obtener el observable
-    escalar de los incisos (c) y (d) -- el enunciado pide explicitamente
-    "mostrar con lineas verticales el inicio del mismo".
+    Las lineas verticales marcan el inicio del estado estacionario, que es
+    donde empieza la ventana sobre la que se promedia para obtener el
+    observable escalar de los incisos (c) y (d) -- el enunciado pide
+    explicitamente "mostrar con lineas verticales el inicio del mismo".
+
+    Hay UNA linea por nivel de ruido, del mismo color que su curva, porque el
+    transitorio depende del ruido: a eta alto el sistema ya nace en el
+    estacionario y a eta bajo tarda ~10^2 pasos en llegar. El valor no se
+    recalcula aca: sale de `steady_state.csv`, el mismo que uso el barrido para
+    promediar, asi que la figura muestra literalmente la ventana usada.
     """
     etas = pick_eta_levels(rows, model, rho)
     col_index = 1 if column == "va" else 2
     ylabel = (r"Polarización $v_a(t)$" if column == "va"
               else r"Componente gigante $S(t)$")
+    if starts is None:
+        starts = read_steady_state_csv()
+    n_steps = steps if steps is not None else steps_for(rho)
 
     fig, ax = plt.subplots(figsize=FIGSIZE)
-    cutoff_t = None
-    for level, eta in zip(("bajo", "medio", "alto"), etas):
+    for i, (level, eta) in enumerate(zip(("bajo", "medio", "alto"), etas)):
         series = read_scalar_log(_log_path(model, rho, eta, steps))
         if not series:
             raise RuntimeError(f"scalar log vacio para eta={eta:.6f}")
-        cutoff = steady_state_index(len(series))
-        cutoff_t = series[cutoff][0] if cutoff < len(series) else series[-1][0]
         ax.plot([r[0] for r in series], [r[col_index] for r in series],
                 color=ETA_LEVEL_COLORS[level], linewidth=1.4,
                 label=rf"$\eta = {eta:.2f}$")
 
-    if cutoff_t is not None:
-        ax.axvline(cutoff_t, color="black", linestyle=":", linewidth=2.0,
-                   label="inicio del estacionario")
+        cutoff_t = steady_start_for(model, rho, eta, n_steps, column, starts)
+        if cutoff_t is None:
+            raise RuntimeError(
+                f"sin corte de estacionario para {model} rho={rho:g} eta={eta:.6f} "
+                f"steps={n_steps} en {STEADY_STATE_CSV}: correr "
+                f"`python/sweep.py --reaggregate` antes de graficar"
+            )
+        # Guiones desfasados entre niveles: dos ruidos pueden compartir corte
+        # (pasa cuando los dos ya arrancan estacionarios) y con el mismo patron
+        # una linea taparia a la otra por completo.
+        ax.axvline(cutoff_t, color=ETA_LEVEL_COLORS[level],
+                   linestyle=(3 * i, (3, 6)), linewidth=2.2)
 
     ax.set_ylim(0.0, 1.05)
     _style(ax, r"Tiempo $t$ [pasos]", ylabel)
@@ -522,6 +659,10 @@ def plot_S_rho(rows, out_path, show=False):
 # ---------------------------------------------------------------------------
 
 TIMESERIES_RHO = 2.0          # densidad unica para los pasos intermedios
+# En va vs S las tres densidades del enunciado caen todas sobre S ~ 1: son el
+# mismo punto degenerado repetido, asi que en la figura de la presentacion va
+# una sola como representante.
+PANEL_STANDARD_RHO = 2.0
 TIMESERIES_RHO_CLUSTER = RHO_1_PI  # S(t) a rho=2 es una recta en 1: no informa
 
 
@@ -541,6 +682,7 @@ def main():
     for d in (TIMESERIES_DIR, ETA_DIR, PHASE_DIR, EXTRA_PLOTS_DIR):
         d.mkdir(parents=True, exist_ok=True)
     rows = load_summary(args.summary)
+    starts = read_steady_state_csv(steady_state_path_for(args.summary))
     written = []
 
     def emit(path):
@@ -550,7 +692,8 @@ def main():
     # --- Inciso (b): evolucion temporal de va, un modelo por figura ---------
     for model in ("vicsek", "voter"):
         path = TIMESERIES_DIR / f"va_t_{model}_rho{_rho_filename_tag(TIMESERIES_RHO)}.png"
-        plot_timeseries_multi_eta(rows, model, TIMESERIES_RHO, "va", path, args.show)
+        plot_timeseries_multi_eta(rows, model, TIMESERIES_RHO, "va", path, args.show,
+                                  starts=starts)
         emit(path)
 
     # --- Inciso (d), primera parte: evolucion temporal de S -----------------
@@ -562,7 +705,8 @@ def main():
     for model in ("vicsek", "voter"):
         for rho in tuple(STANDARD_RHOS) + (TIMESERIES_RHO_CLUSTER,):
             path = TIMESERIES_DIR / f"S_t_{model}_rho{_rho_filename_tag(rho)}.png"
-            plot_timeseries_multi_eta(rows, model, rho, "S", path, args.show)
+            plot_timeseries_multi_eta(rows, model, rho, "S", path, args.show,
+                                      starts=starts)
             emit(path)
 
     # --- Inciso (c): va(eta) ------------------------------------------------
@@ -572,11 +716,28 @@ def main():
         emit(path)
 
     # --- Inciso (f) sobre (c): comparacion, figura de cierre ----------------
+    # Dos versiones a proposito: la del informe conserva las barras de error, y
+    # la de la presentacion muestra solo el promedio y separa los modelos por
+    # color, que es lo que la catedra pidio para que se distingan proyectadas.
     path = ETA_DIR / "va_eta_comparacion.png"
     plot_eta_curve(rows, "va", ["vicsek", "voter"], STANDARD_RHOS, path, args.show)
     emit(path)
 
+    path = ETA_DIR / "va_eta_comparacion_medias.png"
+    plot_eta_curve(rows, "va", ["vicsek", "voter"], STANDARD_RHOS, path, args.show,
+                   errorbars=False, color_by="model")
+    emit(path)
+
     # --- Inciso (d), segunda parte: S(eta) ----------------------------------
+    # Las seis densidades en una sola figura: la catedra pidio no separar las
+    # tres del enunciado (donde S ~ 1 y no se ve dinamica) de las subcriticas,
+    # sino ponerlas juntas para que se vea el contraste.
+    all_rhos = tuple(STANDARD_RHOS) + tuple(CLUSTER_RHOS)
+    for model in ("vicsek", "voter"):
+        path = ETA_DIR / f"S_eta_{model}.png"
+        plot_eta_curve(rows, "S", [model], all_rhos, path, args.show, ylim=(0.0, 1.05))
+        emit(path)
+
     for model in ("vicsek", "voter"):
         path = ETA_DIR / f"S_eta_{model}_super.png"
         plot_eta_curve(rows, "S", [model], STANDARD_RHOS, path, args.show, ylim=(0.0, 1.05))
@@ -590,19 +751,29 @@ def main():
         plot_eta_curve(rows, "S", ["vicsek", "voter"], rhos, path, args.show, ylim=(0.0, 1.05))
         emit(path)
 
+        path = ETA_DIR / f"S_eta_comparacion_{tag}_medias.png"
+        plot_eta_curve(rows, "S", ["vicsek", "voter"], rhos, path, args.show,
+                       ylim=(0.0, 1.05), errorbars=False, color_by="model")
+        emit(path)
+
     # --- S(eta) de dos paneles (informe: figura unica fig:S-eta) ------------
     path = ETA_DIR / "S_eta.png"
     plot_S_eta_dual(rows, path, args.show)
     emit(path)
 
     # --- Inciso (e): va vs S ------------------------------------------------
-    all_rhos = tuple(STANDARD_RHOS) + tuple(CLUSTER_RHOS)
     for model in ("vicsek", "voter"):
         path = PHASE_DIR / f"va_vs_S_{model}.png"
         plot_va_vs_S(rows, [model], all_rhos, path, args.show)
         emit(path)
     path = PHASE_DIR / "va_vs_S_comparacion.png"
     plot_va_vs_S(rows, ["vicsek", "voter"], all_rhos, path, args.show)
+    emit(path)
+
+    # Version de la presentacion: un panel por modelo, misma escala, barras de
+    # error en las dos direcciones y una sola densidad supercritica.
+    path = PHASE_DIR / "va_vs_S_paneles.png"
+    plot_va_vs_S_paneles(rows, (PANEL_STANDARD_RHO,) + tuple(CLUSTER_RHOS), path, args.show)
     emit(path)
 
     # --- Extras (backup / apendice): no los pide el enunciado ---------------

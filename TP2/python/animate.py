@@ -118,7 +118,11 @@ def render_animation(frames, out_path, L: float = L_DEFAULT, stride: int = FRAME
     if not sampled:
         raise ValueError("render_animation: no hay frames para renderizar")
 
-    fig, ax = plt.subplots()
+    # Figura cuadrada: la caja simulada es L x L, asi que con la relacion 4:3
+    # que trae matplotlib por defecto la animacion quedaba con dos franjas
+    # blancas a los costados y el sistema ocupando poco mas de la mitad del
+    # cuadro. Cuadrada, el GIF llena el hueco que le deja la diapositiva.
+    fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_xlim(0, L)
     ax.set_ylim(0, L)
     ax.set_aspect("equal")

@@ -14,3 +14,10 @@ presentacion/*.nav
 presentacion/*.snm
 presentacion/*.toc
 presentacion/*.vrb
+
+# Artefactos de la version "vivo" de la presentacion (build_pptx.py): el .pptx
+# pesa decenas de MB por los GIF embebidos y se regenera con `make pptx`.
+presentacion/presentacion_vivo.pdf
+presentacion/presentacion_vivo.pptx
+presentacion/_paginas_vivo/
+presentacion/~$*

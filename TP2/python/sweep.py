@@ -39,8 +39,25 @@ DISCARD_OUT_PATH = os.devnull
 L_DEFAULT = 10.0
 DEFAULT_STEPS = 2000
 RUN_TIMEOUT_S = 300  # limite por corrida individual de tp2 (SWEEP-01 aislamiento de fallos)
-STEADY_STATE_FRACTION = 0.5  # descarta la primera mitad de los pasos como transitorio
 DEFAULT_K_SEEDS = 10  # semillas por punto: barras de error = std sobre realizaciones
+
+# --- Criterio de estado estacionario -------------------------------------
+#
+# El corte NO es una fraccion fija de la corrida: se mide por punto de barrido
+# (model, rho, eta), porque el transitorio depende fuertemente del ruido. A eta
+# alto el sistema ya nace desordenado y el estacionario arranca en t=0; a eta
+# bajo hay una relajacion de ~10^2 pasos hasta el plateau. Descartar el 50% en
+# todos los puntos tira mas de la mitad de los pasos utiles en la mayoria.
+#
+# La deteccion corre sobre el promedio de ensamble de las K semillas: promediar
+# entre semillas cancela las fluctuaciones lentas de una corrida individual
+# (que NO son transitorio -- la serie baja y vuelve al mismo valor) y deja solo
+# la relajacion sistematica desde la condicion inicial.
+STEADY_BLOCKS = 40         # bloques en que se parte la serie para promediar
+STEADY_REL_TOL = 0.05      # tolerancia relativa al valor del plateau
+STEADY_K_SIGMA = 3.0       # ... o k desvios entre bloques, lo que sea mayor
+STEADY_CAP_FRACTION = 0.5  # tope duro: el corte nunca cae despues de la mitad
+STEADY_STATE_CSV = SWEEP_DATA_DIR / "steady_state.csv"
 
 # Grilla de eta FIJA e IDENTICA para los dos modelos.
 #
@@ -149,13 +166,9 @@ def run_one(model: str, rho: float, eta: float, seed: int, steps: int = DEFAULT_
     return out_path
 
 
-def summarize_run(log_path: Path, steady_fraction: float = STEADY_STATE_FRACTION,
-                   expected_steps: int | None = None) -> tuple[float, float]:
-    """Media de va y S sobre la ventana de estado estacionario (SWEEP-05).
-
-    Corte fijo: se descarta la primera `steady_fraction` de los pasos como
-    transitorio. La MISMA ventana alimenta tanto la media de va como la de
-    S, aplicando el criterio identicamente a ambos observables.
+def read_scalar_log(log_path: Path,
+                    expected_steps: int | None = None) -> list[tuple[float, float, float]]:
+    """Lee un scalar-log `t va S` como lista de tuplas.
 
     Si se pasa `expected_steps`, se exige que el log tenga exactamente
     `expected_steps + 1` filas (t=0..steps). Es la segunda guarda contra
@@ -179,33 +192,120 @@ def summarize_run(log_path: Path, steady_fraction: float = STEADY_STATE_FRACTION
             f"una larga es exactamente el defecto que el sufijo _s{{steps}} de "
             f"sweep_output_path() previene -- borrar data/sweep y re-correr."
         )
+    return rows
 
-    cutoff = int(len(rows) * steady_fraction)
-    window = rows[cutoff:] if cutoff < len(rows) else rows[-1:]
+
+def steady_state_index(series: list[list[float]], blocks: int = STEADY_BLOCKS,
+                       rel_tol: float = STEADY_REL_TOL,
+                       k_sigma: float = STEADY_K_SIGMA,
+                       cap_fraction: float = STEADY_CAP_FRACTION) -> int:
+    """Paso en que arranca el estacionario de UN observable, sobre K realizaciones.
+
+    `series` es una lista de series temporales del mismo punto de barrido, una
+    por semilla. Se promedian punto a punto y sobre esa curva de ensamble:
+
+      1. se parte en `blocks` bloques y se promedia cada uno;
+      2. el plateau se estima con los bloques de la segunda mitad, que es
+         estacionaria por construccion (el largo de corrida se eligio para eso,
+         ver SUBCRITICAL_STEPS);
+      3. la banda de tolerancia es `max(rel_tol*|mu|, k_sigma*sigma_bloques)`:
+         el termino relativo manda cuando la serie es limpia, el de sigma
+         cuando fluctua mucho (cerca de la transicion);
+      4. el corte es el final del ULTIMO bloque que se sale de la banda, o sea
+         el primer instante a partir del cual ya no vuelve a salirse.
+
+    El tope en `cap_fraction` es la red de seguridad: si la serie no muestra un
+    plateau limpio, la funcion degrada al criterio conservador de descartar la
+    primera mitad, en vez de devolver un corte optimista.
+    """
+    if not series:
+        raise ValueError("steady_state_index: sin series")
+    n = min(len(s) for s in series)
+    if n < 2 * blocks:
+        blocks = max(1, n // 5)
+    width = max(1, n // blocks)
+    n_blocks = n // width
+    if n_blocks < 2:
+        return 0
+
+    k = len(series)
+    ensemble = [sum(s[i] for s in series) / k for i in range(n)]
+    block_means = [
+        statistics.fmean(ensemble[b * width:(b + 1) * width]) for b in range(n_blocks)
+    ]
+
+    reference = block_means[n_blocks // 2:]
+    mu = statistics.fmean(reference)
+    sigma = statistics.pstdev(reference) if len(reference) > 1 else 0.0
+    band = max(rel_tol * abs(mu), k_sigma * sigma)
+
+    last_bad = -1
+    for b, value in enumerate(block_means):
+        if abs(value - mu) > band:
+            last_bad = b
+    return min((last_bad + 1) * width, int(n * cap_fraction))
+
+
+def steady_state_starts(runs: list[dict]) -> tuple[int, int]:
+    """Cortes (va, S) de un punto de barrido (model, rho, eta).
+
+    `runs` son las corridas de ese punto (una por semilla), cada una con su
+    `log_path` y su `steps`.
+
+    Cada observable recibe SU PROPIA ventana, con el mismo criterio aplicado de
+    forma identica a los dos. No comparten un unico corte porque no comparten
+    el transitorio: S ya arranca cerca de su valor estacionario en la condicion
+    inicial (las particulas nacen conectadas), mientras que va tiene que
+    relajar desde una configuracion de angulos al azar. Forzar una ventana
+    unica significa promediar uno de los dos sobre menos datos de los que
+    tiene disponibles, que es justamente lo que se quiere evitar.
+    """
+    va_series, s_series = [], []
+    for run in runs:
+        rows = read_scalar_log(Path(run["log_path"]), expected_steps=run.get("steps"))
+        va_series.append([r[1] for r in rows])
+        s_series.append([r[2] for r in rows])
+    return steady_state_index(va_series), steady_state_index(s_series)
+
+
+def summarize_run(log_path: Path, va_start: int, s_start: int,
+                  expected_steps: int | None = None) -> tuple[float, float]:
+    """Media de va y de S, cada una sobre su ventana de estacionario (SWEEP-05).
+
+    Los cortes los decide `steady_state_starts` por punto de barrido, no una
+    fraccion fija de la corrida.
+    """
+    rows = read_scalar_log(log_path, expected_steps=expected_steps)
+    va_window = rows[va_start:] if va_start < len(rows) else rows[-1:]
+    s_window = rows[s_start:] if s_start < len(rows) else rows[-1:]
     return (
-        statistics.mean(r[1] for r in window),
-        statistics.mean(r[2] for r in window),
+        statistics.mean(r[1] for r in va_window),
+        statistics.mean(r[2] for r in s_window),
     )
 
 
-def _run_and_summarize(args: tuple) -> dict:
+def _run_task(args: tuple) -> dict:
     """Worker picklable a nivel de modulo para el pool de procesos de run_sweep.
 
-    `args` desempaqueta a (model, rho, eta, repeat_index, steps). Nunca deja
-    propagar una excepcion cruzando el limite del pool -- una combinacion
-    fallida se devuelve como dict "ok"=False en vez de abortar el resto del
-    barrido (SWEEP-01, "log y continuar").
+    `args` desempaqueta a (model, rho, eta, repeat_index, steps). Corre la
+    simulacion y devuelve la ruta del log, SIN resumirlo: el corte de estado
+    estacionario se decide despues, mirando las K semillas del punto juntas
+    (ver steady_state_starts), asi que no se puede promediar corrida por corrida
+    adentro del worker.
+
+    Nunca deja propagar una excepcion cruzando el limite del pool -- una
+    combinacion fallida se devuelve como dict "ok"=False en vez de abortar el
+    resto del barrido (SWEEP-01, "log y continuar").
     """
     model, rho, eta, repeat_index, steps = args
     seed = derive_seed(rho, eta, model, repeat_index)
     try:
         log_path = run_one(model, rho, eta, seed, steps=steps)
-        va_mean, s_mean = summarize_run(log_path, expected_steps=steps)
         return {"ok": True, "model": model, "rho": rho, "eta": eta, "seed": seed,
-                "va_mean": va_mean, "S_mean": s_mean}
+                "steps": steps, "log_path": str(log_path)}
     except Exception as exc:
         return {"ok": False, "model": model, "rho": rho, "eta": eta, "seed": seed,
-                "error": str(exc)}
+                "steps": steps, "error": str(exc)}
 
 
 def run_sweep(tasks: list, steps: int = DEFAULT_STEPS, workers: int | None = None
@@ -213,8 +313,8 @@ def run_sweep(tasks: list, steps: int = DEFAULT_STEPS, workers: int | None = Non
     """Ejecuta todas las combinaciones (model,rho,eta,repeat_index) en paralelo.
 
     `tasks` es una lista de tuplas (model, rho, eta, repeat_index). Devuelve
-    (results, failures): una combinacion fallida cae en `failures` sin
-    abortar el pool ni descartar el resto de los resultados.
+    (runs, failures): una combinacion fallida cae en `failures` sin abortar el
+    pool ni descartar el resto de las corridas.
     """
     workers = workers or os.cpu_count() or 1
     # El largo de cada corrida lo fija la densidad, no un valor global: las
@@ -222,9 +322,101 @@ def run_sweep(tasks: list, steps: int = DEFAULT_STEPS, workers: int | None = Non
     args = [(model, rho, eta, repeat_index, steps_for(rho, steps))
             for (model, rho, eta, repeat_index) in tasks]
     with multiprocessing.Pool(workers) as pool:
-        raw = pool.map(_run_and_summarize, args)
-    results = [r for r in raw if r["ok"]]
+        raw = pool.map(_run_task, args)
+    runs = [r for r in raw if r["ok"]]
     failures = [r for r in raw if not r["ok"]]
+    return runs, failures
+
+
+def collect_existing_runs(tasks: list, steps: int = DEFAULT_STEPS) -> tuple[list, list]:
+    """Igual que run_sweep pero SIN simular: levanta los logs que ya estan en disco.
+
+    Es lo que usa `--reaggregate`. Cambiar el criterio de estado estacionario no
+    cambia ni una sola trayectoria -- solo la ventana sobre la que se promedia --
+    asi que re-correr el barrido entero seria tirar horas de computo para obtener
+    exactamente los mismos scalar-logs.
+    """
+    runs, failures = [], []
+    for (model, rho, eta, repeat_index) in tasks:
+        n_steps = steps_for(rho, steps)
+        seed = derive_seed(rho, eta, model, repeat_index)
+        path = sweep_output_path(model, rho, eta, seed, n_steps)
+        entry = {"model": model, "rho": rho, "eta": eta, "seed": seed, "steps": n_steps}
+        if path.exists():
+            runs.append({**entry, "ok": True, "log_path": str(path)})
+        else:
+            failures.append({**entry, "ok": False, "error": f"log inexistente: {path}"})
+    return runs, failures
+
+
+def group_runs(runs: list) -> dict[tuple, list[dict]]:
+    """Agrupa corridas por punto de barrido (model, rho, eta, steps)."""
+    groups: dict[tuple, list[dict]] = {}
+    for run in runs:
+        groups.setdefault((run["model"], run["rho"], run["eta"], run["steps"]), []).append(run)
+    return groups
+
+
+def detect_steady_starts(runs: list) -> dict[tuple, tuple[int, int]]:
+    """Cortes (va, S) por punto de barrido (model, rho, eta, steps)."""
+    return {key: steady_state_starts(group) for key, group in group_runs(runs).items()}
+
+
+def write_steady_state_csv(starts: dict[tuple, tuple[int, int]],
+                           csv_path: Path = STEADY_STATE_CSV) -> None:
+    """Persiste los cortes detectados: model,rho,eta,steps,t_start_va,t_start_S.
+
+    Fuente unica de verdad del criterio: la agregacion promedia desde estos `t`
+    y `analyze.py` dibuja la linea vertical en el mismo `t`, de modo que la
+    figura muestra literalmente la ventana que se uso para promediar.
+    """
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = ["model", "rho", "eta", "steps", "t_start_va", "t_start_S"]
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for key in sorted(starts):
+            model, rho, eta, steps = key
+            va_start, s_start = starts[key]
+            writer.writerow({"model": model, "rho": rho, "eta": f"{eta:.6f}",
+                             "steps": steps, "t_start_va": va_start, "t_start_S": s_start})
+
+
+def steady_state_path_for(summary_path: Path) -> Path:
+    """CSV de cortes que le corresponde a un CSV resumen.
+
+    `data/sweep/summary.csv` -> `data/sweep/steady_state.csv`, y cualquier otro
+    resumen (el de percolacion, por ejemplo) lleva su propio archivo de cortes.
+    Sin esto los dos barridos escribirian el mismo `steady_state.csv` y el
+    segundo en correr pisaria los cortes del primero.
+    """
+    if summary_path.name == "summary.csv":
+        return summary_path.parent / STEADY_STATE_CSV.name
+    return summary_path.parent / summary_path.name.replace("summary", "steady_state")
+
+
+def read_steady_state_csv(csv_path: Path = STEADY_STATE_CSV) -> dict[tuple, tuple[int, int]]:
+    """Inversa de write_steady_state_csv, con las claves ya casteadas."""
+    starts: dict[tuple, tuple[int, int]] = {}
+    with open(csv_path, newline="") as f:
+        for row in csv.DictReader(f):
+            key = (row["model"], float(row["rho"]), float(row["eta"]), int(row["steps"]))
+            starts[key] = (int(row["t_start_va"]), int(row["t_start_S"]))
+    return starts
+
+
+def summarize_runs(runs: list, starts: dict[tuple, tuple[int, int]]) -> tuple[list, list]:
+    """Promedia cada corrida sobre las ventanas de su punto de barrido."""
+    results, failures = [], []
+    for run in runs:
+        key = (run["model"], run["rho"], run["eta"], run["steps"])
+        try:
+            va_start, s_start = starts[key]
+            va_mean, s_mean = summarize_run(Path(run["log_path"]), va_start, s_start,
+                                            expected_steps=run["steps"])
+            results.append({**run, "va_mean": va_mean, "S_mean": s_mean})
+        except Exception as exc:
+            failures.append({**run, "ok": False, "error": str(exc)})
     return results, failures
 
 
@@ -305,16 +497,16 @@ def _selftest():
         for t in range(10):
             f.write(f"{t} {t} {t * 2}\n")
     try:
-        va_mean, s_mean = summarize_run(synthetic_path)
+        va_mean, s_mean = summarize_run(synthetic_path, 5, 5)
         assert va_mean == 7.0 and s_mean == 14.0, (
             f"summarize_run: esperado (7.0, 14.0), obtuvo ({va_mean}, {s_mean})"
         )
 
         # 4b. summarize_run debe rechazar un log truncado cuando se le dice
         #     cuantos pasos esperaba (10 filas = t=0..9, o sea 9 pasos).
-        summarize_run(synthetic_path, expected_steps=9)  # no debe lanzar
+        summarize_run(synthetic_path, 5, 5, expected_steps=9)  # no debe lanzar
         try:
-            summarize_run(synthetic_path, expected_steps=2000)
+            summarize_run(synthetic_path, 5, 5, expected_steps=2000)
         except RuntimeError as exc:
             assert "truncado" in str(exc), f"RuntimeError inesperado: {exc}"
         else:
@@ -323,6 +515,46 @@ def _selftest():
             )
     finally:
         synthetic_path.unlink()
+
+    # 4c. steady_state_index: los tres regimenes que tiene que distinguir.
+    n_steps = 2000
+    #  (i) serie ya estacionaria desde t=0 -> corte en 0.
+    flat = [[0.5 + 0.01 * ((i * 7 + s * 13) % 11 - 5) for i in range(n_steps)]
+            for s in range(5)]
+    assert steady_state_index(flat) == 0, (
+        f"steady_state_index: serie plana deberia dar 0, dio {steady_state_index(flat)}"
+    )
+
+    #  (ii) transitorio exponencial de ~100 pasos -> corte temprano, no a la mitad.
+    import math as _math
+    relax = [[1.0 - _math.exp(-i / 30.0) + 0.005 * ((i * 3 + s) % 7 - 3)
+              for i in range(n_steps)] for s in range(5)]
+    cut = steady_state_index(relax)
+    assert 0 < cut <= 400, f"steady_state_index: transitorio corto dio corte {cut}"
+
+    #  (iii) serie que nunca se aplana (rampa): el corte tiene que irse lejos y
+    #        nunca pasar el tope, o sea degradar hacia el criterio conservador
+    #        en vez de inventar un estacionario temprano.
+    ramp = [[i / n_steps for i in range(n_steps)] for _ in range(5)]
+    cut_ramp = steady_state_index(ramp)
+    cap = int(n_steps * STEADY_CAP_FRACTION)
+    assert n_steps // 4 <= cut_ramp <= cap, (
+        f"steady_state_index: rampa deberia cortar tarde y no pasar {cap}, dio {cut_ramp}"
+    )
+
+    #  (iv) una fluctuacion lenta DENTRO del estacionario (una bajada que
+    #       despues vuelve al mismo valor) no debe leerse como transitorio: es
+    #       exactamente el caso que la catedra marco sobre va(t) de Vicsek.
+    dip = []
+    for s in range(5):
+        serie = [0.9 + 0.01 * ((i * 5 + s) % 9 - 4) for i in range(n_steps)]
+        for i in range(1500, 1600):
+            serie[i] -= 0.03
+        dip.append(serie)
+    assert steady_state_index(dip) == 0, (
+        f"steady_state_index: una fluctuacion tardia se leyo como transitorio "
+        f"(corte {steady_state_index(dip)})"
+    )
 
     # 5. end-to-end, solo si el binario compilado esta disponible.
     if TP2_BIN.exists():
@@ -405,6 +637,9 @@ def main():
     )
     parser.add_argument("--selftest", action="store_true",
                         help="corre las verificaciones internas y sale")
+    parser.add_argument("--reaggregate", action="store_true",
+                        help="no simula: recalcula ventanas y resumen desde los "
+                             "scalar-logs que ya estan en data/sweep/")
     parser.add_argument("--rhos", type=float, nargs="+", default=DEFAULT_RHOS,
                         help=f"densidades a barrer (default {DEFAULT_RHOS})")
     parser.add_argument("--models", nargs="+", default=DEFAULT_MODELS,
@@ -426,7 +661,7 @@ def main():
         _selftest()
         return
 
-    if not TP2_BIN.exists():
+    if not TP2_BIN.exists() and not args.reaggregate:
         sys.exit(f"error: no existe {TP2_BIN}. Correr `make` primero.")
 
     # Grilla fija y compartida por los dos modelos: sin mini-barrido
@@ -450,7 +685,25 @@ def main():
         rs = [f"{r:g}" for r in args.rhos if steps_for(r, args.steps) == n]
         print(f"  {n} pasos para rho = {', '.join(rs)}")
 
-    results, failures = run_sweep(tasks, steps=args.steps, workers=args.workers)
+    # Tres pasadas: correr -> detectar la ventana de estacionario de cada punto
+    # (necesita las K semillas juntas) -> promediar cada corrida en esa ventana.
+    if args.reaggregate:
+        print("modo --reaggregate: no se simula nada, se releen los logs de disco")
+        runs, failures = collect_existing_runs(tasks, steps=args.steps)
+    else:
+        runs, failures = run_sweep(tasks, steps=args.steps, workers=args.workers)
+
+    starts = detect_steady_starts(runs)
+    steady_path = steady_state_path_for(args.out)
+    write_steady_state_csv(starts, steady_path)
+    if starts:
+        print(f"estacionario: {steady_path} ({len(starts)} puntos, corte mediano "
+              f"va={statistics.median(v[0] for v in starts.values()):.0f}, "
+              f"S={statistics.median(v[1] for v in starts.values()):.0f} pasos)")
+
+    results, summary_failures = summarize_runs(runs, starts)
+    failures += summary_failures
+
     aggregate_to_csv(results, args.out)
     print(f"resumen: {args.out} ({len(results)} corridas OK)")
 

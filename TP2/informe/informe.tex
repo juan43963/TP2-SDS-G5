@@ -608,7 +608,7 @@ del orden de $0{,}01$.}
 \subsection{Semillas y reproducibilidad}
 \label{sec:semillas}
 
-Cada punto $(\text{modelo}, \rho, \eta)$ del barrido se corre con $K = 5$
+Cada punto $(\text{modelo}, \rho, \eta)$ del barrido se corre con $K = 10$
 semillas independientes. La semilla no se toma nunca del reloj: se deriva de
 forma determinística como los 64 bits más significativos de
 $\mathrm{sha256}(\text{modelo} \mid \rho \mid \eta \mid k)$, con $k$ el índice
@@ -618,33 +618,52 @@ produzcan semillas sin relación entre sí, evitando correlaciones espurias entr
 puntos vecinos de la curva, y que todo el barrido sea reproducible bit a bit.
 
 Cada corrida del barrido consta de 2000 pasos. Las barras de error de todas las
-figuras son el desvío estándar de las $K = 5$ medias de estado estacionario, una
+figuras son el desvío estándar de las $K = 10$ medias de estado estacionario, una
 por semilla; es decir, cuantifican la incerteza de la media, no la amplitud de
 la fluctuación temporal del observable dentro de una corrida.
 \pregunta{La fluctuación temporal de $v_a(t)$ dentro del estado estacionario de
 una sola corrida es cerca de diez veces mayor que el desvío entre semillas que
 se grafica (medido en Vicsek, $\rho=2$, $\eta=2{,}356$: $\approx 0{,}12$ contra
 $0{,}014$). Hay que confirmar cuál de las dos magnitudes se espera como barra de
-error, y si $K=5$ alcanza en la región de transición, donde la dispersión entre
+error, y si $K=10$ alcanza en la región de transición, donde la dispersión entre
 semillas es mayor.}
 
 \subsection{Criterio de estado estacionario}
 \label{sec:estacionario}
 
 El valor escalar de cada observable se obtiene promediando su serie temporal
-sobre una ventana de estado estacionario, descartando el primer $50\%$ de los
-pasos como transitorio: con 2000 pasos por corrida, la ventana de promediado es
-$t \in [1000,\ 2000]$. El mismo corte se aplica de forma idéntica a $v_a$ y a
-$S$, de modo que ambos observables se miden bajo el mismo criterio y sobre la
-misma ventana temporal. La Sección~\ref{sec:va-t} muestra que el transitorio
-real es de uno a dos órdenes de magnitud más corto que ese corte, por lo que la
-convención es conservadora.
-\pregunta{El corte del $50\%$ es una convención fija, no un criterio de
-convergencia medido punto a punto. Verificado sobre Vicsek, $\rho=2$,
-$\eta=2{,}356$, la media de $v_a$ varía sólo entre $0{,}578$ y $0{,}588$ al
-mover el corte del $30\%$ al $90\%$, pero la dispersión entre semillas crece
-de $0{,}011$ a $0{,}061$ al achicarse la ventana. Falta confirmar si se acepta
-el corte fijo documentado o si se espera un criterio explícito de convergencia.}
+sobre una ventana de estado estacionario. El inicio de esa ventana no es una
+fracción fija de la corrida: se \emph{mide} para cada punto de barrido
+$(\text{modelo}, \rho, \eta)$ y para cada observable, porque la duración del
+transitorio depende fuertemente del ruido. A $\eta$ grande el sistema nace ya
+desordenado y el estacionario arranca en $t = 0$; a $\eta$ chico la
+polarización tarda $\sim 10^2$ pasos en alcanzar su meseta.
+
+El criterio, idéntico para $v_a$ y para $S$, es el siguiente. Las $K$ series de
+un punto de barrido se promedian punto a punto: el promedio de ensamble cancela
+las fluctuaciones lentas de una corrida individual ---que no son transitorio,
+porque la serie se aparta y vuelve al mismo valor--- y deja sólo la relajación
+sistemática desde la condición inicial. Esa curva se parte en 40 bloques; la
+meseta se estima con los bloques de la segunda mitad, estacionaria por
+construcción, y se define una banda de tolerancia
+$\max(0{,}05\,|\mu|,\ 3\sigma)$ alrededor de su valor medio $\mu$, con $\sigma$
+la dispersión entre esos bloques. El inicio del estacionario es el final del
+último bloque que se sale de la banda, es decir el primer instante a partir del
+cual la curva ya no vuelve a apartarse. El resultado queda acotado a la primera
+mitad de la corrida: si la serie no muestra una meseta limpia, el criterio
+degrada al corte conservador del $50\%$ en vez de devolver una ventana
+optimista.
+
+Los cortes se persisten en \texttt{data/sweep/steady\_state.csv} y son los
+mismos que dibujan las líneas verticales de las figuras de evolución temporal,
+de modo que cada figura muestra literalmente la ventana sobre la que se
+promedió. Para las densidades del enunciado la mediana de los cortes de $v_a$
+es de $10^2$ pasos, contra los $1000$ que imponía la convención fija anterior:
+el criterio medido recupera para la estadística la parte de la corrida que el
+corte fijo descartaba. Los valores medios cambian poco al hacerlo
+($\max|\Delta v_a| = 0{,}04$ sobre los 468 puntos del barrido), como
+corresponde a dos cortes que caen ambos dentro del estacionario, pero la
+ventana de promediado resulta entre dos y cinco veces más larga.
 
 % ===========================================================================
 \section{Resultados}
@@ -714,40 +733,42 @@ Antes de reducir cada corrida a un escalar es necesario verificar que la ventana
 de promediado cae efectivamente en el estado estacionario. Las
 Figs.~\ref{fig:va-t-vicsek} y~\ref{fig:va-t-voter} muestran la evolución
 temporal de $v_a$ para una corrida característica de cada modelo a $\rho = 2$,
-con la línea vertical que marca el inicio de la ventana de medición.
+con una línea vertical por nivel de ruido, del color de su curva, que marca el
+inicio de la ventana de medición correspondiente.
 
 En el modelo de Vicsek, $v_a(t)$ crece de forma monótona y suave desde la
-condición inicial desordenada --- medida sobre las cinco semillas,
+condición inicial desordenada --- medida sobre las diez semillas,
 $v_a(0)$ va de $0{,}044$ a $0{,}101$, consistente con el piso de tamaño finito
 $N^{-1/2} = 0{,}071$ --- y alcanza $v_a \geq 0{,}8$ entre los pasos $39$ y
-$160$ según la semilla, es decir entre seis y veinticinco veces antes del corte
-en $t = 1000$. En el modelo de votante la convergencia es notoriamente más lenta
-y más ruidosa --- consistente con un proceso de engrosamiento
+$160$ según la semilla. En el modelo de votante la convergencia es notoriamente
+más lenta y más ruidosa --- consistente con un proceso de engrosamiento
 (\textit{coarsening}) por copia local en lugar de un promediado global ---, y el
 mismo umbral se alcanza recién entre los pasos $114$ y $827$ según la semilla.
 Una vez dentro de la ventana, ambas series fluctúan en torno a un valor estable
 sin tendencia apreciable, y es ese promedio el que se reporta como valor escalar
 del observable en las secciones siguientes.
 
-El caso del votante conviene mirarlo con más cuidado: con la semilla más lenta
-el transitorio termina en $t = 827$, apenas un $17\%$ antes del corte en
-$t = 1000$. El criterio del $50\%$ sigue siendo válido en este punto de la
-grilla, pero el margen es estrecho y no puede darse por descontado en los demás.
-\pregunta{Falta verificar que el corte del $50\%$ deje afuera el transitorio
-del votante en \emph{todos} los puntos de la grilla, no sólo en el que se
-grafica: a $\eta = 0{,}1122$ y $\rho = 2$ la semilla más lenta converge recién
-en $t = 827$ sobre un corte en $t = 1000$. Si en algún punto el transitorio
-excede el corte, la media de estado estacionario queda contaminada.}
+Esa diferencia entre modelos es exactamente la razón por la que el corte se
+mide punto a punto en lugar de fijarse de antemano. A $\rho = 2$ los cortes de
+$v_a$ que devuelve el criterio de la Sección~\ref{sec:estacionario} tienen
+mediana $150$ en Vicsek y $50$ en el votante, y van desde $0$ ---en la zona
+desordenada no hay transitorio que descartar, el sistema nace en su estado
+estacionario--- hasta el tope de $1000$ en los pocos puntos donde la
+fluctuación es tan grande que el criterio no llega a identificar una meseta
+limpia y degrada al corte conservador. Un corte fijo tendría que haber valido el
+peor de todos esos casos para ser seguro, y así descarta la mitad de la corrida
+también en la gran mayoría de los puntos donde no hacía falta.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.72\textwidth]{va_t_vicsek_rho2.png}
   \caption{Evolución temporal de la polarización $v_a$, modelo de Vicsek,
-    $\rho = 2$ ($N = 200$), $\eta = 0{,}7854$, $L = 10$, $r_c = 1$,
-    $v_0 = 0{,}03$, 2000 pasos, una semilla del conjunto de $K = 5$ del barrido.
-    La línea vertical punteada marca el inicio de la ventana de estado
-    estacionario ($t = 1000$, $50\%$ de los pasos descartado como
-    transitorio).}
+    $\rho = 2$ ($N = 200$), $L = 10$, $r_c = 1$, $v_0 = 0{,}03$, 2000 pasos,
+    una semilla del conjunto de $K = 10$ del barrido. Tres niveles de ruido
+    superpuestos: ordenado, cerca de la transición y desordenado. Cada línea
+    vertical punteada, del color de su curva, marca el inicio de la ventana de
+    estado estacionario medida para ese ruido
+    (Sección~\ref{sec:estacionario}).}
   \label{fig:va-t-vicsek}
 \end{figure}
 
@@ -755,22 +776,21 @@ excede el corte, la media de estado estacionario queda contaminada.}
   \centering
   \includegraphics[width=0.72\textwidth]{va_t_voter_rho2.png}
   \caption{Evolución temporal de la polarización $v_a$, modelo de votante,
-    $\rho = 2$ ($N = 200$), $\eta = 0{,}1122$, $L = 10$, $r_c = 1$,
-    $v_0 = 0{,}03$, 2000 pasos, una semilla del conjunto de $K = 5$ del barrido,
-    con el mismo criterio de corte que la Fig.~\ref{fig:va-t-vicsek}.}
+    $\rho = 2$ ($N = 200$), $L = 10$, $r_c = 1$, $v_0 = 0{,}03$, 2000 pasos,
+    una semilla del conjunto de $K = 10$ del barrido, con los mismos tres
+    niveles de ruido y el mismo criterio de corte que la
+    Fig.~\ref{fig:va-t-vicsek}. Los valores de $\eta$ son mucho menores que en
+    Vicsek: la región ordenada del votante es un orden de magnitud más angosta.}
   \label{fig:va-t-voter}
 \end{figure}
 
-\pregunta{Las Figs.~\ref{fig:va-t-vicsek} y~\ref{fig:va-t-voter} están a
-valores de $\eta$ distintos ($0{,}7854$ y $0{,}1122$), porque el script elige
-para cada modelo el menor $\eta > 0$ de su propia grilla con
-$v_a \geq 0{,}8$ y las dos grillas son distintas. Así no se comparan entre sí,
-que es lo que pide el inciso (f). Peor aún, $0{,}7854 = \pi/4$ es apenas el
-segundo punto de la grilla gruesa de Vicsek y está lejos de su ruido crítico
-($\eta_c \approx 2{,}58$ a $\rho=2$), de modo que no ilustra la transición.
-Habría que rehacer estas dos figuras superpuestas en un mismo par de ejes y a un
-$\eta$ común, elegido cerca de la transición de al menos uno de los dos
-modelos.}
+Las dos figuras están a valores de $\eta$ distintos a propósito. La grilla de
+ruido es la misma para los dos modelos (Sección~\ref{sec:grilla-eta}), pero los tres
+niveles que se grafican se eligen por modelo a partir del $v_a$ medido ---el
+mayor $\eta$ todavía ordenado, el más cercano a $v_a = 0{,}5$ y el menor ya
+desordenado---, de modo que cada figura muestre la transición del modelo que
+ilustra. La comparación punto a punto entre modelos es la de la
+Sección~\ref{sec:va-eta}, sobre la grilla completa.
 
 \subsection{Polarización en función del ruido}
 \label{sec:va-eta}
@@ -809,8 +829,9 @@ orientación en 2000 pasos para los sistemas más grandes.
     ($N = 200$, 400 y 800) y ambos modelos de interacción (Vicsek: línea
     sólida; votante: línea de trazos). Parámetros comunes: $L = 10$,
     $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$, 2000 pasos por corrida,
-    promedio sobre el $50\%$ final de cada corrida. Barras de error: desvío
-    estándar entre $K = 5$ semillas independientes por punto.}
+    promedio sobre la ventana de estado estacionario medida para cada punto
+    (Sección~\ref{sec:estacionario}). Barras de error: desvío estándar entre
+    $K = 10$ semillas independientes por punto.}
   \label{fig:va-eta}
 \end{figure}
 
@@ -853,14 +874,14 @@ comparables.
     $\eta = 0{,}7854$. Fila inferior: modelo de votante, $\eta = 0{,}1122$.
     Columnas, de izquierda a derecha: $\rho = 2$ ($N = 200$), $\rho = 4$
     ($N = 400$) y $\rho = 8$ ($N = 800$). Parámetros comunes: $L = 10$,
-    $r_c = 1$, $v_0 = 0{,}03$, 2000 pasos, una semilla del conjunto de $K = 5$
-    del barrido. La línea vertical punteada marca el inicio de la ventana de
-    estado estacionario ($t = 1000$).}
+    $r_c = 1$, $v_0 = 0{,}03$, 2000 pasos, una semilla del conjunto de $K = 10$
+    del barrido. Cada línea vertical punteada marca el inicio de la ventana de
+    estado estacionario, medido por nivel de ruido.}
   \label{fig:S-t}
 \end{figure}
 
 \pregunta{Las seis series de la Fig.~\ref{fig:S-t} son de una única semilla, no
-el promedio de las $K=5$, y cada fila está a un $\eta$ distinto (heredado del
+el promedio de las $K=10$, y cada fila está a un $\eta$ distinto (heredado del
 mismo criterio de selección que las Figs.~\ref{fig:va-t-vicsek}
 y~\ref{fig:va-t-voter}), de modo que la comparación entre modelos que pide el
 inciso (f) tampoco es limpia acá. Conviene rehacerlas a un $\eta$ común y con
@@ -905,7 +926,8 @@ residual de unas pocas partículas por cluster.
     estudio de clusters, $\rho \in \{1/\pi,\ 1/(2\pi),\ 1/(3\pi)\}$
     ($N = 32$, 16, 11), régimen subcrítico. Parámetros comunes: $L = 10$,
     $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$, 2000 pasos, promedio sobre el
-    $50\%$ final. Barras de error: desvío estándar entre $K = 5$ semillas.}
+    ventana de estado estacionario medida para cada punto. Barras de error:
+    desvío estándar entre $K = 10$ semillas.}
   \label{fig:S-eta}
 \end{figure}
 
@@ -948,8 +970,9 @@ se discute a continuación: la figura no mide lo que su ruido nulo sugiere.
     función de la densidad $\rho$, a ruido nulo ($\eta = 0$), para ambos
     modelos. Diez densidades $\rho = 0{,}15\,i$ con $i = 1,\dots,10$
     ($N$ entre 15 y 150 con $L = 10$), $r_c = 1$, $v_0 = 0{,}03$,
-    $\Delta t = 1$, 2000 pasos, promedio sobre el $50\%$ final. Barras de
-    error: desvío estándar entre $K = 5$ semillas independientes. La línea
+    $\Delta t = 1$, promedio sobre la ventana de estado estacionario medida
+    para cada punto. Barras de error: desvío estándar entre $K = 5$ semillas
+    independientes (este barrido usa 5 semillas, no 10). La línea
     vertical punteada marca el umbral analítico de percolación
     $\rho_c = \langle k \rangle_c / (\pi r_c^2) \approx 1{,}436$ [3].}
   \label{fig:S-rho}
@@ -1005,11 +1028,11 @@ manifestaciones del mismo agrupamiento dinámico.
     $v_a$, ambas en el estado estacionario, distinguiendo densidad por color y
     modelo por marcador (Vicsek: círculos; votante: cruces). Cada punto
     corresponde a un valor de $\eta$ de la grilla del barrido, promediado sobre
-    $K = 5$ semillas. Se incluyen las densidades del enunciado
+    $K = 10$ semillas. Se incluyen las densidades del enunciado
     ($\rho = 2$, 4, 8; $N = 200$, 400, 800) y las del estudio de clusters
     ($\rho = 1/\pi$, $1/(2\pi)$, $1/(3\pi)$; $N = 32$, 16, 11). Parámetros
     comunes: $L = 10$, $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$, 2000 pasos,
-    promedio sobre el $50\%$ final.}
+    promedio sobre la ventana de estado estacionario medida para cada punto.}
   \label{fig:va-vs-S}
 \end{figure}
 
@@ -1035,9 +1058,10 @@ extremadamente angosta.
   \caption{Susceptibilidad $\chi = N \operatorname{Var}(v_a)$ en función del
     ruido angular $\eta$, para $\rho \in \{2, 4, 8\}$ ($N = 200$, 400, 800) y
     ambos modelos (Vicsek: línea sólida; votante: línea de trazos). La varianza
-    se calcula entre las $K = 5$ medias de estado estacionario de cada punto.
+    se calcula entre las $K = 10$ medias de estado estacionario de cada punto.
     Parámetros comunes: $L = 10$, $r_c = 1$, $v_0 = 0{,}03$, $\Delta t = 1$,
-    2000 pasos, promedio sobre el $50\%$ final.}
+    2000 pasos, promedio sobre la ventana de estado estacionario medida para
+    cada punto.}
   \label{fig:chi-eta}
 \end{figure}
 
@@ -1045,7 +1069,7 @@ extremadamente angosta.
   \centering
   \caption{Ubicación del máximo de la susceptibilidad, $\eta_c$, sobre la
     grilla de $\eta$ efectivamente muestreada ($L = 10$, $r_c = 1$,
-    $v_0 = 0{,}03$, 2000 pasos, $K = 5$ semillas por punto). Los valores del
+    $v_0 = 0{,}03$, 2000 pasos, $K = 10$ semillas por punto). Los valores del
     votante caen en los dos primeros puntos no nulos de la grilla o en su
     extremo inferior, y deben leerse como cotas superiores, no como
     mediciones.}

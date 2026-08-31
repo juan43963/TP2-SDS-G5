@@ -17,7 +17,7 @@ PY ?= python3
 SWEEP_SUMMARY := data/sweep/summary.csv
 PERCOLATION_SUMMARY := data/sweep/percolation_summary.csv
 
-.PHONY: all test clean plot sweep animation
+.PHONY: all test clean plot sweep reaggregate animation presentacion pptx
 
 all: tp2 tp2_test
 
@@ -67,6 +67,27 @@ plot: $(SWEEP_SUMMARY) $(PERCOLATION_SUMMARY) ../TP1/cim
 # modelo (vicsek/voter), eta elegido sobre $(SWEEP_SUMMARY) ya barrido.
 animation: $(SWEEP_SUMMARY)
 	$(PY) python/animate.py
+
+# Recalcula las ventanas de estado estacionario y el resumen SIN volver a
+# simular, releyendo los scalar-logs que ya estan en data/sweep/. Es lo que hay
+# que correr despues de tocar el criterio de estacionario (sweep.py:
+# steady_state_index): las trayectorias no cambian, solo la ventana sobre la
+# que se promedia, y re-barrer costaria horas para obtener los mismos logs.
+reaggregate:
+	$(PY) python/sweep.py --reaggregate
+	$(PY) python/sweep.py --reaggregate --rhos 0.15 0.3 0.45 0.6 0.75 0.9 1.05 1.2 1.35 1.5 --eta-grid 0 --k-seeds 5 --out $(PERCOLATION_SUMMARY)
+
+# Presentacion. Son DOS archivos distintos, a pedido de la catedra:
+#   presentacion  -> presentacion.pdf, el que se ENTREGA (fotograma + link)
+#   pptx          -> presentacion_vivo.pptx, el que se PRESENTA (animaciones
+#                    embebidas, se reproducen dentro de la diapositiva)
+# Ver el encabezado de presentacion/presentacion.tex.
+presentacion:
+	cd presentacion && pdflatex -interaction=nonstopmode presentacion.tex
+	cd presentacion && pdflatex -interaction=nonstopmode presentacion.tex
+
+pptx:
+	$(PY) presentacion/build_pptx.py
 
 clean:
 	rm -rf $(BUILD) tp2 tp2_test data/*

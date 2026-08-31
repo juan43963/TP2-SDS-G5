@@ -6,11 +6,25 @@
 %   - 1.2  diapositivas numeradas
 %   - 1.6  poco texto, sin parrafos
 %   - 1.7  las figuras NO llevan titulo ni caption; los parametros de la
-%          corrida van AL COSTADO de la figura
+%          corrida van AL COSTADO de la figura, y solo lo que NO se ve en el
+%          grafico (la catedra: "si es algo que se ve en el grafico, no hace
+%          falta escribirlo al costado")
 %   - 1.9  notacion cientifica con potencias de 10
 %   - 1.12 outertheme miniframes
 %   - 1.13 secciones separadas por una diapositiva con solo el titulo
-%   - 2.4.8 sin animaciones embebidas: fotograma fijo + link explicito
+%
+%  DOS PDF DISTINTOS (pedido explicito de la catedra en la clase de consultas):
+%   - el que se ENTREGA lleva un fotograma fijo mas el link a la animacion;
+%   - el que se PRESENTA reproduce la animacion dentro de la diapositiva y no
+%     muestra ningun link.
+%  Los controla \modo. Por defecto compila la version de entrega:
+%
+%      pdflatex presentacion.tex                                  -> entrega
+%      pdflatex -jobname=presentacion_vivo "\def\modo{vivo}\input{presentacion}"
+%
+%  La version "vivo" deja un hueco de color solido donde va cada animacion, que
+%  presentacion/build_pptx.py detecta para pegar el GIF encima al armar el
+%  .pptx (PowerPoint reproduce GIF animados en modo presentacion).
 % =====================================================================
 \documentclass[aspectratio=169]{beamer}
 
@@ -51,6 +65,31 @@
 % Bloque de parametros al costado de una figura (guia 1.7). \footnotesize en
 % vez de \scriptsize (guia 1.8: legible desde el fondo de la sala).
 \newcommand{\params}[1]{{\footnotesize #1}}
+
+% --- Modo de compilacion: entrega (default) vs. vivo ------------------
+\providecommand{\modo}{entrega}
+\def\modovivo{vivo}
+% Color marcador del hueco de animacion. Se declara en RGB puro a proposito:
+% build_pptx.py lo busca por valor exacto en la pagina rasterizada, y el
+% "magenta" de xcolor se convierte a (236,0,139) al renderizar.
+\definecolor{huecoanim}{RGB}{255,0,255}
+\newcommand{\soloentrega}[1]{\ifx\modo\modovivo\else#1\fi}
+
+% Una animacion: #1 fotograma, #2 valor de eta, #3 link.
+% En modo "vivo" el fotograma se reemplaza por un cuadrado marcador -- la caja
+% simulada es L x L y el GIF se renderiza cuadrado, asi que lo llena exacto --
+% y el link no se imprime.
+\newcommand{\animacion}[3]{%
+  \centering
+  \ifx\modo\modovivo
+    \tikz\fill[huecoanim] (0,0) rectangle (0.48\textheight,0.48\textheight);%
+  \else
+    \includegraphics[height=0.48\textheight]{#1}%
+  \fi
+  \\[2pt]
+  {\scriptsize $\eta = #2$}\\
+  \soloentrega{{\tiny\color{blue}\url{#3}}}%
+}
 
 \title[Bandadas: Vicsek y Votante]{Autómata Off-Lattice: Bandadas de agentes autopropulsados}
 \subtitle{Modelo de Vicsek y Modelo de Votante}
@@ -139,7 +178,7 @@
         \node[proc, below=0.45cm of sim] (grid) {\texttt{Grid::rebuild()}\\{\tiny Cell Index Method}};
         \node[dat,  below=0.4cm of grid] (nl)  {\texttt{NeighborList}};
         \node[proc, below=0.4cm of nl] (rule) {\texttt{circularMeanHeading()}\\ \texttt{voterHeading()}\\{\tiny + \texttt{addAngularNoise()}}};
-        \node[proc, below=0.4cm of rule] (int) {integración\\{\tiny posición + contorno periódico}};
+        \node[proc, below=0.4cm of rule] (int) {integración\\{\tiny posición + condiciones periódicas}};
         \draw[fl] (sim) -- (grid);
         \draw[fl] (grid) -- (nl);
         \draw[fl] (nl) -- (rule);
@@ -152,36 +191,14 @@
         \item Motor en \textbf{C\texttt{++}20}, sin dependencias externas.
         \item \texttt{Particle} guarda sólo $x$, $y$, $\theta$: la velocidad se deriva de $\theta$.
         \item Los dos modelos comparten todo salvo la regla de alineamiento.
+        \item Actualización sincrónica: ninguna partícula ve el ángulo nuevo de
+              otra dentro del mismo paso.
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 7
-\begin{frame}{Paso temporal: actualización sincrónica}
-  \centering
-  \begin{tikzpicture}[
-      font=\small,
-      node distance=0.55cm,
-      pas/.style={draw=black!55, rounded corners=2pt, fill=black!5,
-                  align=center, inner xsep=8pt, inner ysep=6pt, text width=3.2cm},
-      fl/.style={-{Latex[length=2.4mm]}, draw=black!65, very thick}
-    ]
-    \node[pas] (p1) {\textbf{1. Vecinos}\\[2pt]{\scriptsize reconstruir la grilla desde las posiciones de $t$}};
-    \node[pas, right=1.0cm of p1] (p2) {\textbf{2. Ángulos}\\[2pt]{\scriptsize calcular $\theta_i(t{+}\Delta t)$ leyendo \emph{sólo} el estado en $t$}};
-    \node[pas, right=1.0cm of p2] (p3) {\textbf{3. Mover}\\[2pt]{\scriptsize avanzar con $\vect{v}_i(t)$ y recién ahí escribir $\theta_i(t{+}\Delta t)$}};
-    \draw[fl] (p1) -- (p2);
-    \draw[fl] (p2) -- (p3);
-  \end{tikzpicture}
-
-  \vspace{1.2em}
-  \begin{itemize}
-    \item Doble buffer en el paso 2: ninguna partícula ve el ángulo nuevo de otra dentro del mismo paso.
-    \item Sin esa separación, el resultado dependería del orden de recorrido.
-  \end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------------- 8
 \begin{frame}{Búsqueda de vecinos: Cell Index Method}
   \begin{columns}[c]
     \begin{column}{0.44\textwidth}
@@ -212,7 +229,7 @@
 \section{Simulaciones}
 % =====================================================================
 
-% ---------------------------------------------------------------- 10
+% ---------------------------------------------------------------- 9
 \begin{frame}{Sistema simulado}
   \begin{columns}[c]
     \begin{column}{0.44\textwidth}
@@ -229,7 +246,7 @@
         \node[black!60] at (2.95,2.75) {$r_c$};
         \draw[-{Latex[length=1.6mm]}, gray] (4.4,2.0) -- ++(0.45,0);
         \draw[-{Latex[length=1.6mm]}, gray] (-0.45,2.0) -- ++(0.45,0);
-        \node[gray] at (2.2,-0.4) {contorno periódico};
+        \node[gray] at (2.2,-0.4) {condiciones periódicas de contorno};
         \draw[<->] (0,4.75) -- node[above] {$L = 10$} (4.4,4.75);
       \end{tikzpicture}
     \end{column}
@@ -238,21 +255,17 @@
       \textbf{Parámetros fijos}\\[3pt]
       $L = 10$ \quad $r_c = 1$ \quad $\Delta t = 1$\\
       $v = 3\times10^{-2}$\\
-      Contorno periódico en ambos ejes.\\[8pt]
+      Condiciones periódicas de contorno.\\[8pt]
       \textbf{Input}\\[3pt]
-      Ruido $\eta \in [0,\, 2\pi]$, 39 valores.\\[8pt]
+      Ruido $\eta \in [0,\; 2\pi]$\\[8pt]
       \textbf{Densidades} \quad ($N = \rho L^2$)\\[3pt]
-      \begin{tabular}{@{}ll@{}}
-        $\rho = 2,\ 4,\ 8$ & $N = 200,\ 400,\ 800$ \\
-        $\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$ & $N = 32,\ 16,\ 11$ \\
-      \end{tabular}\\[6pt]
-      Las tres densidades bajas se usan sólo en el estudio de clusters.
+      $\rho \in [\,1/3\pi,\; 8\,]$ \quad ($N = 11$ a $800$)
       }
     \end{column}
   \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------- 11
+% ---------------------------------------------------------------- 10
 \begin{frame}{Observables}
   \textbf{Polarización} --- módulo de la velocidad media, normalizado:
   \[
@@ -271,10 +284,10 @@
   \vspace{0.5em}
 
   \params{
-  \textbf{Escalar reportado:} media temporal en el estado estacionario, promediada sobre realizaciones; barra de error $=$ desvío estándar entre realizaciones.\\[4pt]
-  \textbf{Realizaciones:} 10 semillas independientes por punto $(\text{modelo},\rho,\eta)$.\\[2pt]
-  \textbf{Duración:} $2\times10^{3}$ pasos para $\rho = 2,\,4,\,8$; \; $1\times10^{4}$ pasos para $\rho = 1/\pi,\,1/2\pi,\,1/3\pi$.\\[2pt]
-  \textbf{Ventana de promedio:} segunda mitad de cada corrida.
+  Escalar reportado: media temporal en el estacionario.\\[3pt]
+  Realizaciones: 10.\\[3pt]
+  Pasos: $2\times10^{3}$ ($\rho = 2,\,4,\,8$), \; $1\times10^{4}$ ($\rho < 1$).\\[3pt]
+  Ventana de promedio: desde el inicio del estacionario, medido por ruido.
   }
 \end{frame}
 
@@ -282,294 +295,180 @@
 \section{Resultados}
 % =====================================================================
 
-% ---------------------------------------------------------------- 13
+% ---------------------------------------------------------------- 12
 \begin{frame}{Vicsek: dinámica característica}
   \begin{columns}[T]
     \begin{column}{0.36\textwidth}
-      \centering
-      \includegraphics[height=0.48\textheight]{frame_vicsek_rho2_ordenado.png}\\[2pt]
-      {\scriptsize $\eta = 1{,}0$}\\
-      {\tiny\color{blue}\url{https://youtu.be/PENDIENTE-1}}
+      \animacion{frame_vicsek_rho2_ordenado.png}{1{,}0}{https://youtu.be/PENDIENTE-1}
     \end{column}
     \begin{column}{0.36\textwidth}
-      \centering
-      \includegraphics[height=0.48\textheight]{frame_vicsek_rho2_desordenado.png}\\[2pt]
-      {\scriptsize $\eta = 4{,}0$}\\
-      {\tiny\color{blue}\url{https://youtu.be/PENDIENTE-2}}
+      \animacion{frame_vicsek_rho2_desordenado.png}{4{,}0}{https://youtu.be/PENDIENTE-2}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$\rho = 2$ \ ($N = 200$)\\$L = 10$, \ $r_c = 1$\\[4pt]Fotograma en $t = 850$.\\[4pt]Color según el ángulo de la velocidad.}
+      \params{$\rho = 2$ \ ($N = 200$)\\[6pt]Color según el ángulo de la velocidad.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 13
+\begin{frame}{Vicsek: evolución temporal de la polarización}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{va_t_vicsek_rho2.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$\rho = 2$ \ ($N = 200$)}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 14
-\begin{frame}{Vicsek: evolución temporal de la polarización}
+\begin{frame}{Vicsek: polarización en función del ruido}
   \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_t_vicsek_rho2.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{va_eta_vicsek.png}
     \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{
-      Vicsek\\
-      $\rho = 2$ \ ($N = 200$)\\
-      $L = 10$, \ $r_c = 1$\\
-      $2\times10^{3}$ pasos\\[8pt]
-      La línea vertical marca el inicio del estado estacionario.\\[6pt]
-      El transitorio dura $\sim 10^{2}$ pasos; se promedia a partir de $10^{3}$.
-      }
+    \begin{column}{0.26\textwidth}
+      \params{$2\times10^{3}$ pasos\\[6pt]Realizaciones: 10}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 15
-\begin{frame}{Vicsek: polarización en función del ruido}
+\begin{frame}{Vicsek: evolución temporal de la componente gigante}
   \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_eta_vicsek.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{S_t_vicsek_rho1_pi.png}
     \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{
-      Vicsek\\
-      $L = 10$, \ $r_c = 1$\\
-      $2\times10^{3}$ pasos\\
-      10 realizaciones por punto\\[8pt]
-      Barras de error: desvío estándar entre realizaciones.\\[6pt]
-      $v_a = 0{,}5$ en\\
-      $\eta = 2{,}9$ \ ($\rho = 2$)\\
-      $\eta = 3{,}2$ \ ($\rho = 4$)\\
-      $\eta = 3{,}4$ \ ($\rho = 8$)
-      }
+    \begin{column}{0.26\textwidth}
+      \params{$\rho = 1/\pi$ \ ($N = 32$)}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 16
-\begin{frame}{Vicsek: evolución temporal de la componente gigante ($\rho = 2$)}
+\begin{frame}{Vicsek: componente gigante en función del ruido}
   \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_t_vicsek_rho2.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{S_eta_vicsek.png}
     \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Vicsek\\$\rho = 2$ \ ($N = 200$)\\$L = 10$, \ $r_c = 1$\\$2\times10^{3}$ pasos}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Vicsek: evolución temporal de la componente gigante ($\rho = 1/\pi$)}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_t_vicsek_rho1_pi.png}
-    \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Vicsek\\$\rho = 1/\pi$ \ ($N = 32$)\\$L = 10$, \ $r_c = 1$\\$1\times10^{4}$ pasos}
+    \begin{column}{0.26\textwidth}
+      \params{$2\times10^{3}$ pasos ($\rho \geq 2$)\\$1\times10^{4}$ pasos ($\rho < 1$)\\[6pt]Realizaciones: 10}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 17
-\begin{frame}{Vicsek: componente gigante en función del ruido ($\rho = 2,\ 4,\ 8$)}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_eta_vicsek_super.png}
+\begin{frame}{Votante: dinámica característica}
+  \begin{columns}[T]
+    \begin{column}{0.36\textwidth}
+      \animacion{frame_voter_rho2_ordenado.png}{0{,}05}{https://youtu.be/PENDIENTE-3}
     \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Vicsek\\$\rho = 2,\ 4,\ 8$\\10 realizaciones\\por punto\\[6pt]Barras de error: desvío estándar entre realizaciones.}
+    \begin{column}{0.36\textwidth}
+      \animacion{frame_voter_rho2_desordenado.png}{1{,}0}{https://youtu.be/PENDIENTE-4}
     \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Vicsek: componente gigante en función del ruido ($\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$)}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_eta_vicsek_sub.png}
-    \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Vicsek\\$\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$\\10 realizaciones\\por punto\\[6pt]Barras de error: desvío estándar entre realizaciones.}
+    \begin{column}{0.26\textwidth}
+      \params{$\rho = 2$ \ ($N = 200$)\\[6pt]Color según el ángulo de la velocidad.}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 18
-\begin{frame}{Votante: dinámica característica}
-  \begin{columns}[T]
-    \begin{column}{0.36\textwidth}
-      \centering
-      \includegraphics[height=0.48\textheight]{frame_voter_rho2_ordenado.png}\\[2pt]
-      {\scriptsize $\eta = 0{,}05$}\\
-      {\tiny\color{blue}\url{https://youtu.be/PENDIENTE-3}}
-    \end{column}
-    \begin{column}{0.36\textwidth}
-      \centering
-      \includegraphics[height=0.48\textheight]{frame_voter_rho2_desordenado.png}\\[2pt]
-      {\scriptsize $\eta = 1{,}0$}\\
-      {\tiny\color{blue}\url{https://youtu.be/PENDIENTE-4}}
+\begin{frame}{Votante: evolución temporal de la polarización}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{va_t_voter_rho2.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$\rho = 2$ \ ($N = 200$)\\$L = 10$, \ $r_c = 1$\\[4pt]Fotograma en $t = 850$.\\[4pt]Color según el ángulo de la velocidad.}
+      \params{$\rho = 2$ \ ($N = 200$)}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 19
-\begin{frame}{Votante: evolución temporal de la polarización}
+\begin{frame}{Votante: polarización en función del ruido}
   \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_t_voter_rho2.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{va_eta_voter.png}
     \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{
-      Votante\\
-      $\rho = 2$ \ ($N = 200$)\\
-      $L = 10$, \ $r_c = 1$\\
-      $2\times10^{3}$ pasos\\[8pt]
-      La línea vertical marca el inicio del estado estacionario.\\[6pt]
-      Los tres ruidos son mucho menores que en Vicsek.
-      }
+    \begin{column}{0.26\textwidth}
+      \params{$2\times10^{3}$ pasos\\[6pt]Realizaciones: 10}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 20
-\begin{frame}{Votante: polarización en función del ruido}
+\begin{frame}{Votante: evolución temporal de la componente gigante}
   \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_eta_voter.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{S_t_voter_rho1_pi.png}
     \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{
-      Votante\\
-      $L = 10$, \ $r_c = 1$\\
-      $2\times10^{3}$ pasos\\
-      10 realizaciones por punto\\[8pt]
-      Barras de error: desvío estándar entre realizaciones.\\[6pt]
-      $v_a = 0{,}5$ en\\
-      $\eta = 0{,}37$ \ ($\rho = 2$)\\
-      $\eta = 0{,}29$ \ ($\rho = 4$)\\
-      $\eta = 0{,}19$ \ ($\rho = 8$)
-      }
+    \begin{column}{0.26\textwidth}
+      \params{$\rho = 1/\pi$ \ ($N = 32$)}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 21
-\begin{frame}{Votante: evolución temporal de la componente gigante ($\rho = 2$)}
+\begin{frame}{Votante: componente gigante en función del ruido}
   \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_t_voter_rho2.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{S_eta_voter.png}
     \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Votante\\$\rho = 2$ \ ($N = 200$)\\$L = 10$, \ $r_c = 1$\\$2\times10^{3}$ pasos}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Votante: evolución temporal de la componente gigante ($\rho = 1/\pi$)}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_t_voter_rho1_pi.png}
-    \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Votante\\$\rho = 1/\pi$ \ ($N = 32$)\\$L = 10$, \ $r_c = 1$\\$1\times10^{4}$ pasos}
+    \begin{column}{0.26\textwidth}
+      \params{$2\times10^{3}$ pasos ($\rho \geq 2$)\\$1\times10^{4}$ pasos ($\rho < 1$)\\[6pt]Realizaciones: 10}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 22
-\begin{frame}{Votante: componente gigante en función del ruido ($\rho = 2,\ 4,\ 8$)}
+\begin{frame}{Comparación: polarización}
   \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_eta_voter_super.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{va_eta_comparacion_medias.png}
     \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Votante\\$\rho = 2,\ 4,\ 8$\\10 realizaciones\\por punto\\[6pt]Barras de error: desvío estándar entre realizaciones.}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{Votante: componente gigante en función del ruido ($\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$)}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.95\linewidth,height=0.68\textheight,keepaspectratio]{S_eta_voter_sub.png}
-    \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Votante\\$\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$\\10 realizaciones\\por punto\\[6pt]Barras de error: desvío estándar entre realizaciones.}
+    \begin{column}{0.26\textwidth}
+      \params{Sólo el promedio\\[6pt]Realizaciones: 10}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 23
-\begin{frame}{Comparación: polarización}
+\begin{frame}{Comparación: componente gigante}
   \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_eta_comparacion.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{S_eta_comparacion_sub_medias.png}
     \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{
-      Línea llena: Vicsek\\
-      Línea de trazos: votante\\[8pt]
-      $L = 10$, \ $r_c = 1$\\
-      10 realizaciones por punto\\[8pt]
-      La región ordenada del votante es un orden de magnitud más angosta en $\eta$.\\[6pt]
-      En Vicsek $\eta$ crece con $\rho$; en el votante decrece.
-      }
+    \begin{column}{0.26\textwidth}
+      \params{$\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$\\$1\times10^{4}$ pasos\\[6pt]A $\rho = 2,\,4,\,8$ resulta $S \approx 1$ para todo $\eta$ en ambos modelos.}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 24
-\begin{frame}{Comparación: componente gigante}
+\begin{frame}{Polarización en función de la componente gigante}
   \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{S_eta_comparacion_sub.png}
+    \begin{column}{0.84\textwidth}
+      \centering\includegraphics[width=0.99\linewidth,height=0.66\textheight,keepaspectratio]{va_vs_S_paneles.png}
     \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{
-      Línea llena: Vicsek\\
-      Línea de trazos: votante\\[8pt]
-      $\rho = 1/\pi,\ 1/2\pi,\ 1/3\pi$\\
-      $1\times10^{4}$ pasos\\
-      10 realizaciones por punto\\[8pt]
-      A $\rho = 2,\,4,\,8$ resulta $S \approx 1$ para todo $\eta$ en ambos modelos.
-      }
+    \begin{column}{0.15\textwidth}
+      \params{Cada punto es un valor de $\eta$.}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 25
-\begin{frame}{Polarización en función de la componente gigante}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{va_vs_S_comparacion.png}
-    \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{
-      Círculos: Vicsek\\
-      Cruces: votante\\
-      Color: densidad\\[8pt]
-      Cada punto es un valor de $\eta$.\\[8pt]
-      A densidad alta la relación es degenerada: $S \approx 1$ con $v_a$ recorriendo todo el rango.\\[6pt]
-      A densidad baja orden y conectividad crecen juntos.
-      }
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% ---------------------------------------------------------------- 26
 \begin{frame}{Tiempo de ejecución del Cell Index Method}
   \begin{columns}[c]
-    \begin{column}{0.68\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,keepaspectratio]{benchmark_tp1_vs_tp2.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{benchmark_tp1_vs_tp2.png}
     \end{column}
-    \begin{column}{0.30\textwidth}
+    \begin{column}{0.26\textwidth}
       \params{
-      Condiciones iguales en ambos:\\
-      $L = 10$, \ $r_c = 1$, \ $M = 9$,\\
-      contorno periódico,\\
-      partículas puntuales.\\[8pt]
-      TP2: una medición por paso temporal, $2\times10^{3}$ pasos.\\[4pt]
-      TP1: búsqueda aislada, repetida $2\times10^{2}$ veces.\\[8pt]
-      Mismo escalado con $N$; el CIM dentro del paso no cuesta más que aislado.
+      $L = 10$, \ $r_c = 1$, \ $M = 9$\\
+      Partículas puntuales\\[6pt]
+      TP2: una medición por paso, $2\times10^{3}$ pasos\\[4pt]
+      TP1: búsqueda aislada, repetida $2\times10^{2}$ veces
       }
     \end{column}
   \end{columns}
@@ -579,14 +478,14 @@
 \section{Conclusiones}
 % =====================================================================
 
-% ---------------------------------------------------------------- 28
+% ---------------------------------------------------------------- 27
 \begin{frame}{Conclusiones}
   \begin{itemize}
     \item En ambos modelos $v_a$ decrece monótonamente con el ruido: hay transición de orden a desorden.
     \vspace{0.4em}
     \item En Vicsek el ruido tolerado \textbf{crece} con la densidad ($v_a = 0{,}5$ en $\eta = 2{,}9$, $3{,}2$ y $3{,}4$ para $\rho = 2$, $4$ y $8$).
     \vspace{0.4em}
-    \item En el votante la dependencia se \textbf{invierte} ($\eta = 0{,}37$, $0{,}29$ y $0{,}19$) y la región ordenada es un orden de magnitud más angosta.
+    \item En el votante la dependencia se \textbf{invierte} ($\eta = 0{,}34$, $0{,}26$ y $0{,}21$) y la región ordenada es un orden de magnitud más angosta.
     \vspace{0.4em}
     \item $S \approx 1$ para $\rho = 2,\,4,\,8$ en todo el rango de $\eta$: la componente gigante sólo distingue regímenes en las densidades subcríticas.
     \vspace{0.4em}
@@ -594,7 +493,7 @@
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------- 29
+% ---------------------------------------------------------------- 28
 \begin{frame}[plain]
   \vfill
   \begin{beamercolorbox}[sep=8pt,center]{title}
