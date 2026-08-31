@@ -191,38 +191,33 @@
         \item Motor en \textbf{C\texttt{++}20}, sin dependencias externas.
         \item \texttt{Particle} guarda sólo $x$, $y$, $\theta$: la velocidad se deriva de $\theta$.
         \item Los dos modelos comparten todo salvo la regla de alineamiento.
-        \item Actualización sincrónica: ninguna partícula ve el ángulo nuevo de
-              otra dentro del mismo paso.
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 7
-\begin{frame}{Búsqueda de vecinos: Cell Index Method}
-  \begin{columns}[c]
-    \begin{column}{0.44\textwidth}
-      \centering
-      \begin{tikzpicture}[scale=0.72, font=\scriptsize]
-        \draw[step=1cm, gray!45, thin] (0,0) grid (5,5);
-        \draw[black!70, thick] (0,0) rectangle (5,5);
-        \fill[blue!25] (2,2) rectangle (3,3);
-        \fill[blue!12] (1,1) rectangle (4,4);
-        \fill[blue!25] (2,2) rectangle (3,3);
-        \filldraw[black] (2.5,2.5) circle (2pt);
-        \draw[black, dashed] (2.5,2.5) circle (1cm);
-        \node at (2.5,-0.45) {$L/M > r_c$};
-      \end{tikzpicture}
-    \end{column}
-    \begin{column}{0.54\textwidth}
-      \begin{itemize}
-        \item Grilla de $M\times M$ celdas sobre la caja.
-        \item Sólo se comparan las 9 celdas vecinas, con \emph{wrap-around} en los bordes.
-        \item Costo $\mathcal{O}(N)$ en lugar de $\mathcal{O}(N^2)$.
-        \item Se reconstruye en cada paso: las partículas se mueven.
-      \end{itemize}
-    \end{column}
-  \end{columns}
+\begin{frame}{Paso temporal: actualización sincrónica}
+  \centering
+  \begin{tikzpicture}[
+      font=\small,
+      node distance=0.55cm,
+      pas/.style={draw=black!55, rounded corners=2pt, fill=black!5,
+                  align=center, inner xsep=8pt, inner ysep=6pt, text width=3.2cm},
+      fl/.style={-{Latex[length=2.4mm]}, draw=black!65, very thick}
+    ]
+    \node[pas] (p1) {\textbf{1. Vecinos}\\[2pt]{\scriptsize reconstruir la grilla desde las posiciones de $t$}};
+    \node[pas, right=1.0cm of p1] (p2) {\textbf{2. Ángulos}\\[2pt]{\scriptsize calcular $\theta_i(t{+}\Delta t)$ leyendo \emph{sólo} el estado en $t$}};
+    \node[pas, right=1.0cm of p2] (p3) {\textbf{3. Mover}\\[2pt]{\scriptsize avanzar con $\vect{v}_i(t)$ y recién ahí escribir $\theta_i(t{+}\Delta t)$}};
+    \draw[fl] (p1) -- (p2);
+    \draw[fl] (p2) -- (p3);
+  \end{tikzpicture}
+
+  \vspace{1.2em}
+  \begin{itemize}
+    \item Doble buffer en el paso 2: ninguna partícula ve el ángulo nuevo de otra dentro del mismo paso.
+    \item Sin esa separación, el resultado dependería del orden de recorrido.
+  \end{itemize}
 \end{frame}
 
 % =====================================================================
