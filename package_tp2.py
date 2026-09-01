@@ -6,6 +6,7 @@ Entregables generados segun el formato de entrega:
   - d) SdS_TP2_2026Q2G05CS_Informe.pdf (desde TP2/informe/informe.pdf)
 
 El ZIP de codigo incluye unicamente (allowlist-only):
+  - README.md (guia de ejecucion e instrucciones)
   - TP2/src/** (codigo fuente C++ del motor)
   - TP2/Makefile
   - TP2/python/*.py (los scripts de analisis/visualizacion)
@@ -13,20 +14,24 @@ El ZIP de codigo incluye unicamente (allowlist-only):
 Excluye explicitamente: TP2/data/, TP2/build/, binarios compilados,
 TP2/informe/, TP2/presentacion/, __pycache__ y .git.
 
-Uso: python package_tp2.py   (desde la raiz del repositorio)
+Uso: py package_tp2.py   (desde la raiz del repositorio)
 """
-
-from __future__ import annotations
 
 import shutil
 import sys
 import zipfile
 from pathlib import Path
 
+# Ensure UTF-8 output on Windows consoles
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 REPO_ROOT = Path(__file__).resolve().parent
 TP2_DIR = REPO_ROOT / "TP2"
 
-PREFIX = "SdS_TP2_2026Q2G05CSS"
+# Prefijo oficial: Comision S, Grupo 05 -> G05CS
+PREFIX = "SdS_TP2_2026Q2G05CS"
+
 OUT_ZIP = REPO_ROOT / f"{PREFIX}_Codigo.zip"
 OUT_INFORME = REPO_ROOT / f"{PREFIX}_Informe.pdf"
 OUT_PRESENTACION = REPO_ROOT / f"{PREFIX}_Presentación.pdf"
@@ -42,11 +47,12 @@ REQUIRED_PYTHON_SCRIPTS = {"sweep.py", "analyze.py", "animate.py", "benchmark.py
 
 
 def collect_code_files() -> list[Path]:
-    """Allowlist-only collection: TP2/src/**, TP2/Makefile, TP2/python/*.py."""
+    """Allowlist-only collection: README.md, TP2/src/**, TP2/Makefile, TP2/python/*.py."""
+    readme = [REPO_ROOT / "README.md"] if (REPO_ROOT / "README.md").exists() else []
     src_files = sorted(p for p in (TP2_DIR / "src").rglob("*") if p.is_file())
     makefile = [TP2_DIR / "Makefile"] if (TP2_DIR / "Makefile").exists() else []
     python_files = sorted(p for p in (TP2_DIR / "python").glob("*.py") if p.is_file())
-    return src_files + makefile + python_files
+    return readme + src_files + makefile + python_files
 
 
 def build_zip(files: list[Path], out_path: Path) -> None:
@@ -118,12 +124,12 @@ def main() -> int:
 
     print("\n" + "=" * 65)
     print("RESUMEN DE ENTREGABLES GENERADOS:")
-    print(f"  a) Presentacion Oral (13 min) -> En clase 04/09/2026")
+    print("  a) Presentacion Oral (13 min) -> En clase 04/09/2026")
     print(f"  b) {OUT_PRESENTACION.name}")
     print(f"  c) {OUT_ZIP.name}")
     print(f"  d) {OUT_INFORME.name}")
     print("=" * 65)
-    print("Todos los archivos estan listos para subir al campus.")
+    print("Todos los archivos estan listos y verificados.")
     return 0
 
 

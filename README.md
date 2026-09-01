@@ -15,16 +15,26 @@ gráficos se hacen en Python. Trabajo Práctico Nro. 2 de Simulación de Sistema
 No hace falta CMake ni dependencias externas — solo la biblioteca estándar de C++20.
 
 ```bash
+cd TP2
 make          # compila tp2 (binario principal) y tp2_test (self-test)
 make test     # corre tp2_test
 make clean    # borra build/, tp2, tp2_test y data/
 ```
+
+Targets adicionales en `TP2/Makefile`:
+- `make sweep`: ejecuta el barrido paramétrico (`data/sweep/summary.csv` y `percolation_summary.csv`)
+- `make plot`: genera las figuras de análisis (`python/analyze.py` y `python/benchmark.py`)
+- `make animation`: genera los GIFs de trayectoria (`python/animate.py`)
+- `make reaggregate`: recalcula ventanas de estado estacionario sobre los logs existentes
+- `make presentacion`: compila el PDF de presentación (`presentacion.pdf`)
+- `make pptx`: genera el archivo `.pptx` interactivo con animaciones embebidas
 
 Requiere un compilador con soporte C++20 (`c++`/g++/clang++, configurable vía `CXX`).
 
 ## Uso: `./tp2`
 
 ```bash
+cd TP2
 ./tp2 [opciones]
 ```
 
@@ -51,6 +61,8 @@ Requiere un compilador con soporte C++20 (`c++`/g++/clang++, configurable vía `
 | `--eta <real>` | `0.0` | amplitud del ruido angular |
 | `--out <path>` | `data/dynamic.txt` | archivo de trayectoria de salida (texto plano) |
 | `--scalar-log <path>` | deshabilitado | log escalar opcional `t va S` por paso |
+| `--timing-log <path>` | deshabilitado | log de tiempos de cómputo `paso ms_cim` por paso |
+| `--csv` | deshabilitado | imprime el reporte final en una línea CSV (`va,S`) |
 
 Ejemplo:
 
@@ -69,6 +81,8 @@ que la velocidad de reproducción de una animación no dependa de la velocidad d
 (requisito del enunciado). `--scalar-log` es un log aparte con los observables agregados por paso.
 
 ## Análisis y gráficos (Python)
+
+Desde la carpeta `TP2/`:
 
 ```bash
 python3 python/sweep.py           # barrido parametrico completo -> data/sweep/summary.csv
@@ -118,8 +132,12 @@ presentacion/                 presentacion (LaTeX + PDF)
 ## Entregables
 
 - Informe y presentación siguen `docs/GuiaInformes.pdf` y `docs/GuiaPresentaciones.pdf`.
-- La presentación no embebe animaciones, solo enlaces explícitos.
-- El código a entregar es un .zip liviano con el motor final únicamente (sin historial,
+- La presentación oficial entregada en PDF no embebe animaciones, solo enlaces explícitos.
+- El código a entregar es un `.zip` liviano con el motor final únicamente (sin historial,
   documentos ni outputs de simulaciones).
+- Para empaquetar todos los entregables con la nomenclatura oficial:
+  ```bash
+  py package_tp2.py
+  ```
 
 **Entrega: 04/09/2026 13hs.**
