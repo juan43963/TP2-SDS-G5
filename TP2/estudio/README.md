@@ -8,12 +8,20 @@ Material **interno** de preparación de la presentación del 04/09. No se entreg
 | `02_implementacion.pdf` | Diapositivas 5–7 | B | 9 |
 | `03_simulaciones.pdf` | Diapositivas 8–10 | C | 10 |
 | `04_resultados.pdf` | Diapositivas 11–28 | A, B y C | 13 |
+| `05_definiciones.pdf` | Transversal — no sigue el deck | A, B y C | 15 |
 
-Cada uno tiene la misma estructura: **guion** diapositiva por diapositiva con
-tiempo objetivo → **el fondo** (la teoría y las decisiones de implementación) →
-**preguntas y respuestas**.
+Los cuatro primeros tienen la misma estructura: **guion** diapositiva por
+diapositiva con tiempo objetivo → **el fondo** (la teoría y las decisiones de
+implementación) → **preguntas y respuestas**.
 
-Los cuatro los leen los tres integrantes: la guía de la cátedra (punto 3.1)
+El quinto es distinto: es una **ficha de consulta**, no un guion. Reúne en
+tablas todo lo que definimos o elegimos en el trabajo —parámetros, ecuaciones,
+convenciones, números de resultado, glosario del código— con el porqué al lado,
+más una sección de flancos conocidos con la respuesta honesta ya redactada. Está
+pensado para el repaso final y para la ronda de preguntas, no para leerlo de
+corrido.
+
+Los cinco los leen los tres integrantes: la guía de la cátedra (punto 3.1)
 exige que cualquiera pueda exponer cualquier parte.
 
 ## Reparto y presupuesto de tiempo
@@ -40,38 +48,70 @@ Dos pasadas por el índice. `estudio.sty` solo usa paquetes de TeX Live *basic*
 (nada de `tcolorbox`, `titlesec`, `enumitem` ni `mdframed`, que no están
 instalados). **No cargar `amssymb`**: choca con `newtxmath` por `\Bbbk`.
 
+## Sincronización con el deck
+
+Los guiones siguen la numeración de `presentacion.tex`. Si se agrega o se saca
+una diapositiva, hay que revisar las referencias cruzadas:
+
+```sh
+grep -n "diapositiva[s]* [0-9]" TP2/estudio/*.tex
+```
+
+### Cambio ya aplicado (03/09)
+
+La diapositiva 7 **era** "Búsqueda de vecinos: Cell Index Method" y pasó a ser
+"Paso temporal: actualización sincrónica" (commit `04c8701`). El total sigue
+siendo 28 diapositivas: fue un reemplazo, no una eliminación, y el reparto de
+tiempos no cambia.
+
+Ya está reflejado en las guías:
+
+- `02_implementacion.tex` — guion de la 6 y de la 7 reescritos (el punto de la
+  actualización sincrónica salió de la 6 y ahora es la 7 entera); aviso al
+  principio de que **el CIM ya no tiene diapositiva propia**; todo el material
+  del CIM se conserva como material de respuesta.
+- `01_introduccion.tex` — las dos referencias a "diapositiva 7" para el CIM.
+
+El CIM vuelve a aparecer en pantalla recién en la diapositiva 25 (benchmark del
+inciso g).
+
 ## Pendientes detectados en `presentacion.tex`
 
-Encontrados al armar las guías. No los toqué —quedan para cuando se pula el
-deck—, pero los tres primeros **impiden compilar la presentación**.
+1. **~~Links de animación sin publicar~~ — RESUELTO** (commit `dae19d4`). Los
+   cuatro `youtu.be/PENDIENTE-*` ya están reemplazados por los links reales, en
+   el deck y en el informe.
 
-1. **Figuras inexistentes.** El `.tex` referencia archivos que no están en
-   `data/plots/`:
+2. **Figuras que no están en este checkout.** `presentacion.tex` referencia
+   cinco PNG que no existen en `data/plots/` ni en sus subdirectorios:
 
-   | Pide | Existe |
+   | Pide | Existe hoy |
    |---|---|
    | `va_eta_comparacion_medias.png` | `va_eta_comparacion.png` |
    | `S_eta_comparacion_sub_medias.png` | `S_eta_comparacion_sub.png` |
    | `va_vs_S_paneles.png` | `va_vs_S_comparacion.png` |
    | `S_eta_vicsek.png` / `S_eta_voter.png` | `S_eta_*_sub.png` y `S_eta_*_super.png` |
 
-   Hay que regenerar las figuras nuevas con `analyze.py` o corregir los nombres
-   en el `.tex`.
+   El PDF entregado (28 páginas, 3 MB) **sí las tiene**, así que existieron en
+   la máquina donde se compiló; `data/` está en `.gitignore` y no viajan por el
+   repo. Consecuencia práctica: **hoy la presentación no recompila en un clon
+   limpio**. Si hay que retocar el deck antes del oral, primero regenerar las
+   figuras con `analyze.py`.
 
-2. **`graphicspath` apunta a subdirectorios que no existen**: `plots/timeseries/`,
-   `plots/eta/`, `plots/phase/`, `plots/benchmark/`. Hoy los PNG están planos en
-   `data/plots/` (salvo `extra/`).
+3. **`graphicspath` apunta a subdirectorios vacíos**: `plots/timeseries/`,
+   `plots/eta/`, `plots/phase/` existen pero no tienen contenido; los PNG están
+   planos en `data/plots/` (salvo `extra/`). No rompe nada, pero engaña.
 
-3. **Links de animación sin publicar**: los cuatro siguen en
-   `https://youtu.be/PENDIENTE-1..4`. El PDF que se entrega tiene que llevar el
-   link explícito (guía 2.4.8).
+4. **Números del votante en la diapositiva 27 y en la tabla de cruces del
+   informe.** El deck y el informe citan η = 0,34 / 0,26 / 0,21 para ρ = 2, 4, 8.
+   Recalculado sobre `data/sweep/summary.csv` por interpolación lineal del cruce
+   por *v*ₐ = 0,5, da **0,371 / 0,287 / 0,186**. Los de Vicsek sí reproducen:
+   2,896 / 3,192 / 3,443 contra los 2,85 / 3,19 / 3,44 publicados.
 
-4. **Números del votante en la diapositiva 27.** El deck cita $\eta = 0{,}34$,
-   $0{,}26$ y $0{,}21$ para $\rho = 2, 4, 8$. Recalculado sobre
-   `data/sweep/summary.csv`, el cruce de $v_a = 0{,}5$ da **0,37 / 0,29 / 0,19**
-   (interpolación lineal) o **0,35 / 0,30 / 0,20** (punto de grilla más cercano).
-   Ninguna de las dos coincide. Los de Vicsek (2,9 / 3,2 / 3,4) sí dan exacto.
-   La conclusión cualitativa —la inversión con la densidad— no cambia.
+   La conclusión cualitativa —la inversión monótona con la densidad, y el factor
+   ~8 respecto de Vicsek— **no cambia**. Como el informe ya está entregado, la
+   guía 5 (`05_definiciones.tex`, sección *Los flancos*) trae la respuesta
+   armada para el oral: dar el resultado cualitativo y no jugarse a un tercer
+   decimal.
 
 ## Riesgo de tiempo
 

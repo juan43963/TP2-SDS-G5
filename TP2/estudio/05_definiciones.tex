@@ -1,0 +1,754 @@
+\documentclass[11pt]{article}
+\usepackage{estudio}
+\cuadernillo{5 --- Definiciones}
+
+\begin{document}
+
+\portada{5}{Definiciones y decisiones}{%
+  Ficha de consulta rápida \textbullet\ los tres\\[4pt]
+  Todo lo que fijamos en el trabajo, con el número y el porqué al lado}
+
+\tableofcontents
+\clearpage
+
+% ===========================================================================
+\section{Para qué sirve este cuadernillo}
+
+Los cuadernillos 1 a 4 son \emph{guiones}: te dicen qué decir y en qué orden.
+Éste no. Éste es la \textbf{ficha de consulta}: la lista completa de todo lo que
+definimos, elegimos o fijamos en el trabajo, con su valor y con la razón al
+lado, ordenada para que la encuentres rápido y no para leerla de corrido.
+
+Está pensado para dos momentos:
+
+\begin{itemize}
+  \item \textbf{Antes de exponer}, como repaso final: si podés recorrer las
+    tablas de las Secciones \ref{sec:params} a \ref{sec:decisiones} y explicar
+    cada fila, estás listo.
+  \item \textbf{Durante las preguntas}, para no quedarte callado. Si te
+    preguntan un número, está en las Secciones \ref{sec:params},
+    \ref{sec:resultados-num} o \ref{sec:barrido}. Si te preguntan
+    ``¿por qué eligieron\ldots?'', está en la Sección~\ref{sec:decisiones}. Si
+    te preguntan por algo que no cerró, está en la Sección~\ref{sec:flancos}
+    ---y \emph{ahí está la respuesta honesta}, que es mejor que el silencio y
+    mucho mejor que inventar.
+\end{itemize}
+
+\clave{La regla de oro de la ronda de preguntas: \textbf{decir un número
+concreto o una decisión concreta siempre es mejor que una generalidad}. ``No
+llegamos a estudiarlo'' es una respuesta aceptable; ``eh\ldots'' no lo es. Y si
+la pregunta es de otro bloque, contestá igual: la cátedra pide (guía 3.1) que
+cualquiera de los tres pueda responder cualquier cosa.}
+
+\ojo{Este cuadernillo repite a propósito cosas que ya están en los otros cuatro.
+No es redundancia por descuido: acá están \emph{juntas y sin contexto}, que es
+como las necesitás cuando alguien te interrumpe con una pregunta.}
+
+% ===========================================================================
+\section{Parámetros del sistema}
+\label{sec:params}
+
+\subsection{Lo que fija el enunciado}
+
+\begin{center}
+\begin{tabular}{llp{7.6cm}}
+  \toprule
+  Símbolo & Valor & Qué es y de dónde sale \\
+  \midrule
+  $L$        & $10$                 & Lado de la caja cuadrada. Lo fija el enunciado. \\
+  $r_c$      & $1$                  & Radio de interacción. Lo fija el enunciado. \\
+  $v$        & $3\times10^{-2}$     & Rapidez, igual y constante para todas las partículas. Lo fija el enunciado. \\
+  $\Delta t$ & $1$                  & Paso temporal. Lo fija el enunciado. \\
+  $\eta$     & $[0,\ 2\pi]$         & Amplitud del ruido angular. Es el \emph{único} parámetro de control del estudio. \\
+  ---        & periódico            & Condición de contorno. Lo fija el enunciado. \\
+  $\rho$     & $2$, $4$, $8$        & Densidades pedidas por el enunciado. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\dato{$v\,\Delta t = 0{,}03 = 3\%$ de $r_c$. Es la lectura física del par
+$(v, \Delta t)$: en un paso una partícula recorre el tres por ciento de su radio
+de interacción, así que el vecindario cambia de a poco y la dinámica está bien
+resuelta temporalmente. Si te preguntan ``¿por qué $v$ tan chico?'', ésa es la
+respuesta.}
+
+\teoria{\textbf{Todas las magnitudes son adimensionales.} Ni $\eta$, ni $v$, ni
+$\Delta t$ tienen unidades físicas: es la convención del enunciado y la del
+paper de Vicsek. Si te preguntan las unidades, la respuesta correcta es que el
+modelo está escrito en variables adimensionales, no inventar segundos y metros.}
+
+\subsection{Lo que derivamos}
+
+\begin{center}
+\begin{tabular}{llp{7.4cm}}
+  \toprule
+  Símbolo & Fórmula & Valor y comentario \\
+  \midrule
+  $N$ & $\rho L^2$        & $200$, $400$, $800$ para $\rho = 2$, 4, 8. \\
+  $\langle k \rangle$ & $\rho \pi r_c^2$ & Vecinos geométricos medios: $6{,}28$, $12{,}57$, $25{,}13$. Es el parámetro de control de la percolación. \\
+  $M$ & Ec.~\eqref{eq:M} & $9$ celdas por lado, con lado de celda $10/9 \approx 1{,}11 > r_c$. \\
+  Piso de $v_a$ & $N^{-1/2}$ & $0{,}071$, $0{,}050$, $0{,}035$ predicho; $0{,}063$, $0{,}044$, $0{,}031$ medido. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Las seis densidades}
+
+\begin{center}
+\begin{tabular}{lccll}
+  \toprule
+  $\rho$ & $N$ & $\langle k \rangle$ & Pasos & Origen \\
+  \midrule
+  $8$ & $800$ & $25{,}13$ & $2\times10^3$ & Enunciado \\
+  $4$ & $400$ & $12{,}57$ & $2\times10^3$ & Enunciado \\
+  $2$ & $200$ & $\phantom{0}6{,}28$ & $2\times10^3$ & Enunciado \\
+  \midrule
+  \multicolumn{2}{l}{Umbral $\langle k \rangle_c$} & $\phantom{0}4{,}51$ & & Quintanilla \emph{et al.} [3] \\
+  \midrule
+  $1/\pi \approx 0{,}318$    & $\phantom{0}32$ & $\phantom{0}1{,}00$ & $1\times10^4$ & Indicación de cátedra \\
+  $1/(2\pi) \approx 0{,}159$ & $\phantom{0}16$ & $\phantom{0}0{,}50$ & $1\times10^4$ & Indicación de cátedra \\
+  $1/(3\pi) \approx 0{,}106$ & $\phantom{0}11$ & $\phantom{0}0{,}33$ & $1\times10^4$ & Indicación de cátedra \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\clave{Las tres densidades subcríticas no son un capricho: están elegidas para
+que $\langle k \rangle$ dé exactamente $1$, $1/2$ y $1/3$, es decir bien por
+debajo del umbral de percolación $4{,}51$. Ésa es la única razón por la que
+existen: en las densidades del enunciado el observable $S$ está saturado y no
+mide nada, y sólo por debajo del umbral vuelve a discriminar entre fases.}
+
+% ===========================================================================
+\section{Definiciones formales: las ecuaciones exactas}
+\label{sec:ecuaciones}
+
+Éstas son las que conviene poder escribir en el pizarrón si te lo piden.
+
+\textbf{Velocidad} (variable derivada, no se almacena):
+\begin{equation}
+  \vect{v}_i(t) = v\left(\cos\theta_i(t),\ \sin\theta_i(t)\right).
+  \label{eq:vel}
+\end{equation}
+
+\textbf{Regla de Vicsek} (promedio circular sobre el vecindario):
+\begin{equation}
+  \theta_i(t+\Delta t) = \operatorname{atan2}\!\left(
+    \sum_{j \in \mathcal{N}_i} \sin\theta_j(t),\;
+    \sum_{j \in \mathcal{N}_i} \cos\theta_j(t)\right) + \Delta\theta_i .
+  \label{eq:vicsek}
+\end{equation}
+
+\textbf{Regla del votante} (copia de un vecino sorteado):
+\begin{equation}
+  \theta_i(t+\Delta t) = \theta_j(t) + \Delta\theta_i,
+  \qquad j \sim \mathcal{U}(\mathcal{N}_i).
+  \label{eq:votante}
+\end{equation}
+
+\textbf{Ruido angular} (idéntico en los dos modelos, independiente entre
+partículas y entre pasos):
+\begin{equation}
+  \Delta\theta_i \sim \mathcal{U}\!\left(-\tfrac{\eta}{2},\ \tfrac{\eta}{2}\right).
+  \label{eq:ruido}
+\end{equation}
+
+\textbf{Integración de la posición} (con la velocidad \emph{vieja}), seguida de
+envoltura periódica en $[0, L)$:
+\begin{equation}
+  \vect{r}_i(t+\Delta t) = \vect{r}_i(t) + \vect{v}_i(t)\,\Delta t .
+  \label{eq:pos}
+\end{equation}
+
+\textbf{Polarización} (parámetro de orden):
+\begin{equation}
+  v_a(t) = \frac{1}{Nv}\left\|\sum_{i=1}^{N}\vect{v}_i(t)\right\|
+  = \frac{1}{N}\sqrt{\Big(\sum_i \cos\theta_i\Big)^2 + \Big(\sum_i \sin\theta_i\Big)^2}.
+  \label{eq:va}
+\end{equation}
+
+\textbf{Fracción del cluster gigante}:
+\begin{equation}
+  S(t) = \frac{1}{N}\max_{c \,\in\, \mathcal{C}(t)} |c| ,
+  \label{eq:S}
+\end{equation}
+con $\mathcal{C}(t)$ las componentes conexas del grafo cuyas aristas unen pares
+a distancia menor que $r_c$.
+
+\textbf{Celdas de la grilla del CIM}:
+\begin{equation}
+  M = \max(1,\ m), \qquad
+  m = \begin{cases}
+    \lfloor L/r_c \rfloor - 1, & \text{si } L/r_c \text{ es entero,}\\
+    \lfloor L/r_c \rfloor, & \text{si no.}
+  \end{cases}
+  \label{eq:M}
+\end{equation}
+
+\textbf{Envoltura periódica} y \textbf{convención de imagen mínima}:
+\[
+  \mathrm{wrap}(x) = x - L\left\lfloor x/L \right\rfloor,
+  \qquad
+  \Delta = d - L\,\mathrm{round}(d/L),
+  \qquad
+  \mathrm{wrap}(i, M) = ((i \bmod M) + M) \bmod M .
+\]
+
+\clave{Si tuvieras que decir una sola frase sobre el modelo: \emph{la única
+diferencia entre los dos modelos es la Ec.~\eqref{eq:vicsek} contra la
+Ec.~\eqref{eq:votante} ---promediar sobre todos los vecinos versus copiar a uno
+solo elegido al azar---; todo lo demás, incluido el ruido, es idéntico}. Todos
+los resultados del trabajo se explican a partir de eso.}
+
+\teoria{\textbf{Por qué esa diferencia produce todo lo demás.} En
+Vicsek el promedio se toma sobre $|\mathcal{N}_i|$ orientaciones con ruidos
+independientes, de modo que la dispersión del resultado se reduce en un factor
+$\sim |\mathcal{N}_i|^{-1/2}$: el promedio \emph{filtra} el ruido, y filtra
+mejor cuanto más denso es el sistema. El votante hereda el ruido íntegro de un
+único vecino y no lo atenúa en absoluto, y por eso ni tolera tanto ruido ni
+mejora con la densidad.}
+
+% ===========================================================================
+\section{Convenciones que elegimos nosotros}
+\label{sec:decisiones}
+
+Todo lo de esta sección \textbf{podría haber sido de otra manera}. Son las
+decisiones nuestras, y son las que la cátedra pincha, porque son las que
+distinguen un trabajo pensado de uno copiado. Cada fila tiene la alternativa que
+descartamos y el motivo.
+
+\subsection{Del modelo}
+
+\begin{center}
+\begin{tabular}{p{3.5cm}p{4.4cm}p{5.6cm}}
+  \toprule
+  Decisión & Qué elegimos & Por qué, y qué descartamos \\
+  \midrule
+  Vecindario &
+  \textbf{Autoinclusivo}: $\mathcal{N}_i$ contiene a la propia $i$ &
+  Resuelve el caso de la partícula sin vecinos: conserva su orientación más el ruido. Sin eso, Vicsek daría $0/0$ y el sorteo del votante sería sobre un conjunto vacío. Es además la convención del paper original. \\
+  \addlinespace
+  Promedio de ángulos &
+  \textbf{Promedio circular}: \texttt{atan2} de las sumas de senos y cosenos &
+  Promediar ángulos directamente rompe en $\pm\pi$: $+179^\circ$ y $-179^\circ$ apuntan casi igual pero promedian $0^\circ$. Sumar senos y cosenos es sumar vectores unitarios. \\
+  \addlinespace
+  Rango del ruido &
+  $\mathcal{U}(-\eta/2,\ +\eta/2)$ &
+  Es la convención del paper de Vicsek: $\eta$ es el \emph{ancho} de la distribución, no la amplitud. Por eso el barrido llega a $2\pi$ y no más: ahí el ruido ya cubre la circunferencia entera. \\
+  \addlinespace
+  Distribución del ruido &
+  \textbf{Uniforme}, no gaussiana &
+  Es la del paper original y tiene soporte acotado, lo que hace que $\eta = 2\pi$ sea exactamente el desorden total. Una gaussiana no tendría un máximo natural. \\
+  \addlinespace
+  Renormalización del ángulo &
+  $\theta \leftarrow \operatorname{atan2}(\sin\theta, \cos\theta)$ tras el ruido &
+  \textbf{Necesaria en el votante}, que copia un ángulo ya comprometido en lugar de recalcularlo: sin renormalizar acumularía una caminata aleatoria angular no acotada. En Vicsek es redundante, pero se aplica igual para que el tratamiento sea idéntico. \\
+  \addlinespace
+  Orden de la integración &
+  Avanzar con $\vect{v}(t)$, o sea el ángulo \textbf{viejo} &
+  Es la Ec.~\eqref{eq:pos} de la diapositiva 42 de la Teórica 2: la partícula primero avanza y después gira. Se corrigió después de la clase de consultas. La convención opuesta da un sistema sistemáticamente menos polarizado ---hasta $0{,}10$ de diferencia en $v_a$ en la zona de transición. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Del motor}
+
+\begin{center}
+\begin{tabular}{p{3.5cm}p{4.4cm}p{5.6cm}}
+  \toprule
+  Decisión & Qué elegimos & Por qué, y qué descartamos \\
+  \midrule
+  Actualización &
+  \textbf{Sincrónica}, con buffer auxiliar \texttt{thetaNew\_} &
+  Sin el buffer, la partícula $i+1$ vería el ángulo nuevo de la $i$ y el resultado dependería del orden de recorrido, que es arbitrario. Es lo que hace que esto sea un autómata celular bien definido. \\
+  \addlinespace
+  Estado de la partícula &
+  Sólo $x$, $y$, $\theta$; sin velocidad y sin radio &
+  El módulo de la velocidad es constante, así que $\vect{v}$ queda determinada por $\theta$: guardarla sería estado redundante que habría que mantener consistente. El radio no existe porque las partículas son puntuales. \\
+  \addlinespace
+  Búsqueda de vecinos &
+  \textbf{CIM del TP1}, reorganizado en una clase \texttt{Grid} persistente &
+  El \texttt{computeCIM} del TP1 reasignaba sus buffers en cada llamada. Da igual si se llama una vez; no da igual con $\sim10^6$ reconstrucciones. Los vectores se vacían y se rellenan, sin liberar ni reservar. \\
+  \addlinespace
+  Tamaño de la grilla &
+  $M = 9$, no $10$ &
+  El lado de celda tiene que ser \emph{estrictamente} mayor que $r_c$. Con $M = 10$ daría exactamente $1$ y dos partículas a distancia apenas menor que $r_c$ podrían caer en celdas no adyacentes. \\
+  \addlinespace
+  Recorrido del vecindario &
+  \textbf{Medio vecindario}: 5 celdas, registrando cada par en las dos listas &
+  Resultado idéntico al de recorrer las 9 con la mitad de las comparaciones. Requiere $M \geq 3$; con $M < 3$ el \emph{wrap} duplicaría pares y el código cae al vecindario completo. \\
+  \addlinespace
+  Cálculo de $S$ &
+  DFS con pila explícita sobre \textbf{la misma} lista de adyacencia del CIM &
+  Garantiza por construcción que la definición de cluster coincida con la de vecindad de la dinámica. No se recalculan vecinos ni se usa fuerza bruta. \\
+  \addlinespace
+  Medición de $v_a$ y $S$ &
+  Segunda reconstrucción de la grilla (\texttt{syncNeighbors()}) sobre las posiciones ya avanzadas &
+  Para que los dos observables se midan sobre la \emph{misma} configuración. Queda deliberadamente fuera del cronómetro del inciso (g), porque es costo de análisis y no de simulación. \\
+  \addlinespace
+  Generador aleatorio &
+  \texttt{std::mt19937\_64}, sembrado explícitamente &
+  Nunca desde el reloj: todo el barrido es reproducible bit a bit. Los dos modelos comparten la función \texttt{addAngularNoise}, la misma distribución y el mismo flujo. \\
+  \addlinespace
+  Lenguaje y compilación &
+  C++20, \texttt{-O2 -Wall -Wextra -pedantic}, \texttt{Makefile} plano &
+  Sin dependencias externas ni CMake. El \texttt{-O2} no es cosmético: sin optimización las mediciones del inciso (g) no significan nada. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{De la metodología}
+
+\begin{center}
+\begin{tabular}{p{3.5cm}p{4.4cm}p{5.6cm}}
+  \toprule
+  Decisión & Qué elegimos & Por qué, y qué descartamos \\
+  \midrule
+  Condición inicial &
+  Posiciones $\mathcal{U}[0,L)$ y ángulos $\mathcal{U}[-\pi,\pi]$, independientes &
+  Espacialmente homogénea y direccionalmente isótropa: el sistema arranca desordenado y el orden, si aparece, lo produce la dinámica. Sin criterio de no solapamiento, a diferencia del TP1, porque las partículas son puntuales. \\
+  \addlinespace
+  Grilla de $\eta$ &
+  Paso $0{,}2$ en $[0, 2\pi]$ $+$ extremo $2\pi$ $+$ refinamiento de paso $0{,}05$ en $[0,\ 0{,}4]$; \textbf{39 puntos} &
+  El refinamiento existe porque el votante colapsa dentro de $[0,\ 0{,}4]$, mientras que la transición de Vicsek cae cerca de $\eta \approx 3$ y el paso base ya la resuelve. \\
+  \addlinespace
+  Grilla común &
+  \textbf{La misma para los dos modelos} &
+  Es lo que permite que la comparación del inciso (f) sea punto a punto y no una superposición aproximada. \\
+  \addlinespace
+  Semillas &
+  $64$ bits más significativos de $\mathrm{sha256}(\text{modelo}\mid\rho\mid\eta\mid k)$ &
+  Dos cosas: que $\eta$ vecinos den semillas sin relación entre sí (evita correlaciones espurias a lo largo de una curva) y que todo sea reproducible. Nunca del reloj. \\
+  \addlinespace
+  Realizaciones &
+  $K = 10$ por punto &
+  $468$ puntos $\times$ $10$ $=$ $4680$ simulaciones. Es el compromiso entre barras de error utilizables y tiempo de cómputo. \\
+  \addlinespace
+  Barras de error &
+  Desvío estándar entre las $K = 10$ \emph{medias de estado estacionario} &
+  Miden la dispersión \emph{entre realizaciones}, no la fluctuación temporal dentro de una corrida, que es otra magnitud y bastante mayor. Es una distinción que conviene decir sin que te la pregunten. \\
+  \addlinespace
+  Estado estacionario &
+  Corte \textbf{medido punto a punto} y por observable (Sec.~\ref{sec:estac}) &
+  El transitorio depende fuertemente del ruido: a $\eta$ grande el sistema nace desordenado y empieza en $t=0$; a $\eta$ chico tarda $\sim10^2$ pasos. Un corte fijo tendría que valer para el peor caso y tiraría media corrida en casi todos los puntos. \\
+  \addlinespace
+  Largo de corrida &
+  $2\times10^3$ pasos (enunciado), $1\times10^4$ (subcríticas) &
+  El transitorio crece al bajar $N$. Con 20 semillas se verificó que a $\rho = 2$ ya es estacionario en $t = 10^3$, mientras que a $\rho = 1/\pi$ y $1/(3\pi)$ sigue evolucionando hasta $t \sim 4\times10^3$. \\
+  \addlinespace
+  $\eta$ de las animaciones &
+  Elegidos \textbf{automáticamente} sobre el $v_a(\eta)$ ya medido &
+  Ordenado $=$ el mayor $\eta$ de la grilla con $v_a \geq 0{,}9$; desordenado $=$ el menor con $v_a \leq 0{,}2$. No se eligieron a ojo, y ése es el punto. \\
+  \addlinespace
+  Salida del motor &
+  Texto plano; animación como proceso posterior e independiente &
+  Requisito explícito del enunciado: la velocidad de reproducción no puede quedar atada a la de la simulación. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{El criterio de estado estacionario, paso a paso}
+\label{sec:estac}
+
+Es la pregunta metodológica más probable de todo el trabajo. El procedimiento,
+idéntico para $v_a$ y para $S$:
+
+\begin{enumerate}
+  \item Las $K = 10$ series del punto se promedian \textbf{punto a punto}. El
+    promedio de ensamble cancela las fluctuaciones lentas de una corrida
+    individual ---que no son transitorio, porque la serie se aparta y vuelve al
+    mismo valor--- y deja sólo la relajación sistemática desde la condición
+    inicial.
+  \item La curva promedio se parte en \textbf{40 bloques}.
+  \item La meseta se estima con los bloques de la \textbf{segunda mitad},
+    estacionaria por construcción: valor medio $\mu$ y dispersión $\sigma$ entre
+    esos bloques.
+  \item Se define una banda de tolerancia $\max(0{,}05\,|\mu|,\ 3\sigma)$
+    alrededor de $\mu$. Es un máximo entre dos criterios porque uno solo falla:
+    el relativo se vuelve absurdo cuando $\mu \approx 0$, y el estadístico se
+    vuelve absurdo cuando la meseta es muy plana y $\sigma \approx 0$.
+  \item El inicio del estacionario es el \textbf{final del último bloque que se
+    sale de la banda}: el primer instante a partir del cual la curva ya no
+    vuelve a apartarse.
+  \item El resultado se acota a la primera mitad de la corrida. Si la serie no
+    muestra una meseta limpia, el criterio \textbf{degrada al corte conservador
+    del 50\,\%} en vez de devolver una ventana optimista.
+\end{enumerate}
+
+\dato{Los cortes se persisten en \texttt{data/sweep/steady\_state.csv} y son
+exactamente los que dibujan las líneas verticales de las figuras de evolución
+temporal. Es decir: \textbf{cada una de esas figuras muestra literalmente la
+ventana sobre la que se promedió}. Si te preguntan ``¿cómo sabemos que
+promediaron sobre el estacionario?'', la respuesta es señalar la línea vertical
+en pantalla.}
+
+% ===========================================================================
+\section{Los números de los resultados}
+\label{sec:resultados-num}
+
+\subsection{Cruce por $v_a = 0{,}5$}
+
+Referencia operativa para comparar el ancho de la región ordenada. \textbf{No es
+una estimación del ruido crítico} y conviene decirlo así: se obtiene por
+interpolación lineal entre los dos puntos de la grilla que encierran el cruce.
+
+\begin{center}
+\begin{tabular}{lccc}
+  \toprule
+  $\rho$ & $N$ & Vicsek & Votante \\
+  \midrule
+  $8$ & $800$ & $3{,}44$ & $0{,}21$ \\
+  $4$ & $400$ & $3{,}19$ & $0{,}26$ \\
+  $2$ & $200$ & $2{,}85$ & $0{,}34$ \\
+  \midrule
+  $1/\pi$    & $\phantom{0}32$ & $2{,}16$ & $0{,}65$ \\
+  $1/(2\pi)$ & $\phantom{0}16$ & $2{,}01$ & $0{,}87$ \\
+  $1/(3\pi)$ & $\phantom{0}11$ & $2{,}08$ & $0{,}98$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\clave{Las dos lecturas de esta tabla, que son el resultado central del trabajo:
+\textbf{(1)} el votante es casi un orden de magnitud más frágil al ruido
+($2{,}85$ contra $0{,}34$ a $\rho = 2$, factor $8{,}4$); \textbf{(2)} la
+tendencia con la densidad está \emph{invertida} ---en Vicsek el ruido tolerado
+crece con $\rho$, en el votante decrece--- y la inversión es monótona sobre las
+seis densidades.}
+
+\ojo{Ver la Sección~\ref{sec:flancos}: estos valores no se reproducen exactamente
+recalculándolos hoy sobre \texttt{summary.csv}. Leé esa entrada antes de citar
+la tabla.}
+
+\subsection{Polarización}
+
+\begin{center}
+\begin{tabular}{p{5.2cm}p{8.6cm}}
+  \toprule
+  Magnitud & Valor \\
+  \midrule
+  Piso de tamaño finito, predicho ($N^{-1/2}$) & $0{,}071$ / $0{,}050$ / $0{,}035$ para $N = 200$ / $400$ / $800$ \\
+  Piso de tamaño finito, medido & $0{,}063$ / $0{,}044$ / $0{,}031$: un $12\%$ por debajo, con la \emph{misma} proporción en las tres densidades \\
+  Barra de error máxima (Vicsek, $\rho = 2$) & $\pm 0{,}04$, en la región de transición \\
+  Votante a $\eta = 0$ exacto, $\rho = 8$ & $v_a = 0{,}911 \pm 0{,}142$ (no llega al consenso) \\
+  Convergencia de Vicsek, $\rho = 2$, $\eta = 1$ & meseta $\approx 0{,}92$ en menos de $200$ pasos \\
+  Convergencia del votante, $\rho = 2$, $\eta = 0{,}10$ & corte del estacionario en $t = 900$ contra $150$ de Vicsek \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\teoria{\textbf{Por qué el piso no es cero.} Con orientaciones independientes la
+suma vectorial de la Ec.~\eqref{eq:va} es una caminata aleatoria de $N$ pasos,
+que crece como $\sqrt{N}$; dividida por $N$ da $N^{-1/2}$. Es un efecto de
+tamaño finito puro, no un residuo de orden. La prueba de que es eso y no otra
+cosa: las tres desviaciones respecto de $N^{-1/2}$ son del mismo $12\%$.}
+
+\subsection{Componente gigante}
+
+\begin{center}
+\begin{tabular}{p{5.2cm}p{8.6cm}}
+  \toprule
+  Régimen & Valor \\
+  \midrule
+  $\rho = 8$ & $S$ indistinguible de $1$ en todo el rango de $\eta$ \\
+  $\rho = 4$ & $S$ no baja de $0{,}99$ \\
+  $\rho = 2$, Vicsek & mínimo $0{,}921$ en $\eta \approx 3{,}4$; sube de vuelta a $0{,}993$ a ruido máximo (\textbf{no monótona}) \\
+  $\rho = 2$, votante & mínimo $0{,}937$, misma forma \\
+  Subcríticas, los dos modelos & de $S \approx 0{,}9$ a ruido bajo hasta $0{,}15$--$0{,}18$ a ruido alto \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\clave{La explicación de todo el bloque de $S$ es una sola y es geométrica: el
+umbral de percolación del grafo geométrico aleatorio 2D está en
+$\langle k \rangle_c \approx 4{,}51$, y las tres densidades del enunciado dan
+$6{,}28$, $12{,}57$ y $25{,}13$. \textbf{La red percola aunque las partículas
+estén distribuidas completamente al azar}, así que $S$ no puede distinguir la
+fase ordenada de la desordenada. Y como el umbral no depende de la regla de
+alineación, $S$ tampoco distingue Vicsek de votante: lo que distingue es el
+régimen de densidad.}
+
+\teoria{\textbf{Por qué la curva a $\rho = 2$ baja y vuelve a subir.} A ruido
+máximo las partículas quedan casi uniformes, y a densidad supercrítica una
+distribución uniforme percola tan bien como una bandada compacta. El mínimo cae
+en el medio, donde el sistema forma bandas densas y deja regiones vacías: ésa es
+la configuración que más fragmenta la red.}
+
+\subsection{Relación $v_a$--$S$ (inciso e)}
+
+\begin{center}
+\begin{tabular}{lp{9.4cm}}
+  \toprule
+  Régimen & Correlación lineal \\
+  \midrule
+  $\rho = 8$ / $4$ / $2$ (Vicsek) & $r = +0{,}01$ / $+0{,}06$ / $+0{,}33$: desacoplados, y ni siquiera monótonos \\
+  Tres subcríticas & $r$ entre $+0{,}97$ y $+0{,}99$: los puntos se ordenan sobre una diagonal \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\dato{A $\rho = 2$ los puntos se apilan sobre la franja $S \geq 0{,}92$ mientras
+$v_a$ recorre todo el rango de $\approx 1$ a $\approx 0{,}06$: el sistema pasa de
+totalmente ordenado a totalmente desordenado \emph{sin que la conectividad
+cambie}. Es un resultado negativo y corresponde enunciarlo como tal.}
+
+\subsection{Benchmark del CIM (inciso g)}
+
+\begin{center}
+\begin{tabular}{p{5.2cm}p{8.6cm}}
+  \toprule
+  Magnitud & Valor \\
+  \midrule
+  Puntos de $N$ & $13$ valores entre $10$ y $1000$ \\
+  Superposición dentro del error & $11$ de $13$; las excepciones son $N = 10$ y $N = 25$, donde el TP2 es más rápido \\
+  Cociente TP2/TP1 para $N \geq 200$ & $1{,}06$ en promedio, nunca más del $30\%$ fuera de la unidad \\
+  Tiempos por búsqueda (TP1 / TP2) & $0{,}027$ / $0{,}032$ ms en $N = 200$; $0{,}099$ / $0{,}127$ en $400$; $0{,}427$ / $0{,}446$ en $800$ \\
+  Pendientes log-log, rango completo & $1{,}50$ (TP1) y $1{,}62$ (TP2) \\
+  Pendientes log-log, $N \geq 100$ & $1{,}86$ y $1{,}83$ \\
+  Condiciones igualadas & $L = 10$, $r_c = 1$, $M = 9$, periódico, partículas puntuales; TP2 con Vicsek a $\eta = 1{,}5$; ambos descartan el $1\%$ más lento \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\clave{La conclusión del inciso, dicha con precisión: \emph{integrar el CIM
+dentro de un motor dinámico ---que lo invoca en cada paso, sobre posiciones que
+cambian y sobre configuraciones agrupadas por la alineación en lugar de
+uniformes--- no degrada su escalado con $N$}. Las dos series tienen
+esencialmente la misma pendiente.}
+
+\ojo{\textbf{La pregunta que va a venir:} ``el CIM es $\mathcal{O}(N)$, ¿por qué
+la pendiente da $1{,}5$?''. La linealidad vale \textbf{a densidad constante}, y
+este barrido no la mantiene: aumenta $N$ de $10$ a $1000$ con la caja fija en
+$L = 10$, de modo que $\rho$ recorre de $0{,}1$ a $10$ y $\langle k \rangle$ pasa
+de $0{,}3$ a $31$. Con más partículas por celda, cada una hace más
+comparaciones. Es una consecuencia del diseño del barrido ---heredado del TP1
+para poder comparar--- y no un defecto del método. Verificarlo exigiría variar
+$L$ junto con $N$, que es lo que haríamos con más tiempo.}
+
+% ===========================================================================
+\section{El barrido: los números de la campaña de simulación}
+\label{sec:barrido}
+
+\begin{center}
+\begin{tabular}{lp{9.4cm}}
+  \toprule
+  Magnitud & Valor \\
+  \midrule
+  Puntos de $\eta$ & $39$ por combinación de modelo y densidad \\
+  Combinaciones & $2$ modelos $\times$ $6$ densidades $=$ $12$ \\
+  Puntos de barrido & $468$ \\
+  Realizaciones por punto & $K = 10$ \\
+  Simulaciones totales & $4680$ \\
+  Pasos por corrida & $2\times10^3$ (densidades del enunciado), $1\times10^4$ (subcríticas) \\
+  Reconstrucciones de grilla & del orden de $10^6$ en el barrido completo \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\dato{Ése es el número que contesta ``¿por qué C++ y no Python?''. No es una
+preferencia estética: son $4680$ simulaciones y del orden de $10^6$
+reconstrucciones de grilla. El análisis y los gráficos \emph{sí} están en
+Python, sobre los archivos de texto que escribe el motor.}
+
+% ===========================================================================
+\section{Mapa: qué resuelve qué}
+\label{sec:mapa}
+
+Si te preguntan ``¿dónde está el inciso (x)?'', esto lo contesta sin dudar.
+
+\begin{center}
+\begin{tabular}{llll}
+  \toprule
+  Inciso & Diapositivas & Informe & Figura \\
+  \midrule
+  (a) animaciones          & 12 y 17 & \S4.1.1, \S4.2.1 & fotogramas $\rho = 2$ \\
+  (b) $v_a(t)$             & 13 y 18 & \S4.1.2, \S4.2.2 & \texttt{va\_t\_*\_rho2} \\
+  (c) $v_a(\eta)$          & 14 y 19 & \S4.1.3, \S4.2.3 & \texttt{va\_eta\_*} \\
+  (d) $S(t)$ y $S(\eta)$   & 15, 16, 20, 21 & \S4.1.4--5, \S4.2.4--5 & \texttt{S\_t\_*}, \texttt{S\_eta\_*} \\
+  (e) $v_a$ vs.\ $S$       & 24 & \S4.4 & \texttt{va\_vs\_S\_paneles} \\
+  (f) comparación          & 22 y 23 & \S4.3 & \texttt{*\_comparacion*} \\
+  (g) tiempos del CIM      & 25 & \S4.5 & \texttt{benchmark\_tp1\_vs\_tp2} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\ojo{El inciso (f) se responde en \textbf{dos lugares}: la primera mitad es
+repetir los incisos (b)--(e) para el votante (diapositivas 17 a 21) y la segunda
+es superponer los dos modelos en las mismas figuras (22 y 23). Si te preguntan
+``¿dónde comparan los modelos?'', la respuesta completa incluye las dos partes.}
+
+\subsection{Reparto de la exposición}
+
+\begin{center}
+\begin{tabular}{llll}
+  \toprule
+  & Bloque 1 & Bloque 2 & Total \\
+  \midrule
+  A & Introducción (1--4) $\cdot$ 1:45 & Vicsek (11--16) $\cdot$ 2:40 & \textbf{4:25} \\
+  B & Implementación (5--7) $\cdot$ 1:37 & Votante (17--21) $\cdot$ 2:30 & \textbf{4:07} \\
+  C & Simulaciones (8--10) $\cdot$ 1:35 & Comparaciones y cierre (22--28) $\cdot$ 2:40 & \textbf{4:15} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+$13$ minutos $=$ $780$ s sobre $21$ diapositivas de contenido, $\approx 36$ s
+cada una. Rotación A$\to$B$\to$C$\to$A$\to$B$\to$C.
+
+% ===========================================================================
+\section{Glosario del código}
+\label{sec:codigo}
+
+Por si preguntan ``¿dónde está eso implementado?''. Todo cuelga de
+\texttt{TP2/src/}.
+
+\begin{center}
+\begin{tabular}{p{5.0cm}p{8.8cm}}
+  \toprule
+  Nombre & Qué hace \\
+  \midrule
+  \texttt{VicsekParticle} & \texttt{\{int id; double x, y, theta;\}}. Sin velocidad y sin radio. \\
+  \texttt{periodicWrap} & Envuelve una coordenada en $[0, L)$. \\
+  \texttt{periodicDelta} & Convención de imagen mínima sobre una componente. \\
+  \texttt{withinRadius} & Predicado de vecindad, compara contra $r_c^2$ sin raíz. \\
+  \texttt{headingToVelocity} & Ec.~\eqref{eq:vel}. \\
+  \texttt{maxValidGridM} & Ec.~\eqref{eq:M}. Da $M = 9$. \\
+  \texttt{Grid} & Grilla persistente del CIM; \texttt{rebuild()} vacía y rellena sin reasignar. \\
+  \texttt{Simulation} & Todo el estado de una corrida: partículas, grilla, \texttt{thetaNew\_} y el generador. \\
+  \texttt{Simulation::step()} & Las tres pasadas: vecinos, ángulos, posiciones. \\
+  \texttt{circularMeanHeading} & Ec.~\eqref{eq:vicsek}. \\
+  \texttt{voterHeading} & Ec.~\eqref{eq:votante}. \\
+  \texttt{addAngularNoise} & Ec.~\eqref{eq:ruido}, compartida por los dos modelos. \\
+  \texttt{syncNeighbors()} & Reconstrucción extra para medir $v_a$ y $S$ sobre las posiciones finales. \\
+  \texttt{polarization} & Ec.~\eqref{eq:va}. \\
+  \texttt{giantComponentFraction} & Ec.~\eqref{eq:S}, DFS con pila explícita. \\
+  \texttt{tp2\_test} & Autotest: CIM contra fuerza bruta, simetría, sin auto-vecinos, sin duplicados. \\
+  \midrule
+  \texttt{python/sweep.py} & Orquesta el barrido y los promedios de estado estacionario. \\
+  \texttt{python/analyze.py} & Figuras de los incisos (b) a (e). \\
+  \texttt{python/benchmark.py} & Inciso (g), contra el binario del TP1. \\
+  \texttt{python/animate.py} & Animaciones, como proceso posterior sobre la trayectoria de texto. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Los dos archivos de salida}
+
+\begin{itemize}
+  \item \textbf{Trayectoria completa} (\texttt{--out}): por paso, una línea con
+    $t$ y luego $N$ líneas \texttt{x y vx vy}. Autodescriptivo: las líneas de un
+    campo delimitan fotogramas, las de cuatro son partículas.
+  \item \textbf{Registro escalar} (\texttt{--scalar-log}): una línea
+    \texttt{t va S} por paso. Es lo que consume el barrido; volcar la
+    trayectoria completa de miles de corridas sería inmanejable en disco.
+\end{itemize}
+
+\dato{Banderas principales del motor: \texttt{--rho}, \texttt{--N}, \texttt{--L},
+\texttt{--rc}, \texttt{--seed}, \texttt{--M}, \texttt{--steps}, \texttt{--v0},
+\texttt{--dt}, \texttt{--periodic}/\texttt{--no-periodic}, \texttt{--model
+vicsek|voter}, \texttt{--eta}, \texttt{--out}, \texttt{--scalar-log},
+\texttt{--timing-log}, \texttt{--csv}.}
+
+% ===========================================================================
+\section{Los flancos: lo que no cerró, y qué contestar}
+\label{sec:flancos}
+
+Esta sección es la más importante del cuadernillo. Son los puntos donde el
+trabajo es atacable. \textbf{En todos, la respuesta correcta es reconocerlo y
+explicar por qué}, no defender lo indefendible. Un tribunal castiga mucho más
+que te agarren tapando algo que la limitación en sí.
+
+\subsection{Los valores del votante en la tabla de cruces}
+
+\ojo{\textbf{Verificar antes de exponer.} La Tabla de cruces del informe y la
+diapositiva 27 citan $\eta = 0{,}34$ / $0{,}26$ / $0{,}21$ para el votante a
+$\rho = 2$ / $4$ / $8$. Recalculando hoy el cruce por $v_a = 0{,}5$ sobre
+\texttt{data/sweep/summary.csv} por interpolación lineal da $0{,}371$ /
+$0{,}287$ / $0{,}186$. Los de Vicsek sí reproducen bien ($2{,}896$ / $3{,}192$ /
+$3{,}443$ contra $2{,}85$ / $3{,}19$ / $3{,}44$). \textbf{La conclusión
+cualitativa no cambia} ---la inversión con la densidad sigue siendo monótona y
+sigue siendo casi un orden de magnitud menor que Vicsek--- pero los dígitos no
+coinciden.}
+
+\clave{Si te preguntan por un valor puntual del votante, la salida honesta es
+dar el resultado \emph{cualitativo}, que es el que sostiene el trabajo: ``el
+cruce por $v_a = 0{,}5$ del votante está en torno a $0{,}2$--$0{,}4$ según la
+densidad, y baja monótonamente al aumentar $\rho$, al revés que en Vicsek''. No
+te juegues a un tercer decimal que no podés defender.}
+
+\subsection{El votante y el tiempo finito}
+
+Es la limitación principal que identifica el propio informe, y conviene
+adelantarse a ella en lugar de esperar la pregunta.
+
+Lo que se midió es que, \emph{a tiempo de simulación fijo}, el sistema más
+grande está menos polarizado. La interpretación que sostienen los datos es que
+se trata de un efecto de tiempo finito: el votante ordena por engrosamiento de
+dominios, y el tiempo hasta el consenso crece con $N$, mientras que todas las
+corridas duran los mismos $2\times10^3$ pasos.
+
+\dato{\textbf{La verificación:} a $\eta = 0$ exacto ---sin nada que
+desordene--- los sistemas de $11$, $16$ y $32$ partículas llegan a
+$v_a \approx 1$, mientras que el de $800$ se queda en
+$v_a = 0{,}911 \pm 0{,}142$. Si ni siquiera con ruido cero llega al consenso, es
+que le falta tiempo, no que el ruido lo desordene.}
+
+\clave{La formulación defendible: \emph{``no afirmamos que el ruido crítico
+asintótico del votante baje con la densidad; afirmamos que a $2\times10^3$ pasos
+el sistema más grande está menos polarizado, y mostramos que eso es consistente
+con un efecto de tiempo finito''}. Correr el votante mucho más allá de
+$2\times10^3$ pasos para separar el efecto del comportamiento asintótico es el
+paso siguiente natural, y lo decimos en las conclusiones.}
+
+\subsection{$S$ está degenerado en las densidades del enunciado}
+
+Si te dicen ``entonces $S$ no sirve'': \textbf{sirve, y saber por qué no
+discrimina es el resultado}. La respuesta completa está arriba
+(Sec.~\ref{sec:resultados-num}): el umbral de percolación explica
+cuantitativamente por qué, la explicación predice que tampoco debería distinguir
+entre modelos ---y no lo hace---, y el estudio a densidades subcríticas confirma
+que por debajo del umbral el observable sí discrimina. Eso es caracterizar un
+observable, no fallar en medirlo.
+
+\subsection{La pendiente superlineal del benchmark}
+
+Ya está arriba, en la Sección~\ref{sec:resultados-num}: la densidad no se
+mantiene constante en el barrido heredado del TP1. Es una consecuencia del
+diseño del barrido y no un defecto del método.
+
+\subsection{$K = 10$ realizaciones}
+
+Si te dicen que son pocas: son $4680$ simulaciones en total, y las barras de
+error resultantes son chicas en los extremos de las curvas y crecen en la
+región de transición, que es exactamente el comportamiento esperado. Donde más
+haría falta subir $K$ es cerca de la transición y en las densidades subcríticas,
+donde $N$ va de $11$ a $32$ y la dispersión entre realizaciones es grande por
+construcción.
+
+\subsection{No determinamos el ruido crítico}
+
+Y no lo pide el enunciado. El cruce por $v_a = 0{,}5$ es una \textbf{referencia
+operativa} para comparar el ancho de la región ordenada entre modelos y
+densidades, no una estimación de $\eta_c$. Determinar $\eta_c$ como corresponde
+exigiría un análisis de tamaño finito con varios $N$ a densidad constante, que
+es otro trabajo.
+
+% ===========================================================================
+\section{Si no sabés la respuesta}
+
+\begin{enumerate}
+  \item \textbf{Reformulá la pregunta en voz alta.} Te da unos segundos y muchas
+    veces te destraba: ``si entiendo bien, me preguntás por qué\ldots''.
+  \item \textbf{Contestá lo que sí sabés, aunque sea adyacente.} Si te preguntan
+    un número que no tenés, dá el orden de magnitud y la tendencia. Si te
+    preguntan por una decisión, contá la alternativa que descartaste.
+  \item \textbf{Pasá la pelota.} ``Eso lo trabajó [X], ¿querés agregar algo?''
+    es perfectamente válido y es lo que espera un trabajo grupal.
+  \item \textbf{Si no lo hicieron, decilo y decí cómo lo harías.} ``No lo
+    estudiamos; para responderlo habría que correr\ldots'' vale mucho más que
+    una respuesta inventada, y en varios de los flancos de arriba ya tenés la
+    frase armada.
+\end{enumerate}
+
+\ojo{Lo único que no hay que hacer nunca es afirmar con seguridad algo que no
+está medido. Si te pescan un número inventado, todo el resto del trabajo queda
+bajo sospecha.}
+
+\end{document}

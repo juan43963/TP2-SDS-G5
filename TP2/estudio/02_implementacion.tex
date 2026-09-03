@@ -6,7 +6,7 @@
 
 \portada{2}{Implementación}{%
   Diapositivas 5 a 7 \textbullet\ expositor B \textbullet\ 1:37\\[4pt]
-  Arquitectura del motor y Cell Index Method}
+  Arquitectura del motor y paso temporal}
 
 \tableofcontents
 \clearpage
@@ -32,6 +32,17 @@ preguntas (está en el cuadernillo 3), pero no lo pongas en el guion.}
 Tenés dos diapositivas de contenido y 1:37 en total. Es el bloque más corto:
 sé quirúrgico.
 
+\ojo{\textbf{Cambio respecto de la versión anterior del deck.} La diapositiva 7
+\emph{era} ``Búsqueda de vecinos: Cell Index Method'' y se reemplazó por
+``Paso temporal: actualización sincrónica''. \textbf{El Cell Index Method ya no
+tiene diapositiva propia}: en el guion sólo se lo nombra al pasar, dentro de la
+diapositiva 6, como el paso 1 del diagrama. Todo el material del CIM sigue
+completo en este cuadernillo ---en \emph{El fondo} y en las preguntas--- porque
+es lo más probable que te pregunten, y vuelve a aparecer en pantalla recién en
+la diapositiva 25 (benchmark del inciso g, expositor C). No improvises una
+explicación larga del CIM sobre la diapositiva 6: no hay tiempo y no es lo que
+muestra la pantalla.}
+
 % ===========================================================================
 \section{Guion: diapositivas 5 a 7}
 
@@ -41,8 +52,9 @@ Solo el título de la sección. Es tu señal de entrada.
 
 \diapo{6}{Arquitectura del motor}{50 s}{B}
 
-A la izquierda el diagrama de flujo del paso temporal; a la derecha cuatro
-puntos. Recorré el diagrama de arriba hacia abajo y cerrá con la sincronía.
+A la izquierda el diagrama de flujo del paso temporal; a la derecha tres
+puntos. Recorré el diagrama de arriba hacia abajo y cerrá con lo único que
+distingue a los dos modelos.
 
 \begin{quote}
 \itshape
@@ -51,49 +63,55 @@ puntos. Recorré el diagrama de arriba hacia abajo y cerrá con la sincronía.
 generador pseudoaleatorio. La partícula guarda solamente su posición y su
 ángulo: la velocidad no se almacena, se deriva del ángulo, porque el módulo es
 constante. Cada paso hace tres cosas: primero reconstruye la grilla del Cell
-Index Method para obtener la lista de vecinos; después calcula las
-orientaciones nuevas con la regla de alineación, que es lo único que distingue
-Vicsek del votante; y por último integra las posiciones aplicando las
-condiciones periódicas. Los dos modelos comparten absolutamente todo el código
-salvo esa función de alineación. Y algo importante: la actualización es
-sincrónica, las orientaciones nuevas se escriben en un buffer aparte, así que
-ninguna partícula ve el ángulo nuevo de otra dentro del mismo paso.''
+Index Method ---el del TP1--- para obtener la lista de vecinos; después calcula
+las orientaciones nuevas con la regla de alineación; y por último integra las
+posiciones aplicando las condiciones periódicas. Los dos modelos comparten
+absolutamente todo el código salvo esa función de alineación.''
 \end{quote}
 
-\clave{Los dos puntos que no podés dejar de decir: \textbf{(1)} los dos modelos
-comparten todo el motor menos una función, y \textbf{(2)} la actualización es
-sincrónica gracias a un buffer auxiliar. El primero es lo que hace legítima la
-comparación de la sección de resultados; el segundo es lo que hace que esto sea
-un autómata celular bien planteado.}
+\clave{El punto que no podés dejar de decir en esta diapositiva: \textbf{los dos
+modelos comparten todo el motor menos una función}. Es lo que hace legítima la
+comparación de la sección de resultados ---lo que se mide es la diferencia entre
+las reglas y no diferencias de implementación--- y es la frase que retoma C en
+la comparación.}
 
-\diapo{7}{Búsqueda de vecinos: Cell Index Method}{45 s}{B}
+\ojo{Nombrá el Cell Index Method y seguí. No lo expliques acá: no tiene
+diapositiva y te comés el tiempo de la 7. Si querés dejar la puerta abierta,
+alcanza con ``reutilizamos el Cell Index Method del TP1''; si les interesa, te
+lo van a preguntar y tenés la respuesta completa más abajo.}
 
-A la izquierda el esquema de la grilla con la celda central resaltada y la
-condición $L/M > r_c$; a la derecha cuatro puntos.
+\diapo{7}{Paso temporal: actualización sincrónica}{45 s}{B}
+
+Tres cajas en fila ---Vecinos, Ángulos, Mover--- y dos puntos debajo. Recorré
+las cajas de izquierda a derecha y cerrá con el porqué.
 
 \begin{quote}
 \itshape
-``Para la búsqueda de vecinos reutilizamos el Cell Index Method del TP1.
-Dividimos la caja en una grilla de $M$ por $M$ celdas, con el lado de celda
-elegido de forma que sea mayor que el radio de interacción. Esa condición
-garantiza que todos los vecinos posibles de una partícula estén en su propia
-celda o en las ocho adyacentes, así que solo comparamos contra ese vecindario en
-lugar de contra las $N$ partículas. Con las condiciones periódicas, la última
-fila de celdas es adyacente a la primera, así que los índices se cierran sobre
-el toro. El costo pasa de orden $N^2$ a orden $N$. Y como las partículas se
-mueven, la grilla se reconstruye en cada paso.''
+``Vale la pena detenerse en cómo está ordenado el paso, porque es lo que hace
+que esto sea un autómata celular bien definido. Primero se reconstruye la grilla
+de vecinos sobre las posiciones del instante $t$. Segundo, se calculan todas las
+orientaciones nuevas, y acá está el punto: cada partícula lee \emph{únicamente}
+el estado viejo, y el resultado se deposita en un buffer aparte, no se escribe
+sobre la partícula. Tercero, se avanzan las posiciones ---con la velocidad
+vieja, la que viene del ángulo de $t$--- y recién ahí se confirman los ángulos
+nuevos. Ese doble buffer es lo que hace que la actualización sea sincrónica:
+ninguna partícula ve el ángulo actualizado de otra dentro del mismo paso. Si no
+lo hiciéramos así, la partícula de índice alto vería ángulos nuevos de las de
+índice bajo, el resultado dependería del orden en que recorremos el vector
+---que es arbitrario--- y dejaría de ser el modelo.''
 \end{quote}
 
-\clave{La frase clave es \emph{``el lado de celda tiene que ser mayor que el
-radio de interacción''}: es la condición que hace correcto al método. Si el
-lado fuera menor, habría vecinos afuera del bloque de 3$\times$3 y se
-perderían.}
+\clave{La idea, en una frase: \emph{``las orientaciones nuevas van a un buffer
+aparte, así que todas las partículas deciden mirando la misma foto del
+sistema''}. Y el corolario: sin eso, el resultado dependería del orden de
+recorrido.}
 
-\ojo{La diapositiva dice ``sólo se comparan las 9 celdas vecinas''. Eso es
-correcto \emph{conceptualmente}, pero el código usa la optimización de medio
-vecindario: recorre 5 celdas por celda y registra cada par encontrado en las
-listas de las \emph{dos} partículas. El resultado es idéntico al de recorrer
-las 9, con la mitad del trabajo. Si te preguntan, tenés que saberlo (ver P6).}
+\dato{Hay un segundo detalle en esa misma diapositiva que conviene decir aunque
+sea al pasar, porque es una decisión y no un descuido: \textbf{la posición se
+avanza con la velocidad vieja}, $\vect{x}(t+\Delta t) = \vect{x}(t) +
+\vect{v}(t)\,\Delta t$, tal como la escribe la diapositiva 42 de la Teórica 2.
+La partícula primero avanza en la dirección que traía y después gira. Está
+desarrollado abajo y es una pregunta muy probable.}
 
 Cerrá pasándole la palabra a C:
 
@@ -108,6 +126,13 @@ Cerrá pasándole la palabra a C:
 Esta es la sección donde más pueden pinchar, porque cada línea de código es una
 decisión que hay que poder defender. Van ordenadas por probabilidad de que las
 pregunten.
+
+Las cinco primeras son del Cell Index Method. \textbf{Ninguna está en pantalla}
+desde que la diapositiva 7 pasó a ser el paso temporal: son material de
+respuesta, no de guion. Las que sí sostienen lo que se ve en la pantalla son
+\emph{La actualización sincrónica, en tres pasadas} y \emph{La convención de la
+posición}; si vas justo de tiempo para estudiar, empezá por esas dos y por
+\emph{El vecindario es autoinclusivo}.
 
 \subsection{Por qué $M = 9$ y no $M = 10$}
 
@@ -340,7 +365,8 @@ persistente cuyos vectores se vacían y se vuelven a llenar, sin liberar ni
 volver a reservar. Sobre el orden de $10^6$ reconstrucciones que hace el barrido
 completo, eso es lo que importa.}
 
-\pregunta{Dicen ``9 celdas'', pero ¿el código recorre las 9?}
+\pregunta{Hablan del vecindario de $3\times3$, pero ¿el código recorre las 9
+celdas?}
 \respuesta{No, recorre 5 y registra cada par en las listas de las dos
 partículas. El resultado es idéntico al de recorrer las 9 ---cada par se
 descubre una sola vez, desde uno de los dos lados--- con la mitad de las
