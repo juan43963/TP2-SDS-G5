@@ -1,0 +1,7 @@
+build/
+tp3
+tp3_test
+data/
+__pycache__/
+*.pyc
+.DS_Store

@@ -1,0 +1,91 @@
+from __future__ import annotations
+
+import tempfile
+import unittest
+from pathlib import Path
+
+import numpy as np
+
+from baseline import evaluate_step, plot_fu, summarize, t90_from_series
+from tp3io import read_goal_series
+
+
+GOALS_TEXT = """TP3_GOALS 1
+N 10
+TIME goals used_fraction
+0 0 0
+1 3 0.3
+2 9 0.9
+5 9 0.9
+"""
+
+
+class BaselineTests(unittest.TestCase):
+    def test_reads_goal_series_and_recovers_t90(self):
+        with tempfile.TemporaryDirectory(prefix="tp3-goals-test-") as temporary:
+            path = Path(temporary) / "goals.txt"
+            path.write_text(GOALS_TEXT)
+            series = read_goal_series(path)
+            self.assertEqual(series.particle_count, 10)
+            self.assertTrue(np.array_equal(series.goals, [0, 3, 9, 9]))
+            self.assertEqual(t90_from_series(series), 2.0)
+            values = evaluate_step(series, np.array([0.0, 0.5, 1.0, 1.5, 5.0]))
+            self.assertTrue(np.allclose(values, [0.0, 0.0, 0.3, 0.3, 0.9]))
+
+    def test_rejects_non_monotonic_or_inconsistent_goal_series(self):
+        with tempfile.TemporaryDirectory(prefix="tp3-goals-invalid-") as temporary:
+            path = Path(temporary) / "goals.txt"
+            path.write_text(GOALS_TEXT.replace("2 9 0.9", "0.5 9 0.9"))
+            with self.assertRaises(ValueError):
+                read_goal_series(path)
+            path.write_text(GOALS_TEXT.replace("1 3 0.3", "1 3 0.4"))
+            with self.assertRaises(ValueError):
+                read_goal_series(path)
+
+    def test_summary_reports_sample_deviation_and_censoring(self):
+        rows = [self._row(1, 10.0, 100), self._row(2, 14.0, 100)]
+        summary = summarize(rows)
+        self.assertEqual(summary["successful_runs"], 2)
+        self.assertEqual(summary["t90_mean"], 12.0)
+        self.assertAlmostEqual(summary["t90_std"], 8.0**0.5)
+
+        rows[1]["t90"] = None
+        rows[1]["goals"] = 85
+        rows[1]["used_fraction"] = 0.85
+        censored = summarize(rows)
+        self.assertEqual(censored["successful_runs"], 1)
+        self.assertIsNone(censored["t90_mean"])
+        self.assertIsNone(censored["t90_std"])
+
+    def test_plot_is_created(self):
+        with tempfile.TemporaryDirectory(prefix="tp3-baseline-plot-") as temporary:
+            first_path = Path(temporary) / "first.txt"
+            second_path = Path(temporary) / "second.txt"
+            first_path.write_text(GOALS_TEXT)
+            second_path.write_text(GOALS_TEXT.replace("2 9 0.9", "3 9 0.9"))
+            series = [read_goal_series(first_path), read_goal_series(second_path)]
+            summary = summarize([self._row(1, 2.0, 9), self._row(2, 3.0, 9)])
+            output = Path(temporary) / "fu.png"
+            plot_fu(series, [1, 2], 5.0, summary, output)
+            self.assertTrue(output.exists() and output.stat().st_size > 1_000)
+
+    @staticmethod
+    def _row(seed: int, t90: float | None, goals: int):
+        return {
+            "seed": seed,
+            "N": 100,
+            "K": 0,
+            "tmax": 100.0,
+            "final_time": 100.0,
+            "t90": t90,
+            "goals": goals,
+            "used_fraction": goals / 100.0,
+            "processed_events": 10,
+            "scheduled_events": 20,
+            "discarded_events": 5,
+            "simulation_ms": 1.0,
+        }
+
+
+if __name__ == "__main__":
+    unittest.main()
