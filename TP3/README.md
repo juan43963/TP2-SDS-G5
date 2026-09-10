@@ -157,9 +157,11 @@ make diffusion
 
 Los resultados quedan en `data/diffusion/summary.csv`, la correlacion en
 `data/diffusion/correlation.csv` y las figuras bajo `data/diffusion/plots/`.
-Para redibujar a partir de logs existentes sin repetir las simulaciones:
+Los logs intermedios se eliminan por defecto para no ocupar unos 100 MB. Para
+conservarlos y luego redibujar sin repetir las simulaciones:
 
 ```bash
+python3 python/diffusion.py --keep-events
 python3 python/diffusion.py --reuse-events
 ```
 

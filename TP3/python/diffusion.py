@@ -509,9 +509,14 @@ def main() -> int:
     parser.add_argument("--tmax", type=float, default=DEFAULT_TMAX)
     parser.add_argument("--sample-dt", type=float, default=DEFAULT_SAMPLE_DT)
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
-    parser.add_argument(
+    event_mode = parser.add_mutually_exclusive_group()
+    event_mode.add_argument(
         "--reuse-events", action="store_true",
         help="recalcular DCM y figuras a partir de logs existentes sin ejecutar el motor",
+    )
+    event_mode.add_argument(
+        "--keep-events", action="store_true",
+        help="conservar los logs compactos intermedios, que ocupan alrededor de 100 MB",
     )
     parser.add_argument("--show", action="store_true")
     args = parser.parse_args()
@@ -550,6 +555,8 @@ def main() -> int:
                 raise RuntimeError(f"eventos inconsistentes para {case.name}")
             fit = detect_diffusive_regime(series)
             write_msd(args.output_dir / "msd" / f"{case.name}.csv", series)
+            if not args.reuse_events and not args.keep_events:
+                event_path.unlink()
             results.append((case, series, fit))
             row = {
                 "name": case.name,

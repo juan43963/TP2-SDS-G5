@@ -44,6 +44,333 @@ El proyecto se divide en tres programas conceptualmente independientes:
 - Comparacion entre D y el tiempo medio t90.
 - Competencia con cinco realizaciones, N=100 y tiempo maximo de 100 s.
 
+## Mapa por inciso: que tiene que aparecer en el TP
+
+Esta seccion separa lo que exige el enunciado de todo analisis auxiliar. Sirve
+como lista de control cuando se prepare la presentacion: no es necesario
+mostrar todos los archivos generados, pero si debe quedar respondida cada
+pregunta indicada abajo.
+
+### Modelo general y animacion independiente
+
+El TP debe explicar que el sistema es dirigido por eventos, que entre choques
+las particulas siguen MRU y que las colisiones son elasticas. Tambien debe
+aclarar que una particula fresca suma un unico gol al tocar un arco, pasa a
+usada y permanece en el sistema.
+
+Debe mostrarse al menos un fotograma representativo y un enlace explicito a la
+animacion alojada en YouTube o Vimeo. El enunciado prohibe entregar o insertar
+el archivo de video. El codigo y la evidencia local ya disponibles son:
+
+    python/animate.py
+    data/animation/snapshot.png
+    data/animation/trajectory.gif
+
+La subida del video y el enlace son tareas manuales pendientes.
+
+### Inciso 1.1 - Tiempo de ejecucion
+
+Debe incluir una figura de tiempo de ejecucion promedio contra N para mesa
+vacia, `tf=30 s` y al menos diez realizaciones por valor, con desvio estandar.
+Hay que indicar que se midio el motor sin trayectoria y no confundir tiempo de
+computo con tiempo simulado. La evidencia principal es:
+
+    python/benchmark.py
+    data/performance/runs.csv
+    data/performance/summary.csv
+    data/performance/performance.png
+
+Estado: completo. Antes de la presentacion conviene repetir la medicion en la
+maquina y condiciones finales para evitar atribuir ruido del sistema al motor.
+
+### Inciso 1.2 - Exploracion de configuraciones
+
+Debe demostrarse que todos los casos usan N=100, K mayor que cero, obstaculos
+interiores y no solapados, `Rk >= r` y espacio suficiente para generar las 100
+particulas. La metodologia tiene que ser justificable, usar al menos cinco
+realizaciones por configuracion, mostrar `<t90>` con desvio y comparar contra
+mesa vacia.
+
+Para contar el recorrido de busqueda alcanza con presentar una seleccion
+representativa: obstaculo unico, area fija, embudos, busqueda automatica y la
+comparacion final con semillas comunes. Los archivos centrales son:
+
+    python/explore_obstacles.py
+    python/optimize_obstacles.py
+    python/compare_finalists.py
+    data/obstacles/systematic/plots/
+    data/obstacles/automatic/plots/finalists_common_seeds.png
+    data/obstacles/automatic/best_config.txt
+
+Estado: completo. La conclusion correcta es "mejor configuracion encontrada",
+con mejora media aproximada de 6.4%; la superposicion de los desvios impide
+afirmar una ventaja estadistica fuerte.
+
+### Inciso 1.3 - DCM y coeficiente de difusion
+
+Debe calcularse el DCM de una realizacion promediando las 100 particulas
+moviles, tanto frescas como usadas. Hay que identificar un intervalo difusivo,
+ajustar DCM linealmente, usar `DCM=4Dt` y reportar D para mesa vacia y
+configuraciones estudiadas. Finalmente debe evaluarse la relacion entre D y
+`<t90>` sin presentar correlacion como causalidad.
+
+La evidencia es:
+
+    python/diffusion.py
+    data/diffusion/summary.csv
+    data/diffusion/correlation.csv
+    data/diffusion/plots/msd_loglog.png
+    data/diffusion/plots/local_log_slope.png
+    data/diffusion/plots/D_vs_t90.png
+
+Estado: completo con una salvedad que debe informarse: la mejor configuracion
+automatica no tuvo un tramo difusivo identificable con el criterio prefijado,
+por lo que no se fuerza un valor de D. La correlacion usa cuatro puntos y es
+solo exploratoria.
+
+### Inciso 1.4 - Competencia
+
+El dia de la competencia deben ejecutarse cinco realizaciones con la
+configuracion entregada y los parametros oficiales exactos: `N=100`,
+`v0=1 m/s`, `r=0.0175 m`, `m=0.025 kg`, `L=1.20 m`, `W=0.68 m`, `d=0.20 m`
+y `tmax=100 s`. Si alguna corrida no alcanza t90, no corresponde promediar
+solo las exitosas: la configuracion pasa al ranking por goles medios a 100 s.
+
+El soporte listo es:
+
+    python/competition.py
+    SdS_TP3_2026Q2G05CS_Config.txt
+    data/competition/runs.csv
+    data/competition/summary.csv
+    data/competition/metadata.json
+
+Estado del codigo: completo. Estado experimental: ensayo aprobado con cinco
+semillas de control; las cinco realizaciones en vivo necesariamente quedan
+pendientes hasta que los docentes indiquen comenzar.
+
+### Entregables exigidos
+
+- `SdS_TP3_2026Q2G05CS_Presentación.pdf`: pendiente por decision del grupo.
+- `SdS_TP3_2026Q2G05CS_Codigo.zip`: postergado; no se prepara en esta etapa.
+- `SdS_TP3_2026Q2G05CS_Config.txt`: generado, validado y coincidente con la
+  configuracion evaluada.
+
+El ZIP y la configuracion son entregables distintos: el archivo de obstaculos
+no debe agregarse dentro del ZIP del motor.
+
+## Justificacion teorica e interpretacion de los incisos
+
+Las referencias usadas para esta seccion son exclusivamente el enunciado del
+TP3 (`../docs/SdS_TP3_2026_Billar-Metegol.md`), la Teorica 3
+(`../docs/Teorica_3_Simulaciones_dirigidas_por_eventos.md`) y el algoritmo de
+dinamica molecular con cola de prioridad descripto en
+`../docs/Molecular Dynamics Simulation of Hard Spheres.pdf`.
+
+### Marco fisico y numerico comun
+
+La Teorica 3 diferencia una simulacion por pasos, que actualiza el sistema cada
+`dt`, de una simulacion dirigida por eventos, que solo modifica el estado
+cuando ocurre un choque. Este TP pertenece al segundo caso porque las
+particulas son discos rigidos, los choques se consideran instantaneos y entre
+ellos no actuan fuerzas. Por eso el vuelo libre es exactamente:
+
+\[
+\mathbf r_i(t+\Delta t)=\mathbf r_i(t)+\mathbf v_i\Delta t.
+\]
+
+La Teorica 3 indica que este enfoque es adecuado cuando la duracion del choque
+es despreciable frente al tiempo de vuelo y la densidad es media-baja. Es
+coherente con el modelo ideal del enunciado: las colisiones son instantaneas y,
+sin obstaculos, N=100 ocupa una fraccion de area aproximada de 0.118. Los
+obstaculos reducen el area accesible, por eso cada geometria se valida tambien
+comprobando que permita generar las 100 particulas sin solapamientos.
+
+El ciclo teorico A1-A6 queda representado en el codigo de esta manera:
+
+1. Generar posiciones y velocidades iniciales sin solapamientos.
+2. Predecir los tiempos futuros de choque.
+3. Elegir el menor tiempo mediante la cola de prioridad.
+4. Avanzar todas las particulas por MRU hasta ese instante.
+5. Guardar el estado cuando corresponde y resolver solo los participantes.
+6. Reprogramar los eventos afectados y repetir.
+
+No existe un `dt` de integracion y, por lo tanto, tampoco un error de
+discretizacion temporal asociado a saltear una colision. La grilla uniforme
+usada para graficar DCM es solo un muestreo posterior: las posiciones se
+reconstruyen mediante el MRU exacto y esa grilla no interviene en la dinamica.
+
+En una pared vertical se invierte `vx`; en una horizontal, `vy`. Contra un
+obstaculo fijo se invierte la componente normal y se conserva la tangencial,
+que es la reflexion especular correspondiente a una masa infinita. En un
+choque entre dos particulas se conservan el momento lineal total y la energia
+cinetica. Estas leyes son la razon fisica de las pruebas de conservacion: no
+son solamente controles numericos, sino condiciones que debe satisfacer el
+modelo definido por la materia.
+
+La cola puede contener una prediccion que dejo de ser cierta porque una de sus
+particulas choco antes con otra cosa. Los contadores de colision permiten
+descartar esos eventos obsoletos. Esto implementa la invalidacion perezosa del
+algoritmo con cola de prioridad sin alterar el orden fisico de los eventos.
+
+### Inciso 1.1 - Que mirar y por que
+
+La variable independiente es N y el observable es el tiempo de computo del
+motor para 30 s fisicos. En el grafico deben verse los puntos medios, sus
+desvios estandar y la cantidad media de eventos procesados. Esta segunda curva
+es necesaria para separar dos causas del crecimiento:
+
+- al aumentar N existen `N(N-1)/2` pares posibles en la prediccion inicial;
+- aumenta la frecuencia fisica de colisiones;
+- despues de un choque, volver a predecir los encuentros de las particulas
+  afectadas requiere compararlas con una cantidad que crece con N;
+- la insercion y extraccion de la cola agrega el costo logaritmico de mantener
+  ordenadas las predicciones.
+
+Por estas causas esperamos que el tiempo aumente con N, pero no corresponde
+deducir una ley asintotica exacta a partir de seis puntos: el costo mezcla la
+estructura del algoritmo con una cantidad de eventos que tambien cambia con
+la densidad. Ajustar un polinomio arbitrario daria una apariencia de teoria que
+el modelo no proporciona.
+
+Las diez realizaciones son necesarias porque la condicion inicial aleatoria
+cambia la secuencia y cantidad de colisiones, y el sistema operativo tambien
+introduce variabilidad en el cronometro. Se reporta media mas/menos desvio
+estandar para mostrar la dispersion real de las realizaciones. La trayectoria
+debe estar deshabilitada porque, de lo contrario, se mediria principalmente
+entrada/salida a disco y no el algoritmo dirigido por eventos.
+
+En nuestros resultados se observa el comportamiento esperado: aumentan tanto
+los eventos como el tiempo. Las barras mas grandes para N altos indican mayor
+variabilidad de medicion; no justifican eliminar corridas sin un criterio
+definido antes del experimento.
+
+### Inciso 1.2 - Que mirar y por que
+
+`Fu(t)=Ng(t)/N` es una funcion escalonada y no decreciente. Con N=100, cada
+primer contacto nuevo con un arco la incrementa exactamente 0.01. El observable
+`t90` es un tiempo de primer pasaje colectivo: registra cuando 90 particulas
+distintas ya alcanzaron algun arco. En cada grafico de configuraciones, un
+valor menor de `<t90>` es mejor.
+
+Los obstaculos no agregan ni quitan energia: cambian la direccion de las
+particulas mediante reflexiones elasticas. Pueden romper trayectorias que
+tardarian mucho en encontrar los arcos y aumentar la mezcla, pero tambien
+pueden crear recorridos largos, regiones protegidas o rebotes que alejen a las
+particulas. Por eso la teoria no predice que "mas obstaculos", "mayor radio" o
+"menor apertura" sean siempre mejores. La respuesta puede ser no monotona y
+debe determinarse experimentalmente.
+
+Cada familia sistematica aisla una pregunta fisica:
+
+- mover un unico obstaculo estudia el efecto de su posicion y radio;
+- mantener el area total fija separa el efecto de distribuir la misma area del
+  simple aumento de material bloqueado;
+- los embudos estudian si la geometria orienta colisiones hacia los arcos;
+- la busqueda automatica explora arreglos que no surgen de una forma supuesta
+  de antemano.
+
+La mesa vacia es el control: sin ella no se puede saber si una configuracion
+ayuda o simplemente produce un valor de t90. Se usan al menos cinco semillas
+porque `<t90>` es un promedio de realizaciones con condiciones iniciales
+aleatorias. Las barras son desvios estandar entre realizaciones, no errores del
+ajuste ni errores estandar de la media.
+
+Usar las mismas semillas reduce parte de la variabilidad al comparar casos.
+Sin embargo, los obstaculos modifican el rechazo durante la generacion y, por
+lo tanto, una misma semilla no produce posiciones identicas en geometrías
+distintas. La comparacion sigue siendo reproducible, pero no debe describirse
+como un experimento perfectamente pareado.
+
+En la figura final hay que mirar simultaneamente la altura media y el ancho de
+las barras. La ganadora reduce la media alrededor de 6.4%, pero sus desvios se
+superponen con la mesa vacia. La afirmacion defendible es que fue la mejor
+configuracion encontrada dentro del presupuesto de busqueda, no que se haya
+demostrado una mejora estadisticamente concluyente.
+
+### Inciso 1.3 - Que mirar y por que
+
+El desplazamiento cuadratico medio usado es:
+
+\[
+\operatorname{DCM}(t)=\frac{1}{N}\sum_{i=1}^{N}
+\left|\mathbf r_i(t)-\mathbf r_i(0)\right|^2.
+\]
+
+Se promedian todas las particulas porque fresca/usada es solo una etiqueta de
+conteo: una particula usada conserva radio, masa y dinamica, y sigue aportando
+al transporte del sistema. Excluirla cambiaria artificialmente la poblacion a
+medida que avanza el tiempo.
+
+La Teorica 3 presenta la relacion de Einstein unidimensional
+`<z^2>=2Dt`. En dos dimensiones cada coordenada aporta `2Dt`, de modo que:
+
+\[
+\langle\Delta r^2\rangle=\langle\Delta x^2\rangle+
+\langle\Delta y^2\rangle=4Dt.
+\]
+
+No toda la curva puede ajustarse con esa expresion. Deben distinguirse tres
+regimenes mediante `DCM ~ t^alpha`:
+
+- al comienzo, antes de perder memoria de la velocidad, el MRU da
+  \(\Delta r\simeq vt\) y entonces \(\alpha\simeq2\)
+  (regimen balistico);
+- si las colisiones aleatorizan suficientemente las direcciones aparece
+  \(\alpha\simeq1\) (regimen difusivo);
+- a tiempos largos la mesa finita limita la distancia respecto de la posicion
+  inicial, el DCM se satura y \(\alpha\) tiende a cero.
+
+Por eso primero se usa el grafico log-log y la pendiente local para elegir un
+tramo compatible con uno. Recien en ese tramo se ajusta DCM contra t y se
+calcula `D=pendiente/4`. El `R2` controla la calidad lineal dentro del tramo y
+la incertidumbre de D proviene de la pendiente del ajuste. Como el enunciado
+pide una realizacion para el DCM, esa incertidumbre no es el desvio entre
+semillas y no debe rotularse como tal.
+
+Si no aparece un tramo compatible no corresponde ajustar igualmente: se debe
+informar que no hay un regimen difusivo identificable bajo el criterio usado.
+Eso ocurre con la mejor configuracion automatica en la realizacion actual.
+
+D y t90 miden cosas relacionadas pero diferentes. D cuantifica la dispersion
+espacial global, mientras que t90 depende del primer contacto con dos segmentos
+pequenos y de la geometria concreta de las trayectorias. Una configuracion
+puede mezclar mucho sin orientar hacia los arcos, u orientar hacia ellos sin
+tener el mayor D. Pearson evalua asociacion lineal y Spearman asociacion
+monotona; ninguno demuestra causalidad. Con cuatro valores validos, los
+coeficientes actuales solo permiten decir que no hay evidencia suficiente para
+establecer una correlacion robusta.
+
+### Inciso 1.4 - Que mirar y por que
+
+La competencia no introduce una dinamica nueva: aplica el mismo motor y la
+configuracion seleccionada a cinco condiciones iniciales aleatorias. Lo que se
+evalua es un promedio de ensamble pequeno, no una trayectoria especialmente
+favorable. Las semillas deben ser distintas y quedar registradas; usar una
+semilla no elimina el azar del modelo, sino que permite reproducir y auditar la
+realizacion aleatoria.
+
+Si las cinco corridas alcanzan el umbral, debe informarse `<t90>` junto con su
+desvio estandar. Si al menos una no alcanza 0.9 antes de 100 s, promediar solo
+los exitos produciria un sesgo optimista. Por eso el resultado se marca como
+censurado y pasa a compararse por goles medios a `tmax`, exactamente como fija
+el enunciado.
+
+El archivo entregado debe ser identico al evaluado porque la geometria es parte
+del modelo experimental. El checksum, la comparacion byte a byte, los
+parametros oficiales y las semillas registradas permiten demostrar esa
+trazabilidad. Para este inciso alcanza una tabla de las cinco realizaciones y
+el resumen; el enunciado no exige un grafico adicional.
+
+### Regla comun para presentar resultados
+
+Cada figura debe permitir identificar el observable, la variable controlada,
+las unidades, N, `tmax`, cantidad de realizaciones y significado de las barras.
+Las conclusiones deben salir de los puntos medidos y su dispersion. Una linea
+puede guiar la vista, pero no se debe introducir una interpolacion o una ley
+funcional que no provenga de la teoria. Los valores citados en texto deben
+redondearse de acuerdo con su incertidumbre, aunque los CSV conserven precision
+completa para reproducibilidad.
+
 ## Decisiones de implementacion
 
 - El motor no usa un paso temporal fijo.
@@ -91,7 +418,9 @@ vecinos.
 | 3.1 | Completa | Exploracion interpretable de 47 configuraciones con cinco semillas. |
 | 3.2 | Completa | Busqueda de 200 candidatos y 200 mutaciones reproducibles. |
 | 3.3 | Completa en codigo | Finalistas, archivo entregable y runner de cinco realizaciones verificados. |
-| 4 | Postergada | Presentacion y empaquetado se haran mas adelante por decision del grupo. |
+| 4.1 | Completa en codigo | Figuras y datos obligatorios generados con rutas documentadas. |
+| 4.2 | Postergada | Presentacion se hara mas adelante por decision del grupo. |
+| 4.3 | Postergada | El ZIP se preparara solamente cuando el grupo lo indique. |
 
 ## Pruebas disponibles
 
@@ -397,9 +726,11 @@ puntos, una unica realizacion por D y la ganadora excluida, esto es un
 diagnostico exploratorio; no alcanza para afirmar una relacion causal ni una
 correlacion robusta.
 
-Se regenera todo con `make diffusion`. Como los cinco logs suman alrededor de
-102 MB, para volver a calcular CSV y figuras sin repetir el motor se usa:
+Se regenera todo con `make diffusion`. Los logs intermedios suman alrededor de
+102 MB, por lo que el flujo normal los elimina despues de producir los CSV. Si
+se necesitan para depuracion se conservan explicitamente y luego se reutilizan:
 
+    python3 python/diffusion.py --keep-events
     python3 python/diffusion.py --reuse-events
 
 ### Inciso 1.4 - Runner de competencia
@@ -705,12 +1036,33 @@ deben desaparecer despues del gol porque N permanece constante.
 Los incisos 1.1, 1.2, 1.3 y el soporte de codigo para 1.4 estan completos. A
 nivel codigo obligatorio no queda otro inciso por implementar.
 
+### Que falta especificamente a nivel codigo
+
+No se detecto una funcionalidad obligatoria ausente. El motor, los formatos de
+salida, la animacion independiente, los cuatro incisos, las pruebas, el runner
+de competencia y la configuracion estan implementados. El empaquetado no forma
+parte del trabajo actual porque el grupo pidio postergarlo. Agregar nuevas
+funcionalidades al motor en este punto seria opcional y aumentaria el riesgo de
+cambiar una version ya validada.
+
+Las siguientes tareas pueden parecer desarrollo, pero son ejecuciones o
+comunicacion de resultados y no codigo faltante:
+
+- repetir un benchmark no modifica el algoritmo;
+- usar mas realizaciones de DCM mejora la evidencia, aunque el enunciado pide
+  una realizacion, pero el pipeline ya permite cambiar la semilla;
+- las cinco semillas de competencia se conoceran o elegiran en el contexto de
+  la ejecucion en vivo;
+- subir el video y preparar diapositivas son tareas externas al motor;
+- preparar el ZIP se hara mas adelante y solo cuando el grupo lo indique.
+
 Queda para mas adelante, por decision del grupo:
 
 1. Repetir la medicion de rendimiento en la maquina y condiciones finales.
 2. Ejecutar el runner con las cinco condiciones usadas en la competencia.
 3. Seleccionar figuras definitivas y preparar la presentacion.
-4. Empaquetar y verificar el ZIP final de menos de 100 KB.
+4. Preparar el ZIP y los demas entregables solamente cuando el grupo decida
+   avanzar con la entrega final.
 
 Este documento debe actualizarse al cerrar cada subfase para que el estado del
 TP sea visible sin reconstruirlo desde el historial de cambios.
