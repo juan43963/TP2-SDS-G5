@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "event.h"
 #include "particle.h"
 #include "simulation_types.h"
 
@@ -29,6 +30,19 @@ public:
     GoalLogWriter(const std::string& path, int particleCount);
 
     void writeSample(double time, int goals);
+
+private:
+    int particleCount_;
+    std::ofstream output_;
+};
+
+class EventLogWriter {
+public:
+    EventLogWriter(const std::string& path, const std::vector<Particle>& particles);
+
+    void writeEvent(std::uint64_t eventCount, double time, const Event& event,
+                    int goals, const std::vector<Particle>& particles);
+    void writeEnd(double finalTime, std::uint64_t eventCount, int goals);
 
 private:
     int particleCount_;

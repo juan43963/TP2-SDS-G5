@@ -10,6 +10,7 @@ struct ProgramOptions {
     std::string staticOutputPath = "data/static.txt";
     std::string trajectoryPath = "data/trajectory.txt";
     std::string goalsOutputPath;
+    std::string eventsOutputPath;
     std::string summaryPath;
     int outputEveryEvents = 10;
     bool trajectoryEnabled = true;

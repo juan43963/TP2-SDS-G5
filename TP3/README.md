@@ -4,7 +4,7 @@ Motor de dinamica molecular dirigida por eventos para el Trabajo Practico 3 de
 Simulacion de Sistemas. Esta carpeta se construye incrementalmente por
 subfases; los contratos del sistema y la CLI quedaron definidos en la 1.2.
 
-## Estado hasta la subfase 2.2
+## Estado del codigo: incisos 1.1 a 1.4
 
 La infraestructura C++20 ya queda separada en estos modulos:
 
@@ -112,6 +112,70 @@ su agregado en `data/baseline/*.csv`, y la figura en
 `data/baseline/fu_vs_time.png`. Si alguna realizacion no alcanza el 90%, la
 media de `t90` se informa como `NA` para no calcular una media sesgada solo
 sobre los exitos; se conservan la tasa de exito, los goles y `Fu(tmax)`.
+
+## Inciso 1.2: configuraciones de obstaculos
+
+La exploracion completa se regenera con:
+
+```bash
+make inciso-1-2
+```
+
+El proceso primero evalua 47 configuraciones interpretables con cinco
+semillas comunes: obstaculo unico, cantidades crecientes con area total fija
+y embudos simetricos. Luego genera 200 candidatos aleatorios reproducibles,
+refina los diez mejores con 20 mutaciones cada uno y reevalua cinco finalistas
+con 20 semillas nuevas. La semilla del optimizador es `20260910`.
+
+Los modulos principales son:
+
+- `python/obstacle_experiments.py`: geometria, archivos, ejecucion y ranking.
+- `python/explore_obstacles.py`: familias interpretables y sus figuras.
+- `python/optimize_obstacles.py`: busqueda aleatoria, mutaciones y finalistas.
+- `python/compare_finalists.py`: mesa vacia y finalistas con semillas comunes.
+
+Todos los datos quedan bajo `data/obstacles/`. La mejor configuracion se copia
+en `data/obstacles/automatic/best_config.txt` y se comprueba byte a byte contra
+el archivo realmente evaluado. Cada linea contiene exactamente `x y R`.
+
+La configuracion actual tiene tres obstaculos y obtuvo
+`t90 = 20.1549 +/- 2.2667 s` en 20 realizaciones, frente a
+`21.5439 +/- 2.7069 s` para la mesa vacia con las mismas semillas. La ventaja
+media existe, pero las barras se superponen; debe describirse como la mejor
+encontrada y no como una mejora estadisticamente concluyente.
+
+## Inciso 1.3: DCM y difusion
+
+`python/diffusion.py` reconstruye las posiciones en una grilla uniforme a
+partir de un registro compacto de todos los eventos. Calcula el DCM sobre las
+100 particulas, busca automaticamente un tramo con pendiente log-log compatible
+con uno y obtiene `D=pendiente/4` mediante un ajuste lineal.
+
+```bash
+make diffusion
+```
+
+Los resultados quedan en `data/diffusion/summary.csv`, la correlacion en
+`data/diffusion/correlation.csv` y las figuras bajo `data/diffusion/plots/`.
+Para redibujar a partir de logs existentes sin repetir las simulaciones:
+
+```bash
+python3 python/diffusion.py --reuse-events
+```
+
+## Inciso 1.4: competencia
+
+El archivo definitivo es `SdS_TP3_2026Q2G05CS_Config.txt`. El runner valida
+que coincida con la configuracion evaluada, exige cinco semillas y usa los
+parametros oficiales con trayectoria deshabilitada.
+
+```bash
+make competition
+python3 python/competition.py --seeds 11 22 33 44 55 --wait-for-start
+```
+
+Las corridas, el resumen y un manifiesto con semillas, parametros y checksum
+quedan en `data/competition/`.
 
 ## Reutilizacion deliberada del TP2
 

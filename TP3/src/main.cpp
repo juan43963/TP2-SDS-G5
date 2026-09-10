@@ -23,6 +23,7 @@ int main(int argc, char** argv) try {
     const std::vector<Particle> particles = generateParticles(options.simulation);
     std::unique_ptr<TrajectoryWriter> trajectory;
     std::unique_ptr<GoalLogWriter> goalLog;
+    std::unique_ptr<EventLogWriter> eventLog;
     if (options.trajectoryEnabled) {
         writeStaticSystem(options.staticOutputPath, options.simulation, particles);
         trajectory =
@@ -35,6 +36,9 @@ int main(int argc, char** argv) try {
                                                   options.simulation.particleCount);
         goalLog->writeSample(0.0, 0);
     }
+    if (!options.eventsOutputPath.empty()) {
+        eventLog = std::make_unique<EventLogWriter>(options.eventsOutputPath, particles);
+    }
 
     Simulation simulation(options.simulation, particles);
     std::uint64_t observedEvents = 0;
@@ -43,7 +47,7 @@ int main(int argc, char** argv) try {
     int lastLoggedGoals = 0;
     double lastGoalLogTime = 0.0;
     const SimulationResult result = simulation.run(
-        [&](double time, const Event&, const std::vector<Particle>& current, int goals) {
+        [&](double time, const Event& event, const std::vector<Particle>& current, int goals) {
             ++observedEvents;
             if (trajectory && observedEvents % static_cast<std::uint64_t>(
                                                     options.outputEveryEvents) == 0) {
@@ -56,6 +60,9 @@ int main(int argc, char** argv) try {
                 lastLoggedGoals = goals;
                 lastGoalLogTime = time;
             }
+            if (eventLog) {
+                eventLog->writeEvent(observedEvents, time, event, goals, current);
+            }
         });
 
     if (trajectory &&
@@ -66,6 +73,9 @@ int main(int argc, char** argv) try {
     if (goalLog &&
         (lastGoalLogTime != result.finalTime || lastLoggedGoals != result.goals)) {
         goalLog->writeSample(result.finalTime, result.goals);
+    }
+    if (eventLog) {
+        eventLog->writeEnd(result.finalTime, result.processedEvents, result.goals);
     }
     if (!options.summaryPath.empty()) {
         writeSummaryFile(options.summaryPath, options.simulation, result);

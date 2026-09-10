@@ -75,6 +75,7 @@ def run_engine(
     *,
     config: Path | None = None,
     goals_output: Path | None = None,
+    events_output: Path | None = None,
 ) -> dict[str, int | float | None]:
     """Corre una simulacion batch sin trayectoria y devuelve su resumen."""
     command = [
@@ -92,6 +93,8 @@ def run_engine(
         command.extend(("--config", str(config)))
     if goals_output is not None:
         command.extend(("--goals-output", str(goals_output)))
+    if events_output is not None:
+        command.extend(("--events-output", str(events_output)))
 
     completed = subprocess.run(command, capture_output=True, text=True, check=False)
     if completed.returncode != 0:

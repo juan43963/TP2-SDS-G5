@@ -19,6 +19,23 @@ const char* stateName(ParticleState state) {
     return state == ParticleState::Fresh ? "fresh" : "used";
 }
 
+const char* eventTypeName(EventType type) {
+    switch (type) {
+        case EventType::ParticleParticle: return "particle_particle";
+        case EventType::VerticalWall: return "vertical_wall";
+        case EventType::HorizontalWall: return "horizontal_wall";
+        case EventType::Corner: return "corner";
+        case EventType::ParticleObstacle: return "particle_obstacle";
+    }
+    throw std::invalid_argument("tipo de evento desconocido");
+}
+
+void writeEventParticle(std::ostream& output, const Particle& particle) {
+    output << "PARTICLE " << particle.id << ' ' << particle.position.x << ' '
+           << particle.position.y << ' ' << particle.velocity.x << ' '
+           << particle.velocity.y << '\n';
+}
+
 }  // namespace
 
 void writeStaticSystem(const std::string& path, const SimulationConfig& config,
@@ -91,6 +108,57 @@ void GoalLogWriter::writeSample(double time, int goals) {
     output_ << std::setprecision(17) << time << ' ' << goals << ' '
             << static_cast<double>(goals) / static_cast<double>(particleCount_) << '\n';
     if (!output_) throw std::runtime_error("fallo al escribir una muestra de goles");
+}
+
+EventLogWriter::EventLogWriter(const std::string& path,
+                               const std::vector<Particle>& particles)
+    : particleCount_(static_cast<int>(particles.size())) {
+    if (particles.empty()) throw std::invalid_argument("el log de eventos requiere N > 0");
+    createParentDirectory(path);
+    output_.open(path);
+    if (!output_) throw std::runtime_error("no se pudo escribir el log de eventos: " + path);
+    output_ << std::setprecision(17)
+            << "TP3_EVENTS 1\n"
+            << "N " << particleCount_ << '\n'
+            << "INITIAL id x y vx vy\n";
+    for (const Particle& particle : particles) {
+        output_ << particle.id << ' ' << particle.position.x << ' ' << particle.position.y << ' '
+                << particle.velocity.x << ' ' << particle.velocity.y << '\n';
+    }
+    output_ << "END_INITIAL\n";
+}
+
+void EventLogWriter::writeEvent(std::uint64_t eventCount, double time, const Event& event,
+                                int goals, const std::vector<Particle>& particles) {
+    if (!std::isfinite(time) || time < 0.0 || goals < 0 || goals > particleCount_ ||
+        static_cast<int>(particles.size()) != particleCount_ || event.particleA < 0 ||
+        event.particleA >= particleCount_) {
+        throw std::invalid_argument("evento invalido para el log compacto");
+    }
+    if (event.type == EventType::ParticleParticle &&
+        (event.particleB < 0 || event.particleB >= particleCount_ ||
+         event.particleB == event.particleA)) {
+        throw std::invalid_argument("par de particulas invalido para el log compacto");
+    }
+
+    output_ << std::setprecision(17) << "EVENT " << eventCount << ' ' << time << ' '
+            << eventTypeName(event.type) << ' ' << event.particleA << ' ' << event.particleB << ' '
+            << event.obstacle << ' ' << goals << '\n';
+    writeEventParticle(output_, particles[static_cast<std::size_t>(event.particleA)]);
+    if (event.type == EventType::ParticleParticle) {
+        writeEventParticle(output_, particles[static_cast<std::size_t>(event.particleB)]);
+    }
+    output_ << "END_EVENT\n";
+    if (!output_) throw std::runtime_error("fallo al escribir un evento compacto");
+}
+
+void EventLogWriter::writeEnd(double finalTime, std::uint64_t eventCount, int goals) {
+    if (!std::isfinite(finalTime) || finalTime < 0.0 || goals < 0 || goals > particleCount_) {
+        throw std::invalid_argument("cierre invalido para el log de eventos");
+    }
+    output_ << std::setprecision(17) << "END " << finalTime << ' ' << eventCount << ' ' << goals
+            << '\n';
+    if (!output_) throw std::runtime_error("fallo al cerrar el log de eventos");
 }
 
 void writeSummaryCsv(std::ostream& output, const SimulationConfig& config,

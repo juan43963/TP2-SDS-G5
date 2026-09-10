@@ -53,7 +53,8 @@ void testArgumentParsing(TestSuite& suite) {
         "--radius", "0.01", "--mass", "0.5", "--v0", "2", "--tmax", "30",
         "--seed", "987", "--config", "obstacles.txt", "--max-placement-attempts", "1234",
         "--static-output", "s.txt", "--trajectory", "d.txt", "--output-every-events", "1",
-        "--goals-output", "goals.txt", "--summary", "summary.csv", "--no-trajectory", "--csv",
+        "--goals-output", "goals.txt", "--events-output", "events.txt",
+        "--summary", "summary.csv", "--no-trajectory", "--csv",
     });
     suite.check(options.simulation.particleCount == 25, "--N debe reemplazar el default");
     suite.check(std::abs(options.simulation.length - 2.5) < 1e-15, "--L debe parsearse");
@@ -67,6 +68,8 @@ void testArgumentParsing(TestSuite& suite) {
     suite.check(options.summaryPath == "summary.csv", "--summary debe conservar la ruta");
     suite.check(options.goalsOutputPath == "goals.txt",
                 "--goals-output debe conservar la ruta");
+    suite.check(options.eventsOutputPath == "events.txt",
+                "--events-output debe conservar la ruta");
 }
 
 void testInvalidArguments(TestSuite& suite) {
@@ -90,6 +93,8 @@ void testInvalidArguments(TestSuite& suite) {
                 "una frecuencia de salida nula debe rechazarse");
     suite.check(rejects({"tp3", "--goals-output", "same.txt", "--summary", "same.txt"}),
                 "el registro de goles no debe sobrescribir el resumen");
+    suite.check(rejects({"tp3", "--goals-output", "same.txt", "--events-output", "same.txt"}),
+                "los dos logs livianos deben usar rutas distintas");
     suite.check(rejects({"tp3", "archivo-suelto"}), "argumentos posicionales deben rechazarse");
 }
 
@@ -454,6 +459,7 @@ void testOutputFormats(TestSuite& suite) {
     const std::filesystem::path staticPath = directory / "static.txt";
     const std::filesystem::path trajectoryPath = directory / "trajectory.txt";
     const std::filesystem::path goalsPath = directory / "goals.txt";
+    const std::filesystem::path eventsPath = directory / "events.txt";
     const std::filesystem::path summaryPath = directory / "summary.csv";
 
     SimulationConfig config;
@@ -477,6 +483,14 @@ void testOutputFormats(TestSuite& suite) {
         writer.writeSample(0.0, 0);
         writer.writeSample(0.25, 1);
         writer.writeSample(100.0, 1);
+    }
+    {
+        EventLogWriter writer(eventsPath.string(), particles);
+        const Event wall{0.25, EventType::VerticalWall, 0, -1, -1, 0, 0, 1};
+        writer.writeEvent(1, 0.25, wall, 1, particles);
+        const Event pair{0.50, EventType::ParticleParticle, 0, 1, -1, 0, 3, 2};
+        writer.writeEvent(2, 0.50, pair, 1, particles);
+        writer.writeEnd(1.0, 2, 1);
     }
 
     SimulationResult censored;
@@ -522,6 +536,17 @@ void testOutputFormats(TestSuite& suite) {
     }
     suite.check(invalidGoalSampleRejected,
                 "el registro de goles debe rechazar tiempos no finitos");
+
+    const std::string eventsText = readWholeFile(eventsPath);
+    suite.check(eventsText.find("TP3_EVENTS 1\nN 2\nINITIAL id x y vx vy\n") == 0 &&
+                    eventsText.find("END_INITIAL\n") != std::string::npos,
+                "el log compacto debe incluir la condicion inicial completa");
+    suite.check(eventsText.find("EVENT 1 0.25 vertical_wall 0 -1 -1 1") !=
+                        std::string::npos &&
+                    eventsText.find("EVENT 2 0.5 particle_particle 0 1 -1 1") !=
+                        std::string::npos &&
+                    eventsText.find("END 1 2 1") != std::string::npos,
+                "el log compacto debe conservar eventos, participantes y cierre");
 
     const std::string summaryText = readWholeFile(summaryPath);
     suite.check(summaryText.find("seed,N,K,tmax") == 0,

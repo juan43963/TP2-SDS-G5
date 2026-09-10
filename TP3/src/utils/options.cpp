@@ -78,6 +78,7 @@ void printUsage() {
         "  --output-every-events <n> guardar cada n eventos fisicos (10)\n"
         "  --no-trajectory           no escribir salida pesada\n"
         "  --goals-output <path>      serie liviana de goles y Fu\n"
+        "  --events-output <path>     log compacto para reconstruir DCM\n"
         "  --summary <path>          resumen machine-readable opcional\n"
         "  --csv                     imprimir el resumen como CSV\n"
         "  -h, --help                mostrar esta ayuda\n");
@@ -118,10 +119,20 @@ void validateOptions(const ProgramOptions& options) {
     }
     if (!options.goalsOutputPath.empty()) {
         if ((!options.summaryPath.empty() && options.goalsOutputPath == options.summaryPath) ||
+            (!options.eventsOutputPath.empty() &&
+             options.goalsOutputPath == options.eventsOutputPath) ||
             (options.trajectoryEnabled &&
              (options.goalsOutputPath == options.staticOutputPath ||
               options.goalsOutputPath == options.trajectoryPath))) {
             throw std::invalid_argument("--goals-output debe usar una ruta distinta de las otras salidas");
+        }
+    }
+    if (!options.eventsOutputPath.empty()) {
+        if ((!options.summaryPath.empty() && options.eventsOutputPath == options.summaryPath) ||
+            (options.trajectoryEnabled &&
+             (options.eventsOutputPath == options.staticOutputPath ||
+              options.eventsOutputPath == options.trajectoryPath))) {
+            throw std::invalid_argument("--events-output debe usar una ruta distinta de las otras salidas");
         }
     }
 }
@@ -145,6 +156,7 @@ ProgramOptions parseOptions(int argc, char** argv) {
         {"output-every-events", required_argument, nullptr, 'e'},
         {"no-trajectory", no_argument, nullptr, 'q'},
         {"goals-output", required_argument, nullptr, 'G'},
+        {"events-output", required_argument, nullptr, 'E'},
         {"summary", required_argument, nullptr, 'o'},
         {"csv", no_argument, nullptr, 'C'},
         {"help", no_argument, nullptr, 'h'},
@@ -175,6 +187,7 @@ ProgramOptions parseOptions(int argc, char** argv) {
             case 'e': options.outputEveryEvents = parseInt(optarg, "--output-every-events"); break;
             case 'q': options.trajectoryEnabled = false; break;
             case 'G': options.goalsOutputPath = optarg; break;
+            case 'E': options.eventsOutputPath = optarg; break;
             case 'o': options.summaryPath = optarg; break;
             case 'C': options.csv = true; break;
             case 'h': options.help = true; break;

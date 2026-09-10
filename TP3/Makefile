@@ -21,7 +21,7 @@ TEST_SUPPORT_SRC := $(SRC)/tests/brute_force_oracle.cpp
 TEST_SUPPORT_OBJ := $(TEST_SUPPORT_SRC:$(SRC)/%.cpp=$(BUILD)/%.o)
 ALL_OBJ  := $(CORE_OBJ) $(APP_OBJ) $(TEST_OBJ) $(TEST_SUPPORT_OBJ)
 
-.PHONY: all test cpp-test python-test animation benchmark baseline explore-obstacles optimize-obstacles inciso-1-2 clean
+.PHONY: all test cpp-test python-test animation benchmark baseline explore-obstacles optimize-obstacles inciso-1-2 diffusion competition clean
 
 all: tp3 tp3_test
 
@@ -64,7 +64,13 @@ optimize-obstacles: tp3
 	$(PY) python/optimize_obstacles.py
 	$(PY) python/compare_finalists.py
 
-inciso-1-2: explore-obstacles optimize-obstacles
+inciso-1-2: baseline explore-obstacles optimize-obstacles
+
+diffusion: tp3
+	$(PY) python/diffusion.py
+
+competition: tp3
+	$(PY) python/competition.py
 
 clean:
 	rm -rf $(BUILD) tp3 tp3_test
