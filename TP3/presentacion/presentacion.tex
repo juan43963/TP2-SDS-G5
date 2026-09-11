@@ -1,0 +1,555 @@
+% =====================================================================
+%  TP3 - Simulacion de Sistemas - Grupo 5 (Comision S)
+%  Presentacion oral (13 min) -- misma estructura que la del TP2
+%
+%  Formato segun docs/GuiaPresentaciones.md:
+%   - 1.2  diapositivas numeradas
+%   - 1.6  poco texto, sin parrafos
+%   - 1.7  las figuras NO llevan titulo ni caption; los parametros de la
+%          corrida van AL COSTADO de la figura, y solo lo que NO se ve en el
+%          grafico
+%   - 1.9  notacion cientifica con potencias de 10
+%   - 1.12 outertheme miniframes
+%   - 1.13 secciones separadas por una diapositiva con solo el titulo
+%
+%  Figuras: las de resultados salen de ../data/ (make benchmark, baseline,
+%  inciso-1-2, diffusion); las propias de la presentacion (fotogramas y ajuste
+%  de D) las genera presentacion/generar_figuras.py.
+%
+%  DOS PDF DISTINTOS, igual que en el TP2:
+%      pdflatex presentacion.tex                                  -> entrega
+%      pdflatex -jobname=presentacion_vivo "\def\modo{vivo}\input{presentacion}"
+% =====================================================================
+\documentclass[aspectratio=169]{beamer}
+
+\usetheme{Boadilla}
+\useoutertheme{miniframes}
+\usecolortheme{whale}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noquoting]{babel}
+\usepackage{amsmath,amssymb,graphicx,booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc,decorations.pathreplacing}
+
+\graphicspath{{../data/performance/}{../data/baseline/}{../data/obstacles/systematic/plots/}{../data/obstacles/automatic/plots/}{../data/diffusion/plots/}{./}}
+
+% Guia 3.5: vectores en negrita sin italica, escalares en italica sin negrita.
+\newcommand{\vect}[1]{\mathbf{#1}}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+\setbeamercovered{transparent}
+
+\AtBeginSection[]{%
+  \begin{frame}[plain]
+    \vfill
+    \begin{beamercolorbox}[sep=8pt,center]{title}
+      \usebeamerfont{title}\insertsection
+    \end{beamercolorbox}
+    \vfill
+  \end{frame}
+}
+
+\newcommand{\params}[1]{{\footnotesize #1}}
+
+% --- Modo de compilacion: entrega (default) vs. vivo ------------------
+\providecommand{\modo}{entrega}
+\def\modovivo{vivo}
+\definecolor{huecoanim}{RGB}{255,0,255}
+\newcommand{\soloentrega}[1]{\ifx\modo\modovivo\else#1\fi}
+
+% Una animacion: #1 fotograma, #2 rotulo, #3 link.
+% La mesa es 1,20 x 0,68: el hueco del modo vivo respeta esa proporcion.
+\newcommand{\animacion}[3]{%
+  \centering
+  \ifx\modo\modovivo
+    \tikz\fill[huecoanim] (0,0) rectangle (\linewidth,0.58\linewidth);%
+  \else
+    \includegraphics[width=\linewidth]{#1}%
+  \fi
+  \\[2pt]
+  {\scriptsize #2}\\
+  \soloentrega{{\tiny\color{blue}\url{#3}}}%
+}
+
+% Colores de los esquemas: mismos que el animador (python/animate.py).
+\definecolor{fresca}{HTML}{2474D2}
+\definecolor{usada}{HTML}{D64545}
+\definecolor{obst}{HTML}{686D76}
+\definecolor{arco}{HTML}{27AE60}
+
+\title[Billar-Metegol]{Simulación Dirigida por Eventos: Billar-Metegol}
+\subtitle{Dinámica molecular de discos rígidos con obstáculos}
+\author[Grupo 5]{Lucas Di Candia \and Juan Francisco Palermo \and Gonzalo Sharif Curi Martinez}
+\institute[ITBA]{Grupo 5 --- Comisión S \\ Instituto Tecnológico de Buenos Aires}
+\date{72.25 Simulación de Sistemas --- Trabajo Práctico N\textdegree{}3 --- 2026}
+
+\begin{document}
+
+% ---------------------------------------------------------------- 1
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+% =====================================================================
+\section{Introducción}
+% =====================================================================
+
+% ---------------------------------------------------------------- 3
+\begin{frame}{Sistema real}
+  \begin{columns}[c]
+    \begin{column}{0.52\textwidth}
+      \centering
+      \IfFileExists{sistema_real.jpg}{%
+        \includegraphics[height=0.62\textheight,keepaspectratio]{sistema_real.jpg}%
+      }{%
+        \begin{tikzpicture}[scale=0.9]
+          \draw[black!70, very thick] (0,0) rectangle (5.4,3.1);
+          \foreach \x/\y/\a in {0.7/2.4/-30, 1.6/0.8/40, 2.4/2.1/200, 3.3/1.1/120,
+                                4.4/2.5/250, 4.6/0.7/160, 1.1/1.5/80, 3.9/1.8/10}{
+            \fill[fresca] (\x,\y) circle (0.16);
+            \draw[-{Latex[length=1.6mm]}, thick] (\x,\y) -- ++(\a:0.55);
+          }
+          \fill[obst] (2.8,1.55) circle (0.42);
+          \node[font=\scriptsize, black!60] at (2.7,-0.35) {choques instantáneos, vuelo libre entre choques};
+        \end{tikzpicture}%
+      }
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{itemize}
+        \item Gas de discos rígidos: sólo interactúan al chocar.
+        \item Entre choques, movimiento rectilíneo uniforme.
+        \item El estado cambia sólo en los \textbf{eventos}: no hace falta un paso temporal.
+        \item Mesa tipo metegol: ¿qué obstáculos llevan antes las partículas a los arcos?
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 4
+\begin{frame}{Modelo matemático: tiempo al próximo choque}
+  \textbf{Vuelo libre} --- entre choques:
+  \[
+    \vect{r}_i(t + t_c) = \vect{r}_i(t) + \vect{v}_i\, t_c
+  \]
+
+  \textbf{Pared vertical} ($x_{p1} < x_{p2}$):
+  \[
+    t_c = \frac{x_{p2} - R - x(0)}{v_x} \;\; (v_x > 0),
+    \qquad
+    t_c = \frac{x_{p1} + R - x(0)}{v_x} \;\; (v_x < 0)
+  \]
+
+  \textbf{Dos discos} $i$, $j$:
+  \[
+    t_c =
+    \begin{cases}
+      -\dfrac{\Delta\vect{v}\cdot\Delta\vect{r} + \sqrt{d}}{\Delta\vect{v}\cdot\Delta\vect{v}}
+        & \Delta\vect{v}\cdot\Delta\vect{r} < 0,\; d \geq 0\\[6pt]
+      \infty & \text{en otro caso}
+    \end{cases}
+    \qquad
+    \begin{aligned}
+      d &= (\Delta\vect{v}\cdot\Delta\vect{r})^2 - (\Delta\vect{v}\cdot\Delta\vect{v})(\Delta\vect{r}\cdot\Delta\vect{r} - \sigma^2)\\
+      \sigma &= R_i + R_j
+    \end{aligned}
+  \]
+
+  \vspace{0.2em}
+  \centering
+  El próximo evento es el \textbf{menor} $t_c$ entre todos los pares y paredes.
+\end{frame}
+
+% ---------------------------------------------------------------- 5
+\begin{frame}{Modelo matemático: choques elásticos}
+  \textbf{Pared} --- vertical: $(v_x, v_y) \to (-v_x, v_y)$, \quad horizontal: $(v_x, v_y) \to (v_x, -v_y)$
+
+  \vspace{0.6em}
+  \textbf{Dos discos} --- impulso a lo largo de la línea de centros:
+  \[
+    J = \frac{2\, m_i m_j\, (\Delta\vect{v}\cdot\Delta\vect{r})}{\sigma\,(m_i + m_j)},
+    \qquad
+    \vect{J} = \frac{J}{\sigma}\,(\Delta x,\, \Delta y)
+  \]
+  \[
+    \vect{v}_i^{\,d} = \vect{v}_i^{\,a} + \frac{\vect{J}}{m_i},
+    \qquad
+    \vect{v}_j^{\,d} = \vect{v}_j^{\,a} - \frac{\vect{J}}{m_j}
+  \]
+
+  \textbf{Obstáculo fijo} --- límite $m_j \to \infty$, reflexión especular:
+  \[
+    \vect{v}^{\,d} = \vect{v}^{\,a} - 2\,(\vect{v}^{\,a}\cdot\hat{\vect{n}})\,\hat{\vect{n}}
+  \]
+
+  \vspace{0.2em}
+  \centering
+  {\footnotesize $a$: antes del choque, \ $d$: después, \ $\hat{\vect{n}}$: normal en el punto de contacto.}
+\end{frame}
+
+% =====================================================================
+\section{Implementación}
+% =====================================================================
+
+% ---------------------------------------------------------------- 7
+\begin{frame}{Arquitectura del motor}
+  \begin{columns}[c]
+    \begin{column}{0.60\textwidth}
+      \centering
+      \begin{tikzpicture}[
+          scale=0.88, transform shape,
+          font=\scriptsize,
+          box/.style={draw=black!55, rounded corners=2pt, align=center,
+                      inner xsep=6pt, inner ysep=4pt, text width=3.6cm},
+          est/.style={box, fill=black!10},
+          proc/.style={box, fill=white},
+          dat/.style={box, fill=black!16},
+          fl/.style={-{Latex[length=2mm]}, draw=black!60, thick}
+        ]
+        \node[est] (sim) {\texttt{Simulation}\\{\tiny estado: \texttt{particles\_}, \texttt{events\_}, \texttt{currentTime\_}}};
+        \node[dat, below=0.35cm of sim] (q) {\texttt{priority\_queue<Event>}\\{\tiny ordenada por tiempo absoluto}};
+        \node[proc, below=0.35cm of q] (val) {\texttt{isValid()}\\{\tiny compara contadores de choque}};
+        \node[proc, below=0.35cm of val] (adv) {\texttt{advanceParticles()}\\{\tiny MRU de todas hasta $t_c$}};
+        \node[proc, below=0.35cm of adv] (res) {\texttt{process()}\\{\tiny \texttt{resolve*()} + \texttt{markGoalIfNeeded()}}};
+        \node[proc, below=0.35cm of res] (sch) {\texttt{scheduleAfter*()}\\{\tiny re-predice sólo a los participantes}};
+        \draw[fl] (sim) -- (q);
+        \draw[fl] (q) -- (val);
+        \draw[fl] (val) -- (adv);
+        \draw[fl] (adv) -- (res);
+        \draw[fl] (res) -- (sch);
+        \draw[fl] (sch.east) -- ++(0.8,0) |- (q.east);
+        \draw[fl, dashed] (val.west) -- ++(-0.7,0) |- node[pos=0.25, left, align=center] {\tiny obsoleto:\\\tiny se descarta} (q.west);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item Motor en \textbf{C\texttt{++}20}, sin dependencias externas.
+        \item Cada \texttt{Event} guarda los contadores de choque de sus partículas: si cambiaron, la predicción es obsoleta.
+        \item Esquina: evento propio que invierte $v_x$ y $v_y$.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 8
+\begin{frame}{Ciclo de eventos}
+  \centering
+  \begin{tikzpicture}[
+      scale=0.9, transform shape,
+      font=\small,
+      pas/.style={draw=black!55, rounded corners=2pt, fill=black!5,
+                  align=center, inner xsep=5pt, inner ysep=6pt, text width=2.5cm,
+                  minimum height=2.1cm},
+      fl/.style={-{Latex[length=2.4mm]}, draw=black!65, very thick}
+    ]
+    \node[pas] (p1) {\textbf{1. Predecir}\\[2pt]{\scriptsize $t_c$ de pares, paredes y obstáculos}};
+    \node[pas, right=0.45cm of p1] (p2) {\textbf{2. Extraer}\\[2pt]{\scriptsize el menor $t_c$ \emph{válido} de la cola}};
+    \node[pas, right=0.45cm of p2] (p3) {\textbf{3. Avanzar}\\[2pt]{\scriptsize todas las partículas por MRU hasta $t_c$}};
+    \node[pas, right=0.45cm of p3] (p4) {\textbf{4. Resolver}\\[2pt]{\scriptsize choque elástico; gol si toca un arco}};
+    \node[pas, right=0.45cm of p4] (p5) {\textbf{\mbox{5. Re-predecir}}\\[2pt]{\scriptsize sólo las partículas que chocaron}};
+    \draw[fl] (p1) -- (p2);
+    \draw[fl] (p2) -- (p3);
+    \draw[fl] (p3) -- (p4);
+    \draw[fl] (p4) -- (p5);
+    \draw[fl] (p5.south) -- ++(0,-0.45) -| (p2.south);
+  \end{tikzpicture}
+
+  \vspace{1.2em}
+  \begin{itemize}
+    \item No hay $\Delta t$ de integración: entre eventos las posiciones son exactas.
+    \item Cada evento cuesta $O(N)$ predicciones nuevas, no $O(N^2)$.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Simulaciones}
+% =====================================================================
+
+% ---------------------------------------------------------------- 10
+\begin{frame}{Sistema simulado}
+  \begin{columns}[c]
+    \begin{column}{0.50\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.95, font=\scriptsize]
+        % mesa 1,20 x 0,68 m  ->  6 x 3,4 unidades
+        \draw[black!75, thick] (0,0) rectangle (6,3.4);
+        \draw[arco, line width=3pt] (0,1.2) -- (0,2.2);
+        \draw[arco, line width=3pt] (6,1.2) -- (6,2.2);
+        \fill[obst] (2.77,1.49) circle (0.53);
+        \fill[obst] (3.14,2.83) circle (0.34);
+        \fill[obst] (3.64,2.76) circle (0.09);
+        \draw[white, thick] (2.77,1.49) -- node[above, white, font=\tiny] {$R_k$} ++(0.53,0);
+        \foreach \x/\y/\a in {0.7/2.8/-20, 1.4/0.6/35, 1.1/1.8/190, 4.6/0.9/140,
+                              5.2/2.5/300, 4.3/1.9/60, 1.9/2.6/250}{
+          \fill[fresca] (\x,\y) circle (0.09);
+          \draw[-{Latex[length=1.3mm]}, thick] (\x,\y) -- ++(\a:0.45);
+        }
+        \foreach \x/\y/\a in {0.5/1.1/100, 5.5/1.5/210, 3.9/0.5/20}{
+          \fill[usada] (\x,\y) circle (0.09);
+          \draw[-{Latex[length=1.3mm]}, thick] (\x,\y) -- ++(\a:0.45);
+        }
+        \draw[<->] (0,-0.3) -- node[below] {$L$} (6,-0.3);
+        \draw[<->] (6.3,0) -- node[right] {$W$} (6.3,3.4);
+        \draw[decorate, decoration={brace, amplitude=4pt}] (-0.15,1.2) -- node[left=4pt] {$d$} (-0.15,2.2);
+        \node[black!60] at (3,-0.95) {\textcolor{fresca}{$\bullet$} fresca \quad \textcolor{usada}{$\bullet$} usada \quad \textcolor{arco}{\textbf{|}} arco};
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \params{
+      \textbf{Parámetros fijos}\\[3pt]
+      $L = 1{,}20$ m \quad $W = 0{,}68$ m \quad $d = 0{,}20$ m\\
+      $r = 1{,}75\times10^{-2}$ m \quad $m = 2{,}5\times10^{-2}$ kg\\
+      $v_0 = 1$ m/s, dirección uniforme en $[0, 2\pi)$\\
+      $N = 100$ \quad ($25$ a $200$ en tiempo de ejecución)\\[8pt]
+      \textbf{Input}\\[3pt]
+      Configuración de obstáculos: $K$ y $(x_k, y_k, R_k)$\\
+      dentro de la mesa, sin solaparse, $R_k \geq r$\\[8pt]
+      \textbf{Gol}\\[3pt]
+      Primer contacto de una fresca con $|y - W/2| \leq d/2$: pasa a usada y sigue en la mesa.
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 11
+\begin{frame}{Observables}
+  \textbf{Fracción de usadas} y \textbf{tiempo de llegada al 90\%}:
+  \[
+    F_u(t) = \frac{N_g(t)}{N},
+    \qquad
+    F_u(t_{90}) = 0{,}9,
+    \qquad
+    \langle t_{90}\rangle = \frac{1}{n}\sum_{j=1}^{n} t_{90}^{(j)}
+  \]
+
+  \textbf{Desplazamiento cuadrático medio} --- sobre las $N$ partículas, frescas y usadas:
+  \[
+    \mathrm{DCM}(t) = \frac{1}{N}\sum_{i=1}^{N} \big|\vect{r}_i(t) - \vect{r}_i(0)\big|^2
+    \;=\; 4\,D\,t \quad \text{(régimen difusivo)}
+  \]
+
+  \vspace{0.3em}
+  \hrule
+  \vspace{0.5em}
+
+  \params{
+  Objetivo: la configuración que minimiza $\langle t_{90}\rangle$. Barras de error: desvío estándar entre realizaciones.\\[3pt]
+  Realizaciones: 10 (tiempo de ejecución), 5 (exploración), 20 (finalistas), 1 (DCM).\\[3pt]
+  Tiempo simulado: $t_f = 30$ s (tiempo de ejecución), \ $t_{\max} = 100$ s (resto).
+  }
+\end{frame}
+
+% =====================================================================
+\section{Resultados}
+% =====================================================================
+
+% ---------------------------------------------------------------- 13
+\begin{frame}{Dinámica característica}
+  \begin{columns}[T]
+    \begin{column}{0.40\textwidth}
+      \animacion{frame_vacia.png}{Mesa vacía}{https://youtu.be/PENDIENTE}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \animacion{frame_ganadora.png}{Mejor configuración ($K = 3$)}{https://youtu.be/PENDIENTE}
+    \end{column}
+    \begin{column}{0.18\textwidth}
+      \params{$t = 8$ s\\[6pt]Azul: fresca\\Rojo: usada\\Verde: arco}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 14
+\begin{frame}{Evolución temporal de la fracción de usadas}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{fu_vs_time.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{Mesa vacía\\[6pt]Realizaciones: 5\\[6pt]$\langle t_{90}\rangle = (22 \pm 2)$ s}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 15
+\begin{frame}{Un obstáculo sobre el eje longitudinal}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{single.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$K = 1$, \ $y_1 = W/2$\\[6pt]Realizaciones: 5\\[6pt]Banda gris: mesa vacía $\pm$ desvío}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 16
+\begin{frame}{Obstáculos con área total fija}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{fixed_area.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$K\,\pi R^2 = \pi\,(4r)^2$\\[6pt]Realizaciones: 5\\[6pt]Banda gris: mesa vacía $\pm$ desvío}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 17
+\begin{frame}{Embudos hacia los arcos}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{funnel_pairs_3.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{3 pares simétricos respecto del eje ($K = 6$)\\$R_k = 2{,}5\times10^{-2}$ m\\[6pt]Realizaciones: 5\\[6pt]Con 2 y 4 pares no se obtuvo una mejora mayor.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 18
+\begin{frame}{Búsqueda automática}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{random_search.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$2\times10^{2}$ configuraciones al azar\\$1 \leq K \leq 12$, \ $r \leq R_k \leq 0{,}12$ m\\[6pt]Luego $2\times10^{2}$ mutaciones de las 10 mejores\\[6pt]Realizaciones: 5}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 19
+\begin{frame}{Comparación de finalistas}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{finalists_common_seeds.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{Realizaciones: 20, con las mismas semillas para todas\\[6pt]Semillas nuevas, no usadas en la búsqueda\\[6pt]Banda gris: mesa vacía $\pm$ desvío}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 20
+\begin{frame}{Configuración elegida}
+  \begin{columns}[c]
+    \begin{column}{0.56\textwidth}
+      \centering\includegraphics[width=\linewidth]{configuracion_ganadora.png}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \centering
+      {\footnotesize
+      \begin{tabular}{ccc}
+        \toprule
+        $x_k$ (m) & $y_k$ (m) & $R_k$ (m) \\
+        \midrule
+        $0{,}727$ & $0{,}552$ & $1{,}75\times10^{-2}$ \\
+        $0{,}554$ & $0{,}299$ & $1{,}07\times10^{-1}$ \\
+        $0{,}628$ & $0{,}565$ & $6{,}72\times10^{-2}$ \\
+        \bottomrule
+      \end{tabular}}
+
+      \vspace{1.2em}
+      \params{
+      \begin{tabular}{lc}
+        & $\langle t_{90}\rangle$ (s) \\
+        \midrule
+        Configuración elegida & $20 \pm 2$ \\
+        Mesa vacía & $22 \pm 3$ \\
+      \end{tabular}\\[6pt]
+      Realizaciones: 20}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 21
+\begin{frame}{Desplazamiento cuadrático medio}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{msd_loglog.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{Una realización por configuración\\[6pt]Trazo grueso: tramo difusivo ajustado\\[6pt]Mejor configuración: sin tramo difusivo identificable}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 22
+\begin{frame}{Selección del régimen difusivo}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{local_log_slope.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$\alpha = \dfrac{d \log \mathrm{DCM}}{d \log t}$\\[8pt]Tramo aceptado: $0{,}75 \leq \alpha \leq 1{,}25$ durante al menos $0{,}5$ s}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 23
+\begin{frame}{Ajuste del coeficiente de difusión}
+  \begin{columns}[c]
+    \begin{column}{0.76\textwidth}
+      \centering\includegraphics[width=0.99\linewidth,height=0.62\textheight,keepaspectratio]{ajuste_D_vacia.png}
+    \end{column}
+    \begin{column}{0.23\textwidth}
+      \params{Mesa vacía\\[6pt]Tramo: $0{,}2$ s a $1{,}1$ s\\[6pt]$D = (2{,}33 \pm 0{,}06)$\\$\times\,10^{-2}$ m$^2$/s}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 24
+\begin{frame}{Coeficiente de difusión y tiempo de llegada}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{D_vs_t90.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$D$: una realización\\$\langle t_{90}\rangle$: exploración\\[6pt]Barras: error del ajuste de $D$}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 25
+\begin{frame}{Tiempo de ejecución en función de $N$}
+  \begin{columns}[c]
+    \begin{column}{0.78\textwidth}
+      \centering\includegraphics[width=0.99\linewidth,height=0.72\textheight,keepaspectratio]{performance.png}
+    \end{column}
+    \begin{column}{0.20\textwidth}
+      \params{Mesa vacía\\$t_f = 30$ s\\[6pt]Realizaciones: 10\\[6pt]Sin escritura de output}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =====================================================================
+\section{Conclusiones}
+% =====================================================================
+
+% ---------------------------------------------------------------- 27
+\begin{frame}{Conclusiones}
+  \begin{itemize}
+    \item El tiempo de ejecución crece con $N$ más rápido que la cantidad de eventos procesados.
+    \vspace{0.4em}
+    \item Un obstáculo chico en el centro de la mesa baja $\langle t_{90}\rangle$; cerca de un arco lo sube.
+    \vspace{0.4em}
+    \item Con área total fija, repartirla en $K \geq 2$ obstáculos \textbf{aumenta} $\langle t_{90}\rangle$ por encima de la mesa vacía.
+    \vspace{0.4em}
+    \item La mejor configuración encontrada ($K = 3$) baja $\langle t_{90}\rangle$ un $6\%$ respecto de la mesa vacía, dentro del desvío estándar.
+    \vspace{0.4em}
+    \item $D$ es máximo en la mesa vacía, pero con 4 puntos no se observa una correlación clara entre $D$ y $\langle t_{90}\rangle$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------- 28
+\begin{frame}[plain]
+  \vfill
+  \begin{beamercolorbox}[sep=8pt,center]{title}
+    \usebeamerfont{title} Muchas gracias
+  \end{beamercolorbox}
+  \vfill
+\end{frame}
+
+\end{document}

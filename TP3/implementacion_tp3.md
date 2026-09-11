@@ -419,7 +419,7 @@ vecinos.
 | 3.2 | Completa | Busqueda de 200 candidatos y 200 mutaciones reproducibles. |
 | 3.3 | Completa en codigo | Finalistas, archivo entregable y runner de cinco realizaciones verificados. |
 | 4.1 | Completa en codigo | Figuras y datos obligatorios generados con rutas documentadas. |
-| 4.2 | Postergada | Presentacion se hara mas adelante por decision del grupo. |
+| 4.2 | En curso | Presentacion armada (28 diapositivas); propuestas de cambio en la seccion final. |
 | 4.3 | Postergada | El ZIP se preparara solamente cuando el grupo lo indique. |
 
 ## Pruebas disponibles
@@ -1066,3 +1066,146 @@ Queda para mas adelante, por decision del grupo:
 
 Este documento debe actualizarse al cerrar cada subfase para que el estado del
 TP sea visible sin reconstruirlo desde el historial de cambios.
+
+## Presentacion: estado y propuestas de cambio
+
+### Estado actual
+
+La presentacion copia la estructura de la del TP2 (misma plantilla Beamer,
+mismas secciones, figura grande con los parametros al costado):
+
+    presentacion/presentacion.tex
+    presentacion/presentacion.pdf
+    presentacion/SdS_TP3_2026Q2G05CS_Presentación.pdf   (copia con nombre de entrega)
+    presentacion/generar_figuras.py                     (fotogramas y ajuste de D)
+
+Tiene 28 diapositivas: Introduccion (3), Implementacion (2), Simulaciones (2),
+Resultados (13), Conclusiones (1), mas portada, divisorias y cierre. Las
+figuras de resultados se toman tal cual de `data/`. Las propias de la
+presentacion se regeneran con `python3 presentacion/generar_figuras.py`.
+
+Correspondencia con el enunciado:
+
+| Inciso | Diapositivas |
+|---|---|
+| 1.1 | 25 |
+| 1.2 | 13 a 20 |
+| 1.3 | 21 a 24 |
+| 1.4 | 20 (configuracion entregada); la competencia es en vivo |
+
+Animaciones (N=100, semilla 42, 0 a 30 s, un cuadro cada 0.1 s), ignoradas
+por Git:
+
+    data/presentacion/animacion_vacia.{gif,mp4}
+    data/presentacion/animacion_ganadora.{gif,mp4}
+
+### Propuestas de cambio (a decidir por el grupo)
+
+Cada propuesta indica que cambiaria, por que y en que estado esta. Los
+graficos nuevos que todavia no entraron al `.tex` van en
+`presentacion/propuestas/` y se regeneran con
+`python3 presentacion/propuestas/generar_propuestas.py`.
+
+**P1. Fu(t) con tres configuraciones en vez de solo la mesa vacia.**
+Figura: `presentacion/propuestas/fu_vs_time_comparacion.png`. Reemplazaria la
+diapositiva 14. La guia (2.4.2) pide mostrar evoluciones temporales "de
+valores extremos del rango de parametros"; hoy solo se muestra la referencia.
+Con tres curvas se ve que los obstaculos solo corren el cruce con 0.9, que es
+exactamente lo que miden los graficos siguientes. Mismas 20 semillas (101 a
+120) que la comparacion de finalistas:
+
+| caso | t90 medio [s] | desvio [s] |
+|---|---:|---:|
+| mejor configuracion (K=3) | 20.15 | 2.27 |
+| mesa vacia | 21.54 | 2.71 |
+| area fija, K=2 | 38.88 | 5.45 |
+
+Los dos primeros coinciden con `finalists_common_seeds.png`, lo que confirma
+que son las mismas corridas. Estado: figura generada, pendiente de decision.
+
+**P2. Semilla de las animaciones.** Con la semilla 42 la configuracion ganadora
+llega a t90 despues que la mesa vacia (25.7 s contra 21.6 s): la animacion
+contradice visualmente la conclusion. Propuesta: elegir una semilla en la que
+cada caso quede cerca de su media (~20 s y ~22 s) y regenerar fotogramas, GIF y
+MP4 antes de subir los videos. Estado: pendiente.
+
+**P3. Formato de figuras del pipeline (guia 1.7, 1.8 y 1.9).**
+- Faltan tildes: "Fraccion", "Posicion", "obstaculos", "vacia", "automatica".
+- `fixed_area.png`: leyenda en texto crudo `pi(4r)^2`.
+- `funnel_pairs_*.png`: leyenda `angulo=12 deg` en vez de `12°`.
+- `finalists_common_seeds.png`: nombres internos (`refine_r10_m05`) en el eje.
+- `D_vs_t90.png`: texto dentro de la figura (n, Pearson, "Sin D
+  identificable"); tiene que ir al costado, en la diapositiva.
+- `performance.png`: etiquetas menores sueltas en el eje x (3x10^1, 4x10^1).
+- `fu_vs_time.png`: eje x hasta 100 s; despues de 40 s no pasa nada.
+- Fuentes de leyendas menores a 20 en varias figuras.
+
+Estado: no corregido; requiere tocar los scripts de `python/`.
+
+**P4. Ajuste de D por el metodo de la Teorica 0.** Ya incluido (diapositiva 23,
+`presentacion/ajuste_D_vacia.png`): error cuadratico E(D) con el minimo en el D
+reportado. El ajuste tiene ordenada libre; la Teorica 0 usa un solo parametro.
+Estado: confirmar en consulta.
+
+**P5. Orden de los resultados.** El tiempo de ejecucion quedo al final, como
+en el TP2; el enunciado lo pone primero (1.1). Estado: a decidir.
+
+**P6. Sacar la diapositiva de embudos (17).** Es el resultado mas debil: todas
+las medias caen dentro de la banda de la mesa vacia, sin tendencia clara, y se
+muestra solo una de las tres cantidades de pares. El enunciado nombra los
+embudos como ejemplo, no como obligacion. Alcanza con mencionarlos de palabra
+en la busqueda automatica. Estado: a decidir.
+
+**P7. Pasar la pendiente local (22) a respaldo.** Es un control del ajuste,
+no un resultado. La guia (2.4.5) pide mostrar como se hallo el mejor ajuste, y
+eso ya lo cubre E(D) en la diapositiva 23. Puede quedar despues de "Muchas
+gracias" para responder preguntas. Estado: a decidir.
+
+**P8. Tabla de D por configuracion.** El inciso 1.3 pide "reportar D para la
+mesa vacia y para las otras configuraciones"; hoy los valores solo aparecen
+como puntos en `D_vs_t90.png`. Propuesta: tabla al costado de la diapositiva 24.
+
+| sistema | D [10^-2 m2/s] |
+|---|---|
+| mesa vacia | 2.33 +/- 0.06 |
+| obstaculo central R=2r | 1.76 +/- 0.05 |
+| area fija K=1 | 2.28 +/- 0.05 |
+| embudo 3 pares | 1.52 +/- 0.07 |
+| mejor configuracion | sin tramo difusivo |
+
+Estado: a decidir.
+
+**P9. Diapositiva de metodologia de busqueda (en Simulaciones).** El inciso 1.2
+pide justificar como se encontro la configuracion. Un esquema del embudo de
+busqueda lo resume de un vistazo: 47 configuraciones sistematicas -> 200
+aleatorias -> 200 mutaciones de las 10 mejores -> 5 finalistas -> 20 semillas
+nuevas. Estado: a decidir.
+
+**P10. Mas puntos en D contra t90.** Con n=4 y sin la configuracion ganadora
+no se puede concluir nada sobre la correlacion. Calcular D para mas
+configuraciones (por ejemplo, los 5 finalistas y mas casos de cada familia) es
+barato con `python/diffusion.py`. Estado: a decidir; consultar si la ganadora
+sin D es aceptable.
+
+**P11. Barras de error en la busqueda automatica.** `random_search.png` muestra
+medias sin barras; la guia (2.4.3) pide promedio con barras de error. El desvio
+de cada candidato ya esta en los CSV. Estado: no corregido.
+
+### Preguntas para la clase de consultas
+
+1. El DCM, ¿debe llevar barras de error (desvio entre particulas)?
+2. Ajuste de D: ¿ordenada libre o recta por el origen?
+3. La mejor configuracion no tiene tramo difusivo: ¿se acepta no reportar D?
+4. Una mejora media de 6.4% dentro del desvio, ¿alcanza como justificacion?
+5. En D contra t90 se mezclan t90 de 5 y de 20 realizaciones: ¿es aceptable?
+6. Tiempo de ejecucion: ¿al principio o al final de Resultados?
+
+### Pendientes antes de entregar
+
+- Subir los videos a YouTube y reemplazar `https://youtu.be/PENDIENTE` en la
+  diapositiva 13.
+- Foto del sistema real: si se agrega `presentacion/sistema_real.jpg` se usa
+  sola; si no, queda el esquema dibujado.
+- Version para presentar en vivo: el `.tex` ya tiene el modo `vivo` del TP2;
+  faltan el `build_pptx.py` del TP3 y los GIF definitivos.
+- Repetir el benchmark en la maquina final antes de fijar la diapositiva 25.
