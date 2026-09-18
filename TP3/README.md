@@ -121,8 +121,8 @@ La exploracion completa se regenera con:
 make inciso-1-2
 ```
 
-El proceso primero evalua 47 configuraciones interpretables con cinco
-semillas comunes: obstaculo unico, cantidades crecientes con area total fija
+El proceso primero evalua 47 configuraciones interpretables con veinte
+semillas comunes (1 a 20): obstaculo unico, cantidades crecientes con area total fija
 y embudos simetricos. Luego genera 200 candidatos aleatorios reproducibles,
 refina los diez mejores con 20 mutaciones cada uno y reevalua cinco finalistas
 con 20 semillas nuevas. La semilla del optimizador es `20260910`.
@@ -130,7 +130,7 @@ con 20 semillas nuevas. La semilla del optimizador es `20260910`.
 Los modulos principales son:
 
 - `python/obstacle_experiments.py`: geometria, archivos, ejecucion y ranking.
-- `python/explore_obstacles.py`: familias interpretables y sus figuras.
+- `python/explore_obstacles.py`: familias interpretables y sus figuras (`--replot` regrafica sin simular; idem en `optimize_obstacles.py`, `final_comparison.py` y `benchmark.py`).
 - `python/optimize_obstacles.py`: busqueda aleatoria, mutaciones y finalistas.
 - `python/compare_finalists.py`: mesa vacia y finalistas con semillas comunes.
 

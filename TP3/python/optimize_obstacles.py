@@ -22,6 +22,7 @@ import matplotlib
 if "--show" not in sys.argv:
     matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
 
 from explore_obstacles import all_candidates
 from obstacle_experiments import (
@@ -33,6 +34,7 @@ from obstacle_experiments import (
     Candidate,
     evaluate_candidates,
     rank_key,
+    read_summary,
     validate_obstacles,
     write_config,
     write_csv,
@@ -44,8 +46,8 @@ SYSTEMATIC_SUMMARY = TP3_DIR / "data" / "obstacles" / "systematic" / "summary.cs
 DEFAULT_OPTIMIZER_SEED = 20260910
 DEFAULT_EXPLORATION_SEEDS = tuple(range(1, 6))
 DEFAULT_FINAL_SEEDS = tuple(range(101, 121))
-BASELINE_MEAN = 22.385827742775458
-BASELINE_STD = 1.8005671899006823
+# Guia de presentaciones 1.8: toda la letra de las figuras en 20.
+FS = 20
 
 
 def _sample_obstacle(rng: random.Random) -> tuple[float, float, float]:
@@ -220,25 +222,22 @@ def plot_search(initial: list[dict], finalists: list[dict], output_dir: Path, sh
     plots = output_dir / "plots"
     plots.mkdir(parents=True, exist_ok=True)
     valid = [row for row in initial if row["t90_mean"] is not None]
+    counts = [int(row["K"]) for row in valid]
+    t90 = [float(row["t90_mean"]) for row in valid]
     figure, axes = plt.subplots(figsize=(8.8, 6.0))
-    axes.scatter(
-        [int(row["K"]) for row in valid],
-        [float(row["t90_mean"]) for row in valid],
-        s=28,
-        alpha=0.55,
-        color="#2878b5",
-    )
-    axes.axhline(BASELINE_MEAN, color="#333333", linestyle="--", label="Mesa vacia")
-    axes.fill_between(
-        [0.5, 12.5], BASELINE_MEAN - BASELINE_STD, BASELINE_MEAN + BASELINE_STD,
-        color="#777777", alpha=0.12,
-    )
+    axes.scatter(counts, t90, s=28, alpha=0.55, color="#2878b5",
+                 label="Configuración evaluada")
+    # Linea de tendencia: ajuste lineal por cuadrados minimos de <t90> contra K.
+    slope, intercept = np.polyfit(counts, t90, 1)
+    k_line = np.array([0.5, 12.5])
+    axes.plot(k_line, slope * k_line + intercept, color="#c0392b", linewidth=2.5,
+              label=f"Tendencia lineal: {slope:.2f} s por obstáculo".replace(".", ","))
     axes.set_xlim(0.5, 12.5)
-    axes.set_xlabel("Cantidad de obstaculos K", fontsize=17)
-    axes.set_ylabel(r"$\langle t_{90}\rangle$ [s]", fontsize=17)
-    axes.tick_params(axis="both", labelsize=14)
+    axes.set_xlabel("Cantidad de obstáculos K", fontsize=FS)
+    axes.set_ylabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
+    axes.tick_params(axis="both", labelsize=FS)
     axes.grid(False)
-    axes.legend(frameon=False, fontsize=12)
+    axes.legend(frameon=False, fontsize=FS, loc="upper left")
     figure.tight_layout()
     if show:
         plt.show()
@@ -252,12 +251,10 @@ def plot_search(initial: list[dict], finalists: list[dict], output_dir: Path, sh
     values = [float(row["t90_mean"]) for row in reversed(ranked)]
     errors = [float(row["t90_std"]) for row in reversed(ranked)]
     axes.barh(labels, values, xerr=errors, color="#2f8f62", capsize=4)
-    axes.axvline(BASELINE_MEAN, color="#333333", linestyle="--", label="Mesa vacia")
-    axes.set_xlabel(r"$\langle t_{90}\rangle$ [s]", fontsize=16)
-    axes.tick_params(axis="x", labelsize=13)
-    axes.tick_params(axis="y", labelsize=10)
+    axes.set_xlabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
+    axes.tick_params(axis="x", labelsize=FS)
+    axes.tick_params(axis="y", labelsize=12)
     axes.grid(False)
-    axes.legend(frameon=False, fontsize=12)
     figure.tight_layout()
     if show:
         plt.show()
@@ -280,9 +277,21 @@ def main() -> int:
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--systematic-summary", type=Path, default=SYSTEMATIC_SUMMARY)
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
+    parser.add_argument("--replot", action="store_true",
+                        help="regenerar las figuras desde los summary.csv sin simular")
     parser.add_argument("--show", action="store_true")
     args = parser.parse_args()
     try:
+        if args.replot:
+            plot_search(
+                read_summary(args.output_dir / "random" / "summary.csv")
+                + read_summary(args.output_dir / "refined" / "summary.csv"),
+                read_summary(args.output_dir / "finalists" / "summary.csv"),
+                args.output_dir,
+                args.show,
+            )
+            print(f"figuras en {args.output_dir / 'plots'}")
+            return 0
         if not args.binary.is_file() or not args.systematic_summary.is_file():
             raise ValueError("faltan el motor o la exploracion sistematica previa")
         counts = (args.candidates, args.top, args.mutations, args.finalists, args.jobs)

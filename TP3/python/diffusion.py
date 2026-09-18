@@ -35,6 +35,8 @@ AUTOMATIC_DIR = TP3_DIR / "data" / "obstacles" / "automatic"
 DEFAULT_SEED = 42
 DEFAULT_TMAX = 100.0
 DEFAULT_SAMPLE_DT = 0.05
+# Guia de presentaciones 1.8: toda la letra de las figuras en 20.
+FS = 20
 EVENT_TYPES = {
     "particle_particle", "vertical_wall", "horizontal_wall", "corner", "particle_obstacle"
 }
@@ -310,6 +312,11 @@ def detect_diffusive_regime(series: MsdSeries) -> FitResult | None:
     slopes = local_log_slopes(series)
     compatible = np.isfinite(slopes) & (slopes >= 0.75) & (slopes <= 1.25)
     compatible = _bridge_short_gaps(compatible)
+    # Cuando el DCM satura por el confinamiento, alpha cae muy por debajo de 1 y
+    # despues oscila con ruido: un tramo con alpha ~ 1 posterior a esa caida no
+    # es difusion. Solo se aceptan ventanas que empiezan antes.
+    saturated = np.flatnonzero(np.isfinite(slopes) & (slopes < 0.5))
+    saturation_index = int(saturated[0]) if saturated.size else compatible.size
 
     runs = []
     index = 0
@@ -321,7 +328,8 @@ def detect_diffusive_regime(series: MsdSeries) -> FitResult | None:
         while index < compatible.size and compatible[index]:
             index += 1
         end = index - 1
-        if end - start + 1 >= 15 and times[end] - times[start] >= 0.5:
+        if (end - start + 1 >= 15 and times[end] - times[start] >= 0.5
+                and start < saturation_index):
             runs.append((start, end))
     runs.sort(key=lambda pair: (times[pair[1]] - times[pair[0]], pair[1] - pair[0]), reverse=True)
 
@@ -406,7 +414,7 @@ def write_msd(path: Path, series: MsdSeries) -> None:
 
 def plot_msd(results: list[tuple[StudyCase, MsdSeries, FitResult | None]], path: Path,
              show: bool) -> None:
-    figure, axes = plt.subplots(figsize=(9.2, 6.4))
+    figure, axes = plt.subplots(figsize=(10.5, 7.0))
     for case, series, fit in results:
         line, = axes.loglog(series.times[1:], series.msd[1:], linewidth=1.4, alpha=0.7,
                             label=case.label)
@@ -418,11 +426,11 @@ def plot_msd(results: list[tuple[StudyCase, MsdSeries, FitResult | None]], path:
             positive = predicted > 0.0
             axes.loglog(x[positive], predicted[positive], color=line.get_color(),
                         linestyle="--", linewidth=1.2)
-    axes.set_xlabel("Tiempo (s)", fontsize=20)
-    axes.set_ylabel(r"Desplazamiento cuadrático medio (m$^2$)", fontsize=20)
-    axes.tick_params(axis="both", labelsize=18)
+    axes.set_xlabel("Tiempo (s)", fontsize=FS)
+    axes.set_ylabel(r"Desplazamiento cuadrático medio (m$^2$)", fontsize=FS)
+    axes.tick_params(axis="both", labelsize=FS)
     axes.grid(False)
-    axes.legend(frameon=False, fontsize=14)
+    axes.legend(frameon=False, fontsize=FS, loc="lower right")
     figure.tight_layout()
     if show:
         plt.show()
@@ -434,7 +442,7 @@ def plot_msd(results: list[tuple[StudyCase, MsdSeries, FitResult | None]], path:
 
 def plot_local_slopes(results: list[tuple[StudyCase, MsdSeries, FitResult | None]],
                       path: Path, show: bool) -> None:
-    figure, axes = plt.subplots(figsize=(9.2, 6.4))
+    figure, axes = plt.subplots(figsize=(10.5, 7.0))
     axes.axhspan(0.75, 1.25, color="0.90", label=r"Compatible con $\alpha=1$")
     axes.axhline(1.0, color="black", linestyle="--", linewidth=1.1)
     for case, series, fit in results:
@@ -447,11 +455,11 @@ def plot_local_slopes(results: list[tuple[StudyCase, MsdSeries, FitResult | None
                           color=line.get_color(), linewidth=3.0)
     axes.set_xlim(0.2, min(10.0, max(float(series.final_time) for _, series, _ in results)))
     axes.set_ylim(-1.0, 3.0)
-    axes.set_xlabel("Tiempo (s)", fontsize=20)
-    axes.set_ylabel(r"Pendiente local $\alpha$", fontsize=20)
-    axes.tick_params(axis="both", labelsize=18)
+    axes.set_xlabel("Tiempo (s)", fontsize=FS)
+    axes.set_ylabel(r"Pendiente local $\alpha$", fontsize=FS)
+    axes.tick_params(axis="both", labelsize=FS)
     axes.grid(False)
-    axes.legend(frameon=False, fontsize=13, ncol=2)
+    axes.legend(frameon=False, fontsize=FS, ncol=2, loc="upper right")
     figure.tight_layout()
     if show:
         plt.show()
@@ -463,18 +471,24 @@ def plot_local_slopes(results: list[tuple[StudyCase, MsdSeries, FitResult | None
 
 def plot_correlation(summary: list[dict], path: Path, show: bool) -> None:
     valid = [row for row in summary if row["fit_found"]]
-    figure, axes = plt.subplots(figsize=(8.6, 6.0))
-    for row in valid:
-        axes.errorbar(float(row["t90_mean"]), float(row["D"]),
-                      yerr=float(row["D_std"]), marker="o", capsize=3,
-                      linestyle="none", markersize=7)
-        axes.annotate(str(row["label"]), (float(row["t90_mean"]), float(row["D"])),
-                      xytext=(6, 6), textcoords="offset points", fontsize=14)
+    figure, axes = plt.subplots(figsize=(9.5, 6.5))
+    # t90 siempre en el eje vertical (correccion de la primera consulta).
+    points = [(float(row["D"]), float(row["t90_mean"]), float(row["D_std"]), str(row["label"]))
+              for row in valid]
+    for d, t90, d_std, label in points:
+        axes.errorbar(d, t90, xerr=d_std, marker="o", capsize=4, linestyle="none",
+                      markersize=9)
+        # Si hay otro punto apenas por encima y cerca en D, la etiqueta va abajo.
+        crowded = any(0.0 < other_t90 - t90 < 0.8 and abs(other_d - d) < 0.004
+                      for other_d, other_t90, _, _ in points)
+        axes.annotate(label, (d, t90), xytext=(8, -24 if crowded else 8),
+                      textcoords="offset points", fontsize=FS)
     # n, Pearson, Spearman y los casos sin D van al costado de la diapositiva
     # (guia de presentaciones 1.7); quedan en correlation.csv y summary.csv.
-    axes.set_xlabel("Tiempo de llegada al 90 % (s)", fontsize=20)
-    axes.set_ylabel(r"Coeficiente de difusión (m$^2$/s)", fontsize=20)
-    axes.tick_params(axis="both", labelsize=18)
+    axes.set_xlabel(r"Coeficiente de difusión (m$^2$/s)", fontsize=FS)
+    axes.set_ylabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
+    axes.tick_params(axis="both", labelsize=FS)
+    axes.margins(x=0.25, y=0.15)
     axes.grid(False)
     figure.tight_layout()
     if show:

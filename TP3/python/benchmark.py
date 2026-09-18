@@ -28,6 +28,7 @@ import matplotlib
 if "--show" not in sys.argv:
     matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.ticker import NullFormatter
 
 from engine_runner import ENGINE_SUMMARY_FIELDS, parse_summary_line, run_engine
 
@@ -36,6 +37,8 @@ OUTPUT_DIR = TP3_DIR / "data" / "performance"
 DEFAULT_N_VALUES = (25, 50, 75, 100, 150, 200)
 DEFAULT_SEEDS = tuple(range(1, 11))
 DEFAULT_TMAX = 30.0
+# Guia de presentaciones 1.8: toda la letra de las figuras en 20.
+FS = 20
 
 RAW_FIELDS = ENGINE_SUMMARY_FIELDS
 
@@ -154,8 +157,8 @@ def plot_performance(summary: list[dict[str, int | float]], path: Path, show: bo
         linewidth=1.8,
         capsize=4,
     )
-    axes[0].set_xlabel(r"Cantidad de particulas $N$", fontsize=16)
-    axes[0].set_ylabel("Tiempo interno [ms]", fontsize=16)
+    axes[0].set_xlabel("Cantidad de partículas N", fontsize=FS)
+    axes[0].set_ylabel("Tiempo de ejecución (ms)", fontsize=FS)
 
     axes[1].errorbar(
         n_values,
@@ -166,14 +169,15 @@ def plot_performance(summary: list[dict[str, int | float]], path: Path, show: bo
         linewidth=1.8,
         capsize=4,
     )
-    axes[1].set_xlabel(r"Cantidad de particulas $N$", fontsize=16)
-    axes[1].set_ylabel("Eventos procesados", fontsize=16)
+    axes[1].set_xlabel("Cantidad de partículas N", fontsize=FS)
+    axes[1].set_ylabel("Eventos procesados", fontsize=FS)
 
     for axes_item in axes:
         axes_item.set_xscale("log")
         axes_item.set_yscale("log")
         axes_item.set_xticks(n_values, labels=[str(value) for value in n_values])
-        axes_item.tick_params(axis="both", which="major", labelsize=13)
+        axes_item.xaxis.set_minor_formatter(NullFormatter())
+        axes_item.tick_params(axis="both", which="major", labelsize=FS)
         axes_item.grid(False)
     figure.tight_layout()
 
@@ -204,10 +208,19 @@ def main() -> int:
     parser.add_argument("--summary", type=Path, default=OUTPUT_DIR / "summary.csv")
     parser.add_argument("--plot", type=Path, default=OUTPUT_DIR / "performance.png")
     parser.add_argument("--no-plot", action="store_true")
+    parser.add_argument("--replot", action="store_true",
+                        help="regenerar la figura desde el summary.csv sin simular")
     parser.add_argument("--show", action="store_true")
     args = parser.parse_args()
 
     try:
+        if args.replot:
+            with args.summary.open(newline="") as source:
+                summary = [{key: float(value) for key, value in row.items()}
+                           for row in csv.DictReader(source)]
+            plot_performance(summary, args.plot, show=args.show)
+            print(f"figura:  {args.plot}")
+            return 0
         n_values = _positive_unique(args.n_values, "--n-values")
         seeds = _positive_unique(args.seeds, "--seeds", allow_zero=True)
         if not math.isfinite(args.tmax) or args.tmax <= 0:

@@ -2,11 +2,14 @@
 
 Sin titulo dentro de la figura (guia 1.7): el instante y los parametros van al
 costado, escritos en la diapositiva. Ejes rotulados en palabras (guia 1.8) y
-fuente >= 20 (guia 1.8).
+toda la letra en 20 (guia 1.8, correccion de la primera consulta).
 
-    python3 presentacion/generar_figuras.py      # desde TP3/
+    python3 presentacion/generar_figuras.py                 # todas, desde TP3/
+    python3 presentacion/generar_figuras.py area_fija       # solo esa figura
 
-Requiere haber corrido antes `make diffusion` (usa data/diffusion/).
+Figuras: fotogramas (necesita la configuracion elegida en data/obstacles/),
+ajuste_D (necesita `make diffusion`) y las tiras de casos area_fija, particion y
+bloque (no necesitan datos).
 """
 import csv
 import subprocess
@@ -22,6 +25,10 @@ from matplotlib.patches import Circle, Rectangle
 from matplotlib.ticker import ScalarFormatter
 
 from animate import FRESH_COLOR, GOAL_COLOR, OBSTACLE_COLOR, USED_COLOR
+from central_block_search import fill_wall_pockets
+from explore_obstacles import fixed_area_candidates
+from final_comparison import block_candidate, partition_candidate
+from obstacle_experiments import LENGTH, WIDTH
 from tp3io import read_static, read_trajectory
 
 FS = 20
@@ -29,6 +36,7 @@ OUT = Path("presentacion")
 RUNS = Path("data/presentacion")
 # Configuracion elegida (bloque central de 7 columnas); coincide con la entregada.
 CONFIG = "data/obstacles/central_blocks/chosen_block_c7_config.txt"
+GOAL_SIZE = 0.20   # m, valor por defecto del motor (--goal-size)
 SEED = 42
 T_FRAME = 8.0   # s: ya hay particulas usadas, pero todavia lejos de t90
 
@@ -68,8 +76,53 @@ def mesa(system, frame=None):
     ax.set_aspect("equal")
     ax.set_xlabel("Posición x (m)", fontsize=FS)
     ax.set_ylabel("Posición y (m)", fontsize=FS)
-    ax.tick_params(labelsize=FS - 4)
+    ax.tick_params(labelsize=FS)
     return fig
+
+
+def tira_de_casos(nombre: str, casos):
+    """Imagen del caso para una diapositiva de barrido: varias mesas en fila.
+
+    `casos` es una lista de (rotulo, obstaculos). Sin ejes: la geometria se lee
+    sola y el rotulo dice que varia.
+    """
+    fig, axes = plt.subplots(1, len(casos), figsize=(3.2 * len(casos), 2.4))
+    g0, g1 = WIDTH / 2 - GOAL_SIZE / 2, WIDTH / 2 + GOAL_SIZE / 2
+    for ax, (rotulo, obstaculos) in zip(axes, casos):
+        ax.add_patch(Rectangle((0, 0), LENGTH, WIDTH, facecolor="#f5f1e8",
+                               edgecolor="#252525", linewidth=1.5, zorder=0))
+        for x in (0.0, LENGTH):
+            ax.plot([x, x], [g0, g1], color=GOAL_COLOR, linewidth=5,
+                    solid_capstyle="butt", zorder=2)
+        for x, y, R in obstaculos:
+            ax.add_patch(Circle((x, y), R, facecolor=OBSTACLE_COLOR, edgecolor="#30343b",
+                                linewidth=0.8, zorder=3))
+        ax.set_xlim(-0.03 * LENGTH, 1.03 * LENGTH)
+        ax.set_ylim(-0.04 * WIDTH, 1.04 * WIDTH)
+        ax.set_aspect("equal")
+        ax.set_axis_off()
+        ax.set_title(rotulo, fontsize=FS, pad=4)
+    fig.subplots_adjust(wspace=0.08)
+    print(guardar(fig, nombre))
+
+
+def casos_area_fija():
+    """K = 1, 2, 4, 8, 16 obstaculos con area total fija (explore_obstacles.py)."""
+    tira_de_casos("casos_area_fija.png",
+                  [(f"K = {len(c.obstacles)}", c.obstacles) for c in fixed_area_candidates()])
+
+
+def casos_particion():
+    """Particion central: circulos chicos (pared fina) -> grandes (pared gruesa)."""
+    tira_de_casos("casos_particion.png",
+                  [(f"K = {k}", partition_candidate(k).obstacles) for k in (19, 10, 4, 2)])
+
+
+def casos_bloque():
+    """Bloque de columnas con los huecos tapados: engorda, pasa por la elegida y sigue."""
+    tira_de_casos("casos_bloque.png",
+                  [(f"{c} columna" + ("s" if c > 1 else ""),
+                    fill_wall_pockets(block_candidate(c).obstacles)) for c in (1, 4, 7, 10)])
 
 
 def guardar(fig, nombre: str):
@@ -125,19 +178,26 @@ def ajuste_D():
     a2.set_ylabel("Error cuadrático E (m$^4$)", fontsize=FS)
 
     for ax in (a1, a2):
-        ax.tick_params(labelsize=FS - 4)
+        ax.tick_params(labelsize=FS)
         fmt = ScalarFormatter(useMathText=True)
         fmt.set_powerlimits((-2, 2))
         ax.yaxis.set_major_formatter(fmt)
-        ax.yaxis.get_offset_text().set_fontsize(FS - 4)
+        ax.yaxis.get_offset_text().set_fontsize(FS)
     fmt = ScalarFormatter(useMathText=True)
     fmt.set_powerlimits((-2, 2))
     a2.xaxis.set_major_formatter(fmt)
-    a2.xaxis.get_offset_text().set_fontsize(FS - 4)
+    a2.xaxis.get_offset_text().set_fontsize(FS)
     fig.tight_layout()
     print(guardar(fig, "ajuste_D_vacia.png"))
 
 
+FIGURAS = {"fotogramas": fotogramas, "ajuste_D": ajuste_D, "area_fija": casos_area_fija,
+           "particion": casos_particion, "bloque": casos_bloque}
+
 if __name__ == "__main__":
-    fotogramas()
-    ajuste_D()
+    pedidas = sys.argv[1:] or list(FIGURAS)
+    desconocidas = set(pedidas) - set(FIGURAS)
+    if desconocidas:
+        raise SystemExit(f"figuras desconocidas: {sorted(desconocidas)}; opciones: {list(FIGURAS)}")
+    for nombre in pedidas:
+        FIGURAS[nombre]()

@@ -13,8 +13,15 @@
 %   - 1.13 secciones separadas por una diapositiva con solo el titulo
 %
 %  Figuras: las de resultados salen de ../data/ (make benchmark, baseline,
-%  inciso-1-2, diffusion); las propias de la presentacion (fotogramas y ajuste
-%  de D) las genera presentacion/generar_figuras.py.
+%  inciso-1-2, diffusion, python/final_comparison.py); las propias de la
+%  presentacion (fotogramas, ajuste de D y las tiras de casos) las
+%  genera presentacion/generar_figuras.py.
+%
+%  Correcciones de la primera consulta (18/09): letra 20 en todas las figuras,
+%  sin banda gris ni mesa vacia en los graficos de t90, t90 siempre en el eje
+%  vertical, menos texto al costado; exploracion sistematica con 20
+%  realizaciones, tendencia lineal en la busqueda automatica; la diapositiva de
+%  area fija se reemplazo por la particion vertical que engorda hasta el bloque.
 %
 %  DOS PDF DISTINTOS, igual que en el TP2:
 %      pdflatex presentacion.tex                                  -> entrega
@@ -336,7 +343,7 @@
 
   \params{
   Objetivo: la configuración que minimiza $\langle t_{90}\rangle$. Barras de error: desvío estándar entre realizaciones.\\[3pt]
-  Realizaciones: 10 (tiempo de ejecución), 5 (exploración), 20 (comparación final, mismas semillas), 40 (validación de la elegida), 1 (DCM).\\[3pt]
+  Realizaciones: 10 (tiempo de ejecución), 20 (exploración sistemática), 5 (búsqueda automática), 20 (comparación final, mismas semillas), 40 (validación de la elegida), 1 (DCM).\\[3pt]
   Tiempo simulado: $t_f = 30$ s (tiempo de ejecución), \ $t_{\max} = 100$ s (resto).
   }
 \end{frame}
@@ -352,7 +359,7 @@
       \centering\includegraphics[width=0.99\linewidth,height=0.72\textheight,keepaspectratio]{performance.png}
     \end{column}
     \begin{column}{0.20\textwidth}
-      \params{Mesa vacía\\$t_f = 30$ s\\[6pt]Realizaciones: 10\\[6pt]Sin escritura de output}
+      \params{$K = 0$\\$t_f = 30$ s\\[6pt]Realizaciones: 10}
     \end{column}
   \end{columns}
 \end{frame}
@@ -379,7 +386,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{fu_comparison.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Realizaciones: 20, mismas semillas\\[6pt]Sombreado: $\pm$ desvío\\[6pt]Punteada vertical: $\langle t_{90}\rangle$\\[6pt]Búsqueda aleatoria: $K = 3$\\Bloque central: $K = 52$}
+      \params{Realizaciones: 20\\[6pt]Búsqueda aleatoria: $K = 3$\\Bloque central: $K = 52$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -391,48 +398,36 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{single.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$K = 1$, \ $y_1 = W/2$\\[6pt]Realizaciones: 5\\[6pt]Banda gris: mesa vacía $\pm$ desvío}
+      \params{$K = 1$, \ $y_1 = W/2$\\[6pt]Realizaciones: 20}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 17
-\begin{frame}{Obstáculos con área total fija}
-  \begin{columns}[c]
-    \begin{column}{0.72\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{fixed_area.png}
-    \end{column}
-    \begin{column}{0.26\textwidth}
-      \params{$K\,\pi R^2 = \pi\,(4r)^2$\\[6pt]Realizaciones: 5\\[6pt]Banda gris: mesa vacía $\pm$ desvío}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% ---------------------------------------------------------------- 18
 \begin{frame}{Embudos hacia los arcos}
   \begin{columns}[c]
     \begin{column}{0.72\textwidth}
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{funnel_pairs_3.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{3 pares simétricos respecto del eje ($K = 6$)\\$R_k = 2{,}5\times10^{-2}$ m\\[6pt]Realizaciones: 5\\[6pt]Con 2 y 4 pares no se obtuvo una mejora mayor.}
+      \params{3 pares simétricos respecto del eje ($K = 6$)\\$R_k = 2{,}5\times10^{-2}$ m\\[6pt]Realizaciones: 20}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------- 19
+% ---------------------------------------------------------------- 18
 \begin{frame}{Búsqueda automática}
   \begin{columns}[c]
     \begin{column}{0.72\textwidth}
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{random_search.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$2\times10^{2}$ configuraciones al azar\\$1 \leq K \leq 12$, \ $r \leq R_k \leq 0{,}12$ m\\[6pt]Luego $2\times10^{2}$ mutaciones de las 10 mejores\\[6pt]Realizaciones: 5}
+      \params{$2\times10^{2}$ configuraciones al azar\\$+\,2\times10^{2}$ mutaciones de las 10 mejores\\[6pt]$1 \leq K \leq 12$\\$r \leq R_k \leq 0{,}12$ m\\[6pt]Realizaciones: 5}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------- 20
+% ---------------------------------------------------------------- 19
 \begin{frame}{Hipótesis: área libre y acceso al arco}
   \textbf{Tasa de goles por partícula} (gas diluido en 2D):
   \[
@@ -443,30 +438,48 @@
     \item Menos área libre $\Rightarrow$ más visitas al arco, siempre que toda región accesible tenga un arco.
     \item Si la densidad crece demasiado dominan los choques entre partículas.
     \vspace{0.4em}
-    \item \textbf{Prueba:} un bloque que divide la mesa en dos cámaras, cada una con su arco. Variable: largo de cada cámara.
+    \item \textbf{Prueba:} una pared que divide la mesa en dos cámaras, cada una con su arco, y se va engrosando.
   \end{itemize}
 \end{frame}
 
+% ---------------------------------------------------------------- 20
+\begin{frame}{Partición vertical: tamaño de los círculos}
+  \centering
+  \includegraphics[width=0.70\linewidth]{casos_particion.png}
+  \vspace{2pt}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.57\textheight,keepaspectratio]{partition_thickness.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$K$ círculos tangentes en $x = L/2$\\$R = W/2K$, \ $2 \leq K \leq 19$\\[6pt]Realizaciones: 20, mismas semillas}
+    \end{column}
+  \end{columns}
+\end{frame}
+
 % ---------------------------------------------------------------- 21
+\begin{frame}{Bloque central: seguir engrosando la pared}
+  \centering
+  \includegraphics[width=0.70\linewidth]{casos_bloque.png}
+  \vspace{2pt}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.57\textheight,keepaspectratio]{chamber_length.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{Empaquetamiento hexagonal de 1 a 10 columnas\\7 círculos por columna, $R = 4{,}86\times10^{-2}$ m\\[6pt]Realizaciones: 20, mismas semillas}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 22
 \begin{frame}{Comparación de familias de obstáculos}
   \begin{columns}[c]
     \begin{column}{0.72\textwidth}
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{families.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Mejor configuración de cada familia\\[6pt]Realizaciones: 20, mismas semillas para todas, no usadas en la búsqueda\\[6pt]Banda gris: mesa vacía $\pm$ desvío}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% ---------------------------------------------------------------- 22
-\begin{frame}{Bloque central: largo de las cámaras}
-  \begin{columns}[c]
-    \begin{column}{0.72\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{chamber_length.png}
-    \end{column}
-    \begin{column}{0.26\textwidth}
-      \params{Empaquetamiento hexagonal de 1 a 10 columnas\\7 círculos por columna, $R = 4{,}86\times10^{-2}$ m\\[6pt]Realizaciones: 20, mismas semillas\\[6pt]Banda gris: mesa vacía $\pm$ desvío}
+      \params{Mejor configuración de cada familia\\[6pt]Realizaciones: 20, mismas semillas para todas}
     \end{column}
   \end{columns}
 \end{frame}
@@ -487,26 +500,25 @@
         & $\langle t_{90}\rangle$ (s) & Realizaciones\\
         \midrule
         Configuración elegida & $14 \pm 2$ & 40 \\
-        Mesa vacía & $21 \pm 3$ & 20 \\
-      \end{tabular}}\\[6pt]
-      Semillas de la validación: no usadas para elegirla}
+        Mesa vacía & $22 \pm 2$ & 40 \\
+      \end{tabular}}}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------- 22
+% ---------------------------------------------------------------- 24
 \begin{frame}{Desplazamiento cuadrático medio}
   \begin{columns}[c]
     \begin{column}{0.72\textwidth}
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{msd_loglog.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Una realización por configuración\\[6pt]Trazo grueso: tramo difusivo ajustado\\[6pt]Búsqueda aleatoria y bloque central: sin tramo difusivo identificable}
+      \params{Una realización por configuración\\[6pt]Trazo grueso: tramo difusivo ajustado\\[6pt]Bloque central: sin tramo difusivo identificable}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------- 23
+% ---------------------------------------------------------------- 25
 \begin{frame}{Selección del régimen difusivo}
   \begin{columns}[c]
     \begin{column}{0.72\textwidth}
@@ -518,7 +530,7 @@
   \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------- 24
+% ---------------------------------------------------------------- 26
 \begin{frame}{Ajuste del coeficiente de difusión}
   \begin{columns}[c]
     \begin{column}{0.76\textwidth}
@@ -530,14 +542,14 @@
   \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------- 25
+% ---------------------------------------------------------------- 27
 \begin{frame}{Coeficiente de difusión y tiempo de llegada}
   \begin{columns}[c]
     \begin{column}{0.72\textwidth}
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{D_vs_t90.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$D$: una realización\\$\langle t_{90}\rangle$: 20 realizaciones, mismas semillas\\[6pt]Barras: error del ajuste de $D$\\[6pt]Sin $D$ identificable: búsqueda aleatoria y bloque central\\[6pt]$n = 5$: Pearson $0{,}5$, Spearman $0{,}3$}
+      \params{$D$: una realización\\$\langle t_{90}\rangle$: 20 realizaciones\\[6pt]Barras: error del ajuste de $D$\\[6pt]Sin $D$ identificable: bloque central}
     \end{column}
   \end{columns}
 \end{frame}
@@ -546,24 +558,24 @@
 \section{Conclusiones}
 % =====================================================================
 
-% ---------------------------------------------------------------- 27
+% ---------------------------------------------------------------- 29
 \begin{frame}{Conclusiones}
   \begin{itemize}
     \item El tiempo de ejecución crece con $N$ más rápido que la cantidad de eventos procesados.
     \vspace{0.3em}
     \item Obstáculos aislados, embudos, compuertas o un canal no bajan $\langle t_{90}\rangle$ por debajo de la mesa vacía más allá del desvío.
     \vspace{0.3em}
-    \item Dividir la mesa en dos cámaras, cada una con su arco, sí lo baja.
+    \item Dividir la mesa en dos cámaras, cada una con su arco, sí lo baja, y cuanto más gruesa la pared, más.
     \vspace{0.3em}
-    \item $\langle t_{90}\rangle$ tiene un mínimo para cámaras de $\approx 2{,}5\times10^{-1}$ m y crece tanto para cámaras más largas como más cortas.
+    \item $\langle t_{90}\rangle$ tiene un mínimo para cámaras de $\approx 2{,}5\times10^{-1}$ m y vuelve a crecer para cámaras más cortas.
     \vspace{0.3em}
-    \item La configuración elegida baja $\langle t_{90}\rangle$ de $(21 \pm 3)$ s a $(14 \pm 2)$ s.
+    \item La configuración elegida baja $\langle t_{90}\rangle$ de $(22 \pm 2)$ s a $(14 \pm 2)$ s.
     \vspace{0.3em}
     \item La configuración más rápida no tiene régimen difusivo identificable; entre las demás no se observa una correlación clara entre $D$ y $\langle t_{90}\rangle$.
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------- 28
+% ---------------------------------------------------------------- 30
 \begin{frame}[plain]
   \vfill
   \begin{beamercolorbox}[sep=8pt,center]{title}

@@ -30,16 +30,17 @@ from obstacle_experiments import (
     Candidate,
     evaluate_candidates,
     rank_key,
+    read_summary,
     validate_obstacles,
     write_csv,
 )
 
 TP3_BIN = TP3_DIR / "tp3"
 OUTPUT_DIR = TP3_DIR / "data" / "obstacles" / "systematic"
-DEFAULT_SEEDS = tuple(range(1, 6))
+DEFAULT_SEEDS = tuple(range(1, 21))
 DEFAULT_TMAX = 100.0
-BASELINE_MEAN = 22.385827742775458
-BASELINE_STD = 1.8005671899006823
+# Guia de presentaciones 1.8: toda la letra de las figuras en 20.
+FS = 20
 
 
 def single_obstacle_candidates() -> list[Candidate]:
@@ -123,12 +124,26 @@ def all_candidates() -> list[Candidate]:
     return single_obstacle_candidates() + fixed_area_candidates() + funnel_candidates()
 
 
+def _series_order(series: str) -> tuple[float, str]:
+    """Ordena las series por su numero (6, 12, 17 grados) y no alfabeticamente."""
+    digits = "".join(ch for ch in series if ch.isdigit() or ch == ".")
+    return (float(digits) if digits else float("inf"), series)
+
+
+def _pretty_series(series: str) -> str:
+    """Nombre de serie del csv (ascii, sin espacios) -> etiqueta de la leyenda."""
+    return (series.replace("angulo=", "ángulo = ").replace(" deg", "°")
+            .replace("R=", "R = "))
+
+
 def _plot_family(rows: list[dict], family: str, xlabel: str, output: Path, show: bool) -> None:
     selected = [row for row in rows if row["family"] == family and row["t90_mean"] is not None]
     if not selected:
         return
-    figure, axes = plt.subplots(figsize=(8.8, 6.0))
-    for series in sorted({str(row["series"]) for row in selected}):
+    # Area fija va debajo de la tira de casos en la diapositiva: mas apaisada.
+    figure, axes = plt.subplots(figsize=(12.0, 5.2) if family == "fixed_area" else (8.8, 6.0))
+    series_names = sorted({str(row["series"]) for row in selected}, key=_series_order)
+    for series in series_names:
         group = sorted(
             (row for row in selected if row["series"] == series),
             key=lambda row: float(row["x_value"]),
@@ -138,24 +153,19 @@ def _plot_family(rows: list[dict], family: str, xlabel: str, output: Path, show:
             [float(row["t90_mean"]) for row in group],
             yerr=[float(row["t90_std"]) for row in group],
             marker="o",
-            linewidth=1.7,
-            capsize=4,
-            label=series,
+            markersize=8,
+            linewidth=1.4,
+            capsize=5,
+            label=_pretty_series(series),
         )
-    axes.axhline(BASELINE_MEAN, color="#333333", linestyle="--", linewidth=1.5,
-                 label="Mesa vacia")
-    axes.fill_between(
-        axes.get_xlim(),
-        BASELINE_MEAN - BASELINE_STD,
-        BASELINE_MEAN + BASELINE_STD,
-        color="#777777",
-        alpha=0.12,
-    )
-    axes.set_xlabel(xlabel, fontsize=17)
-    axes.set_ylabel(r"$\langle t_{90}\rangle$ [s]", fontsize=17)
-    axes.tick_params(axis="both", labelsize=14)
+    if family == "fixed_area":
+        axes.set_xticks(sorted({float(row["x_value"]) for row in selected}))
+    axes.set_xlabel(xlabel, fontsize=FS)
+    axes.set_ylabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
+    axes.tick_params(axis="both", labelsize=FS)
     axes.grid(False)
-    axes.legend(frameon=False, fontsize=12)
+    if len(series_names) > 1:
+        axes.legend(frameon=False, fontsize=FS)
     figure.tight_layout()
     if show:
         plt.show()
@@ -167,13 +177,13 @@ def _plot_family(rows: list[dict], family: str, xlabel: str, output: Path, show:
 
 def plot_results(rows: list[dict], output_dir: Path, show: bool = False) -> None:
     plots = output_dir / "plots"
-    _plot_family(rows, "single", "Posicion longitudinal x [m]", plots / "single.png", show)
-    _plot_family(rows, "fixed_area", "Cantidad de obstaculos K", plots / "fixed_area.png", show)
+    _plot_family(rows, "single", "Posición longitudinal x (m)", plots / "single.png", show)
+    _plot_family(rows, "fixed_area", "Cantidad de obstáculos K", plots / "fixed_area.png", show)
     for pairs in (2, 3, 4):
         _plot_family(
             rows,
             f"funnel_{pairs}",
-            "Apertura libre minima [m]",
+            "Apertura libre mínima (m)",
             plots / f"funnel_pairs_{pairs}.png",
             show,
         )
@@ -186,13 +196,10 @@ def plot_results(rows: list[dict], output_dir: Path, show: bool = False) -> None
     values = [float(row["t90_mean"]) for row in reversed(ranked)]
     errors = [float(row["t90_std"]) for row in reversed(ranked)]
     axes.barh(labels, values, xerr=errors, color="#3478b8", alpha=0.9, capsize=3)
-    axes.axvline(BASELINE_MEAN, color="#333333", linestyle="--", linewidth=1.5,
-                 label="Mesa vacia")
-    axes.set_xlabel(r"$\langle t_{90}\rangle$ [s]", fontsize=16)
-    axes.tick_params(axis="x", labelsize=13)
-    axes.tick_params(axis="y", labelsize=10)
+    axes.set_xlabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
+    axes.tick_params(axis="x", labelsize=FS)
+    axes.tick_params(axis="y", labelsize=12)
     axes.grid(False)
-    axes.legend(frameon=False, fontsize=12)
     figure.tight_layout()
     if show:
         plt.show()
@@ -208,9 +215,15 @@ def main() -> int:
     parser.add_argument("--tmax", type=float, default=DEFAULT_TMAX)
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
+    parser.add_argument("--replot", action="store_true",
+                        help="regenerar las figuras desde summary.csv sin simular")
     parser.add_argument("--show", action="store_true")
     args = parser.parse_args()
     try:
+        if args.replot:
+            plot_results(read_summary(args.output_dir / "summary.csv"), args.output_dir, args.show)
+            print(f"figuras en {args.output_dir / 'plots'}")
+            return 0
         if not args.binary.is_file():
             raise ValueError(f"no existe {args.binary}; ejecutar `make tp3`")
         if args.jobs <= 0 or not args.seeds or len(set(args.seeds)) != len(args.seeds):
