@@ -33,7 +33,7 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc,decorations.pathreplacing}
 
-\graphicspath{{../data/performance/}{../data/baseline/}{../data/obstacles/systematic/plots/}{../data/obstacles/automatic/plots/}{../data/diffusion/plots/}{./}}
+\graphicspath{{../data/performance/}{../data/baseline/}{../data/obstacles/systematic/plots/}{../data/obstacles/automatic/plots/}{../data/final_comparison/plots/}{../data/diffusion/plots/}{./}}
 
 % Guia 3.5: vectores en negrita sin italica, escalares en italica sin negrita.
 \newcommand{\vect}[1]{\mathbf{#1}}
@@ -336,7 +336,7 @@
 
   \params{
   Objetivo: la configuración que minimiza $\langle t_{90}\rangle$. Barras de error: desvío estándar entre realizaciones.\\[3pt]
-  Realizaciones: 10 (tiempo de ejecución), 5 (exploración), 20 (finalistas), 1 (DCM).\\[3pt]
+  Realizaciones: 10 (tiempo de ejecución), 5 (exploración), 20 (comparación final, mismas semillas), 40 (validación de la elegida), 1 (DCM).\\[3pt]
   Tiempo simulado: $t_f = 30$ s (tiempo de ejecución), \ $t_{\max} = 100$ s (resto).
   }
 \end{frame}
@@ -364,7 +364,7 @@
       \animacion{frame_vacia.png}{Mesa vacía}{https://youtu.be/PENDIENTE}
     \end{column}
     \begin{column}{0.40\textwidth}
-      \animacion{frame_ganadora.png}{Mejor configuración ($K = 3$)}{https://youtu.be/PENDIENTE}
+      \animacion{frame_bloque.png}{Bloque central ($K = 52$)}{https://youtu.be/PENDIENTE}
     \end{column}
     \begin{column}{0.18\textwidth}
       \params{$t = 8$ s\\[6pt]Azul: fresca\\Rojo: usada\\Verde: arco}
@@ -376,10 +376,10 @@
 \begin{frame}{Evolución temporal de la fracción de usadas}
   \begin{columns}[c]
     \begin{column}{0.72\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{fu_vs_time.png}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{fu_comparison.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Mesa vacía\\[6pt]Realizaciones: 5\\[6pt]$\langle t_{90}\rangle = (22 \pm 2)$ s}
+      \params{Realizaciones: 20, mismas semillas\\[6pt]Sombreado: $\pm$ desvío\\[6pt]Punteada vertical: $\langle t_{90}\rangle$\\[6pt]Búsqueda aleatoria: $K = 3$\\Bloque central: $K = 52$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -433,45 +433,63 @@
 \end{frame}
 
 % ---------------------------------------------------------------- 20
-\begin{frame}{Comparación de finalistas}
+\begin{frame}{Hipótesis: área libre y acceso al arco}
+  \textbf{Tasa de goles por partícula} (gas diluido en 2D):
+  \[
+    \nu \approx \frac{v_0 \; 2d}{\pi\, A_{\mathrm{libre}}}
+  \]
+  \begin{itemize}
+    \item $v_0$ y $d$ son fijos: sólo los obstáculos cambian $A_{\mathrm{libre}}$.
+    \item Menos área libre $\Rightarrow$ más visitas al arco, siempre que toda región accesible tenga un arco.
+    \item Si la densidad crece demasiado dominan los choques entre partículas.
+    \vspace{0.4em}
+    \item \textbf{Prueba:} un bloque que divide la mesa en dos cámaras, cada una con su arco. Variable: largo de cada cámara.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------- 21
+\begin{frame}{Comparación de familias de obstáculos}
   \begin{columns}[c]
     \begin{column}{0.72\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{finalists_common_seeds.png}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{families.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Realizaciones: 20, con las mismas semillas para todas\\[6pt]Semillas nuevas, no usadas en la búsqueda\\[6pt]Banda gris: mesa vacía $\pm$ desvío}
+      \params{Mejor configuración de cada familia\\[6pt]Realizaciones: 20, mismas semillas para todas, no usadas en la búsqueda\\[6pt]Banda gris: mesa vacía $\pm$ desvío}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------- 21
+% ---------------------------------------------------------------- 22
+\begin{frame}{Bloque central: largo de las cámaras}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{chamber_length.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{Empaquetamiento hexagonal de 1 a 10 columnas\\7 círculos por columna, $R = 4{,}86\times10^{-2}$ m\\[6pt]Realizaciones: 20, mismas semillas\\[6pt]Banda gris: mesa vacía $\pm$ desvío}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 23
 \begin{frame}{Configuración elegida}
   \begin{columns}[c]
     \begin{column}{0.56\textwidth}
-      \centering\includegraphics[width=\linewidth]{configuracion_ganadora.png}
+      \centering\includegraphics[width=\linewidth]{configuracion_bloque.png}
     \end{column}
     \begin{column}{0.42\textwidth}
-      \centering
-      {\footnotesize
-      \begin{tabular}{ccc}
-        \toprule
-        $x_k$ (m) & $y_k$ (m) & $R_k$ (m) \\
-        \midrule
-        $0{,}727$ & $0{,}552$ & $1{,}75\times10^{-2}$ \\
-        $0{,}554$ & $0{,}299$ & $1{,}07\times10^{-1}$ \\
-        $0{,}628$ & $0{,}565$ & $6{,}72\times10^{-2}$ \\
-        \bottomrule
-      \end{tabular}}
-
-      \vspace{1.2em}
       \params{
-      \begin{tabular}{lc}
-        & $\langle t_{90}\rangle$ (s) \\
+      Bloque de 7 columnas: $46$ círculos, $R = 4{,}86\times10^{-2}$ m\\
+      $6$ círculos de $R = 2{,}43\times10^{-2}$ m tapan los huecos junto a las paredes\\
+      $K = 52$ \quad Largo de cada cámara: $2{,}8\times10^{-1}$ m\\[10pt]
+      {\scriptsize
+      \begin{tabular}{lcc}
+        & $\langle t_{90}\rangle$ (s) & Realizaciones\\
         \midrule
-        Configuración elegida & $20 \pm 2$ \\
-        Mesa vacía & $22 \pm 3$ \\
-      \end{tabular}\\[6pt]
-      Realizaciones: 20}
+        Configuración elegida & $14 \pm 2$ & 40 \\
+        Mesa vacía & $21 \pm 3$ & 20 \\
+      \end{tabular}}\\[6pt]
+      Semillas de la validación: no usadas para elegirla}
     \end{column}
   \end{columns}
 \end{frame}
@@ -483,7 +501,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{msd_loglog.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Una realización por configuración\\[6pt]Trazo grueso: tramo difusivo ajustado\\[6pt]Mejor configuración: sin tramo difusivo identificable}
+      \params{Una realización por configuración\\[6pt]Trazo grueso: tramo difusivo ajustado\\[6pt]Búsqueda aleatoria y bloque central: sin tramo difusivo identificable}
     \end{column}
   \end{columns}
 \end{frame}
@@ -519,7 +537,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{D_vs_t90.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$D$: una realización\\$\langle t_{90}\rangle$: exploración\\[6pt]Barras: error del ajuste de $D$}
+      \params{$D$: una realización\\$\langle t_{90}\rangle$: 20 realizaciones, mismas semillas\\[6pt]Barras: error del ajuste de $D$\\[6pt]Sin $D$ identificable: búsqueda aleatoria y bloque central\\[6pt]$n = 5$: Pearson $0{,}5$, Spearman $0{,}3$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -532,14 +550,16 @@
 \begin{frame}{Conclusiones}
   \begin{itemize}
     \item El tiempo de ejecución crece con $N$ más rápido que la cantidad de eventos procesados.
-    \vspace{0.4em}
-    \item Un obstáculo chico en el centro de la mesa baja $\langle t_{90}\rangle$; cerca de un arco lo sube.
-    \vspace{0.4em}
-    \item Con área total fija, repartirla en $K \geq 2$ obstáculos \textbf{aumenta} $\langle t_{90}\rangle$ por encima de la mesa vacía.
-    \vspace{0.4em}
-    \item La mejor configuración encontrada ($K = 3$) baja $\langle t_{90}\rangle$ un $6\%$ respecto de la mesa vacía, dentro del desvío estándar.
-    \vspace{0.4em}
-    \item $D$ es máximo en la mesa vacía, pero con 4 puntos no se observa una correlación clara entre $D$ y $\langle t_{90}\rangle$.
+    \vspace{0.3em}
+    \item Obstáculos aislados, embudos, compuertas o un canal no bajan $\langle t_{90}\rangle$ por debajo de la mesa vacía más allá del desvío.
+    \vspace{0.3em}
+    \item Dividir la mesa en dos cámaras, cada una con su arco, sí lo baja.
+    \vspace{0.3em}
+    \item $\langle t_{90}\rangle$ tiene un mínimo para cámaras de $\approx 2{,}5\times10^{-1}$ m y crece tanto para cámaras más largas como más cortas.
+    \vspace{0.3em}
+    \item La configuración elegida baja $\langle t_{90}\rangle$ de $(21 \pm 3)$ s a $(14 \pm 2)$ s.
+    \vspace{0.3em}
+    \item La configuración más rápida no tiene régimen difusivo identificable; entre las demás no se observa una correlación clara entre $D$ y $\langle t_{90}\rangle$.
   \end{itemize}
 \end{frame}
 

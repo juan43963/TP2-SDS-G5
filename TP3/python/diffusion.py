@@ -335,43 +335,37 @@ def detect_diffusive_regime(series: MsdSeries) -> FitResult | None:
     return None
 
 
-def _load_t90_values() -> dict[str, float]:
-    values = {}
-    baseline_path = AUTOMATIC_DIR / "finalists" / "baseline_runs.csv"
-    with baseline_path.open(newline="") as source:
-        rows = list(csv.DictReader(source))
-    values["empty"] = statistics.fmean(float(row["t90"]) for row in rows)
+FINAL_COMPARISON = TP3_DIR / "data" / "final_comparison" / "families.csv"
+OBSTACLES_DIR = TP3_DIR / "data" / "obstacles"
 
-    wanted = {"single_r2_x060", "fixed_area_k01", "funnel_p3_g08_a12"}
-    with (SYSTEMATIC_DIR / "summary.csv").open(newline="") as source:
-        for row in csv.DictReader(source):
-            if row["name"] in wanted:
-                values[row["name"]] = float(row["t90_mean"])
-    metadata = json.loads((AUTOMATIC_DIR / "search_metadata.json").read_text())
-    values["winner"] = float(metadata["winner"]["t90_mean"])
-    if set(values) != {"empty", *wanted, "winner"}:
-        raise ValueError("faltan resultados de t90 para los casos de difusion")
+# (nombre en families.csv, etiqueta, configuracion o None)
+DIFFUSION_CASES = (
+    ("empty", "Mesa vacía", None),
+    ("single", "Un obstáculo central", SYSTEMATIC_DIR / "configs" / "single_r2_x060.txt"),
+    ("fixed_area", "Un obstáculo grande", SYSTEMATIC_DIR / "configs" / "fixed_area_k01.txt"),
+    ("funnel", "Embudos", SYSTEMATIC_DIR / "configs" / "funnel_p3_g08_a12.txt"),
+    ("random", "Búsqueda aleatoria", AUTOMATIC_DIR / "best_config.txt"),
+    ("partition", "Partición", OBSTACLES_DIR / "partitions" / "best_partition_config.txt"),
+    ("block", "Bloque central",
+     OBSTACLES_DIR / "central_blocks" / "chosen_block_c7_config.txt"),
+)
+
+
+def _load_t90_values() -> dict[str, float]:
+    """<t90> de python/final_comparison.py: las mismas 20 semillas para todos."""
+    with FINAL_COMPARISON.open(newline="") as source:
+        values = {row["name"]: float(row["t90_mean"]) for row in csv.DictReader(source)
+                  if row["t90_mean"] not in ("", "NA")}
+    missing = {name for name, _, _ in DIFFUSION_CASES} - set(values)
+    if missing:
+        raise ValueError(f"faltan resultados de t90 (correr final_comparison.py): {missing}")
     return values
 
 
 def default_cases() -> list[StudyCase]:
     t90 = _load_t90_values()
-    return [
-        StudyCase("empty", "Mesa vacia", None, t90["empty"]),
-        StudyCase(
-            "single_r2_x060", "Obstaculo central R=2r",
-            SYSTEMATIC_DIR / "configs" / "single_r2_x060.txt", t90["single_r2_x060"]
-        ),
-        StudyCase(
-            "fixed_area_k01", "Area fija K=1",
-            SYSTEMATIC_DIR / "configs" / "fixed_area_k01.txt", t90["fixed_area_k01"]
-        ),
-        StudyCase(
-            "funnel_p3_g08_a12", "Embudo 3 pares",
-            SYSTEMATIC_DIR / "configs" / "funnel_p3_g08_a12.txt", t90["funnel_p3_g08_a12"]
-        ),
-        StudyCase("winner", "Mejor automatica", AUTOMATIC_DIR / "best_config.txt", t90["winner"]),
-    ]
+    return [StudyCase(name, label, config, t90[name])
+            for name, label, config in DIFFUSION_CASES]
 
 
 def _obstacle_count(path: Path | None) -> int:
@@ -424,12 +418,11 @@ def plot_msd(results: list[tuple[StudyCase, MsdSeries, FitResult | None]], path:
             positive = predicted > 0.0
             axes.loglog(x[positive], predicted[positive], color=line.get_color(),
                         linestyle="--", linewidth=1.2)
-    axes.set_xlabel("Tiempo [s]", fontsize=17)
-    axes.set_ylabel(r"DCM $\langle |\mathbf{r}(t)-\mathbf{r}(0)|^2\rangle$ [m$^2$]",
-                    fontsize=16)
-    axes.tick_params(axis="both", labelsize=13)
+    axes.set_xlabel("Tiempo (s)", fontsize=20)
+    axes.set_ylabel(r"Desplazamiento cuadrático medio (m$^2$)", fontsize=20)
+    axes.tick_params(axis="both", labelsize=18)
     axes.grid(False)
-    axes.legend(frameon=False, fontsize=10)
+    axes.legend(frameon=False, fontsize=14)
     figure.tight_layout()
     if show:
         plt.show()
@@ -454,11 +447,11 @@ def plot_local_slopes(results: list[tuple[StudyCase, MsdSeries, FitResult | None
                           color=line.get_color(), linewidth=3.0)
     axes.set_xlim(0.2, min(10.0, max(float(series.final_time) for _, series, _ in results)))
     axes.set_ylim(-1.0, 3.0)
-    axes.set_xlabel("Tiempo [s]", fontsize=17)
-    axes.set_ylabel(r"Pendiente local $\alpha$", fontsize=17)
-    axes.tick_params(axis="both", labelsize=13)
+    axes.set_xlabel("Tiempo (s)", fontsize=20)
+    axes.set_ylabel(r"Pendiente local $\alpha$", fontsize=20)
+    axes.tick_params(axis="both", labelsize=18)
     axes.grid(False)
-    axes.legend(frameon=False, fontsize=9, ncol=2)
+    axes.legend(frameon=False, fontsize=13, ncol=2)
     figure.tight_layout()
     if show:
         plt.show()
@@ -476,22 +469,12 @@ def plot_correlation(summary: list[dict], path: Path, show: bool) -> None:
                       yerr=float(row["D_std"]), marker="o", capsize=3,
                       linestyle="none", markersize=7)
         axes.annotate(str(row["label"]), (float(row["t90_mean"]), float(row["D"])),
-                      xytext=(5, 5), textcoords="offset points", fontsize=9)
-    if len(valid) >= 2:
-        pearson, spearman = correlations(
-            np.array([float(row["D"]) for row in valid]),
-            np.array([float(row["t90_mean"]) for row in valid]),
-        )
-        axes.text(0.02, 0.03,
-                  rf"$n={len(valid)}$, Pearson $r={pearson:.3f}$, Spearman $\rho={spearman:.3f}$",
-                  transform=axes.transAxes, fontsize=10)
-    missing = [str(row["label"]) for row in summary if not row["fit_found"]]
-    if missing:
-        axes.text(0.02, 0.97, "Sin D identificable: " + ", ".join(missing),
-                  transform=axes.transAxes, va="top", fontsize=9, color="0.35")
-    axes.set_xlabel(r"$\langle t_{90}\rangle$ [s]", fontsize=17)
-    axes.set_ylabel(r"Coeficiente $D$ [m$^2$/s]", fontsize=17)
-    axes.tick_params(axis="both", labelsize=13)
+                      xytext=(6, 6), textcoords="offset points", fontsize=14)
+    # n, Pearson, Spearman y los casos sin D van al costado de la diapositiva
+    # (guia de presentaciones 1.7); quedan en correlation.csv y summary.csv.
+    axes.set_xlabel("Tiempo de llegada al 90 % (s)", fontsize=20)
+    axes.set_ylabel(r"Coeficiente de difusión (m$^2$/s)", fontsize=20)
+    axes.tick_params(axis="both", labelsize=18)
     axes.grid(False)
     figure.tight_layout()
     if show:

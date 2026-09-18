@@ -106,6 +106,12 @@ Estado: completo. La conclusion correcta es "mejor configuracion encontrada",
 con mejora media aproximada de 6.4%; la superposicion de los desvios impide
 afirmar una ventaja estadistica fuerte.
 
+Despues de la consulta docente se abrio una segunda busqueda competitiva. La
+primera exploracion sigue siendo evidencia valida, pero la configuracion de
+tres obstaculos pasa a ser una referencia provisional y no una seleccion
+definitiva. La nueva etapa agrega barridos de por lo menos diez valores,
+geometrias interpretables y una optimizacion cuya evolucion pueda mostrarse.
+
 ### Inciso 1.3 - DCM y coeficiente de difusion
 
 Debe calcularse el DCM de una realizacion promediando las 100 particulas
@@ -144,9 +150,9 @@ El soporte listo es:
     data/competition/summary.csv
     data/competition/metadata.json
 
-Estado del codigo: completo. Estado experimental: ensayo aprobado con cinco
-semillas de control; las cinco realizaciones en vivo necesariamente quedan
-pendientes hasta que los docentes indiquen comenzar.
+Estado del codigo: completo. Estado experimental: cinco corridas nuevas con
+parametros oficiales aprobadas el 18/09/2026; la ejecucion presencial sigue
+pendiente hasta que los docentes indiquen comenzar.
 
 ### Entregables exigidos
 
@@ -287,6 +293,414 @@ superponen con la mesa vacia. La afirmacion defendible es que fue la mejor
 configuracion encontrada dentro del presupuesto de busqueda, no que se haya
 demostrado una mejora estadisticamente concluyente.
 
+#### Nueva busqueda competitiva propuesta
+
+La referencia actual de la configuracion ganadora es aproximadamente
+`20 +/- 2 s` en las cinco corridas locales mas recientes. El valor comunicado
+por otro grupo, `16 +/- 2 s`, indica que todavia puede existir una region mucho
+mejor del espacio de configuraciones. No se reemplazara el archivo final por un
+candidato que solo gane sobre pocas semillas: toda alternativa debe superar la
+media actual y mantener una dispersion y tasa de exito razonables.
+
+**Alternativa A: embudos locales simetricos frente a los arcos.** Se colocan
+pares de discos espejados cerca de `x=0` y `x=L`, por encima y por debajo del
+segmento de gol. Se variarian cantidad de pares, radio, distancia a la pared,
+apertura y angulo. La idea es actuar cerca del lugar donde se define el primer
+pasaje: particulas que llegarian a una zona de la pared fuera del arco pueden
+sufrir una reflexion adicional y volver con una direccion favorable. La
+simetria izquierda-derecha y arriba-abajo evita privilegiar un arco o una mitad
+de la mesa. El riesgo es formar cuellos o zonas de rebote que retengan
+particulas; por eso deben conservarse corredores claramente mayores que `2r`.
+
+**Alternativa B: mezclador caotico central tipo billar de Sinai.** Se usa un
+arreglo simetrico y poco denso de discos dispersores en la zona central, con
+radios moderados y posiciones alternadas. Las superficies convexas destruyen
+mas rapidamente la memoria de la direccion inicial y pueden transformar
+trayectorias casi periodicas en trayectorias que exploran mas paredes. Se
+variarian K, radios, separacion longitudinal y separacion transversal,
+manteniendo suficiente area libre. El beneficio buscado es mezcla global; el
+riesgo es que demasiados obstaculos reduzcan D, aumenten el camino efectivo o
+creen jaulas.
+
+**Alternativa C: configuracion hibrida optimizada de forma evolutiva.** Se
+combinan uno o dos dispersores centrales con pares cercanos a los arcos, y el
+optimizador modifica posiciones, radios, altas y bajas. En vez de iniciar desde
+geometrias totalmente aleatorias, la poblacion inicial contiene las mejores
+variantes A y B. Esta opcion tiene mayor probabilidad de encontrar el menor
+t90, pero es menos interpretable y tiene mayor riesgo de sobreajuste a las
+semillas de exploracion.
+
+Para las tres alternativas se deben mantener los siguientes controles:
+
+- parametros oficiales y N=100;
+- obstaculos completamente interiores, sin solapamientos y con `R >= r`;
+- generacion valida de las 100 particulas para cada semilla;
+- mismas semillas durante la comparacion exploratoria;
+- ranking por llegada valida, menor media de t90 y luego menor dispersion;
+- conjunto separado de semillas para validar y no elegir por azar;
+- comparacion final contra la configuracion actual y la mesa vacia;
+- registro de tasa de exito, goles y Fu a 100 s si alguna corrida queda
+  censurada.
+
+La estrategia recomendada es secuencial: explorar A y B porque permiten
+entender por que una geometria funciona, y usar sus mejores casos como semillas
+de C. De esta forma la busqueda automatica refina mecanismos fisicos plausibles
+en lugar de depender solamente del azar.
+
+#### Etapas de la nueva busqueda y estado actual
+
+La consulta docente motivo el siguiente recorrido, separado de la preparacion
+de la presentacion:
+
+| Etapa | Estado | Pregunta que responde |
+|---|---|---|
+| C0 - referencias | Completa | Cuanto tardan la mesa vacia y la configuracion actual sobre semillas nuevas. |
+| C1 - variables simples | Completa | Como cambian t90 y la frecuencia de choques al variar una sola propiedad. |
+| C2 - familias geometricas | Completa | Que forma espacial aprovecha mejor el area sin encerrar particulas. |
+| C3 - optimizacion iterativa | Completa | Puede refinarse una geometria prometedora y mostrar convergencia. |
+| C4 - validacion independiente | Completa sin reemplazo | La mejora se mantiene sobre semillas que no participaron en la eleccion. |
+
+`python/configuration_study.py` implementa C0 y C1. C0 usa 20 semillas nuevas,
+301 a 320. C1 usa las primeras diez de ese mismo conjunto para que cada punto
+tenga diez realizaciones comunes. En total se evaluaron 76 configuraciones:
+
+- 39 casos de un obstaculo: trece posiciones y radios `2r`, `4r` y `6r`;
+- 12 diamantes de ocho circulos, manteniendo centros y K pero variando radio;
+- 12 diamantes con `K=8` y `R=0.045 m`, variando solo la separacion;
+- 13 configuraciones con cuatro circulos tangentes a las esquinas, variando
+  solo su radio entre 0.04 m y 0.16 m.
+
+Las referencias de C0, sobre las 20 semillas, fueron:
+
+| sistema | exitos | t90 medio [s] | desvio [s] |
+|---|---:|---:|---:|
+| mesa vacia | 20/20 | 23.2453 | 2.7045 |
+| configuracion actual, K=3 | 20/20 | 20.9684 | 2.0926 |
+
+Sobre las diez semillas de C1, la mesa vacia dio
+`22.6451 +/- 2.0656 s` y la configuracion actual
+`21.4638 +/- 2.0479 s`. Los tres mejores casos simples fueron:
+
+| rango | configuracion | t90 medio [s] | desvio [s] |
+|---:|---|---:|---:|
+| 1 | diamante K=8, R=0.06068 m | 19.7888 | 1.8220 |
+| 2 | diamante K=8, R=0.045 m, separacion 0.04308 m | 19.9856 | 2.2768 |
+| 3 | diamante K=8, R=0.04341 m | 20.1620 | 1.1508 |
+
+El primer diamante gano contra la mesa vacia en 9/10 semillas y contra la
+configuracion actual en 7/10. Las diferencias medias fueron `-2.8563 s` y
+`-1.6750 s`, respectivamente. Es un candidato para iniciar C2/C3, no una nueva
+configuracion definitiva: fue elegido con las mismas semillas sobre las que se
+informa el resultado y todavia requiere validacion independiente.
+
+El barrido de area aporta la evidencia fisica buscada en la consulta. Al
+aumentar el radio, la frecuencia crecio de aproximadamente 945 a 1275 eventos
+por segundo simulado, coherente con una menor area libre y mayor frecuencia de
+choque. Sin embargo, t90 no bajo monotonamente: alcanzo el menor valor cerca de
+una fraccion de area 0.113 y volvio a subir en el ultimo punto. Por lo tanto,
+"mas choques" no equivale automaticamente a "mejor acceso a los arcos" y los
+datos son compatibles con un compromiso intermedio.
+
+En el barrido de separacion, la linea vertical marca `2r=0.035 m`, ancho
+necesario para el paso del centro de una particula entre dos superficies. El
+caso mas cerrado llego a t90 en todas las corridas, pero termino con solo
+`Fu(100)=0.97 +/- 0.012`: algunos discos quedan demorados aunque el 90% llegue.
+Al abrir el diamante aparece un minimo alrededor de 0.043 m y luego t90 vuelve
+a crecer. Esto justifica conservar tanto t90 como Fu(100) en el analisis.
+
+Se regenera todo C0/C1 con:
+
+    make configuration-study
+
+Datos y candidatos reproducibles:
+
+    data/obstacles/configuration_study/references/
+    data/obstacles/configuration_study/sweeps/
+    data/obstacles/configuration_study/best_simple/
+
+Figuras que deben analizarse:
+
+    data/obstacles/configuration_study/plots/single_position.png
+    data/obstacles/configuration_study/plots/diamond_area.png
+    data/obstacles/configuration_study/plots/diamond_gap.png
+    data/obstacles/configuration_study/plots/corner_radius.png
+
+En `single_position.png` hay que mirar el crecimiento de t90 cerca de las
+paredes, especialmente para `R=4r` y `R=6r`, y la falta de una tendencia
+monotona en la region central. En `diamond_area.png` deben leerse juntos sus
+tres paneles: t90, eventos por segundo simulado y Fu(100). En
+`diamond_gap.png`, ademas de esos observables, debe compararse cada separacion
+con la marca `2r`; no corresponde elegir un caso solo por tener muchos choques
+si deja una cola de particulas que tarda en alcanzar los arcos.
+
+`corner_radius.png` prueba directamente la hipotesis de reducir el acceso a
+las paredes cortas fuera del arco. El mejor punto de esa familia es pequeno,
+`R=0.05 m`, con `21.0524 +/- 2.2461 s`. A partir de `R=0.09 m`, t90 crece
+rapidamente aunque la frecuencia de eventos siga aumentando. Con `R=0.14 m`
+solo 9/10 corridas alcanzan t90 y `Fu(100)=0.936`; con `R=0.15 m` ninguna
+alcanza t90 y `Fu(100)=0.767`; con `R=0.16 m`, `Fu(100)` cae a 0.437. La forma
+produce muchas colisiones inutiles y dificulta el acceso a los arcos. Es la
+evidencia mas directa de que aumentar la densidad efectiva tiene un limite y
+puede generar confinamiento perjudicial.
+
+#### C2 - Comparacion de familias geometricas a area constante
+
+`python/geometry_study.py` compara forma contra forma sin cambiar la cantidad
+de obstaculos, sus radios ni el area total. Todas las configuraciones tienen
+`K=8`, `R=0.06068 m` y fraccion de area ocupada aproximada 0.1134. Se usan las
+mismas diez semillas 301 a 310 y se barren doce valores por familia:
+
+- guias simetricas cerca de los arcos, variando su profundidad;
+- cadena alternada o zigzag, variando su amplitud transversal;
+- dos diamantes de cuatro circulos, variando su separacion longitudinal.
+
+Resultados de los mejores casos de cada familia:
+
+| familia | mejor parametro | t90 medio [s] | desvio [s] |
+|---|---:|---:|---:|
+| guias simetricas | profundidad 0.185 m | 32.3412 | 3.3032 |
+| cadena alternada | amplitud 0.220 m | 23.1586 | 2.1918 |
+| doble diamante | separacion 0.350 m | 22.1847 | 5.9983 |
+
+Ninguna supera al diamante unico de C1 (`19.7888 +/- 1.8220 s`) ni a la
+configuracion actual sobre estas semillas (`21.4638 +/- 2.0479 s`). Esto es
+un resultado util y no una etapa fallida: manteniendo la misma area, la forma
+puede aumentar t90 en mas de diez segundos. Las guias cercanas a los arcos
+interrumpen el acceso en vez de orientarlo; el zigzag mejora al acercar los
+obstaculos a las zonas superior e inferior, dejando mas libre el corredor
+central; y separar los dos diamantes produce un deterioro casi monotono. La
+gran dispersion del doble diamante mas compacto tambien lo vuelve poco robusto.
+
+Se regenera C2 con:
+
+    make geometry-study
+
+Datos, configuraciones y figuras:
+
+    data/obstacles/geometry_study/references/
+    data/obstacles/geometry_study/families/
+    data/obstacles/geometry_study/best_geometries/
+    data/obstacles/geometry_study/plots/goal_guides.png
+    data/obstacles/geometry_study/plots/zigzag.png
+    data/obstacles/geometry_study/plots/twin_diamond.png
+    data/obstacles/geometry_study/plots/representative_geometries.png
+
+Las tres curvas deben presentarse como evidencia de sensibilidad geometrica,
+no como candidatas finales. `representative_geometries.png` permite relacionar
+cada tendencia con la distribucion espacial concreta. Para C3 se conserva el
+diamante unico de C1 como semilla y se descartan las guias como punto de
+partida, evitando que el optimizador gaste evaluaciones alrededor de una
+familia sistematicamente mala.
+
+#### C3 y C4 - Optimizacion evolutiva y control de sobreajuste
+
+`python/evolutionary_search.py` implementa una estrategia evolutiva elitista
+del tipo `(mu + lambda)`. No es una caja negra: parte de ocho configuraciones,
+conserva en cada generacion las seis de menor t90 medio y genera 18 mutaciones
+nuevas. Las operaciones posibles son mover o cambiar el radio de un obstaculo,
+estirar o perturbar toda la forma, agregar un circulo o quitarlo. El tamano de
+los cambios disminuye linealmente durante diez generaciones: al comienzo se
+explora y al final se refina.
+
+La funcion objetivo de C3 usa ocho semillas nuevas, 401 a 408. La poblacion
+inicial incluye los tres mejores casos simples de C1 y la configuracion actual.
+El mejor promedio exploratorio evoluciono asi:
+
+- generacion 0: 19.7930 s, correspondiente a la configuracion actual;
+- generacion 1: 19.5029 s;
+- generacion 2: 19.0089 s;
+- generaciones 3 a 9: el mejor acumulado se mantuvo en 19.0089 s;
+- generacion 10: aparecio un candidato con 18.0925 s.
+
+La media de las seis elites bajo de 20.8227 s a 19.0363 s. Esto muestra que el
+algoritmo no solo encontro un minimo aislado: la poblacion seleccionada tambien
+mejoro. Sin embargo, la seleccion repetida sobre las mismas ocho semillas puede
+sobreajustarse, por lo que el valor 18.0925 s no se acepta como resultado final.
+
+C4 reevaluo los cinco mejores diseños con 20 semillas nunca vistas, 501 a 520,
+y recalculo las dos referencias con exactamente esas semillas:
+
+| sistema | exitos | t90 medio [s] | desvio [s] |
+|---|---:|---:|---:|
+| mesa vacia | 20/20 | 21.0479 | 2.0355 |
+| configuracion actual | 20/20 | 20.5813 | 2.2126 |
+| propuesta `g09_c015` | 20/20 | 20.1338 | 2.2276 |
+| minimo exploratorio `g10_c014` | 20/20 | 21.1942 | 2.1990 |
+
+El aparente minimo de 18.0925 s fue peor que la mesa vacia al cambiar de
+semillas: es un ejemplo concreto de sobreajuste experimental. La propuesta
+validada `g09_c015` mejora la media de la configuracion actual solo 0.4475 s y
+gana 10 de las 20 comparaciones por semilla. El desvio de las diferencias es
+3.3950 s, de modo que no hay una ventaja robusta suficiente para reemplazar el
+archivo oficial.
+
+Como control adicional, la propuesta se ejecuto sobre las cinco semillas de la
+competencia local anterior y dio `20.0903 +/- 1.4387 s`; la configuracion actual
+habia dado `19.8239 +/- 1.7606 s`. Por eso
+`SdS_TP3_2026Q2G05CS_Config.txt` permanece sin cambios. La propuesta queda
+guardada para auditoria, no como configuracion de entrega.
+
+Se regeneran C3/C4 con:
+
+    make evolutionary-search
+
+Archivos centrales:
+
+    data/obstacles/evolutionary/evolution.csv
+    data/obstacles/evolutionary/archive_summary.csv
+    data/obstacles/evolutionary/validation/summary.csv
+    data/obstacles/evolutionary/validation/references_summary.csv
+    data/obstacles/evolutionary/proposed_config.txt
+    data/obstacles/evolutionary/plots/convergence.png
+    data/obstacles/evolutionary/plots/validation.png
+
+`convergence.png` permite mostrar la evolucion exigida en la consulta: mejor
+acumulado, media de candidatos nuevos y media mas/menos desvio de las elites.
+`validation.png` no debe interpretarse solo por el orden de las medias: las
+barras se superponen y la diferencia contra la configuracion actual es pequena.
+El resultado correcto de esta etapa es que el optimizador funciona y converge,
+pero su nueva propuesta no supera de manera robusta a la configuracion ya
+entregable.
+
+#### C5 - Busqueda competitiva: objetivo t90 < 16 s
+
+Motivacion: otro grupo reporto `16 +/- 2 s` en el inciso 1.4 y la configuracion
+actual daba `19.82 +/- 1.76 s`. Como el enunciado no limita `K` ni el radio
+maximo, se probaron geometrias estructurales que la busqueda aleatoria casi no
+puede generar: cadenas de circulos tangentes, que funcionan como paredes curvas
+impenetrables. Todas se filtran con 5 semillas y los 10 mejores se validan con
+20 semillas nuevas a `tmax=100` (mejor resultado validado de cada familia):
+
+| familia | idea fisica | mejor validado | t90 [s] |
+|---|---|---|---:|
+| compuertas (`goal_gates`) | cerrar la pared corta fuera del arco | `vertical_n6_c06`, K=24 | 22.33 +/- 2.64 |
+| canal empaquetado (`packed_channels`) | bandas arriba/abajo, canal alineado con los arcos | `channel_c15_r2`, K=56 | 20.99 +/- 1.97 |
+| particion (`partitions`) | dividir la mesa en dos mitades, cada una con su arco | `partition_n02_x06`, K=2 | 17.00 +/- 1.49 |
+| particion + dispersores (`partition_refinement`) | romper orbitas casi periodicas en cada mitad | `center_r08_x10`, K=4 | 16.94 +/- 2.24 |
+| **bloque central hexagonal (`central_blocks`)** | **particion gruesa: acorta cada camara** | **`block_n07_c6`, K=39** | **15.00 +/- 1.82** |
+
+Lectura fisica. Las compuertas y el canal no reducen el recorrido
+longitudinal, que es lo que domina el tiempo de llegada al arco. La particion si
+lo hace: ninguna particula queda en una zona sin gol y la distancia tipica al
+arco pasa a ser aproximadamente media mesa. El bloque central hexagonal lleva
+esa idea al extremo: una franja de 6 columnas de 7 circulos (`R=0.0486 m`,
+empaquetamiento hexagonal, huecos intersticiales menores que `r`) deja dos
+camaras de aproximadamente `0.32 m` de largo accesible, cada una con un arco. Las
+camaras cortas y mas densas aumentan la frecuencia de choques con la pared del
+arco sin crear jaulas. El barrido de `screening.png` muestra que el optimo es
+intermedio: bloques mas angostos dejan camaras largas y bloques mas anchos
+comprimen tanto a las 100 particulas que aumentan los choques entre ellas.
+
+**Correccion de bolsillos.** El fotograma de la configuracion mostro una
+particula generada en el hueco entre la pared y una columna desplazada: queda
+atrapada y nunca hace gol (corridas con 96-99 goles). `fill_wall_pockets` agrega
+un circulo de radio `R/2 = 0.0243 m >= r` tangente a la pared en cada uno de
+esos 6 huecos (K=45). Con 40 semillas nuevas (5001-5040):
+
+| configuracion | exitos | t90 medio [s] | desvio [s] | goles minimos |
+|---|---:|---:|---:|---:|
+| bloque sin tapar (K=39) | 40/40 | 15.70 | 1.56 | 97 |
+| **bloque con bolsillos tapados (K=45)** | 40/40 | **15.37** | 1.89 | **100** |
+| configuracion actual (K=3) | 40/40 | 21.30 | 2.67 | 100 |
+
+Con las 5 semillas de competencia local (20260918-20260922) el bloque sin tapar
+dio `14.50 +/- 1.62 s` y el tapado `16.58 +/- 1.57 s`. La diferencia se debe
+a que, con otra area libre, la misma semilla genera otra condicion inicial: con
+solo 5 corridas domina el azar. Por eso la eleccion se apoya en las 40
+semillas, donde el tapado es igual o mejor y ademas no atrapa particulas, lo
+que elimina el riesgo de una semilla desfavorable en la competencia en vivo.
+
+Estado: la configuracion propuesta es
+`data/obstacles/central_blocks/best_central_block_filled_config.txt`.
+`SdS_TP3_2026Q2G05CS_Config.txt` **todavia no fue reemplazado**: queda a decision
+del grupo.
+
+Se regenera con:
+
+    make central-block-search
+
+Archivos centrales:
+
+    data/obstacles/central_blocks/screening/summary.csv
+    data/obstacles/central_blocks/validation/summary.csv
+    data/obstacles/central_blocks/validation/references_summary.csv
+    data/obstacles/central_blocks/robustness/seeds_5001_5040_{orig,filled,current}.csv
+    data/obstacles/central_blocks/competition_seeds/{final_05,filled}/
+    data/obstacles/central_blocks/best_central_block_config.txt
+    data/obstacles/central_blocks/best_central_block_filled_config.txt
+    data/obstacles/central_blocks/plots/screening.png
+    data/obstacles/central_blocks/winner_preview/configuration.png
+    data/obstacles/partitions/plots/screening_heatmap.png
+    data/obstacles/partition_refinement/plots/screening.png
+
+Que mirar en `central_blocks/plots/screening.png`: eje x = largo accesible de
+cada camara, eje y = t90 medio, color = K. Debe verse un minimo intermedio (no
+monotono) y la linea verde de 16 s como objetivo. `winner_preview/configuration.png`
+muestra el bloque sin tapar con la particula atrapada abajo en x ~ 0.63 m: es la
+evidencia que justifica la correccion de bolsillos.
+
+#### C6 - Comparacion final con semillas comunes y eleccion del bloque de 7 columnas
+
+`python/final_comparison.py` reevalua todo con las mismas 20 semillas nuevas
+(7001-7020, nunca usadas para seleccionar):
+
+- la mejor configuracion de cada familia (`families.csv`, `plots/families.png`);
+- el barrido del bloque hexagonal con 7 circulos por columna y de 1 a 10
+  columnas, con los bolsillos tapados (`chamber_sweep.csv`,
+  `plots/chamber_length.png`);
+- F_u(t) de mesa vacia, busqueda aleatoria K=3 y bloque (`plots/fu_comparison.png`).
+
+El barrido extendido corrigio una limitacion de C5: `central_block_search.py`
+cortaba en 6 columnas, y el minimo esta en 7-8 columnas.
+
+| columnas | largo de camara [m] | t90 (7001-7020) [s] | t90 (5001-5040) [s] | t90 (competencia local) [s] |
+|---:|---:|---:|---:|---:|
+| 1 | 0.534 | 21.09 | | |
+| 4 | 0.408 | 17.43 | | |
+| 6 | 0.324 | 15.24 | 15.37 +/- 1.89 | 16.58 +/- 1.57 |
+| **7** | **0.282** | **14.45** | **14.38 +/- 1.52** | **14.23 +/- 0.66** |
+| 8 | 0.239 | 14.21 | 14.40 +/- 2.06 | 13.17 +/- 1.62 |
+| 9 | 0.197 | 15.23 | 14.89 +/- 2.25 | 14.40 +/- 1.44 |
+| 10 | 0.155 | 19.58 | | |
+
+7 y 8 columnas empatan dentro del error. Se elige **7 columnas** (K=52: 46
+circulos de R=0.0486 m + 6 tapones de R=0.0243 m) porque tiene menor
+dispersion, que importa cuando la competencia promedia solo 5 corridas; deja
+camaras mas grandes, con generacion de particulas mas holgada; y queda mas lejos
+del empeoramiento de 9-10 columnas. El minimo intermedio confirma la hipotesis
+del profesor: achicar el area libre ayuda hasta que las camaras quedan
+demasiado cortas.
+
+Control negativo (scratch, no versionado): agregar circulos en las esquinas de
+cada camara, junto al arco, empeora mucho (Rc=0.10 m -> 25.9 s; Rc=0.12 m ->
+48.7 s). Un obstaculo convexo pegado al arco desvia hacia afuera a las
+particulas que iban a entrar: el area hay que quitarla lejos del arco.
+
+Configuracion elegida:
+`data/obstacles/central_blocks/chosen_block_c7_config.txt`. **Falta copiarla a
+`SdS_TP3_2026Q2G05CS_Config.txt`** (decision del grupo); la presentacion ya la
+muestra como elegida.
+
+Inciso 1.3 actualizado: `diffusion.py` ahora toma los t90 de
+`final_comparison/families.csv` (mismas semillas) y agrega particion y bloque.
+El bloque no tiene regimen difusivo identificable: sus camaras son cortas y
+densas, el DCM satura cerca de 1e-1 m^2 y las particulas chocan desde ~0.05 s.
+Con los 5 casos con D: Pearson 0.46, Spearman 0.30, sin correlacion clara. La
+configuracion mas rapida es justamente una sin D, de modo que D no es lo que
+controla t90.
+
+Presentacion (`presentacion/presentacion.tex`): nuevas diapositivas de
+hipotesis (area libre), comparacion de familias, largo de camaras y
+configuracion elegida; F_u(t), fotograma, DCM, D vs t90 y conclusiones
+actualizados; se quito la diapositiva de finalistas K=3. Figuras propias
+regeneradas con `python3 presentacion/generar_figuras.py`.
+
+Se regenera con:
+
+    python3 python/final_comparison.py
+    python3 python/diffusion.py
+    python3 presentacion/generar_figuras.py
+
 ### Inciso 1.3 - Que mirar y por que
 
 El desplazamiento cuadratico medio usado es:
@@ -418,6 +832,7 @@ vecinos.
 | 3.1 | Completa | Exploracion interpretable de 47 configuraciones con cinco semillas. |
 | 3.2 | Completa | Busqueda de 200 candidatos y 200 mutaciones reproducibles. |
 | 3.3 | Completa en codigo | Finalistas, archivo entregable y runner de cinco realizaciones verificados. |
+| 3.4 | Completa | Barridos docentes C0-C2, evolucion C3 y validacion independiente C4. |
 | 4.1 | Completa en codigo | Figuras y datos obligatorios generados con rutas documentadas. |
 | 4.2 | En curso | Presentacion armada (28 diapositivas); propuestas de cambio en la seccion final. |
 | 4.3 | Postergada | El ZIP se preparara solamente cuando el grupo lo indique. |
@@ -462,7 +877,7 @@ Actualmente el bloque C++ contiene 135 verificaciones sin fallas. Cubren:
 - Reproducibilidad exacta de secuencia, estado y observables al repetir una
   corrida.
 
-Las fases de analisis agregan 30 pruebas Python que comprueban:
+Las fases de analisis agregan 40 pruebas Python que comprueban:
 
 - Lectura de sistema, obstaculos, frames y estados.
 - Rechazo de inconsistencias entre goles y particulas usadas.
@@ -488,10 +903,16 @@ Las fases de analisis agregan 30 pruebas Python que comprueban:
 - Calculo explicito de pendientes locales, Pearson y Spearman.
 - Regla exacta de cinco semillas para la competencia y tratamiento de corridas
   censuradas.
+- Barridos de al menos diez valores, unicidad y validez de las 76 geometrias
+  controladas nuevas.
+- Igualdad de K, radio y area al comparar las tres familias de C2.
+- Mutaciones evolutivas reproducibles, validas y distintas de sus padres.
+- Reduccion programada de la escala de mutacion y poblacion inicial
+  reproducible.
 
 Las 135 verificaciones C++ actuales fueron ejecutadas tambien con
-AddressSanitizer y UndefinedBehaviorSanitizer sin errores. Sumadas a las 30
-pruebas Python, la puerta `make test` contiene 165 comprobaciones aprobadas.
+AddressSanitizer y UndefinedBehaviorSanitizer sin errores. Sumadas a las 40
+pruebas Python, la puerta `make test` contiene 175 comprobaciones aprobadas.
 
 El oraculo pertenece exclusivamente al binario de pruebas. No se enlaza con
 el ejecutable `tp3` ni forma parte del codigo final entregable. Con esto se
@@ -743,20 +1164,25 @@ evaluado en el inciso 1.2. Si una realizacion no llega a t90, no calcula una
 media parcial: marca el resultado como censurado y conserva goles y Fu a 100 s,
 tal como determina el ranking del enunciado.
 
-El ensayo reproducible con semillas 1001 a 1005 dio:
+La corrida local solicitada el 18/09/2026 uso cinco semillas nuevas y todos los
+parametros oficiales:
 
 | semilla | t90 [s] | goles a 100 s |
 |---:|---:|---:|
-| 1001 | 18.8493 | 100 |
-| 1002 | 18.6997 | 100 |
-| 1003 | 22.5463 | 100 |
-| 1004 | 21.0589 | 100 |
-| 1005 | 22.7786 | 100 |
+| 20260918 | 17.9878 | 100 |
+| 20260919 | 18.3759 | 100 |
+| 20260920 | 20.6777 | 100 |
+| 20260921 | 22.3136 | 100 |
+| 20260922 | 19.7644 | 100 |
 
-El resultado del ensayo fue `20.7866 +/- 1.9524 s`. Estas son semillas de
-control, no un reemplazo de las cinco condiciones que se usen el dia de la
-competencia. Para ese momento se pasan las cinco semillas elegidas y se puede
-pedir que el programa espere la orden de inicio:
+Las cinco realizaciones alcanzaron t90 y terminaron con las 100 particulas
+usadas. El resultado fue `19.8239 +/- 1.7606 s`. Redondeado de acuerdo con la
+dispersion se comunica como aproximadamente `20 +/- 2 s`.
+
+Estas corridas usan exactamente los parametros del inciso 1.4, pero no deben
+confundirse con la ejecucion presencial frente a los docentes. Para ese momento
+se pasan las cinco semillas elegidas y se puede pedir que el programa espere la
+orden de inicio:
 
     python3 python/competition.py --seeds S1 S2 S3 S4 S5 --wait-for-start
 
@@ -1059,7 +1485,8 @@ comunicacion de resultados y no codigo faltante:
 Queda para mas adelante, por decision del grupo:
 
 1. Repetir la medicion de rendimiento en la maquina y condiciones finales.
-2. Ejecutar el runner con las cinco condiciones usadas en la competencia.
+2. Ejecutar el runner presencialmente con las cinco condiciones que se usen en
+   la competencia; la corrida local con parametros oficiales ya esta hecha.
 3. Seleccionar figuras definitivas y preparar la presentacion.
 4. Preparar el ZIP y los demas entregables solamente cuando el grupo decida
    avanzar con la entrega final.

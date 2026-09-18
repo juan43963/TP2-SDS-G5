@@ -27,7 +27,8 @@ from tp3io import read_static, read_trajectory
 FS = 20
 OUT = Path("presentacion")
 RUNS = Path("data/presentacion")
-CONFIG = "SdS_TP3_2026Q2G05CS_Config.txt"
+# Configuracion elegida (bloque central de 7 columnas); coincide con la entregada.
+CONFIG = "data/obstacles/central_blocks/chosen_block_c7_config.txt"
 SEED = 42
 T_FRAME = 8.0   # s: ya hay particulas usadas, pero todavia lejos de t90
 
@@ -65,8 +66,8 @@ def mesa(system, frame=None):
     ax.set_xlim(-0.02 * L, 1.02 * L)
     ax.set_ylim(-0.03 * W, 1.03 * W)
     ax.set_aspect("equal")
-    ax.set_xlabel("Posición x [m]", fontsize=FS)
-    ax.set_ylabel("Posición y [m]", fontsize=FS)
+    ax.set_xlabel("Posición x (m)", fontsize=FS)
+    ax.set_ylabel("Posición y (m)", fontsize=FS)
     ax.tick_params(labelsize=FS - 4)
     return fig
 
@@ -79,13 +80,13 @@ def guardar(fig, nombre: str):
 
 
 def fotogramas():
-    for tag, extra in [("vacia", []), ("ganadora", ["--config", CONFIG])]:
+    for tag, extra in [("vacia", []), ("bloque", ["--config", CONFIG])]:
         system, frames = correr(tag, extra)
         frame = min(frames, key=lambda f: abs(f.time - T_FRAME))
         out = guardar(mesa(system, frame), f"frame_{tag}.png")
         print(f"{out}  (t = {frame.time:.2f} s, Fu = {frame.goals / len(frame.used):.2f})")
-    system, _ = correr("ganadora", ["--config", CONFIG])
-    print(guardar(mesa(system), "configuracion_ganadora.png"))
+    system, _ = correr("bloque", ["--config", CONFIG])
+    print(guardar(mesa(system), "configuracion_bloque.png"))
 
 
 def ajuste_D():
@@ -114,14 +115,14 @@ def ajuste_D():
     a1.plot(t[tramo], dcm[tramo], "o", color="#1f5fa8", ms=6)
     tt = np.linspace(t0, t1, 50)
     a1.plot(tt, 4 * D_fit * tt + b, "-", color="#c0392b", lw=2.5)
-    a1.set_xlabel("Tiempo [s]", fontsize=FS)
-    a1.set_ylabel("DCM [m$^2$]", fontsize=FS)
+    a1.set_xlabel("Tiempo (s)", fontsize=FS)
+    a1.set_ylabel("DCM (m$^2$)", fontsize=FS)
 
     a2.plot(Ds, E, "-", color="#1f5fa8", lw=2.5)
     a2.plot([D_min], [E.min()], "o", color="#c0392b", ms=10)
     a2.axvline(D_min, color="#c0392b", ls="--", lw=1.5)
-    a2.set_xlabel("Coeficiente de difusión D [m$^2$/s]", fontsize=FS)
-    a2.set_ylabel("Error cuadrático E [m$^4$]", fontsize=FS)
+    a2.set_xlabel("Coeficiente de difusión D (m$^2$/s)", fontsize=FS)
+    a2.set_ylabel("Error cuadrático E (m$^4$)", fontsize=FS)
 
     for ax in (a1, a2):
         ax.tick_params(labelsize=FS - 4)
