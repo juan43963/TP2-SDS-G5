@@ -321,7 +321,7 @@ def main() -> int:
                 rows = _evaluate(name, config, SEEDS, args.jobs,
                                  goals_dir if name in fu_names else None)
                 families.append(_summary(name, label, 0.0, config, rows))
-                print(f"{label}: <t90>={families[-1][t90_mean]}", flush=True)
+                print(f"{label}: <t90>={families[-1]["t90_mean"]}", flush=True)
             write_csv(stages["families"], SUMMARY_FIELDS, families)
         if any(row["t90_mean"] is None for row in families):
             raise RuntimeError("alguna familia no alcanzo t90 en todas las semillas")

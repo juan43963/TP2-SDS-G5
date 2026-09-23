@@ -221,12 +221,16 @@ def _systematic_pool(summary_path: Path) -> list[tuple[Candidate, dict]]:
 def plot_search(initial: list[dict], finalists: list[dict], output_dir: Path, show: bool) -> None:
     plots = output_dir / "plots"
     plots.mkdir(parents=True, exist_ok=True)
-    valid = [row for row in initial if row["t90_mean"] is not None]
+    valid = [row for row in initial
+             if row["t90_mean"] is not None and row["t90_std"] is not None]
     counts = [int(row["K"]) for row in valid]
     t90 = [float(row["t90_mean"]) for row in valid]
+    # Guia 2.4.3: cada punto es un promedio y lleva su desvio entre realizaciones.
+    t90_std = [float(row["t90_std"]) for row in valid]
     figure, axes = plt.subplots(figsize=(8.8, 6.0))
-    axes.scatter(counts, t90, s=28, alpha=0.55, color="#2878b5",
-                 label="Configuración evaluada")
+    axes.errorbar(counts, t90, yerr=t90_std, fmt="o", markersize=4, alpha=0.45,
+                  color="#2878b5", elinewidth=0.8, capsize=2,
+                  label="Configuración evaluada")
     # Linea de tendencia: ajuste lineal por cuadrados minimos de <t90> contra K.
     slope, intercept = np.polyfit(counts, t90, 1)
     k_line = np.array([0.5, 12.5])

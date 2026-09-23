@@ -29,12 +29,12 @@ int main(int argc, char** argv) try {
         trajectory =
             std::make_unique<TrajectoryWriter>(options.trajectoryPath,
                                                options.simulation.particleCount);
-        trajectory->writeFrame(0.0, 0, 0, particles);
+        trajectory->writeFrame(0.0, 0, particles);
     }
     if (!options.goalsOutputPath.empty()) {
         goalLog = std::make_unique<GoalLogWriter>(options.goalsOutputPath,
-                                                  options.simulation.particleCount);
-        goalLog->writeSample(0.0, 0);
+                                                  options.simulation.particleCount,
+                                                  options.simulation.maxTime);
     }
     if (!options.eventsOutputPath.empty()) {
         eventLog = std::make_unique<EventLogWriter>(options.eventsOutputPath, particles);
@@ -44,38 +44,37 @@ int main(int argc, char** argv) try {
     std::uint64_t observedEvents = 0;
     std::uint64_t lastWrittenEvent = 0;
     double lastWrittenTime = 0.0;
-    int lastLoggedGoals = 0;
-    double lastGoalLogTime = 0.0;
+    // Solo el participante de un choque con pared o esquina puede cambiar de
+    // estado: se registra el instante en que cada particula pasa a usada.
+    std::vector<bool> loggedUsed(particles.size());
+    for (std::size_t i = 0; i < particles.size(); ++i) {
+        loggedUsed[i] = particles[i].state == ParticleState::Used;
+    }
     const SimulationResult result = simulation.run(
-        [&](double time, const Event& event, const std::vector<Particle>& current, int goals) {
+        [&](double time, const Event& event, const std::vector<Particle>& current) {
             ++observedEvents;
             if (trajectory && observedEvents % static_cast<std::uint64_t>(
                                                     options.outputEveryEvents) == 0) {
-                trajectory->writeFrame(time, observedEvents, goals, current);
+                trajectory->writeFrame(time, observedEvents, current);
                 lastWrittenEvent = observedEvents;
                 lastWrittenTime = time;
             }
-            if (goalLog && goals != lastLoggedGoals) {
-                goalLog->writeSample(time, goals);
-                lastLoggedGoals = goals;
-                lastGoalLogTime = time;
+            const auto index = static_cast<std::size_t>(event.particleA);
+            if (goalLog && current[index].state == ParticleState::Used && !loggedUsed[index]) {
+                goalLog->writeGoal(time, current[index].id);
+                loggedUsed[index] = true;
             }
             if (eventLog) {
-                eventLog->writeEvent(observedEvents, time, event, goals, current);
+                eventLog->writeEvent(observedEvents, time, event, current);
             }
         });
 
     if (trajectory &&
         (lastWrittenEvent != result.processedEvents || lastWrittenTime != result.finalTime)) {
-        trajectory->writeFrame(result.finalTime, result.processedEvents, result.goals,
-                               simulation.particles());
-    }
-    if (goalLog &&
-        (lastGoalLogTime != result.finalTime || lastLoggedGoals != result.goals)) {
-        goalLog->writeSample(result.finalTime, result.goals);
+        trajectory->writeFrame(result.finalTime, result.processedEvents, simulation.particles());
     }
     if (eventLog) {
-        eventLog->writeEnd(result.finalTime, result.processedEvents, result.goals);
+        eventLog->writeEnd(result.finalTime, result.processedEvents);
     }
     if (!options.summaryPath.empty()) {
         writeSummaryFile(options.summaryPath, options.simulation, result);

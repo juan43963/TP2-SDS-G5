@@ -144,9 +144,9 @@
 
   \textbf{Pared vertical} ($x_{p1} < x_{p2}$):
   \[
-    t_c = \frac{x_{p2} - R - x(0)}{v_x} \;\; (v_x > 0),
+    t_c = \frac{x_{p2} - r - x(0)}{v_x} \;\; (v_x > 0),
     \qquad
-    t_c = \frac{x_{p1} + R - x(0)}{v_x} \;\; (v_x < 0)
+    t_c = \frac{x_{p1} + r - x(0)}{v_x} \;\; (v_x < 0)
   \]
 
   \textbf{Dos discos} $i$, $j$:
@@ -160,7 +160,7 @@
     \qquad
     \begin{aligned}
       d &= (\Delta\vect{v}\cdot\Delta\vect{r})^2 - (\Delta\vect{v}\cdot\Delta\vect{v})(\Delta\vect{r}\cdot\Delta\vect{r} - \sigma^2)\\
-      \sigma &= R_i + R_j
+      \sigma &= r_i + r_j
     \end{aligned}
   \]
 
@@ -322,13 +322,15 @@
 
 % ---------------------------------------------------------------- 11
 \begin{frame}{Observables}
-  \textbf{Fracción de usadas} y \textbf{tiempo de llegada al 90\%}:
+  \textbf{Fracción de usadas} y \textbf{tiempo de llegada al 90\%} --- post-proceso del output:
   \[
     F_u(t) = \frac{N_g(t)}{N},
-    \qquad
+    \quad
     F_u(t_{90}) = 0{,}9,
-    \qquad
-    \langle t_{90}\rangle = \frac{1}{n}\sum_{j=1}^{n} t_{90}^{(j)}
+    \quad
+    \langle t_{90}\rangle = \frac{1}{n}\sum_{j=1}^{n} t_{90}^{(j)},
+    \quad
+    \sigma_{t_{90}} = \sqrt{\frac{1}{n-1}\sum_{j=1}^{n}\big(t_{90}^{(j)} - \langle t_{90}\rangle\big)^2}
   \]
 
   \textbf{Desplazamiento cuadrático medio} --- sobre las $N$ partículas, frescas y usadas:
@@ -342,7 +344,7 @@
   \vspace{0.5em}
 
   \params{
-  Objetivo: la configuración que minimiza $\langle t_{90}\rangle$. Barras de error: desvío estándar entre realizaciones.\\[3pt]
+  Objetivo: minimizar $\langle t_{90}\rangle$. Barras: $\sigma_{t_{90}}$. Si una realización no llega a $F_u = 0{,}9$ antes de $t_{\max}$, no se promedia.\\[3pt]
   Realizaciones: 10 (tiempo de ejecución), 20 (exploración sistemática), 5 (búsqueda automática), 20 (comparación final, mismas semillas), 40 (validación de la elegida), 1 (DCM).\\[3pt]
   Tiempo simulado: $t_f = 30$ s (tiempo de ejecución), \ $t_{\max} = 100$ s (resto).
   }
@@ -422,7 +424,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{random_search.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$2\times10^{2}$ configuraciones al azar\\$+\,2\times10^{2}$ mutaciones de las 10 mejores\\[6pt]$1 \leq K \leq 12$\\$r \leq R_k \leq 0{,}12$ m\\[6pt]Realizaciones: 5}
+      \params{$2\times10^{2}$ configuraciones al azar\\$+\,2\times10^{2}$ mutaciones de las 10 mejores\\[6pt]$1 \leq K \leq 12$\\$r \leq R_k \leq 0{,}12$ m\\[6pt]Realizaciones: 5\\Barras: $\sigma_{t_{90}}$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -549,7 +551,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{D_vs_t90.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$D$: una realización\\$\langle t_{90}\rangle$: 20 realizaciones\\[6pt]Barras: error del ajuste de $D$\\[6pt]Sin $D$ identificable: bloque central}
+      \params{$D$: una realización\\$\langle t_{90}\rangle$: 20 realizaciones\\[6pt]Barras: error del ajuste de $D$ y $\sigma_{t_{90}}$\\[6pt]Sin $D$ identificable: bloque central}
     \end{column}
   \end{columns}
 \end{frame}

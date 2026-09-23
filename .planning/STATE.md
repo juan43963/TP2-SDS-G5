@@ -104,6 +104,8 @@ None yet.
 | 260824-i0l-03 | Índice + resumen + fotogramas de animación (informe) | 2026-08-24 | 0275f51 | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
 | 260824-i0l-04 | Fix pick_representative_eta (E0.5/E0.6) + regenerar figuras punto (b) + confirmar η_c/χ sin cambios | 2026-08-24 | e6eaecb | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
 | 260824-i0l-05 | Tabla analítica ⟨k⟩ vs. umbral de percolación + barrido real ρ<1.5 + Fig. S(ρ) | 2026-08-24 | 1926e22 | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
+| 260923-eyc-01 | TP3: Config de competencia = bloque K=52 + ZIP del motor (17 KB) | 2026-09-23 | — | [260923-eyc-tp3-config-competencia-bloque-y-zip-de-c](./quick/260923-eyc-tp3-config-competencia-bloque-y-zip-de-c/) |
+| 260923-eyc-02 | TP3: observables en post-proceso + barras/σ/notación en presentación | 2026-09-23 | — | [260923-eyc-tp3-config-competencia-bloque-y-zip-de-c](./quick/260923-eyc-tp3-config-competencia-bloque-y-zip-de-c/) |
 
 ## Deferred Items
 

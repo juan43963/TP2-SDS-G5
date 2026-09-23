@@ -46,12 +46,10 @@ Candidate findNext(const SimulationConfig& config,
     return best;
 }
 
-void markGoal(Particle& particle, const SimulationConfig& config, int targetGoals,
-              double currentTime, SimulationResult& result) {
-    if (particle.state != ParticleState::Fresh || !isGoalContact(particle, config)) return;
-    particle.state = ParticleState::Used;
-    ++result.goals;
-    if (!result.t90.has_value() && result.goals >= targetGoals) result.t90 = currentTime;
+void markGoal(Particle& particle, const SimulationConfig& config) {
+    if (particle.state == ParticleState::Fresh && isGoalContact(particle, config)) {
+        particle.state = ParticleState::Used;
+    }
 }
 
 }  // namespace
@@ -64,11 +62,6 @@ OracleRun runBruteForceOracle(const SimulationConfig& config,
 
     OracleRun run;
     run.particles = std::move(particles);
-    for (const Particle& particle : run.particles) {
-        if (particle.state == ParticleState::Used) ++run.result.goals;
-    }
-    const int targetGoals =
-        static_cast<int>(std::ceil(0.9 * static_cast<double>(run.particles.size()) - 1e-12));
 
     const auto start = std::chrono::steady_clock::now();
     double currentTime = 0.0;
@@ -92,7 +85,7 @@ OracleRun runBruteForceOracle(const SimulationConfig& config,
                 break;
             }
             case EventType::VerticalWall:
-                markGoal(first, config, targetGoals, currentTime, run.result);
+                markGoal(first, config);
                 resolveVerticalWall(first);
                 ++first.collisionCount;
                 break;
@@ -101,7 +94,7 @@ OracleRun runBruteForceOracle(const SimulationConfig& config,
                 ++first.collisionCount;
                 break;
             case EventType::Corner:
-                markGoal(first, config, targetGoals, currentTime, run.result);
+                markGoal(first, config);
                 resolveCorner(first);
                 ++first.collisionCount;
                 break;
@@ -122,8 +115,6 @@ OracleRun runBruteForceOracle(const SimulationConfig& config,
     }
     const auto finish = std::chrono::steady_clock::now();
     run.result.finalTime = currentTime;
-    run.result.usedFraction =
-        static_cast<double>(run.result.goals) / static_cast<double>(run.particles.size());
     run.result.simulationMilliseconds =
         std::chrono::duration<double, std::milli>(finish - start).count();
     return run;

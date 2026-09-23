@@ -49,7 +49,6 @@ class MsdSeries:
     particle_count: int
     processed_events: int
     final_time: float
-    goals: int
 
 
 @dataclass(frozen=True)
@@ -77,6 +76,7 @@ class StudyCase:
     label: str
     config_path: Path | None
     t90_mean: float
+    t90_std: float
 
 
 def _finite_float(text: str, context: str) -> float:
@@ -111,7 +111,7 @@ def reconstruct_msd(path: Path, sample_times: np.ndarray) -> MsdSeries:
             return number, line.strip()
 
         _, version = take("version")
-        if version != "TP3_EVENTS 1":
+        if version != "TP3_EVENTS 2":
             raise ValueError("version de log de eventos no soportada")
         line_number, n_line = take("N")
         n_tokens = n_line.split()
@@ -158,7 +158,6 @@ def reconstruct_msd(path: Path, sample_times: np.ndarray) -> MsdSeries:
         sample_index = 1
         current_time = 0.0
         previous_event_count = 0
-        previous_goals = 0
         final_time = None
 
         for line_number, raw_line in numbered:
@@ -167,12 +166,11 @@ def reconstruct_msd(path: Path, sample_times: np.ndarray) -> MsdSeries:
                 continue
             tokens = line.split()
             if tokens[0] == "END":
-                if len(tokens) != 4:
+                if len(tokens) != 3:
                     raise ValueError(f"linea {line_number}: cierre invalido")
                 final_time = _finite_float(tokens[1], f"linea {line_number}")
                 event_count = int(tokens[2])
-                goals = int(tokens[3])
-                if event_count != previous_event_count or goals != previous_goals:
+                if event_count != previous_event_count:
                     raise ValueError("el cierre no coincide con el ultimo evento")
                 if final_time < current_time:
                     raise ValueError("el tiempo final retrocede")
@@ -184,19 +182,17 @@ def reconstruct_msd(path: Path, sample_times: np.ndarray) -> MsdSeries:
                     sample_index += 1
                 break
 
-            if len(tokens) != 8 or tokens[0] != "EVENT" or tokens[3] not in EVENT_TYPES:
+            if len(tokens) != 7 or tokens[0] != "EVENT" or tokens[3] not in EVENT_TYPES:
                 raise ValueError(f"linea {line_number}: encabezado de evento invalido")
             event_count = int(tokens[1])
             event_time = _finite_float(tokens[2], f"linea {line_number}")
             event_type = tokens[3]
-            particle_a, particle_b, _obstacle, goals = map(int, tokens[4:8])
+            particle_a, particle_b, _obstacle = map(int, tokens[4:7])
             if (
                 event_count != previous_event_count + 1
                 or event_time < current_time
                 or particle_a < 0
                 or particle_a >= particle_count
-                or goals < previous_goals
-                or goals > particle_count
             ):
                 raise ValueError(f"linea {line_number}: evento no monotono o fuera de rango")
             participants = [particle_a]
@@ -239,7 +235,6 @@ def reconstruct_msd(path: Path, sample_times: np.ndarray) -> MsdSeries:
             if event_end != "END_EVENT":
                 raise ValueError("falta END_EVENT")
             previous_event_count = event_count
-            previous_goals = goals
 
         if final_time is None:
             raise ValueError("falta el cierre del log de eventos")
@@ -249,7 +244,7 @@ def reconstruct_msd(path: Path, sample_times: np.ndarray) -> MsdSeries:
             if remaining.strip():
                 raise ValueError("contenido inesperado despues del cierre")
     return MsdSeries(sample_times.copy(), msd, particle_count, previous_event_count,
-                     final_time, previous_goals)
+                     final_time)
 
 
 def _linear_fit(x: np.ndarray, y: np.ndarray) -> tuple[float, float, float, float]:
@@ -359,10 +354,11 @@ DIFFUSION_CASES = (
 )
 
 
-def _load_t90_values() -> dict[str, float]:
-    """<t90> de python/final_comparison.py: las mismas 20 semillas para todos."""
+def _load_t90_values() -> dict[str, tuple[float, float]]:
+    """<t90> y su desvio de python/final_comparison.py: las mismas 20 semillas para todos."""
     with FINAL_COMPARISON.open(newline="") as source:
-        values = {row["name"]: float(row["t90_mean"]) for row in csv.DictReader(source)
+        values = {row["name"]: (float(row["t90_mean"]), float(row["t90_std"]))
+                  for row in csv.DictReader(source)
                   if row["t90_mean"] not in ("", "NA")}
     missing = {name for name, _, _ in DIFFUSION_CASES} - set(values)
     if missing:
@@ -372,7 +368,7 @@ def _load_t90_values() -> dict[str, float]:
 
 def default_cases() -> list[StudyCase]:
     t90 = _load_t90_values()
-    return [StudyCase(name, label, config, t90[name])
+    return [StudyCase(name, label, config, *t90[name])
             for name, label, config in DIFFUSION_CASES]
 
 
@@ -473,22 +469,26 @@ def plot_correlation(summary: list[dict], path: Path, show: bool) -> None:
     valid = [row for row in summary if row["fit_found"]]
     figure, axes = plt.subplots(figsize=(9.5, 6.5))
     # t90 siempre en el eje vertical (correccion de la primera consulta).
-    points = [(float(row["D"]), float(row["t90_mean"]), float(row["D_std"]), str(row["label"]))
-              for row in valid]
-    for d, t90, d_std, label in points:
-        axes.errorbar(d, t90, xerr=d_std, marker="o", capsize=4, linestyle="none",
-                      markersize=9)
-        # Si hay otro punto apenas por encima y cerca en D, la etiqueta va abajo.
-        crowded = any(0.0 < other_t90 - t90 < 0.8 and abs(other_d - d) < 0.004
-                      for other_d, other_t90, _, _ in points)
-        axes.annotate(label, (d, t90), xytext=(8, -24 if crowded else 8),
-                      textcoords="offset points", fontsize=FS)
+    # Barras: error del ajuste de D (horizontal) y desvio de t90 entre realizaciones
+    # (vertical).
+    points = [(float(row["D"]), float(row["t90_mean"]), float(row["D_std"]),
+               float(row["t90_std"]), str(row["label"])) for row in valid]
+    for d, t90, d_std, t90_std, label in points:
+        axes.errorbar(d, t90, xerr=d_std, yerr=t90_std, marker="o", capsize=4,
+                      linestyle="none", markersize=9, label=label)
+    # Con barras verticales las etiquetas junto a cada punto se pisan: leyenda
+    # por color en la franja superior, que se deja libre ampliando el eje y.
+    low = min(t90 - t90_std for _, t90, _, t90_std, _ in points)
+    high = max(t90 + t90_std for _, t90, _, t90_std, _ in points)
+    axes.set_ylim(low - 0.08 * (high - low), high + 0.62 * (high - low))
+    axes.legend(loc="upper center", ncol=2, fontsize=FS, frameon=False,
+                handletextpad=0.3, columnspacing=1.0, borderaxespad=0.2)
     # n, Pearson, Spearman y los casos sin D van al costado de la diapositiva
     # (guia de presentaciones 1.7); quedan en correlation.csv y summary.csv.
     axes.set_xlabel(r"Coeficiente de difusión (m$^2$/s)", fontsize=FS)
     axes.set_ylabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
     axes.tick_params(axis="both", labelsize=FS)
-    axes.margins(x=0.25, y=0.15)
+    axes.margins(x=0.1)
     axes.grid(False)
     figure.tight_layout()
     if show:
@@ -565,6 +565,7 @@ def main() -> int:
                 "tmax": args.tmax,
                 "processed_events": series.processed_events,
                 "t90_mean": case.t90_mean,
+                "t90_std": case.t90_std,
                 "fit_found": fit is not None,
                 "fit_start": None if fit is None else series.times[fit.start_index],
                 "fit_end": None if fit is None else series.times[fit.end_index],

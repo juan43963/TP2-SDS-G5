@@ -11,7 +11,7 @@
 
 using EventObserver =
     std::function<void(double time, const Event& event,
-                       const std::vector<Particle>& particles, int goals)>;
+                       const std::vector<Particle>& particles)>;
 
 class Simulation {
 public:
@@ -20,7 +20,6 @@ public:
     SimulationResult run(const EventObserver& observer = {});
 
     double currentTime() const { return currentTime_; }
-    int goals() const { return goals_; }
     const std::vector<Particle>& particles() const { return particles_; }
     const SimulationConfig& config() const { return config_; }
 
@@ -36,14 +35,12 @@ private:
     void pushPair(double deltaTime, int firstIndex, int secondIndex);
     bool isValid(const Event& event) const;
     void process(const Event& event);
-    void markGoalIfNeeded(Particle& particle);
+    void markUsedIfGoal(Particle& particle);
 
     SimulationConfig config_;
     std::vector<Particle> particles_;
     EventQueue events_;
     double currentTime_ = 0.0;
-    int goals_ = 0;
-    int targetGoals_ = 0;
     std::uint64_t nextSequence_ = 0;
     std::uint64_t scheduledEvents_ = 0;
     std::uint64_t discardedEvents_ = 0;

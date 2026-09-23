@@ -71,16 +71,15 @@ TrajectoryWriter::TrajectoryWriter(const std::string& path, int particleCount)
     createParentDirectory(path);
     output_.open(path);
     if (!output_) throw std::runtime_error("no se pudo escribir la trayectoria: " + path);
-    output_ << "TP3_TRAJECTORY 1\nN " << particleCount_ << '\n';
+    output_ << "TP3_TRAJECTORY 2\nN " << particleCount_ << '\n';
 }
 
-void TrajectoryWriter::writeFrame(double time, std::uint64_t eventCount, int goals,
+void TrajectoryWriter::writeFrame(double time, std::uint64_t eventCount,
                                   const std::vector<Particle>& particles) {
     if (static_cast<int>(particles.size()) != particleCount_) {
         throw std::invalid_argument("el frame no contiene el N declarado en la trayectoria");
     }
-    output_ << std::setprecision(17) << "FRAME " << time << ' ' << eventCount << ' ' << goals
-            << '\n';
+    output_ << std::setprecision(17) << "FRAME " << time << ' ' << eventCount << '\n';
     for (const Particle& particle : particles) {
         output_ << particle.id << ' ' << particle.position.x << ' ' << particle.position.y << ' '
                 << particle.velocity.x << ' ' << particle.velocity.y << ' '
@@ -90,24 +89,28 @@ void TrajectoryWriter::writeFrame(double time, std::uint64_t eventCount, int goa
     if (!output_) throw std::runtime_error("fallo al escribir un frame de trayectoria");
 }
 
-GoalLogWriter::GoalLogWriter(const std::string& path, int particleCount)
-    : particleCount_(particleCount) {
+GoalLogWriter::GoalLogWriter(const std::string& path, int particleCount, double maxTime)
+    : particleCount_(particleCount), maxTime_(maxTime) {
     if (particleCount <= 0) throw std::invalid_argument("el registro de goles requiere N > 0");
+    if (!std::isfinite(maxTime) || maxTime <= 0.0) {
+        throw std::invalid_argument("el registro de goles requiere tmax > 0");
+    }
     createParentDirectory(path);
     output_.open(path);
     if (!output_) throw std::runtime_error("no se pudo escribir el registro de goles: " + path);
-    output_ << "TP3_GOALS 1\n"
+    output_ << std::setprecision(17) << "TP3_GOALS 2\n"
             << "N " << particleCount_ << '\n'
-            << "TIME goals used_fraction\n";
+            << "TMAX " << maxTime_ << '\n'
+            << "TIME id\n";
 }
 
-void GoalLogWriter::writeSample(double time, int goals) {
-    if (!std::isfinite(time) || time < 0.0 || goals < 0 || goals > particleCount_) {
-        throw std::invalid_argument("muestra invalida para el registro de goles");
+void GoalLogWriter::writeGoal(double time, int particleId) {
+    if (!std::isfinite(time) || time < 0.0 || time > maxTime_ || particleId < 0 ||
+        particleId >= particleCount_) {
+        throw std::invalid_argument("fila invalida para el registro de goles");
     }
-    output_ << std::setprecision(17) << time << ' ' << goals << ' '
-            << static_cast<double>(goals) / static_cast<double>(particleCount_) << '\n';
-    if (!output_) throw std::runtime_error("fallo al escribir una muestra de goles");
+    output_ << std::setprecision(17) << time << ' ' << particleId << '\n';
+    if (!output_) throw std::runtime_error("fallo al escribir el registro de goles");
 }
 
 EventLogWriter::EventLogWriter(const std::string& path,
@@ -118,7 +121,7 @@ EventLogWriter::EventLogWriter(const std::string& path,
     output_.open(path);
     if (!output_) throw std::runtime_error("no se pudo escribir el log de eventos: " + path);
     output_ << std::setprecision(17)
-            << "TP3_EVENTS 1\n"
+            << "TP3_EVENTS 2\n"
             << "N " << particleCount_ << '\n'
             << "INITIAL id x y vx vy\n";
     for (const Particle& particle : particles) {
@@ -129,8 +132,8 @@ EventLogWriter::EventLogWriter(const std::string& path,
 }
 
 void EventLogWriter::writeEvent(std::uint64_t eventCount, double time, const Event& event,
-                                int goals, const std::vector<Particle>& particles) {
-    if (!std::isfinite(time) || time < 0.0 || goals < 0 || goals > particleCount_ ||
+                                const std::vector<Particle>& particles) {
+    if (!std::isfinite(time) || time < 0.0 ||
         static_cast<int>(particles.size()) != particleCount_ || event.particleA < 0 ||
         event.particleA >= particleCount_) {
         throw std::invalid_argument("evento invalido para el log compacto");
@@ -143,7 +146,7 @@ void EventLogWriter::writeEvent(std::uint64_t eventCount, double time, const Eve
 
     output_ << std::setprecision(17) << "EVENT " << eventCount << ' ' << time << ' '
             << eventTypeName(event.type) << ' ' << event.particleA << ' ' << event.particleB << ' '
-            << event.obstacle << ' ' << goals << '\n';
+            << event.obstacle << '\n';
     writeEventParticle(output_, particles[static_cast<std::size_t>(event.particleA)]);
     if (event.type == EventType::ParticleParticle) {
         writeEventParticle(output_, particles[static_cast<std::size_t>(event.particleB)]);
@@ -152,29 +155,22 @@ void EventLogWriter::writeEvent(std::uint64_t eventCount, double time, const Eve
     if (!output_) throw std::runtime_error("fallo al escribir un evento compacto");
 }
 
-void EventLogWriter::writeEnd(double finalTime, std::uint64_t eventCount, int goals) {
-    if (!std::isfinite(finalTime) || finalTime < 0.0 || goals < 0 || goals > particleCount_) {
+void EventLogWriter::writeEnd(double finalTime, std::uint64_t eventCount) {
+    if (!std::isfinite(finalTime) || finalTime < 0.0) {
         throw std::invalid_argument("cierre invalido para el log de eventos");
     }
-    output_ << std::setprecision(17) << "END " << finalTime << ' ' << eventCount << ' ' << goals
-            << '\n';
+    output_ << std::setprecision(17) << "END " << finalTime << ' ' << eventCount << '\n';
     if (!output_) throw std::runtime_error("fallo al cerrar el log de eventos");
 }
 
 void writeSummaryCsv(std::ostream& output, const SimulationConfig& config,
                      const SimulationResult& result, bool includeHeader) {
     if (includeHeader) {
-        output << "seed,N,K,tmax,final_time,t90,goals,used_fraction,processed_events,"
+        output << "seed,N,K,tmax,final_time,processed_events,"
                   "scheduled_events,discarded_events,simulation_ms\n";
     }
     output << std::setprecision(17) << config.seed << ',' << config.particleCount << ','
-           << config.obstacles.size() << ',' << config.maxTime << ',' << result.finalTime << ',';
-    if (result.t90.has_value()) {
-        output << *result.t90;
-    } else {
-        output << "NA";
-    }
-    output << ',' << result.goals << ',' << result.usedFraction << ','
+           << config.obstacles.size() << ',' << config.maxTime << ',' << result.finalTime << ','
            << result.processedEvents << ',' << result.scheduledEvents << ','
            << result.discardedEvents << ',' << result.simulationMilliseconds << '\n';
 }
@@ -191,14 +187,8 @@ void printHumanSummary(std::ostream& output, const SimulationConfig& config,
                        const SimulationResult& result) {
     output << std::setprecision(12) << "TP3 motor: N=" << config.particleCount
            << " K=" << config.obstacles.size() << " seed=" << config.seed
-           << " t=" << result.finalTime << " goals=" << result.goals
-           << " Fu=" << result.usedFraction << " t90=";
-    if (result.t90.has_value()) {
-        output << *result.t90;
-    } else {
-        output << "NA";
-    }
-    output << " events=" << result.processedEvents
+           << " t=" << result.finalTime
+           << " events=" << result.processedEvents
            << " scheduled=" << result.scheduledEvents
            << " discarded=" << result.discardedEvents
            << " ms=" << result.simulationMilliseconds << " -- OK\n";

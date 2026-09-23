@@ -22,8 +22,9 @@ tests/           fixtures de texto para pruebas de integracion
 
 `Particle`, `Obstacle`, `Event`, `SimulationConfig` y `SimulationResult` son
 tipos independientes del motor. La cola usa tiempo absoluto y una secuencia
-monotona como desempate determinista. `t90` es opcional para representar sin
-ambiguedad las corridas que no alcanzan el 90% antes de `tmax`.
+monotona como desempate determinista. `SimulationResult` solo contiene
+metadatos de la corrida (tiempo final, eventos, tiempo de computo): ningun
+observable se calcula dentro del loop de simulacion.
 
 La configuracion de obstaculos se lee sin encabezado, una fila `x y R` por
 circulo. Se permiten lineas vacias y comentarios completos iniciados con `#`,
@@ -40,12 +41,25 @@ vertical.
 El loop completo usa una cola de prioridad con tiempos absolutos. Despues de
 cada choque solo vuelve a predecir eventos que involucran a las particulas
 afectadas; los eventos anteriores se descartan comparando los contadores de
-colision capturados. El motor mantiene goles, fraccion usada y t90, notifica
-opcionalmente cada evento mediante un observador y avanza el estado final
-hasta tmax.
+colision capturados. El motor solo cambia el estado de una particula de
+fresca a usada al tocar un arco, notifica opcionalmente cada evento mediante un
+observador y avanza el estado final hasta tmax.
 
-El motor emite tres formatos de texto versionados: sistema estatico,
-trayectoria por frames y resumen CSV. La trayectoria siempre incluye el estado
+## Observables: siempre en el post-proceso
+
+Correccion del TP2: los observables no se calculan online. El motor escribe
+estados y Python calcula a partir de esos archivos:
+
+- `Fu(t)`, goles y `t90`: `python/tp3io.py` (`read_goal_series`,
+  `t90_from_series`) leen `--goals-output`, que registra el instante y el id de
+  cada particula que pasa a usada. `python/engine_runner.py` siempre lo pide y
+  agrega `t90`, `goals` y `used_fraction` a la fila de cada realizacion.
+- DCM: `python/diffusion.py` reconstruye las posiciones desde `--events-output`.
+- Fotogramas y animaciones: `python/animate.py` lee la trayectoria.
+
+El motor emite formatos de texto versionados: sistema estatico, trayectoria
+por frames, registro de particulas usadas, log compacto de eventos y un resumen
+CSV sin observables. La trayectoria siempre incluye el estado
 inicial y el final en tmax; los frames intermedios se controlan con
 `--output-every-events`. Para barridos, `--no-trajectory` elimina la salida
 pesada y deja disponible el resumen machine-readable mediante `--csv` o
@@ -53,7 +67,8 @@ pesada y deja disponible el resumen machine-readable mediante `--csv` o
 
 La fase 1 queda cerrada con un oraculo de pruebas que recalcula todos los
 choques despues de cada evento. Para sistemas pequenos se compara contra la
-cola optimizada evento por evento, incluyendo estado final, goles y t90. El
+cola optimizada evento por evento, incluyendo el estado final (y el color) de
+cada particula. El
 oraculo solo se enlaza en `tp3_test`; no forma parte del motor de entrega.
 
 ## Animacion independiente
@@ -100,8 +115,8 @@ python3 python/benchmark.py --n-values 25 50 --seeds 1 2 --tmax 2
 
 `python/baseline.py` ejecuta cinco realizaciones con `N=100`, `tmax=100` y
 semillas 1 a 5. Para reconstruir exactamente la funcion escalonada `Fu(t)`
-usa `--goals-output`: un registro versionado que solo escribe cuando cambia
-la cantidad de goles y al final, sin guardar la trayectoria pesada.
+usa `--goals-output`: una fila `tiempo id` por cada particula que pasa a usada,
+sin guardar la trayectoria pesada.
 
 ```bash
 make baseline
@@ -138,11 +153,12 @@ Todos los datos quedan bajo `data/obstacles/`. La mejor configuracion se copia
 en `data/obstacles/automatic/best_config.txt` y se comprueba byte a byte contra
 el archivo realmente evaluado. Cada linea contiene exactamente `x y R`.
 
-La configuracion actual tiene tres obstaculos y obtuvo
+La busqueda automatica encontro una configuracion de tres obstaculos con
 `t90 = 20.1549 +/- 2.2667 s` en 20 realizaciones, frente a
-`21.5439 +/- 2.7069 s` para la mesa vacia con las mismas semillas. La ventaja
-media existe, pero las barras se superponen; debe describirse como la mejor
-encontrada y no como una mejora estadisticamente concluyente.
+`21.5439 +/- 2.7069 s` para la mesa vacia con las mismas semillas. La
+configuracion finalmente elegida es el bloque central de 7 columnas (K=52,
+`data/obstacles/central_blocks/chosen_block_c7_config.txt`, generado por
+`python/final_comparison.py`); ver `implementacion_tp3.md`.
 
 ## Inciso 1.3: DCM y difusion
 
@@ -167,8 +183,9 @@ python3 python/diffusion.py --reuse-events
 
 ## Inciso 1.4: competencia
 
-El archivo definitivo es `SdS_TP3_2026Q2G05CS_Config.txt`. El runner valida
-que coincida con la configuracion evaluada, exige cinco semillas y usa los
+El archivo definitivo es `SdS_TP3_2026Q2G05CS_Config.txt` (bloque central,
+K=52). El runner valida que coincida byte a byte con
+`data/obstacles/central_blocks/chosen_block_c7_config.txt`, exige cinco semillas y usa los
 parametros oficiales con trayectoria deshabilitada.
 
 ```bash
@@ -178,6 +195,13 @@ python3 python/competition.py --seeds 11 22 33 44 55 --wait-for-start
 
 Las corridas, el resumen y un manifiesto con semillas, parametros y checksum
 quedan en `data/competition/`.
+
+## Codigo entregable
+
+`SdS_TP3_2026Q2G05CS_Codigo.zip` contiene solo el motor: `src/` sin el
+self-test ni el oraculo de pruebas, y un `Makefile` reducido que compila
+unicamente `tp3` con los mismos flags. No incluye Python, datos, figuras ni
+documentacion, como pide el enunciado.
 
 ## Reutilizacion deliberada del TP2
 

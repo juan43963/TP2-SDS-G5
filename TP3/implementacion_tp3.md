@@ -157,9 +157,13 @@ pendiente hasta que los docentes indiquen comenzar.
 ### Entregables exigidos
 
 - `SdS_TP3_2026Q2G05CS_Presentación.pdf`: pendiente por decision del grupo.
-- `SdS_TP3_2026Q2G05CS_Codigo.zip`: postergado; no se prepara en esta etapa.
-- `SdS_TP3_2026Q2G05CS_Config.txt`: generado, validado y coincidente con la
-  configuracion evaluada.
+- `SdS_TP3_2026Q2G05CS_Codigo.zip`: generado el 23/09/2026 (17 KB). Solo
+  `src/` del motor (sin `selftest.cpp`, `tests/`, `brute_force_oracle.h` ni
+  `test_support.h`) y un `Makefile` reducido que compila solo `tp3`. Verificado:
+  compila desde cero sin warnings y produce un binario identico al usado.
+- `SdS_TP3_2026Q2G05CS_Config.txt`: desde el 23/09/2026 es el bloque central
+  de 7 columnas (K=52), identico byte a byte a
+  `data/obstacles/central_blocks/chosen_block_c7_config.txt`.
 
 El ZIP y la configuracion son entregables distintos: el archivo de obstaculos
 no debe agregarse dentro del ZIP del motor.
@@ -677,9 +681,9 @@ cada camara, junto al arco, empeora mucho (Rc=0.10 m -> 25.9 s; Rc=0.12 m ->
 particulas que iban a entrar: el area hay que quitarla lejos del arco.
 
 Configuracion elegida:
-`data/obstacles/central_blocks/chosen_block_c7_config.txt`. **Falta copiarla a
-`SdS_TP3_2026Q2G05CS_Config.txt`** (decision del grupo); la presentacion ya la
-muestra como elegida.
+`data/obstacles/central_blocks/chosen_block_c7_config.txt`. Copiada a
+`SdS_TP3_2026Q2G05CS_Config.txt` el 23/09/2026; `python/competition.py` ahora
+la usa como configuracion evaluada de referencia.
 
 Inciso 1.3 actualizado: `diffusion.py` ahora toma los t90 de
 `final_comparison/families.csv` (mismas semillas) y agrega particion y bloque.
@@ -925,13 +929,14 @@ semilla se documenta mas abajo.
 
 - El archivo estatico comienza con `TP3_STATIC 1` y contiene dimensiones,
   arco, N, K, propiedades de particulas y geometria de obstaculos.
-- La trayectoria comienza con `TP3_TRAJECTORY 1`. Cada frame declara tiempo,
-  numero de evento y goles, seguido de `id x y vx vy estado`.
-- El resumen CSV contiene semilla, N, K, limites temporales, t90, goles,
-  fraccion usada, eventos y tiempo interno del motor.
-- El registro liviano comienza con `TP3_GOALS 1` y guarda tiempo, goles y Fu
-  solamente cuando cambia el contador, mas el estado final en tmax.
-- El registro compacto de eventos comienza con `TP3_EVENTS 1`: guarda el
+- La trayectoria comienza con `TP3_TRAJECTORY 2`. Cada frame declara tiempo y
+  numero de evento, seguido de `id x y vx vy estado`.
+- El resumen CSV contiene semilla, N, K, limites temporales, eventos y tiempo
+  interno del motor. No contiene observables.
+- El registro liviano comienza con `TP3_GOALS 2`, declara N y tmax y guarda una
+  fila `tiempo id` por cada particula que pasa a usada. Fu(t), goles y t90 se
+  calculan en Python (`tp3io.read_goal_series`, `tp3io.t90_from_series`).
+- El registro compacto de eventos comienza con `TP3_EVENTS 2`: guarda el
   estado inicial y, por choque, solo las particulas cuya velocidad cambio.
   Esto permite reconstruir posiciones por MRU sin escribir N filas por evento.
 - `--output-every-events n` controla el volumen de trayectoria.
@@ -1188,6 +1193,20 @@ orden de inicio:
 
 El archivo que se entrega y se usa por defecto es
 `SdS_TP3_2026Q2G05CS_Config.txt`.
+
+Revalidacion del 23/09/2026 con el bloque central (K=52) ya copiado al
+entregable, semillas por defecto 1001 a 1005 (`make competition`):
+
+| semilla | t90 [s] | goles a 100 s |
+|---:|---:|---:|
+| 1001 | 12.5052 | 100 |
+| 1002 | 14.2730 | 100 |
+| 1003 | 12.8679 | 100 |
+| 1004 | 17.4154 | 100 |
+| 1005 | 14.2194 | 100 |
+
+Resultado: `14.2562 +/- 1.9349 s` (aprox. `14 +/- 2 s`). La tabla anterior
+(18/09) corresponde a la configuracion de tres obstaculos.
 
 ## Guia de lectura y ubicacion de los graficos
 

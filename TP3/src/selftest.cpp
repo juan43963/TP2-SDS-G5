@@ -109,9 +109,6 @@ void testModelContracts(TestSuite& suite) {
     events.push(Event{1.0, EventType::ParticleObstacle, 2, -1, 0, 0, 0, 3});
     suite.check(events.top().time == 1.0 && events.top().sequence == 3,
                 "la cola debe ordenar por tiempo y luego por secuencia");
-
-    SimulationResult result;
-    suite.check(!result.t90.has_value(), "t90 debe poder representar una corrida censurada");
 }
 
 void testObstacleValidation(TestSuite& suite) {
@@ -334,15 +331,15 @@ void testSingleParticleEventLoop(TestSuite& suite) {
     Particle particle{0, {0.50, 0.50}, {1.0, 0.0}, 0.05, 1.0};
     Simulation simulation(config, {particle});
     std::vector<double> observedTimes;
+    double usedAt = -1.0;
     const SimulationResult result = simulation.run(
-        [&](double time, const Event&, const std::vector<Particle>&, int) {
+        [&](double time, const Event&, const std::vector<Particle>& particles) {
             observedTimes.push_back(time);
+            if (usedAt < 0.0 && particles[0].state == ParticleState::Used) usedAt = time;
         });
 
-    suite.check(result.t90.has_value() && near(*result.t90, 0.45),
-                "una particula debe fijar t90 en su primer contacto con el arco");
-    suite.check(result.goals == 1 && near(result.usedFraction, 1.0),
-                "una particula usada debe sumar exactamente un gol");
+    suite.check(near(usedAt, 0.45),
+                "una particula debe pasar a usada en su primer contacto con el arco");
     suite.check(result.processedEvents == 3,
                 "en tres segundos deben ocurrir tres rebotes verticales");
     suite.check(simulation.particles()[0].collisionCount == 3,
@@ -375,8 +372,8 @@ void testWallOutsideGoalDoesNotScore(TestSuite& suite) {
 
     Particle particle{0, {0.50, 0.20}, {1.0, 0.0}, 0.05, 1.0};
     Simulation simulation(config, {particle});
-    const SimulationResult result = simulation.run();
-    suite.check(!result.t90.has_value() && result.goals == 0,
+    (void)simulation.run();
+    suite.check(simulation.particles()[0].state == ParticleState::Fresh,
                 "un rebote en pared corta fuera del arco no debe sumar");
 }
 
@@ -421,7 +418,7 @@ void testLongEventDrivenRun(TestSuite& suite) {
     double previousTime = -1.0;
     bool monotonic = true;
     const SimulationResult result = simulation.run(
-        [&](double time, const Event&, const std::vector<Particle>&, int) {
+        [&](double time, const Event&, const std::vector<Particle>&) {
             monotonic = monotonic && time + kTimeEpsilon >= previousTime;
             previousTime = time;
         });
@@ -474,34 +471,30 @@ void testOutputFormats(TestSuite& suite) {
     writeStaticSystem(staticPath.string(), config, particles);
     {
         TrajectoryWriter writer(trajectoryPath.string(), config.particleCount);
-        writer.writeFrame(0.0, 0, 1, particles);
+        writer.writeFrame(0.0, 0, particles);
         particles[0].position.x = 0.25;
-        writer.writeFrame(0.05, 1, 1, particles);
+        writer.writeFrame(0.05, 1, particles);
     }
     {
-        GoalLogWriter writer(goalsPath.string(), config.particleCount);
-        writer.writeSample(0.0, 0);
-        writer.writeSample(0.25, 1);
-        writer.writeSample(100.0, 1);
+        GoalLogWriter writer(goalsPath.string(), config.particleCount, config.maxTime);
+        writer.writeGoal(0.25, 1);
     }
     {
         EventLogWriter writer(eventsPath.string(), particles);
         const Event wall{0.25, EventType::VerticalWall, 0, -1, -1, 0, 0, 1};
-        writer.writeEvent(1, 0.25, wall, 1, particles);
+        writer.writeEvent(1, 0.25, wall, particles);
         const Event pair{0.50, EventType::ParticleParticle, 0, 1, -1, 0, 3, 2};
-        writer.writeEvent(2, 0.50, pair, 1, particles);
-        writer.writeEnd(1.0, 2, 1);
+        writer.writeEvent(2, 0.50, pair, particles);
+        writer.writeEnd(1.0, 2);
     }
 
-    SimulationResult censored;
-    censored.finalTime = 100.0;
-    censored.goals = 1;
-    censored.usedFraction = 0.5;
-    censored.processedEvents = 20;
-    censored.scheduledEvents = 50;
-    censored.discardedEvents = 10;
-    censored.simulationMilliseconds = 1.25;
-    writeSummaryFile(summaryPath.string(), config, censored);
+    SimulationResult summary;
+    summary.finalTime = 100.0;
+    summary.processedEvents = 20;
+    summary.scheduledEvents = 50;
+    summary.discardedEvents = 10;
+    summary.simulationMilliseconds = 1.25;
+    writeSummaryFile(summaryPath.string(), config, summary);
 
     const std::string staticText = readWholeFile(staticPath);
     suite.check(staticText.find("TP3_STATIC 1") != std::string::npos &&
@@ -514,7 +507,7 @@ void testOutputFormats(TestSuite& suite) {
     const std::string trajectoryText = readWholeFile(trajectoryPath);
     const std::size_t firstFrame = trajectoryText.find("FRAME ");
     const std::size_t secondFrame = trajectoryText.find("FRAME ", firstFrame + 1);
-    suite.check(trajectoryText.find("TP3_TRAJECTORY 1") != std::string::npos &&
+    suite.check(trajectoryText.find("TP3_TRAJECTORY 2") != std::string::npos &&
                     secondFrame != std::string::npos,
                 "la trayectoria debe ser versionada y admitir multiples frames");
     suite.check(trajectoryText.find("fresh") != std::string::npos &&
@@ -522,15 +515,14 @@ void testOutputFormats(TestSuite& suite) {
                 "la trayectoria debe conservar el color logico de cada particula");
 
     const std::string goalsText = readWholeFile(goalsPath);
-    suite.check(goalsText.find("TP3_GOALS 1\nN 2\nTIME goals used_fraction\n") == 0,
-                "el registro de goles debe declarar version, N y columnas");
-    suite.check(goalsText.find("0.25 1 0.5") != std::string::npos &&
-                    goalsText.find("100 1 0.5") != std::string::npos,
-                "el registro liviano debe conservar cambios de Fu y estado final");
+    suite.check(goalsText.find("TP3_GOALS 2\nN 2\nTMAX 100\nTIME id\n") == 0,
+                "el registro de goles debe declarar version, N, tmax y columnas");
+    suite.check(goalsText.find("0.25 1\n") != std::string::npos,
+                "el registro debe conservar instante e id de cada particula usada");
     bool invalidGoalSampleRejected = false;
     try {
-        GoalLogWriter writer((directory / "invalid-goals.txt").string(), 2);
-        writer.writeSample(std::numeric_limits<double>::quiet_NaN(), 0);
+        GoalLogWriter writer((directory / "invalid-goals.txt").string(), 2, 100.0);
+        writer.writeGoal(std::numeric_limits<double>::quiet_NaN(), 0);
     } catch (const std::invalid_argument&) {
         invalidGoalSampleRejected = true;
     }
@@ -538,37 +530,34 @@ void testOutputFormats(TestSuite& suite) {
                 "el registro de goles debe rechazar tiempos no finitos");
 
     const std::string eventsText = readWholeFile(eventsPath);
-    suite.check(eventsText.find("TP3_EVENTS 1\nN 2\nINITIAL id x y vx vy\n") == 0 &&
+    suite.check(eventsText.find("TP3_EVENTS 2\nN 2\nINITIAL id x y vx vy\n") == 0 &&
                     eventsText.find("END_INITIAL\n") != std::string::npos,
                 "el log compacto debe incluir la condicion inicial completa");
-    suite.check(eventsText.find("EVENT 1 0.25 vertical_wall 0 -1 -1 1") !=
+    suite.check(eventsText.find("EVENT 1 0.25 vertical_wall 0 -1 -1\n") !=
                         std::string::npos &&
-                    eventsText.find("EVENT 2 0.5 particle_particle 0 1 -1 1") !=
+                    eventsText.find("EVENT 2 0.5 particle_particle 0 1 -1\n") !=
                         std::string::npos &&
-                    eventsText.find("END 1 2 1") != std::string::npos,
+                    eventsText.find("END 1 2\n") != std::string::npos,
                 "el log compacto debe conservar eventos, participantes y cierre");
 
     const std::string summaryText = readWholeFile(summaryPath);
     suite.check(summaryText.find("seed,N,K,tmax") == 0,
                 "el archivo resumen debe incluir un encabezado estable");
-    suite.check(summaryText.find(",NA,1,0.5,") != std::string::npos,
-                "una corrida censurada debe escribir t90 como NA");
+    suite.check(summaryText.find("t90") == std::string::npos &&
+                    summaryText.find("goals") == std::string::npos,
+                "el resumen del motor no debe incluir observables");
+    suite.check(summaryText.find(",100,20,50,10,1.25") != std::string::npos,
+                "el resumen debe conservar tiempo final y contadores de eventos");
 
     std::ostringstream human;
-    printHumanSummary(human, config, censored);
-    suite.check(human.str().find("t90=NA") != std::string::npos,
-                "el resumen humano debe distinguir una corrida censurada");
-
-    std::ostringstream csv;
-    censored.t90 = 12.5;
-    writeSummaryCsv(csv, config, censored, false);
-    suite.check(csv.str().find(",12.5,") != std::string::npos,
-                "el resumen CSV debe escribir un t90 alcanzado");
+    printHumanSummary(human, config, summary);
+    suite.check(human.str().find("events=20") != std::string::npos,
+                "el resumen humano debe informar los eventos procesados");
 
     bool wrongFrameRejected = false;
     try {
         TrajectoryWriter writer((directory / "wrong.txt").string(), 1);
-        writer.writeFrame(0.0, 0, 0, particles);
+        writer.writeFrame(0.0, 0, particles);
     } catch (const std::invalid_argument&) {
         wrongFrameRejected = true;
     }
@@ -595,8 +584,8 @@ void testPriorityQueueMatchesBruteForceOracle(TestSuite& suite) {
         const OracleRun oracle = runBruteForceOracle(config, initial);
         Simulation optimized(config, initial);
         std::vector<RecordedEvent> optimizedEvents;
-        const SimulationResult result = optimized.run(
-            [&](double time, const Event& event, const std::vector<Particle>&, int) {
+        (void)optimized.run(
+            [&](double time, const Event& event, const std::vector<Particle>&) {
                 optimizedEvents.push_back(
                     {time, event.type, event.particleA, event.particleB, event.obstacle});
             });
@@ -653,11 +642,6 @@ void testPriorityQueueMatchesBruteForceOracle(TestSuite& suite) {
                         static_cast<unsigned long long>(seed), maximumStateDifference);
         }
         suite.check(sameParticles, context + ": el estado final debe coincidir con fuerza bruta");
-        suite.check(result.goals == oracle.result.goals &&
-                        result.t90.has_value() == oracle.result.t90.has_value() &&
-                        (!result.t90.has_value() ||
-                         near(*result.t90, *oracle.result.t90, 1e-7)),
-                    context + ": goles y t90 deben coincidir con fuerza bruta");
     }
 }
 
@@ -707,20 +691,20 @@ void testStressInvariants(TestSuite& suite) {
 
         Simulation simulation(config, initial);
         bool everyEventValid = true;
-        int lastGoals = 0;
-        const SimulationResult result = simulation.run(
-            [&](double, const Event&, const std::vector<Particle>& particles, int goals) {
-                everyEventValid = everyEventValid &&
-                                  validClosedSystemState(config, particles) &&
-                                  goals >= lastGoals && goals <= config.particleCount;
-                lastGoals = goals;
+        std::vector<bool> wasUsed(initial.size(), false);
+        (void)simulation.run(
+            [&](double, const Event&, const std::vector<Particle>& particles) {
+                everyEventValid = everyEventValid && validClosedSystemState(config, particles);
+                for (std::size_t i = 0; i < particles.size(); ++i) {
+                    const bool used = particles[i].state == ParticleState::Used;
+                    everyEventValid = everyEventValid && (used || !wasUsed[i]);
+                    wasUsed[i] = used;
+                }
             });
 
         double energyAfter = 0.0;
-        int used = 0;
         for (const Particle& particle : simulation.particles()) {
             energyAfter += kineticEnergy(particle);
-            if (particle.state == ParticleState::Used) ++used;
         }
         const std::string context = "stress seed=" + std::to_string(seed);
         suite.check(everyEventValid, context + ": invariantes deben valer despues de cada evento");
@@ -728,10 +712,6 @@ void testStressInvariants(TestSuite& suite) {
                     context + ": el estado final debe ser geometricamente valido");
         suite.check(near(energyAfter, energyBefore, 1e-8),
                     context + ": la energia no debe derivar");
-        suite.check(used == result.goals &&
-                        near(result.usedFraction,
-                             static_cast<double>(used) / config.particleCount),
-                    context + ": estado, goles y Fu deben ser consistentes");
     }
 }
 
@@ -760,12 +740,12 @@ void testSimulationReproducibility(TestSuite& suite) {
     std::vector<RecordedEvent> firstEvents;
     std::vector<RecordedEvent> secondEvents;
     const SimulationResult firstResult = first.run(
-        [&](double time, const Event& event, const std::vector<Particle>&, int) {
+        [&](double time, const Event& event, const std::vector<Particle>&) {
             firstEvents.push_back(
                 {time, event.type, event.particleA, event.particleB, event.obstacle});
         });
     const SimulationResult secondResult = second.run(
-        [&](double time, const Event& event, const std::vector<Particle>&, int) {
+        [&](double time, const Event& event, const std::vector<Particle>&) {
             secondEvents.push_back(
                 {time, event.type, event.particleA, event.particleB, event.obstacle});
         });
@@ -789,9 +769,7 @@ void testSimulationReproducibility(TestSuite& suite) {
                         a.state == b.state && a.collisionCount == b.collisionCount;
     }
     suite.check(sameParticles, "dos corridas identicas deben terminar bit a bit iguales");
-    suite.check(firstResult.t90 == secondResult.t90 &&
-                    firstResult.goals == secondResult.goals &&
-                    firstResult.processedEvents == secondResult.processedEvents &&
+    suite.check(firstResult.processedEvents == secondResult.processedEvents &&
                     firstResult.scheduledEvents == secondResult.scheduledEvents &&
                     firstResult.discardedEvents == secondResult.discardedEvents,
                 "los observables deterministas no deben depender del tiempo de CPU");

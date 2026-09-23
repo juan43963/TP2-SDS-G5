@@ -77,7 +77,7 @@ void printUsage() {
         "  --trajectory <path>       trayectoria (data/trajectory.txt)\n"
         "  --output-every-events <n> guardar cada n eventos fisicos (10)\n"
         "  --no-trajectory           no escribir salida pesada\n"
-        "  --goals-output <path>      serie liviana de goles y Fu\n"
+        "  --goals-output <path>      instante e id de cada particula que pasa a usada\n"
         "  --events-output <path>     log compacto para reconstruir DCM\n"
         "  --summary <path>          resumen machine-readable opcional\n"
         "  --csv                     imprimir el resumen como CSV\n"

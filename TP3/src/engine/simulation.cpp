@@ -16,11 +16,6 @@ Simulation::Simulation(SimulationConfig config, std::vector<Particle> particles)
     if (static_cast<int>(particles_.size()) != config_.particleCount) {
         throw std::invalid_argument("la cantidad de particulas no coincide con SimulationConfig");
     }
-    targetGoals_ =
-        static_cast<int>(std::ceil(0.9 * static_cast<double>(particles_.size()) - 1e-12));
-    for (const Particle& particle : particles_) {
-        if (particle.state == ParticleState::Used) ++goals_;
-    }
 }
 
 void Simulation::pushSingle(double deltaTime, EventType type, int particleIndex,
@@ -127,13 +122,9 @@ bool Simulation::isValid(const Event& event) const {
     return true;
 }
 
-void Simulation::markGoalIfNeeded(Particle& particle) {
+void Simulation::markUsedIfGoal(Particle& particle) {
     if (particle.state == ParticleState::Fresh && isGoalContact(particle, config_)) {
         particle.state = ParticleState::Used;
-        ++goals_;
-        if (!result_.t90.has_value() && goals_ >= targetGoals_) {
-            result_.t90 = currentTime_;
-        }
     }
 }
 
@@ -149,7 +140,7 @@ void Simulation::process(const Event& event) {
             break;
         }
         case EventType::VerticalWall:
-            markGoalIfNeeded(first);
+            markUsedIfGoal(first);
             resolveVerticalWall(first);
             ++first.collisionCount;
             scheduleAfterSingleCollision(event.particleA);
@@ -160,7 +151,7 @@ void Simulation::process(const Event& event) {
             scheduleAfterSingleCollision(event.particleA);
             break;
         case EventType::Corner:
-            markGoalIfNeeded(first);
+            markUsedIfGoal(first);
             resolveCorner(first);
             ++first.collisionCount;
             scheduleAfterSingleCollision(event.particleA);
@@ -194,7 +185,7 @@ SimulationResult Simulation::run(const EventObserver& observer) {
         currentTime_ = event.time;
         process(event);
         ++processedEvents_;
-        if (observer) observer(currentTime_, event, particles_, goals_);
+        if (observer) observer(currentTime_, event, particles_);
     }
 
     if (currentTime_ < config_.maxTime) {
@@ -203,9 +194,6 @@ SimulationResult Simulation::run(const EventObserver& observer) {
     }
 
     const auto finish = std::chrono::steady_clock::now();
-    result_.goals = goals_;
-    result_.usedFraction =
-        static_cast<double>(goals_) / static_cast<double>(particles_.size());
     result_.finalTime = currentTime_;
     result_.processedEvents = processedEvents_;
     result_.scheduledEvents = scheduledEvents_;

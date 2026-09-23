@@ -7,16 +7,22 @@ from pathlib import Path
 import numpy as np
 
 from baseline import evaluate_step, plot_fu, summarize, t90_from_series
-from tp3io import read_goal_series
+from tp3io import observables_from_series, read_goal_series
 
 
-GOALS_TEXT = """TP3_GOALS 1
+GOALS_TEXT = """TP3_GOALS 2
 N 10
-TIME goals used_fraction
-0 0 0
-1 3 0.3
-2 9 0.9
-5 9 0.9
+TMAX 5
+TIME id
+1 0
+1 4
+1 7
+1.5 1
+1.5 2
+1.5 3
+1.5 5
+1.5 6
+2 8
 """
 
 
@@ -27,18 +33,24 @@ class BaselineTests(unittest.TestCase):
             path.write_text(GOALS_TEXT)
             series = read_goal_series(path)
             self.assertEqual(series.particle_count, 10)
-            self.assertTrue(np.array_equal(series.goals, [0, 3, 9, 9]))
+            self.assertEqual(series.goals[-1], 9)
+            self.assertEqual(series.times[-1], 5.0)
             self.assertEqual(t90_from_series(series), 2.0)
-            values = evaluate_step(series, np.array([0.0, 0.5, 1.0, 1.5, 5.0]))
+            values = evaluate_step(series, np.array([0.0, 0.5, 1.0, 1.2, 5.0]))
             self.assertTrue(np.allclose(values, [0.0, 0.0, 0.3, 0.3, 0.9]))
+            self.assertEqual(observables_from_series(series),
+                             {"t90": 2.0, "goals": 9, "used_fraction": 0.9})
 
     def test_rejects_non_monotonic_or_inconsistent_goal_series(self):
         with tempfile.TemporaryDirectory(prefix="tp3-goals-invalid-") as temporary:
             path = Path(temporary) / "goals.txt"
-            path.write_text(GOALS_TEXT.replace("2 9 0.9", "0.5 9 0.9"))
+            path.write_text(GOALS_TEXT.replace("2 8", "0.5 8"))
             with self.assertRaises(ValueError):
                 read_goal_series(path)
-            path.write_text(GOALS_TEXT.replace("1 3 0.3", "1 3 0.4"))
+            path.write_text(GOALS_TEXT.replace("2 8", "2 0"))
+            with self.assertRaises(ValueError):
+                read_goal_series(path)
+            path.write_text(GOALS_TEXT.replace("2 8", "6 8"))
             with self.assertRaises(ValueError):
                 read_goal_series(path)
 

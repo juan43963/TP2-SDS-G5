@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from engine_runner import ENGINE_SUMMARY_FIELDS, run_engine
-from tp3io import GoalSeries, read_goal_series
+from tp3io import GoalSeries, read_goal_series, t90_from_series
 
 TP3_BIN = TP3_DIR / "tp3"
 OUTPUT_DIR = TP3_DIR / "data" / "baseline"
@@ -56,11 +56,6 @@ def evaluate_step(series: GoalSeries, sample_times: np.ndarray) -> np.ndarray:
         raise ValueError("la grilla temporal queda fuera del registro de goles")
     indices = np.searchsorted(series.times, sample_times, side="right") - 1
     return series.used_fraction[indices]
-
-
-def t90_from_series(series: GoalSeries) -> float | None:
-    reached = np.flatnonzero(series.used_fraction >= 0.9)
-    return float(series.times[reached[0]]) if reached.size else None
 
 
 def collect(

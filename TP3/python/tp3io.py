@@ -1,7 +1,13 @@
-"""Lectura estricta de los formatos de texto versionados del motor TP3."""
+"""Lectura estricta de los formatos de texto versionados del motor TP3.
+
+El motor solo escribe estados (posiciones, velocidades, color de cada particula
+y el instante en que cada una pasa a usada). Los observables -goles, Fu(t) y
+t90- se calculan aca, en el post-proceso.
+"""
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -37,6 +43,8 @@ class Frame:
 
 @dataclass(frozen=True)
 class GoalSeries:
+    """Funcion escalonada Fu(t): times[0]=0, times[-1]=tmax, un escalon por gol."""
+
     particle_count: int
     times: np.ndarray
     goals: np.ndarray
@@ -125,7 +133,7 @@ def read_static(path: str | Path) -> StaticSystem:
 
 def read_trajectory(path: str | Path) -> list[Frame]:
     lines = [line.strip() for line in Path(path).read_text().splitlines() if line.strip()]
-    if len(lines) < 2 or lines[0] != "TP3_TRAJECTORY 1":
+    if len(lines) < 2 or lines[0] != "TP3_TRAJECTORY 2":
         raise ValueError("version de trayectoria no soportada")
     particle_count = _key_value(lines[1], "N", int)
     if particle_count <= 0:
@@ -135,16 +143,14 @@ def read_trajectory(path: str | Path) -> list[Frame]:
     cursor = 2
     previous_time = -np.inf
     previous_event = -1
-    previous_goals = 0
     previous_used: np.ndarray | None = None
     while cursor < len(lines):
         header = lines[cursor].split()
         cursor += 1
-        if len(header) != 4 or header[0] != "FRAME":
+        if len(header) != 3 or header[0] != "FRAME":
             raise ValueError(f"encabezado de frame invalido en linea {cursor}")
         time = float(header[1])
         event_count = int(header[2])
-        goals = int(header[3])
         if (
             not np.isfinite(time)
             or time < 0
@@ -153,8 +159,6 @@ def read_trajectory(path: str | Path) -> list[Frame]:
             or event_count < previous_event
         ):
             raise ValueError("tiempos y eventos de la trayectoria deben ser monotonos")
-        if goals < previous_goals or goals > particle_count:
-            raise ValueError("cantidad de goles fuera de rango")
 
         ids = np.empty(particle_count, dtype=np.int64)
         positions = np.empty((particle_count, 2), dtype=float)
@@ -178,15 +182,14 @@ def read_trajectory(path: str | Path) -> list[Frame]:
             raise ValueError("los ids de cada frame deben ser consecutivos desde cero")
         if not np.all(np.isfinite(positions)) or not np.all(np.isfinite(velocities)):
             raise ValueError("la trayectoria contiene valores no finitos")
-        if int(np.count_nonzero(used)) != goals:
-            raise ValueError("los estados used no coinciden con la cantidad de goles")
         if previous_used is not None and np.any(previous_used & ~used):
             raise ValueError("una particula usada no puede volver a estado fresh")
 
+        # Goles del frame: cantidad de particulas en estado usado.
+        goals = int(np.count_nonzero(used))
         frames.append(Frame(time, event_count, goals, ids, positions, velocities, used))
         previous_time = time
         previous_event = event_count
-        previous_goals = goals
         previous_used = used
 
     if not frames:
@@ -201,42 +204,61 @@ def validate_compatible(system: StaticSystem, frames: list[Frame]) -> None:
 
 
 def read_goal_series(path: str | Path) -> GoalSeries:
+    """Construye Fu(t) = Ng(t)/N a partir de los instantes en que cada particula
+    pasa de fresca a usada (salida --goals-output del motor)."""
     lines = [line.strip() for line in Path(path).read_text().splitlines() if line.strip()]
-    if len(lines) < 4 or lines[0] != "TP3_GOALS 1":
+    if len(lines) < 4 or lines[0] != "TP3_GOALS 2":
         raise ValueError("version de registro de goles no soportada o archivo truncado")
     particle_count = _key_value(lines[1], "N", int)
     if particle_count <= 0:
         raise ValueError("el registro de goles requiere N positivo")
-    if lines[2] != "TIME goals used_fraction":
+    tmax = _key_value(lines[2], "TMAX", float)
+    if not math.isfinite(tmax) or tmax <= 0:
+        raise ValueError("el registro de goles requiere tmax positivo")
+    if lines[3] != "TIME id":
         raise ValueError("encabezado de registro de goles invalido")
 
-    times = np.empty(len(lines) - 3, dtype=float)
-    goals = np.empty(len(lines) - 3, dtype=np.int64)
-    used_fraction = np.empty(len(lines) - 3, dtype=float)
-    for index, line in enumerate(lines[3:]):
+    goal_times = np.empty(len(lines) - 4, dtype=float)
+    ids = np.empty(len(lines) - 4, dtype=np.int64)
+    for index, line in enumerate(lines[4:]):
         tokens = line.split()
-        if len(tokens) != 3:
-            raise ValueError(f"muestra de goles {index} invalida")
+        if len(tokens) != 2:
+            raise ValueError(f"fila de goles {index} invalida")
         try:
-            times[index] = float(tokens[0])
-            goals[index] = int(tokens[1])
-            used_fraction[index] = float(tokens[2])
+            goal_times[index] = float(tokens[0])
+            ids[index] = int(tokens[1])
         except ValueError as exc:
-            raise ValueError(f"muestra de goles {index} invalida") from exc
+            raise ValueError(f"fila de goles {index} invalida") from exc
 
     if (
-        not np.all(np.isfinite(times))
-        or not np.all(np.isfinite(used_fraction))
-        or np.any(times < 0)
-        or np.any(np.diff(times) < 0)
-        or np.any(goals < 0)
-        or np.any(goals > particle_count)
-        or np.any(np.diff(goals) < 0)
+        not np.all(np.isfinite(goal_times))
+        or np.any(goal_times < 0)
+        or np.any(goal_times > tmax)
+        or np.any(np.diff(goal_times) < 0)
+        or np.any(ids < 0)
+        or np.any(ids >= particle_count)
     ):
-        raise ValueError("tiempos o goles invalidos en el registro")
-    expected_fraction = goals.astype(float) / particle_count
-    if not np.allclose(used_fraction, expected_fraction, rtol=0.0, atol=1e-12):
-        raise ValueError("Fu no coincide con goals/N")
-    if times[0] != 0.0 or goals[0] != 0:
-        raise ValueError("el registro debe comenzar en t=0 con cero goles")
-    return GoalSeries(particle_count, times, goals, used_fraction)
+        raise ValueError("tiempos o ids invalidos en el registro de goles")
+    if np.unique(ids).size != ids.size:
+        raise ValueError("una particula no puede sumar mas de un gol")
+
+    count = goal_times.size
+    times = np.concatenate(([0.0], goal_times, [tmax]))
+    goals = np.concatenate(([0], np.arange(1, count + 1), [count])).astype(np.int64)
+    return GoalSeries(particle_count, times, goals, goals.astype(float) / particle_count)
+
+
+def t90_from_series(series: GoalSeries) -> float | None:
+    """Primer instante con Fu >= 0.9; None si no se alcanza antes de tmax."""
+    target = math.ceil(0.9 * series.particle_count - 1e-12)
+    reached = np.flatnonzero(series.goals >= target)
+    return float(series.times[reached[0]]) if reached.size else None
+
+
+def observables_from_series(series: GoalSeries) -> dict[str, int | float | None]:
+    """Observables escalares de una realizacion: t90, goles y Fu a tmax."""
+    return {
+        "t90": t90_from_series(series),
+        "goals": int(series.goals[-1]),
+        "used_fraction": float(series.used_fraction[-1]),
+    }

@@ -15,15 +15,15 @@ from diffusion import (
 )
 
 
-EVENT_LOG = """TP3_EVENTS 1
+EVENT_LOG = """TP3_EVENTS 2
 N 1
 INITIAL id x y vx vy
 0 0.2 0.5 1 0
 END_INITIAL
-EVENT 1 0.8 vertical_wall 0 -1 -1 1
+EVENT 1 0.8 vertical_wall 0 -1 -1
 PARTICLE 0 1 0.5 -1 0
 END_EVENT
-END 1 1 1
+END 1 1
 """
 
 
@@ -36,7 +36,6 @@ class DiffusionTests(unittest.TestCase):
             series = reconstruct_msd(path, times)
             self.assertTrue(np.allclose(series.msd, [0.0, 0.25, 0.64, 0.36]))
             self.assertEqual(series.processed_events, 1)
-            self.assertEqual(series.goals, 1)
 
     def test_rejects_event_state_inconsistent_with_mru(self):
         with tempfile.TemporaryDirectory(prefix="tp3-msd-invalid-") as temporary:
@@ -48,7 +47,7 @@ class DiffusionTests(unittest.TestCase):
     def test_detects_linear_diffusive_interval(self):
         times = np.linspace(0.0, 10.0, 201)
         msd = np.where(times < 1.0, times**2, np.where(times <= 7.0, times, 7.0))
-        series = MsdSeries(times, msd, 100, 0, 10.0, 0)
+        series = MsdSeries(times, msd, 100, 0, 10.0)
         fit = detect_diffusive_regime(series)
         self.assertIsNotNone(fit)
         self.assertAlmostEqual(fit.log_slope, 1.0, delta=0.08)
@@ -57,13 +56,13 @@ class DiffusionTests(unittest.TestCase):
 
     def test_reports_no_regime_for_ballistic_curve(self):
         times = np.linspace(0.0, 5.0, 101)
-        series = MsdSeries(times, times**2, 10, 0, 5.0, 0)
+        series = MsdSeries(times, times**2, 10, 0, 5.0)
         self.assertIsNone(detect_diffusive_regime(series))
 
     def test_local_log_slope_distinguishes_ballistic_and_diffusive_curves(self):
         times = np.linspace(0.0, 5.0, 101)
-        ballistic = MsdSeries(times, times**2, 10, 0, 5.0, 0)
-        diffusive = MsdSeries(times, times, 10, 0, 5.0, 0)
+        ballistic = MsdSeries(times, times**2, 10, 0, 5.0)
+        diffusive = MsdSeries(times, times, 10, 0, 5.0)
         self.assertAlmostEqual(float(np.nanmedian(local_log_slopes(ballistic))), 2.0,
                                delta=0.03)
         self.assertAlmostEqual(float(np.nanmedian(local_log_slopes(diffusive))), 1.0,

@@ -8,11 +8,11 @@ from benchmark import RAW_FIELDS, aggregate, parse_summary_line, plot_performanc
 
 
 class BenchmarkTests(unittest.TestCase):
-    def test_parses_engine_summary_with_censored_t90(self):
-        row = parse_summary_line("7,25,0,30,30,NA,12,0.48,100,250,140,3.5\n")
+    def test_parses_engine_summary_without_observables(self):
+        row = parse_summary_line("7,25,0,30,30,100,250,140,3.5\n")
         self.assertEqual(row["seed"], 7)
         self.assertEqual(row["N"], 25)
-        self.assertIsNone(row["t90"])
+        self.assertNotIn("t90", row)
         self.assertEqual(row["processed_events"], 100)
         self.assertEqual(row["simulation_ms"], 3.5)
 
@@ -20,7 +20,7 @@ class BenchmarkTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_summary_line("1,2,3")
         with self.assertRaises(ValueError):
-            parse_summary_line("7,25,0,30,30,NA,12,0.48,100,250,140,nan")
+            parse_summary_line("7,25,0,30,30,100,250,140,nan")
 
     def test_aggregate_uses_sample_standard_deviation(self):
         rows = [
@@ -45,13 +45,17 @@ class BenchmarkTests(unittest.TestCase):
                 "n = int(sys.argv[sys.argv.index('--N') + 1])\n"
                 "seed = int(sys.argv[sys.argv.index('--seed') + 1])\n"
                 "tmax = float(sys.argv[sys.argv.index('--tmax') + 1])\n"
-                "print(f'{seed},{n},0,{tmax},{tmax},NA,0,0,10,20,5,1.25')\n"
+                "goals = sys.argv[sys.argv.index('--goals-output') + 1]\n"
+                "open(goals, 'w').write(f'TP3_GOALS 2\\nN {n}\\nTMAX {tmax}\\nTIME id\\n')\n"
+                "print(f'{seed},{n},0,{tmax},{tmax},10,20,5,1.25')\n"
             )
             binary.chmod(0o755)
             row = run_one(binary, n=75, seed=9, tmax=30.0)
             self.assertEqual(row["N"], 75)
             self.assertEqual(row["seed"], 9)
             self.assertEqual(row["K"], 0)
+            self.assertIsNone(row["t90"])
+            self.assertEqual(row["goals"], 0)
 
     def test_plot_is_created_from_aggregated_data(self):
         rows = [

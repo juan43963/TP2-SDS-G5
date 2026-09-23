@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <optional>
 #include <vector>
 
 #include "obstacle.h"
@@ -20,10 +19,9 @@ struct SimulationConfig {
     std::vector<Obstacle> obstacles;
 };
 
+// Solo metadatos de la corrida: Fu, goles y t90 son observables y se calculan
+// en el post-proceso a partir de las salidas de estado (--goals-output).
 struct SimulationResult {
-    std::optional<double> t90;
-    int goals = 0;
-    double usedFraction = 0.0;
     double finalTime = 0.0;
     std::uint64_t processedEvents = 0;
     std::uint64_t scheduledEvents = 0;

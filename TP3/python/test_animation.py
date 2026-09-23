@@ -25,13 +25,13 @@ OBSTACLES id x y radius
 END
 """
 
-TRAJECTORY_TEXT = """TP3_TRAJECTORY 1
+TRAJECTORY_TEXT = """TP3_TRAJECTORY 2
 N 2
-FRAME 0 0 0
+FRAME 0 0
 0 0.2 0.2 1 0 fresh
 1 1.0 0.5 -1 0 fresh
 END_FRAME
-FRAME 0.1 1 1
+FRAME 0.1 1
 0 0.3 0.2 1 0 fresh
 1 0.9 0.5 -1 0 used
 END_FRAME
@@ -63,9 +63,13 @@ class AnimationPipelineTests(unittest.TestCase):
         self.assertEqual(frames[1].goals, 1)
         self.assertTrue(np.array_equal(frames[1].used, [False, True]))
 
-    def test_rejects_goal_state_mismatch(self):
+    def test_rejects_used_particle_turning_fresh(self):
         bad_path = self.directory / "bad.txt"
-        bad_path.write_text(TRAJECTORY_TEXT.replace("FRAME 0.1 1 1", "FRAME 0.1 1 0"))
+        bad_path.write_text(TRAJECTORY_TEXT + """FRAME 0.2 2
+0 0.4 0.2 1 0 fresh
+1 0.8 0.5 -1 0 fresh
+END_FRAME
+""")
         with self.assertRaises(ValueError):
             read_trajectory(bad_path)
 

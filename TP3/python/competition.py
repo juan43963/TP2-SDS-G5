@@ -18,7 +18,7 @@ from obstacle_experiments import read_config, write_csv
 TP3_DIR = Path(__file__).resolve().parent.parent
 TP3_BIN = TP3_DIR / "tp3"
 DELIVERED_CONFIG = TP3_DIR / "SdS_TP3_2026Q2G05CS_Config.txt"
-EVALUATED_CONFIG = TP3_DIR / "data" / "obstacles" / "automatic" / "best_config.txt"
+EVALUATED_CONFIG = TP3_DIR / "data" / "obstacles" / "central_blocks" / "chosen_block_c7_config.txt"
 OUTPUT_DIR = TP3_DIR / "data" / "competition"
 DEFAULT_SEEDS = (1001, 1002, 1003, 1004, 1005)
 OFFICIAL_N = 100
