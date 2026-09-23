@@ -8,8 +8,8 @@ toda la letra en 20 (guia 1.8, correccion de la primera consulta).
     python3 presentacion/generar_figuras.py area_fija       # solo esa figura
 
 Figuras: fotogramas (necesita la configuracion elegida en data/obstacles/),
-ajuste_D (necesita `make diffusion`) y las tiras de casos area_fija, particion y
-bloque (no necesitan datos).
+ajuste_D (necesita `make diffusion`) y las tiras de casos area_fija, particion,
+bloque y forma (no necesitan datos).
 """
 import csv
 import subprocess
@@ -25,6 +25,7 @@ from matplotlib.patches import Circle, Rectangle
 from matplotlib.ticker import ScalarFormatter
 
 from animate import FRESH_COLOR, GOAL_COLOR, OBSTACLE_COLOR, USED_COLOR
+from block_shape_search import half_width_profile, shaped_block
 from central_block_search import fill_wall_pockets
 from explore_obstacles import fixed_area_candidates
 from final_comparison import block_candidate, partition_candidate
@@ -34,8 +35,8 @@ from tp3io import read_static, read_trajectory
 FS = 20
 OUT = Path("presentacion")
 RUNS = Path("data/presentacion")
-# Configuracion elegida (bloque central de 7 columnas); coincide con la entregada.
-CONFIG = "data/obstacles/central_blocks/chosen_block_c7_config.txt"
+# Configuracion elegida (reloj de arena); coincide con la entregada.
+CONFIG = "data/obstacles/central_blocks/chosen_hourglass_config.txt"
 GOAL_SIZE = 0.20   # m, valor por defecto del motor (--goal-size)
 SEED = 42
 T_FRAME = 8.0   # s: ya hay particulas usadas, pero todavia lejos de t90
@@ -125,6 +126,16 @@ def casos_bloque():
                     fill_wall_pockets(block_candidate(c).obstacles)) for c in (1, 4, 7, 10)])
 
 
+def casos_forma():
+    """Cara del bloque: plana (base), en V y parabolica (block_shape_search.py)."""
+    tira_de_casos("casos_forma.png", [
+        ("Cara plana", fill_wall_pockets(block_candidate(7).obstacles)),
+        ("En V", shaped_block(7, half_width_profile(0.22, 0.54, "v"))),
+        ("Parabólica", shaped_block(7, half_width_profile(0.32, 0.54, "parab"))),
+        ("Elegida", shaped_block(10, half_width_profile(0.28, 0.50, "v"))),
+    ])
+
+
 def guardar(fig, nombre: str):
     out = OUT / nombre
     fig.savefig(out, dpi=150, bbox_inches="tight")
@@ -133,13 +144,13 @@ def guardar(fig, nombre: str):
 
 
 def fotogramas():
-    for tag, extra in [("vacia", []), ("bloque", ["--config", CONFIG])]:
+    for tag, extra in [("vacia", []), ("elegida", ["--config", CONFIG])]:
         system, frames = correr(tag, extra)
         frame = min(frames, key=lambda f: abs(f.time - T_FRAME))
         out = guardar(mesa(system, frame), f"frame_{tag}.png")
         print(f"{out}  (t = {frame.time:.2f} s, Fu = {frame.goals / len(frame.used):.2f})")
-    system, _ = correr("bloque", ["--config", CONFIG])
-    print(guardar(mesa(system), "configuracion_bloque.png"))
+    system, _ = correr("elegida", ["--config", CONFIG])
+    print(guardar(mesa(system), "configuracion_elegida.png"))
 
 
 def ajuste_D():
@@ -192,7 +203,7 @@ def ajuste_D():
 
 
 FIGURAS = {"fotogramas": fotogramas, "ajuste_D": ajuste_D, "area_fija": casos_area_fija,
-           "particion": casos_particion, "bloque": casos_bloque}
+           "particion": casos_particion, "bloque": casos_bloque, "forma": casos_forma}
 
 if __name__ == "__main__":
     pedidas = sys.argv[1:] or list(FIGURAS)

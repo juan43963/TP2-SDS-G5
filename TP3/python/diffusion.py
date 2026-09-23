@@ -351,6 +351,8 @@ DIFFUSION_CASES = (
     ("partition", "Partición", OBSTACLES_DIR / "partitions" / "best_partition_config.txt"),
     ("block", "Bloque central",
      OBSTACLES_DIR / "central_blocks" / "chosen_block_c7_config.txt"),
+    ("hourglass", "Reloj de arena",
+     OBSTACLES_DIR / "central_blocks" / "chosen_hourglass_config.txt"),
 )
 
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  23 SEP 2026 11:15
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  23 SEP 2026 12:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1265,7 +1265,7 @@ LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10.95> not available
 ] [12
 
 ]
-<../data/performance/performance.png, id=873, 965.88855pt x 397.84634pt>
+<../data/performance/performance.png, id=917, 965.88855pt x 397.84634pt>
 File: ../data/performance/performance.png Graphic file (type png)
 <use ../data/performance/performance.png>
 Package pdftex.def Info: ../data/performance/performance.png  used on input lin
@@ -1274,20 +1274,20 @@ e 367.
  [13
 
  <../data/performance/performance.png>]
-<frame_vacia.png, id=950, 642.7212pt x 397.0032pt>
+<frame_vacia.png, id=998, 642.7212pt x 397.0032pt>
 File: frame_vacia.png Graphic file (type png)
 <use frame_vacia.png>
 Package pdftex.def Info: frame_vacia.png  used on input line 382.
 (pdftex.def)             Requested size: 173.33496pt x 107.06508pt.
-<frame_bloque.png, id=952, 642.7212pt x 397.0032pt>
-File: frame_bloque.png Graphic file (type png)
-<use frame_bloque.png>
-Package pdftex.def Info: frame_bloque.png  used on input line 382.
+<frame_elegida.png, id=1000, 642.7212pt x 397.0032pt>
+File: frame_elegida.png Graphic file (type png)
+<use frame_elegida.png>
+Package pdftex.def Info: frame_elegida.png  used on input line 382.
 (pdftex.def)             Requested size: 173.33496pt x 107.06508pt.
  [14
 
- <./frame_vacia.png> <./frame_bloque.png>]
-<../data/final_comparison/plots/fu_comparison.png, id=1028, 787.743pt x 462.046
+ <./frame_vacia.png> <./frame_elegida.png>]
+<../data/final_comparison/plots/fu_comparison.png, id=1080, 787.743pt x 462.046
 2pt>
 File: ../data/final_comparison/plots/fu_comparison.png Graphic file (type png)
 <use ../data/final_comparison/plots/fu_comparison.png>
@@ -1297,7 +1297,7 @@ Package pdftex.def Info: ../data/final_comparison/plots/fu_comparison.png  used
  [15
 
  <../data/final_comparison/plots/fu_comparison.png>]
-<../data/obstacles/systematic/plots/single.png, id=1102, 628.749pt x 426.75435p
+<../data/obstacles/systematic/plots/single.png, id=1158, 628.749pt x 426.75435p
 t>
 File: ../data/obstacles/systematic/plots/single.png Graphic file (type png)
 <use ../data/obstacles/systematic/plots/single.png>
@@ -1307,7 +1307,7 @@ Package pdftex.def Info: ../data/obstacles/systematic/plots/single.png  used on
  [16
 
  <../data/obstacles/systematic/plots/single.png>]
-<../data/obstacles/systematic/plots/funnel_pairs_3.png, id=1176, 628.38765pt x 
+<../data/obstacles/systematic/plots/funnel_pairs_3.png, id=1236, 628.38765pt x 
 426.393pt>
 File: ../data/obstacles/systematic/plots/funnel_pairs_3.png Graphic file (type 
 png)
@@ -1315,11 +1315,10 @@ png)
 Package pdftex.def Info: ../data/obstacles/systematic/plots/funnel_pairs_3.png 
  used on input line 418.
 (pdftex.def)             Requested size: 242.28955pt x 164.40579pt.
-
 [17
 
  <../data/obstacles/systematic/plots/funnel_pairs_3.png>]
-<../data/obstacles/automatic/plots/random_search.png, id=1250, 628.749pt x 426.
+<../data/obstacles/automatic/plots/random_search.png, id=1314, 628.749pt x 426.
 75435pt>
 File: ../data/obstacles/automatic/plots/random_search.png Graphic file (type pn
 g)
@@ -1332,102 +1331,126 @@ sed on input line 430.
  <../data/obstacles/automatic/plots/random_search.png>] [19
 
 ]
-<casos_particion.png, id=1398, 731.3724pt x 132.0132pt>
+<casos_particion.png, id=1470, 731.3724pt x 132.0132pt>
 File: casos_particion.png Graphic file (type png)
 <use casos_particion.png>
-Package pdftex.def Info: casos_particion.png  used on input line 460.
+Package pdftex.def Info: casos_particion.png  used on input line 461.
 (pdftex.def)             Requested size: 303.3395pt x 54.75423pt.
-<../data/final_comparison/plots/partition_thickness.png, id=1399, 787.743pt x 4
+<../data/final_comparison/plots/partition_thickness.png, id=1471, 787.743pt x 4
 63.0098pt>
 File: ../data/final_comparison/plots/partition_thickness.png Graphic file (type
  png)
 <use ../data/final_comparison/plots/partition_thickness.png>
 Package pdftex.def Info: ../data/final_comparison/plots/partition_thickness.png
-  used on input line 460.
+  used on input line 461.
 (pdftex.def)             Requested size: 212.57324pt x 124.94366pt.
  [20
 
  <./casos_particion.png> <../data/final_comparison/plots/partition_thickness.pn
 g>]
-<casos_bloque.png, id=1474, 731.3724pt x 132.0132pt>
+<casos_bloque.png, id=1550, 731.3724pt x 132.0132pt>
 File: casos_bloque.png Graphic file (type png)
 <use casos_bloque.png>
-Package pdftex.def Info: casos_bloque.png  used on input line 475.
+Package pdftex.def Info: casos_bloque.png  used on input line 476.
 (pdftex.def)             Requested size: 303.3395pt x 54.75423pt.
-<../data/final_comparison/plots/chamber_length.png, id=1475, 787.743pt x 463.00
+<../data/final_comparison/plots/chamber_length.png, id=1551, 787.743pt x 463.00
 98pt>
 File: ../data/final_comparison/plots/chamber_length.png Graphic file (type png)
 
 <use ../data/final_comparison/plots/chamber_length.png>
 Package pdftex.def Info: ../data/final_comparison/plots/chamber_length.png  use
-d on input line 475.
+d on input line 476.
 (pdftex.def)             Requested size: 212.57324pt x 124.94366pt.
  [21
 
  <./casos_bloque.png> <../data/final_comparison/plots/chamber_length.png>]
-<../data/final_comparison/plots/families.png, id=1550, 843.6318pt x 534.3162pt>
+<casos_forma.png, id=1630, 731.3724pt x 132.9768pt>
+File: casos_forma.png Graphic file (type png)
+<use casos_forma.png>
+Package pdftex.def Info: casos_forma.png  used on input line 491.
+(pdftex.def)             Requested size: 303.3395pt x 55.1539pt.
+<../data/block_shapes/plots/shape_screening.png, id=1631, 787.743pt x 462.528pt
+>
+File: ../data/block_shapes/plots/shape_screening.png Graphic file (type png)
+<use ../data/block_shapes/plots/shape_screening.png>
+Package pdftex.def Info: ../data/block_shapes/plots/shape_screening.png  used o
+n input line 491.
+(pdftex.def)             Requested size: 212.80162pt x 124.94774pt.
+ [22
+
+ <./casos_forma.png> <../data/block_shapes/plots/shape_screening.png>]
+<../data/block_shapes/plots/shape_validation.png, id=1710, 787.2612pt x 462.528
+pt>
+File: ../data/block_shapes/plots/shape_validation.png Graphic file (type png)
+<use ../data/block_shapes/plots/shape_validation.png>
+Package pdftex.def Info: ../data/block_shapes/plots/shape_validation.png  used 
+on input line 503.
+(pdftex.def)             Requested size: 279.83406pt x 164.40678pt.
+ [23
+
+ <../data/block_shapes/plots/shape_validation.png>]
+<../data/final_comparison/plots/families.png, id=1788, 847.0044pt x 534.3162pt>
 
 File: ../data/final_comparison/plots/families.png Graphic file (type png)
 <use ../data/final_comparison/plots/families.png>
 Package pdftex.def Info: ../data/final_comparison/plots/families.png  used on i
-nput line 487.
-(pdftex.def)             Requested size: 259.57936pt x 164.4052pt.
- [22
+nput line 515.
+(pdftex.def)             Requested size: 260.61708pt x 164.4052pt.
+ [24
 
  <../data/final_comparison/plots/families.png>]
-<configuracion_bloque.png, id=1624, 642.7212pt x 397.0032pt>
-File: configuracion_bloque.png Graphic file (type png)
-<use configuracion_bloque.png>
-Package pdftex.def Info: configuracion_bloque.png  used on input line 509.
+<configuracion_elegida.png, id=1866, 642.7212pt x 397.0032pt>
+File: configuracion_elegida.png Graphic file (type png)
+<use configuracion_elegida.png>
+Package pdftex.def Info: configuracion_elegida.png  used on input line 541.
 (pdftex.def)             Requested size: 242.67159pt x 149.89354pt.
 
-Overfull \hbox (6.42735pt too wide) in paragraph at lines 509--509
+Overfull \hbox (9.93317pt too wide) in paragraph at lines 541--541
 [][]  
  []
 
-[23
+[25
 
- <./configuracion_bloque.png>]
-<../data/diffusion/plots/msd_loglog.png, id=1698, 751.24664pt x 498.663pt>
+ <./configuracion_elegida.png>]
+<../data/diffusion/plots/msd_loglog.png, id=1946, 751.24664pt x 498.663pt>
 File: ../data/diffusion/plots/msd_loglog.png Graphic file (type png)
 <use ../data/diffusion/plots/msd_loglog.png>
 Package pdftex.def Info: ../data/diffusion/plots/msd_loglog.png  used on input 
-line 521.
+line 553.
 (pdftex.def)             Requested size: 247.68289pt x 164.4071pt.
- [24
+ [26
 
  <../data/diffusion/plots/msd_loglog.png>]
-<../data/diffusion/plots/local_log_slope.png, id=1772, 751.608pt x 498.663pt>
+<../data/diffusion/plots/local_log_slope.png, id=2024, 751.608pt x 498.663pt>
 File: ../data/diffusion/plots/local_log_slope.png Graphic file (type png)
 <use ../data/diffusion/plots/local_log_slope.png>
 Package pdftex.def Info: ../data/diffusion/plots/local_log_slope.png  used on i
-nput line 533.
+nput line 565.
 (pdftex.def)             Requested size: 247.80203pt x 164.4071pt.
-[25
+ [27
 
  <../data/diffusion/plots/local_log_slope.png>]
-<ajuste_D_vacia.png, id=1848, 1076.823pt x 397.485pt>
+<ajuste_D_vacia.png, id=2103, 1076.823pt x 397.485pt>
 File: ajuste_D_vacia.png Graphic file (type png)
 <use ajuste_D_vacia.png>
-Package pdftex.def Info: ajuste_D_vacia.png  used on input line 545.
+Package pdftex.def Info: ajuste_D_vacia.png  used on input line 577.
 (pdftex.def)             Requested size: 326.03983pt x 120.35027pt.
- [26
+ [28
 
  <./ajuste_D_vacia.png>]
-<../data/diffusion/plots/D_vs_t90.png, id=1922, 651.51405pt x 462.528pt>
+<../data/diffusion/plots/D_vs_t90.png, id=2181, 677.1699pt x 462.528pt>
 File: ../data/diffusion/plots/D_vs_t90.png Graphic file (type png)
 <use ../data/diffusion/plots/D_vs_t90.png>
 Package pdftex.def Info: ../data/diffusion/plots/D_vs_t90.png  used on input li
-ne 557.
-(pdftex.def)             Requested size: 231.58237pt x 164.40678pt.
+ne 589.
+(pdftex.def)             Requested size: 240.70181pt x 164.40678pt.
+ [29
 
-[27
+ <../data/diffusion/plots/D_vs_t90.png>] [30
 
- <../data/diffusion/plots/D_vs_t90.png>] [28
+] [31
 
-] [29
-
-] [30
+] [32
 
 ]
 \tf@nav=\write6
@@ -1448,17 +1471,16 @@ LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 
-
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `presentacion.out' has not changed.
 (rerunfilecheck)             Checksum: FAA0C37F149251817206DE704FACB028;521.
  ) 
 Here is how much of TeX's memory you used:
- 28119 strings out of 467871
- 576319 string characters out of 5413500
- 979218 words of memory out of 5000000
- 56348 multiletter control sequences out of 15000+600000
+ 28152 strings out of 467871
+ 577405 string characters out of 5413500
+ 981903 words of memory out of 5000000
+ 56377 multiletter control sequences out of 15000+600000
  659797 words of font info for 116 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,19n,123p,389b,1087s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1487,23 +1509,25 @@ iKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecss1440.pk><C:/Users/Lucas Di Candia/
 AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Use
 rs/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm
 /cmmi10.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1
-/public/amsfonts/cm/cmmi9.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/
-MiKTeX/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Users/Lucas Di Candia/AppD
-ata/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Users/Lu
+/public/amsfonts/cm/cmmi8.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/
+MiKTeX/fonts/type1/public/amsfonts/cm/cmmi9.pfb><C:/Users/Lucas Di Candia/AppDa
+ta/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Users/Lu
 cas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss
-9.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/publi
-c/amsfonts/cm/cmssi10.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKT
-eX/fonts/type1/public/amsfonts/cm/cmssi12.pfb><C:/Users/Lucas Di Candia/AppData
-/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi8.pfb><C:/Users/Luca
-s Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi9
-.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public
-/amsfonts/cm/cmsy10.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX
-/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/Lucas Di Candia/AppData/Loc
-al/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/Lucas Di 
-Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb>
-Output written on presentacion.pdf (30 pages, 2659751 bytes).
+8.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/publi
+c/amsfonts/cm/cmss9.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX
+/fonts/type1/public/amsfonts/cm/cmssi10.pfb><C:/Users/Lucas Di Candia/AppData/L
+ocal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi12.pfb><C:/Users/Lucas
+ Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi8.
+pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/
+amsfonts/cm/cmssi9.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/
+fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Lucas Di Candia/AppData/Loc
+al/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/Lucas Di 
+Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><
+C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfo
+nts/cm/cmsy9.pfb>
+Output written on presentacion.pdf (32 pages, 3162619 bytes).
 PDF statistics:
- 2665 PDF objects out of 2984 (max. 8388607)
- 66 named destinations out of 1000 (max. 500000)
- 210 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 2946 PDF objects out of 2984 (max. 8388607)
+ 70 named destinations out of 1000 (max. 500000)
+ 225 words of extra memory for PDF output out of 10000 (max. 10000000)
 

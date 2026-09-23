@@ -156,9 +156,13 @@ el archivo realmente evaluado. Cada linea contiene exactamente `x y R`.
 La busqueda automatica encontro una configuracion de tres obstaculos con
 `t90 = 20.1549 +/- 2.2667 s` en 20 realizaciones, frente a
 `21.5439 +/- 2.7069 s` para la mesa vacia con las mismas semillas. La
-configuracion finalmente elegida es el bloque central de 7 columnas (K=52,
-`data/obstacles/central_blocks/chosen_block_c7_config.txt`, generado por
-`python/final_comparison.py`); ver `implementacion_tp3.md`.
+configuracion finalmente elegida es un bloque central en forma de reloj de
+arena (K=113, `data/obstacles/central_blocks/chosen_hourglass_config.txt`).
+Sale de dos pasos: `python/final_comparison.py` fija el bloque de 7 columnas
+(largo de camara) y `python/block_shape_search.py` le da forma a su cara
+(`make block-shape-search`); ver `implementacion_tp3.md`. Orden para regenerar:
+`final_comparison.py`, `block_shape_search.py`, `final_comparison.py
+--reuse-existing` (agrega el reloj de arena a las familias), `make diffusion`.
 
 ## Inciso 1.3: DCM y difusion
 
@@ -183,9 +187,9 @@ python3 python/diffusion.py --reuse-events
 
 ## Inciso 1.4: competencia
 
-El archivo definitivo es `SdS_TP3_2026Q2G05CS_Config.txt` (bloque central,
-K=52). El runner valida que coincida byte a byte con
-`data/obstacles/central_blocks/chosen_block_c7_config.txt`, exige cinco semillas y usa los
+El archivo definitivo es `SdS_TP3_2026Q2G05CS_Config.txt` (reloj de arena,
+K=113). El runner valida que coincida byte a byte con
+`data/obstacles/central_blocks/chosen_hourglass_config.txt`, exige cinco semillas y usa los
 parametros oficiales con trayectoria deshabilitada.
 
 ```bash

@@ -21,7 +21,7 @@ TEST_SUPPORT_SRC := $(SRC)/tests/brute_force_oracle.cpp
 TEST_SUPPORT_OBJ := $(TEST_SUPPORT_SRC:$(SRC)/%.cpp=$(BUILD)/%.o)
 ALL_OBJ  := $(CORE_OBJ) $(APP_OBJ) $(TEST_OBJ) $(TEST_SUPPORT_OBJ)
 
-.PHONY: all test cpp-test python-test animation benchmark baseline explore-obstacles optimize-obstacles inciso-1-2 configuration-study geometry-study evolutionary-search goal-gate-search packed-channel-search partition-search partition-refinement central-block-search diffusion competition clean
+.PHONY: all test cpp-test python-test animation benchmark baseline explore-obstacles optimize-obstacles inciso-1-2 configuration-study geometry-study evolutionary-search goal-gate-search packed-channel-search partition-search partition-refinement central-block-search block-shape-search diffusion competition clean
 
 all: tp3 tp3_test
 
@@ -89,6 +89,9 @@ partition-refinement: tp3
 
 central-block-search: tp3
 	$(PY) python/central_block_search.py
+
+block-shape-search: tp3
+	$(PY) python/block_shape_search.py
 
 diffusion: tp3
 	$(PY) python/diffusion.py

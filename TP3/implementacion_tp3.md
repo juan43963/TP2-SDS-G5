@@ -161,9 +161,9 @@ pendiente hasta que los docentes indiquen comenzar.
   `src/` del motor (sin `selftest.cpp`, `tests/`, `brute_force_oracle.h` ni
   `test_support.h`) y un `Makefile` reducido que compila solo `tp3`. Verificado:
   compila desde cero sin warnings y produce un binario identico al usado.
-- `SdS_TP3_2026Q2G05CS_Config.txt`: desde el 23/09/2026 es el bloque central
-  de 7 columnas (K=52), identico byte a byte a
-  `data/obstacles/central_blocks/chosen_block_c7_config.txt`.
+- `SdS_TP3_2026Q2G05CS_Config.txt`: desde el 23/09/2026 es el reloj de arena
+  (K=113), identico byte a byte a
+  `data/obstacles/central_blocks/chosen_hourglass_config.txt` (ver C7).
 
 El ZIP y la configuracion son entregables distintos: el archivo de obstaculos
 no debe agregarse dentro del ZIP del motor.
@@ -680,10 +680,48 @@ cada camara, junto al arco, empeora mucho (Rc=0.10 m -> 25.9 s; Rc=0.12 m ->
 48.7 s). Un obstaculo convexo pegado al arco desvia hacia afuera a las
 particulas que iban a entrar: el area hay que quitarla lejos del arco.
 
+Bloque de 7 columnas:
+`data/obstacles/central_blocks/chosen_block_c7_config.txt`. Es la base (cara
+plana) de la etapa C7, que produjo la configuracion finalmente elegida.
+
+#### C7 - Forma de la cara del bloque: reloj de arena
+
+`python/block_shape_search.py` (`make block-shape-search`). Hipotesis: las
+ultimas particulas frescas estan en las esquinas de cada camara, los puntos mas
+lejanos del arco; conviene sacar area ahi y no de manera pareja. Se conserva la
+red hexagonal del bloque (n = 7, 10 o 14 filas, R = W/2n) y se la recorta con
+un semiancho h(y) que vale h_c frente al arco y h_w contra las paredes largas,
+con perfil en V o parabolico. Un flood fill de las posiciones accesibles al
+centro de una particula descarta toda geometria con area sin camino a un arco
+(el problema del control negativo anterior: huecos entre circulo y esquina).
+
+- Screening: 180 geometrias distintas, 30 semillas (9001-9030); se evaluan 177.
+  Tres se descartan (dos atrapan particulas, una no admite N=100).
+- Validacion: las 8 mejores, el bloque de cara plana y la mesa vacia con 200
+  semillas nuevas (20001-20200), comparacion pareada semilla a semilla.
+
+| sistema | <t90> [s] (200 semillas) | diferencia pareada con la cara plana |
+|---|---:|---:|
+| reloj de arena, V, n=10, h_c=0.28 m, h_w=0.50 m (K=113) | 13.68 +/- 1.59 | -0.83 +/- 0.16 s (125/200) |
+| parabolico, n=10, h_c=0.32 m, h_w=0.50 m (K=109) | 13.77 +/- 1.76 | -0.74 +/- 0.17 s |
+| bloque de 7 columnas, cara plana (K=52) | 14.51 +/- 1.76 | - |
+| mesa vacia | 21.86 +/- 2.60 | +7.34 +/- 0.21 s |
+
+Las 8 validadas mejoran a la cara plana; entre ellas las diferencias caen
+dentro del error. Se elige la de menor <t90> (elegir el minimo de 8 sobre las
+mismas semillas sesga un poco a favor; la mejora esperable es ~0.6-0.8 s). En
+la competencia se promedian 5 corridas (incertidumbre ~0.8 s), del mismo orden
+que la mejora. Con las semillas de las familias (7001-7020) da 14.18 s contra
+14.56 s del bloque plano.
+
+Inciso 1.3 con el reloj de arena: a diferencia del bloque plano tiene tramo
+difusivo (0.2-1.2 s, D = 4.7e-3 m2/s). Con 7 casos con D: Pearson 0.75,
+Spearman 0.54; <t90> tiende a bajar con D.
+
 Configuracion elegida:
-`data/obstacles/central_blocks/chosen_block_c7_config.txt`. Copiada a
-`SdS_TP3_2026Q2G05CS_Config.txt` el 23/09/2026; `python/competition.py` ahora
-la usa como configuracion evaluada de referencia.
+`data/obstacles/central_blocks/chosen_hourglass_config.txt`, copiada a
+`SdS_TP3_2026Q2G05CS_Config.txt`; `python/competition.py` la usa como
+configuracion evaluada de referencia.
 
 Inciso 1.3 actualizado: `diffusion.py` ahora toma los t90 de
 `final_comparison/families.csv` (mismas semillas) y agrega particion y bloque.
@@ -1207,6 +1245,11 @@ entregable, semillas por defecto 1001 a 1005 (`make competition`):
 
 Resultado: `14.2562 +/- 1.9349 s` (aprox. `14 +/- 2 s`). La tabla anterior
 (18/09) corresponde a la configuracion de tres obstaculos.
+
+Con el reloj de arena (K=113) y las mismas semillas 1001 a 1005: 16.8934,
+13.4673, 15.3289, 12.7201 y 14.5533 s, todas con 100 goles;
+`14.5926 +/- 1.6286 s`. Con 5 corridas la diferencia con el bloque plano queda
+dentro del ruido; la mejora se ve con las 200 semillas de C7.
 
 ## Guia de lectura y ubicacion de los graficos
 

@@ -9,10 +9,12 @@ Cuatro resultados, todos con las mismas 20 semillas nuevas (7001-7020):
 - chamber: el bloque hexagonal (7 circulos por columna, 1 a 10 columnas) sigue
   engrosando la pared con la misma variable; la figura superpone ambas series
   y resalta la configuracion elegida.
-- fu: F_u(t) de busqueda aleatoria (K=3) y bloque central.
+- fu: F_u(t) de busqueda aleatoria (K=3), bloque central y reloj de arena.
 
-El bloque central de FAMILIES es la configuracion elegida (7 columnas),
-seleccionada con este mismo barrido y validada con 40 semillas independientes.
+El bloque central de FAMILIES es el de 7 columnas, elegido con este mismo
+barrido. Es la base de block_shape_search.py, que le da forma a su cara y
+produce la configuracion elegida (reloj de arena, tambien en FAMILIES). Orden:
+final_comparison.py -> block_shape_search.py -> final_comparison.py.
 
 La mesa vacia se simula (queda en families.csv para la tabla de la
 configuracion elegida) pero no se grafica: correccion de la primera consulta,
@@ -66,6 +68,7 @@ CHOSEN_COLUMNS = 7
 # Particion central: de 19 circulos chicos (pared fina) a 2 grandes (pared gruesa).
 PARTITION_COUNTS = (2, 19)
 CHOSEN_BLOCK = OBSTACLES / "central_blocks" / "chosen_block_c7_config.txt"
+CHOSEN_HOURGLASS = OBSTACLES / "central_blocks" / "chosen_hourglass_config.txt"
 
 # (nombre, etiqueta para la figura, configuracion o None para la mesa vacia)
 FAMILIES = (
@@ -80,8 +83,9 @@ FAMILIES = (
     ("partition_scatter", "Partición y dispersores",
      OBSTACLES / "partition_refinement/best_refined_config.txt"),
     ("block", "Bloque central", CHOSEN_BLOCK),
+    ("hourglass", "Reloj de arena", CHOSEN_HOURGLASS),
 )
-FU_CASES = (("random", "#c0392b"), ("block", "#1e8449"))
+FU_CASES = (("random", "#c0392b"), ("block", "#1e8449"), ("hourglass", "#8e44ad"))
 
 
 def _evaluate(name: str, config: Path | None, seeds: tuple[int, ...], jobs: int,
@@ -249,7 +253,7 @@ def plot_chamber(rows: list[dict], partition_rows: list[dict], path: Path) -> No
                   None)
     if chosen is not None:
         axis.plot(float(chosen["x_value"]), chosen["t90_mean"], marker="o", ms=24, mfc="none",
-                  mec="#c0392b", mew=2.5, ls="none", label="Elegida")
+                  mec="#c0392b", mew=2.5, ls="none", label="Base del reloj de arena")
     axis.set_xlabel("Largo accesible de cada cámara (m)", fontsize=FS)
     axis.set_ylabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
     axis.legend(frameon=False, fontsize=FS, loc="upper center")
@@ -263,6 +267,8 @@ def plot_fu(goals_dir: Path, labels: dict[str, str], path: Path) -> None:
     grid = np.linspace(0.0, 50.0, 1001)
     figure, axis = plt.subplots(figsize=(11, 6.5))
     for name, color in FU_CASES:
+        if not (goals_dir / name).is_dir():
+            continue
         series = [read_goal_series(goals_dir / name / f"seed_{seed}.txt") for seed in SEEDS]
         curves = np.vstack([evaluate_step(item, grid) for item in series])
         mean, std = curves.mean(axis=0), curves.std(axis=0, ddof=1)
@@ -317,6 +323,12 @@ def main() -> int:
             families = []
             for name, label, config in FAMILIES:
                 if config is not None and not config.is_file():
+                    if name == "hourglass":
+                        # Primera pasada: el reloj de arena sale de block_shape_search.py,
+                        # que necesita el bloque plano escrito arriba.
+                        print("falta el reloj de arena: correr python/block_shape_search.py "
+                              "y repetir", flush=True)
+                        continue
                     raise ValueError(f"falta la configuracion {config}")
                 rows = _evaluate(name, config, SEEDS, args.jobs,
                                  goals_dir if name in fu_names else None)
