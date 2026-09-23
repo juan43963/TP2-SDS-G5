@@ -9,7 +9,9 @@ import hashlib
 import json
 import math
 import statistics
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from engine_runner import ENGINE_SUMMARY_FIELDS, run_engine
@@ -85,6 +87,34 @@ def verify_delivered_config(config_path: Path, evaluated_path: Path) -> int:
     return len(obstacles)
 
 
+def preview_initial_conditions(binary: Path, config: Path, seeds: list[int],
+                               output_dir: Path) -> list[Path]:
+    """Dibuja la condicion inicial de cada semilla antes de largar (enunciado 1.4).
+
+    El motor genera las posiciones con la misma semilla que usa la corrida
+    oficial, asi que cada imagen es exactamente el estado inicial que se va a
+    simular. Solo se escribe el primer frame (t = 0).
+    """
+    from animate import render_snapshot
+    from tp3io import read_static, read_trajectory
+
+    images = []
+    output_dir.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="tp3-preview-") as temporary:
+        for seed in seeds:
+            static = Path(temporary) / f"static_{seed}.txt"
+            trajectory = Path(temporary) / f"trajectory_{seed}.txt"
+            subprocess.run(
+                [str(binary), "--N", str(OFFICIAL_N), "--seed", str(seed), "--tmax", "1e-9",
+                 "--config", str(config), "--static-output", str(static),
+                 "--trajectory", str(trajectory), "--csv"],
+                check=True, capture_output=True, text=True)
+            image = output_dir / f"initial_seed_{seed}.png"
+            render_snapshot(read_static(static), read_trajectory(trajectory)[0], image, dpi=110)
+            images.append(image)
+    return images
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Cinco realizaciones oficiales del inciso 1.4")
     parser.add_argument("--binary", type=Path, default=TP3_BIN)
@@ -96,12 +126,20 @@ def main() -> int:
         "--wait-for-start", action="store_true",
         help="validar todo y esperar Enter antes de iniciar las cinco corridas",
     )
+    parser.add_argument(
+        "--preview-dir", type=Path,
+        help="dibujar antes de largar la condicion inicial de cada semilla en este directorio",
+    )
     args = parser.parse_args()
     try:
         validate_seeds(args.seeds)
         if not args.binary.is_file() or not args.config.is_file():
             raise ValueError("falta el motor o la configuracion de competencia")
         obstacle_count = verify_delivered_config(args.config, args.evaluated_config)
+        if args.preview_dir is not None:
+            for image in preview_initial_conditions(args.binary, args.config, args.seeds,
+                                                    args.preview_dir):
+                print(f"condicion inicial: {image}", flush=True)
         if args.wait_for_start:
             input(
                 f"Preflight correcto: K={obstacle_count}, semillas={args.seeds}. "
@@ -152,7 +190,7 @@ def main() -> int:
                 f"{result['t90_std']:.6f} s", flush=True
             )
         return 0
-    except (EOFError, OSError, RuntimeError, ValueError) as exc:
+    except (EOFError, OSError, RuntimeError, ValueError, subprocess.CalledProcessError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 

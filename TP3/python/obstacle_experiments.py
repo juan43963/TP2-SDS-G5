@@ -100,6 +100,15 @@ def _mean_std(values: list[float]) -> tuple[float, float]:
     return statistics.fmean(values), statistics.stdev(values) if len(values) > 1 else 0.0
 
 
+def t90_error(row: dict) -> float:
+    """Error estandar de <t90>: desvio entre realizaciones / sqrt(realizaciones).
+
+    Es la incerteza de la media que se grafica; el desvio solo mide la
+    dispersion de una corrida individual y no baja al agregar realizaciones.
+    """
+    return float(row["t90_std"]) / math.sqrt(int(row["successful_runs"]))
+
+
 def summarize_candidate(
     candidate: Candidate,
     config_path: str,

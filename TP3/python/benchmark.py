@@ -35,7 +35,7 @@ from engine_runner import ENGINE_SUMMARY_FIELDS, parse_summary_line, run_engine
 TP3_BIN = TP3_DIR / "tp3"
 OUTPUT_DIR = TP3_DIR / "data" / "performance"
 DEFAULT_N_VALUES = (25, 50, 75, 100, 150, 200)
-DEFAULT_SEEDS = tuple(range(1, 11))
+DEFAULT_SEEDS = tuple(range(1, 101))
 DEFAULT_TMAX = 30.0
 # Guia de presentaciones 1.8: toda la letra de las figuras en 20.
 FS = 20

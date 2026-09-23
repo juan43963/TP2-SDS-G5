@@ -35,6 +35,7 @@ from obstacle_experiments import (
     evaluate_candidates,
     rank_key,
     read_summary,
+    t90_error,
     validate_obstacles,
     write_config,
     write_csv,
@@ -44,8 +45,8 @@ TP3_BIN = TP3_DIR / "tp3"
 OUTPUT_DIR = TP3_DIR / "data" / "obstacles" / "automatic"
 SYSTEMATIC_SUMMARY = TP3_DIR / "data" / "obstacles" / "systematic" / "summary.csv"
 DEFAULT_OPTIMIZER_SEED = 20260910
-DEFAULT_EXPLORATION_SEEDS = tuple(range(1, 6))
-DEFAULT_FINAL_SEEDS = tuple(range(101, 121))
+DEFAULT_EXPLORATION_SEEDS = tuple(range(1, 101))
+DEFAULT_FINAL_SEEDS = tuple(range(101, 201))
 # Guia de presentaciones 1.8: toda la letra de las figuras en 20.
 FS = 20
 
@@ -225,10 +226,10 @@ def plot_search(initial: list[dict], finalists: list[dict], output_dir: Path, sh
              if row["t90_mean"] is not None and row["t90_std"] is not None]
     counts = [int(row["K"]) for row in valid]
     t90 = [float(row["t90_mean"]) for row in valid]
-    # Guia 2.4.3: cada punto es un promedio y lleva su desvio entre realizaciones.
-    t90_std = [float(row["t90_std"]) for row in valid]
+    # Guia 2.4.3: cada punto es un promedio y lleva su error estandar.
+    t90_err = [t90_error(row) for row in valid]
     figure, axes = plt.subplots(figsize=(8.8, 6.0))
-    axes.errorbar(counts, t90, yerr=t90_std, fmt="o", markersize=4, alpha=0.45,
+    axes.errorbar(counts, t90, yerr=t90_err, fmt="o", markersize=4, alpha=0.45,
                   color="#2878b5", elinewidth=0.8, capsize=2,
                   label="Configuración evaluada")
     # Linea de tendencia: ajuste lineal por cuadrados minimos de <t90> contra K.
@@ -253,7 +254,7 @@ def plot_search(initial: list[dict], finalists: list[dict], output_dir: Path, sh
     figure, axes = plt.subplots(figsize=(9.5, 5.8))
     labels = [str(row["series"]) for row in reversed(ranked)]
     values = [float(row["t90_mean"]) for row in reversed(ranked)]
-    errors = [float(row["t90_std"]) for row in reversed(ranked)]
+    errors = [t90_error(row) for row in reversed(ranked)]
     axes.barh(labels, values, xerr=errors, color="#2f8f62", capsize=4)
     axes.set_xlabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
     axes.tick_params(axis="x", labelsize=FS)

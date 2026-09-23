@@ -31,13 +31,14 @@ from obstacle_experiments import (
     evaluate_candidates,
     rank_key,
     read_summary,
+    t90_error,
     validate_obstacles,
     write_csv,
 )
 
 TP3_BIN = TP3_DIR / "tp3"
 OUTPUT_DIR = TP3_DIR / "data" / "obstacles" / "systematic"
-DEFAULT_SEEDS = tuple(range(1, 21))
+DEFAULT_SEEDS = tuple(range(1, 101))
 DEFAULT_TMAX = 100.0
 # Guia de presentaciones 1.8: toda la letra de las figuras en 20.
 FS = 20
@@ -151,7 +152,7 @@ def _plot_family(rows: list[dict], family: str, xlabel: str, output: Path, show:
         axes.errorbar(
             [float(row["x_value"]) for row in group],
             [float(row["t90_mean"]) for row in group],
-            yerr=[float(row["t90_std"]) for row in group],
+            yerr=[t90_error(row) for row in group],
             marker="o",
             markersize=8,
             linewidth=1.4,
@@ -194,7 +195,7 @@ def plot_results(rows: list[dict], output_dir: Path, show: bool = False) -> None
     figure, axes = plt.subplots(figsize=(10.0, 6.2))
     labels = [str(row["name"]) for row in reversed(ranked)]
     values = [float(row["t90_mean"]) for row in reversed(ranked)]
-    errors = [float(row["t90_std"]) for row in reversed(ranked)]
+    errors = [t90_error(row) for row in reversed(ranked)]
     axes.barh(labels, values, xerr=errors, color="#3478b8", alpha=0.9, capsize=3)
     axes.set_xlabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
     axes.tick_params(axis="x", labelsize=FS)

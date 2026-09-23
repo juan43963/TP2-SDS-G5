@@ -19,8 +19,8 @@
 %
 %  Correcciones de la primera consulta (18/09): letra 20 en todas las figuras,
 %  sin banda gris ni mesa vacia en los graficos de t90, t90 siempre en el eje
-%  vertical, menos texto al costado; exploracion sistematica con 20
-%  realizaciones, tendencia lineal en la busqueda automatica; la diapositiva de
+%  vertical, menos texto al costado; 100 realizaciones en todos los barridos
+%  (23/09), tendencia lineal en la busqueda automatica; la diapositiva de
 %  area fija se reemplazo por la particion vertical que engorda hasta el bloque.
 %
 %  DOS PDF DISTINTOS, igual que en el TP2:
@@ -309,12 +309,14 @@
       $L = 1{,}20$ m \quad $W = 0{,}68$ m \quad $d = 0{,}20$ m\\
       $r = 1{,}75\times10^{-2}$ m \quad $m = 2{,}5\times10^{-2}$ kg\\
       $v_0 = 1$ m/s, dirección uniforme en $[0, 2\pi)$\\
-      $N = 100$ \quad ($25$ a $200$ en tiempo de ejecución)\\[8pt]
+      $N = 100$ \quad ($25$ a $200$ en tiempo de ejecución)\\[5pt]
       \textbf{Input}\\[3pt]
       Configuración de obstáculos: $K$ y $(x_k, y_k, R_k)$\\
-      dentro de la mesa, sin solaparse, $R_k \geq r$\\[8pt]
+      dentro de la mesa, sin solaparse, $R_k \geq r$\\[5pt]
       \textbf{Gol}\\[3pt]
-      Primer contacto de una fresca con $|y - W/2| \leq d/2$: pasa a usada y sigue en la mesa.
+      Primer contacto de una fresca con $|y - W/2| \leq d/2$: pasa a usada y sigue en la mesa.\\[5pt]
+      \textbf{Output}\\[3pt]
+      Estado ($\vect{r}_i$, $\vect{v}_i$, color) cada $n$ eventos e instante en que cada partícula pasa a usada
       }
     \end{column}
   \end{columns}
@@ -344,8 +346,8 @@
   \vspace{0.5em}
 
   \params{
-  Objetivo: minimizar $\langle t_{90}\rangle$. Barras: $\sigma_{t_{90}}$. Si una realización no llega a $F_u = 0{,}9$ antes de $t_{\max}$, no se promedia.\\[3pt]
-  Realizaciones: 10 (tiempo de ejecución), 20 (exploración sistemática), 5 (búsqueda automática), 20 (comparación final, mismas semillas), 30 (forma del bloque), 200 (validación de la forma), 1 (DCM).\\[3pt]
+  Objetivo: minimizar $\langle t_{90}\rangle$. Si una realización no llega a $F_u = 0{,}9$ antes de $t_{\max}$, no se promedia.\\[3pt]
+  Realizaciones: 100 (tiempo de ejecución y todos los barridos de obstáculos), 200 (validación de la forma), 1 (DCM).\\[3pt]
   Tiempo simulado: $t_f = 30$ s (tiempo de ejecución), \ $t_{\max} = 100$ s (resto).
   }
 \end{frame}
@@ -361,7 +363,7 @@
       \centering\includegraphics[width=0.99\linewidth,height=0.72\textheight,keepaspectratio]{performance.png}
     \end{column}
     \begin{column}{0.20\textwidth}
-      \params{$K = 0$\\$t_f = 30$ s\\[6pt]Realizaciones: 10}
+      \params{$K = 0$\\$t_f = 30$ s\\[6pt]Realizaciones: 100\\Barras: desvío estándar (del tamaño del símbolo)}
     \end{column}
   \end{columns}
 \end{frame}
@@ -388,7 +390,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{fu_comparison.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Realizaciones: 20\\[6pt]Búsqueda aleatoria: $K = 3$\\Bloque central: $K = 52$\\Reloj de arena: $K = 113$}
+      \params{Realizaciones: 100\\Banda: error estándar de la media\\Punteada: $\langle t_{90}\rangle$\\[6pt]Búsqueda aleatoria: $K = 3$\\Bloque central: $K = 52$\\Reloj de arena: $K = 113$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -400,7 +402,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{single.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$K = 1$, \ $y_1 = W/2$\\[6pt]Realizaciones: 20}
+      \params{$K = 1$, \ $y_1 = W/2$\\[6pt]Realizaciones: 100\\[6pt]Mesa vacía, mismas semillas: $\langle t_{90}\rangle = (22 \pm 3)$ s}
     \end{column}
   \end{columns}
 \end{frame}
@@ -412,7 +414,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{funnel_pairs_3.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{3 pares simétricos respecto del eje ($K = 6$)\\$R_k = 2{,}5\times10^{-2}$ m\\[6pt]Realizaciones: 20}
+      \params{3 pares simétricos respecto del eje ($K = 6$)\\$R_k = 2{,}5\times10^{-2}$ m\\[6pt]Realizaciones: 100\\[6pt]Mesa vacía, mismas semillas: $\langle t_{90}\rangle = (22 \pm 3)$ s}
     \end{column}
   \end{columns}
 \end{frame}
@@ -424,7 +426,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{random_search.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$2\times10^{2}$ configuraciones al azar\\$+\,2\times10^{2}$ mutaciones de las 10 mejores\\[6pt]$1 \leq K \leq 12$\\$r \leq R_k \leq 0{,}12$ m\\[6pt]Realizaciones: 5\\Barras: $\sigma_{t_{90}}$}
+      \params{$2\times10^{2}$ configuraciones al azar\\$+\,2\times10^{2}$ mutaciones de las 10 mejores\\[6pt]$1 \leq K \leq 12$\\$r \leq R_k \leq 0{,}12$ m\\[6pt]Realizaciones: 100\\[6pt]Mesa vacía, mismas semillas: $\langle t_{90}\rangle = (22 \pm 3)$ s}
     \end{column}
   \end{columns}
 \end{frame}
@@ -455,7 +457,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.57\textheight,keepaspectratio]{partition_thickness.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$K$ círculos tangentes en $x = L/2$\\$R = W/2K$, \ $2 \leq K \leq 19$\\[6pt]Realizaciones: 20, mismas semillas}
+      \params{$K$ círculos tangentes en $x = L/2$\\$R = W/2K$, \ $2 \leq K \leq 19$\\[6pt]Realizaciones: 100, mismas semillas\\[6pt]Mesa vacía, mismas semillas: $\langle t_{90}\rangle = (22 \pm 3)$ s}
     \end{column}
   \end{columns}
 \end{frame}
@@ -470,7 +472,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.57\textheight,keepaspectratio]{chamber_length.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Empaquetamiento hexagonal de 1 a 10 columnas\\7 círculos por columna, $R = 4{,}86\times10^{-2}$ m\\[6pt]Realizaciones: 20, mismas semillas}
+      \params{Empaquetamiento hexagonal de 1 a 10 columnas\\7 círculos por columna, $R = 4{,}86\times10^{-2}$ m\\[6pt]Realizaciones: 100, mismas semillas\\[6pt]Mesa vacía, mismas semillas: $\langle t_{90}\rangle = (22 \pm 3)$ s}
     \end{column}
   \end{columns}
 \end{frame}
@@ -485,7 +487,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.57\textheight,keepaspectratio]{shape_screening.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Misma red hexagonal, $R = W/2n$, $n = 7, 10, 14$\\Semiancho del bloque: $h_c$ frente al arco, $h_w$ contra las paredes; perfil en V o parabólico\\[6pt]177 geometrías sin zonas atrapadas\\[6pt]Realizaciones: 30, mismas semillas}
+      \params{Red hexagonal de $n = 7, 10, 14$ filas\\Semiancho: $h_c$ frente al arco, $h_w$ en las paredes; en V o parabólico\\[4pt]177 geometrías sin zonas atrapadas\\[4pt]Realizaciones: 100, mismas semillas\\Mesa vacía: $(22 \pm 3)$ s}
     \end{column}
   \end{columns}
 \end{frame}
@@ -497,7 +499,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{shape_validation.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Las 8 mejores del barrido\\[6pt]Realizaciones: 200, semillas que no participaron en la selección, las mismas para todas\\[6pt]Diferencia pareada, semilla a semilla\\Barras: error estándar}
+      \params{Las 8 mejores del barrido\\[6pt]Realizaciones: 200, semillas que no participaron en la selección, las mismas para todas\\[6pt]Diferencia pareada, semilla a semilla}
     \end{column}
   \end{columns}
 \end{frame}
@@ -509,7 +511,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{families.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Mejor configuración de cada familia\\[6pt]Realizaciones: 20, mismas semillas para todas}
+      \params{Mejor configuración de cada familia\\[6pt]Realizaciones: 100, mismas semillas para todas\\[6pt]Mesa vacía, mismas semillas: $\langle t_{90}\rangle = (22 \pm 3)$ s}
     \end{column}
   \end{columns}
 \end{frame}
@@ -543,11 +545,24 @@
 % ---------------------------------------------------------------- 24
 \begin{frame}{Desplazamiento cuadrático medio}
   \begin{columns}[c]
-    \begin{column}{0.72\textwidth}
-      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{msd_loglog.png}
+    \begin{column}{0.60\textwidth}
+      \centering\includegraphics[width=0.99\linewidth,height=0.75\textheight,keepaspectratio]{msd_loglog.png}
     \end{column}
-    \begin{column}{0.26\textwidth}
-      \params{Una realización por configuración\\[6pt]Trazo grueso: tramo difusivo ajustado\\[6pt]Bloque central: sin tramo difusivo identificable}
+    \begin{column}{0.38\textwidth}
+      \params{Una realización por configuración. Trazo grueso: tramo difusivo ajustado\\[6pt]
+      {\scriptsize
+      \begin{tabular}{lc}
+        & $D$ ($10^{-3}$ m$^2$/s)\\
+        \midrule
+        Mesa vacía & $23{,}2 \pm 0{,}6$\\
+        Un obstáculo central & $18{,}2 \pm 0{,}4$\\
+        Un obstáculo grande & $22{,}2 \pm 0{,}5$\\
+        Embudos & $14{,}2 \pm 0{,}2$\\
+        Búsqueda aleatoria & $24{,}4 \pm 0{,}8$\\
+        Partición & $10{,}5 \pm 0{,}3$\\
+        Bloque central & ---\\
+        Reloj de arena & $4{,}7 \pm 0{,}1$\\
+      \end{tabular}}}
     \end{column}
   \end{columns}
 \end{frame}
@@ -583,7 +598,7 @@
       \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{D_vs_t90.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$D$: una realización\\$\langle t_{90}\rangle$: 20 realizaciones\\[6pt]Barras: error del ajuste de $D$ y $\sigma_{t_{90}}$\\[6pt]Sin $D$ identificable: bloque de cara plana\\[6pt]$n = 7$: Pearson $0{,}75$, Spearman $0{,}54$}
+      \params{$D$: una realización\\$\langle t_{90}\rangle$: 100 realizaciones\\[6pt]Barras: error del ajuste de $D$ y error estándar de $\langle t_{90}\rangle$\\[6pt]Sin $D$ identificable: bloque de cara plana\\[6pt]$n = 7$: Pearson $0{,}73$, Spearman $0{,}39$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -607,7 +622,7 @@
     \vspace{0.15em}
     \item La configuración elegida baja $\langle t_{90}\rangle$ de $(22 \pm 3)$ s a $(14 \pm 2)$ s.
     \vspace{0.15em}
-    \item Entre las configuraciones con régimen difusivo, $\langle t_{90}\rangle$ tiende a bajar con $D$ (Pearson $0{,}75$, $n = 7$); el bloque de cara plana no tiene régimen difusivo identificable.
+    \item Entre las configuraciones con régimen difusivo, $\langle t_{90}\rangle$ tiende a bajar con $D$ (Pearson $0{,}73$, $n = 7$); el bloque de cara plana no tiene régimen difusivo identificable.
   \end{itemize}
 \end{frame}
 

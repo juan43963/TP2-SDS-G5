@@ -17,10 +17,11 @@ toda el area libre; si no, se descarta.
 
 Etapas (sin reutilizar semillas entre seleccion y validacion):
 
-- screening: todas las geometrias distintas con 30 semillas (9001-9030).
+- screening: todas las geometrias distintas con 100 semillas (9001-9100).
 - validation: las 8 mejores, el bloque plano de 7 columnas y la mesa vacia con
   200 semillas nuevas (20001-20200); diferencia pareada contra el bloque plano.
-  La de menor <t90> es la configuracion elegida.
+  La de menor <t90> es la elegida, salvo que la vigente empate con ella
+  (diferencia pareada menor a dos errores estandar).
 
     python3 python/block_shape_search.py            # simula y grafica
     python3 python/block_shape_search.py --replot   # solo regrafica
@@ -52,7 +53,7 @@ import numpy as np
 from engine_runner import run_engine
 from obstacle_experiments import (
     LENGTH, PARTICLE_RADIUS, SUMMARY_FIELDS, WIDTH, Candidate, read_config,
-    read_summary, summarize_candidate, write_config, write_csv,
+    read_summary, summarize_candidate, t90_error, write_config, write_csv,
 )
 
 TP3_BIN = TP3_DIR / "tp3"
@@ -63,7 +64,7 @@ CHOSEN_HOURGLASS = OBSTACLES / "central_blocks" / "chosen_hourglass_config.txt"
 GOAL_SIZE = 0.20
 TMAX = 100.0
 FS = 20
-SCREEN_SEEDS = tuple(range(9001, 9031))
+SCREEN_SEEDS = tuple(range(9001, 9101))
 VALIDATION_SEEDS = tuple(range(20001, 20201))
 TOP = 8
 ROWS = (7, 10, 14)
@@ -244,14 +245,43 @@ def read_validation(path: Path) -> list[dict]:
     return rows
 
 
-def chosen_row(validated: list[dict]) -> dict:
+def read_validation_runs(path: Path) -> dict[str, dict[int, float]]:
+    per_seed: dict[str, dict[int, float]] = {}
+    with path.open(newline="") as source:
+        for row in csv.DictReader(source):
+            if row["t90"] not in ("", "NA", "None"):
+                per_seed.setdefault(row["name"], {})[int(row["seed"])] = float(row["t90"])
+    return per_seed
+
+
+def chosen_row(validated: list[dict], per_seed: dict[str, dict[int, float]]) -> dict:
+    """La de menor <t90>, salvo que la elegida vigente no sea significativamente peor.
+
+    La configuracion entregada se conserva mientras su diferencia pareada con la
+    mejor (mismas semillas) no supere dos errores estandar: cambiarla por un
+    empate estadistico no mejora nada y obliga a rehacer todo lo que depende de ella.
+    """
     shaped = [row for row in validated if row["name"] not in ("empty", "flat_block")]
-    return min(shaped, key=lambda row: float(row["t90_mean"]))
+    best = min(shaped, key=lambda row: float(row["t90_mean"]))
+    if not CHOSEN_HOURGLASS.is_file():
+        return best
+    current_obstacles = read_config(CHOSEN_HOURGLASS)
+    current = next((row for row in shaped
+                    if read_config(Path(row["config_path"])) == current_obstacles), None)
+    if current is None or current is best:
+        return best
+    a, b = per_seed[current["name"]], per_seed[best["name"]]
+    diffs = [a[seed] - b[seed] for seed in a if seed in b]
+    mean = statistics.fmean(diffs)
+    se = statistics.stdev(diffs) / math.sqrt(len(diffs))
+    print(f"elegida vigente {current['name']} contra {best['name']}: "
+          f"{mean:+.3f} +/- {se:.3f} s", flush=True)
+    return current if mean <= 2.0 * se else best
 
 
-def ensure_chosen(validated: list[dict]) -> Path:
+def ensure_chosen(chosen: dict) -> Path:
     """Escribe la elegida en data/obstacles; si ya existe, exige que coincida."""
-    obstacles = read_config(Path(chosen_row(validated)["config_path"]))
+    obstacles = read_config(Path(chosen["config_path"]))
     if CHOSEN_HOURGLASS.is_file():
         if read_config(CHOSEN_HOURGLASS) != obstacles:
             raise RuntimeError(f"{CHOSEN_HOURGLASS} no coincide con la ganadora de la validacion")
@@ -274,7 +304,7 @@ def plot_screening(rows: list[dict], chosen_name: str, path: Path) -> None:
             continue
         flat = series == SERIES["flat"]
         axis.errorbar([row["x_value"] for row in points], [row["t90_mean"] for row in points],
-                      yerr=[row["t90_std"] for row in points], fmt="o-" if flat else "o",
+                      yerr=[t90_error(row) for row in points], fmt="o-" if flat else "o",
                       ms=10 if flat else 6, alpha=1.0 if flat else 0.55, capsize=3,
                       color=COLORS[series], elinewidth=1.0, label=series)
     chosen = next(row for row in rows if row["name"] == chosen_name)
@@ -289,9 +319,8 @@ def plot_screening(rows: list[dict], chosen_name: str, path: Path) -> None:
     plt.close(figure)
 
 
-def plot_validation(rows: list[dict], path: Path) -> None:
+def plot_validation(rows: list[dict], chosen: dict, path: Path) -> None:
     """Diferencia pareada de t90 con el bloque plano; barra = error estandar."""
-    chosen = chosen_row(rows)
     figure, axis = plt.subplots(figsize=(11, 6.5))
     for series in (SERIES["v"], SERIES["parab"]):
         points = [row for row in rows if row["series"] == series]
@@ -335,13 +364,13 @@ def main() -> int:
             write_csv(out / "screening.csv", SUMMARY_FIELDS, screen)
             validated = validation(screen, out, args.jobs)
             write_csv(out / "validation.csv", VALIDATION_FIELDS, validated)
-        chosen = chosen_row(validated)
-        path = ensure_chosen(validated)
+        chosen = chosen_row(validated, read_validation_runs(out / "validation_runs.csv"))
+        path = ensure_chosen(chosen)
         print(f"elegida: {chosen['name']} K={chosen['K']} <t90>={chosen['t90_mean']:.3f} s, "
               f"{chosen['diff_mean']:+.3f} +/- {chosen['diff_se']:.3f} s contra la cara plana "
               f"-> {path}")
         plot_screening(screen, chosen["name"], plots / "shape_screening.png")
-        plot_validation(validated, plots / "shape_validation.png")
+        plot_validation(validated, chosen, plots / "shape_validation.png")
         print(f"figuras en {plots}")
         return 0
     except (OSError, RuntimeError, ValueError) as exc:

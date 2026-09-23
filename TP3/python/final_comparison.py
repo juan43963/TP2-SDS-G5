@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Comparacion final del inciso 1.2 con semillas comunes.
 
-Cuatro resultados, todos con las mismas 20 semillas nuevas (7001-7020):
+Cuatro resultados, todos con las mismas 100 semillas nuevas (7001-7100):
 
 - families: la mejor configuracion validada de cada familia estudiada.
 - partition: columna central de K = 19..2 circulos tangentes (R = W/2K), o sea
@@ -22,7 +22,8 @@ que tambien pidio sacar la banda gris de referencia y poner siempre t90 en el
 eje vertical.
 
 Figuras sin titulo, ejes en palabras con unidades y fuente 20 (guia de
-presentaciones 1.7-1.8); datos con simbolo y barra de desvio (guia 2.4.6).
+presentaciones 1.7-1.8); datos con simbolo y barra de error estandar de la
+media, desvio / sqrt(realizaciones) (guia 2.4.6).
 
     python3 python/final_comparison.py                   # simula y grafica
     python3 python/final_comparison.py --reuse-existing  # solo las etapas sin csv
@@ -53,14 +54,14 @@ from central_block_search import central_block_candidates, fill_wall_pockets
 from engine_runner import run_engine
 from obstacle_experiments import (
     LENGTH, PARTICLE_RADIUS, SUMMARY_FIELDS, WIDTH, Candidate, read_config,
-    read_summary, summarize_candidate, write_config, write_csv,
+    read_summary, summarize_candidate, t90_error, write_config, write_csv,
 )
 from tp3io import read_goal_series
 
 TP3_BIN = TP3_DIR / "tp3"
 OBSTACLES = TP3_DIR / "data" / "obstacles"
 OUTPUT_DIR = TP3_DIR / "data" / "final_comparison"
-SEEDS = tuple(range(7001, 7021))
+SEEDS = tuple(range(7001, 7101))
 TMAX = 100.0
 FS = 20
 BLOCK_ROWS = 7
@@ -203,7 +204,7 @@ def plot_families(rows: list[dict], path: Path) -> None:
     figure, axis = plt.subplots(figsize=(12, 7.5))
     x = np.arange(len(rows))
     axis.errorbar(x, [row["t90_mean"] for row in rows],
-                  yerr=[row["t90_std"] for row in rows], fmt="o", ms=11, capsize=6,
+                  yerr=[t90_error(row) for row in rows], fmt="o", ms=11, capsize=6,
                   color="#1f5fa8", ecolor="#1f5fa8", elinewidth=2)
     axis.set_xticks(x, [row["series"] for row in rows], fontsize=FS, rotation=35,
                     ha="right", rotation_mode="anchor")
@@ -222,7 +223,7 @@ BLOCK_COLOR = "#1e8449"
 def _sweep_series(axis, rows: list[dict], color: str, label: str) -> None:
     rows = sorted(rows, key=lambda row: float(row["x_value"]))
     axis.errorbar([float(row["x_value"]) for row in rows], [row["t90_mean"] for row in rows],
-                  yerr=[row["t90_std"] for row in rows], fmt="o-", ms=10, capsize=6, lw=1.2,
+                  yerr=[t90_error(row) for row in rows], fmt="o-", ms=10, capsize=6, lw=1.2,
                   color=color, elinewidth=2, label=label)
 
 
@@ -232,7 +233,7 @@ def plot_partition(rows: list[dict], path: Path) -> None:
     figure, axis = plt.subplots(figsize=(11, 6.5))
     radii = [WIDTH / (2.0 * int(row["K"])) for row in rows]
     axis.errorbar(radii, [row["t90_mean"] for row in rows],
-                  yerr=[row["t90_std"] for row in rows], fmt="o-", ms=10, capsize=6, lw=1.2,
+                  yerr=[t90_error(row) for row in rows], fmt="o-", ms=10, capsize=6, lw=1.2,
                   color=PARTITION_COLOR, elinewidth=2)
     axis.set_xlabel("Radio de los círculos (m)", fontsize=FS)
     axis.set_ylabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
@@ -271,10 +272,12 @@ def plot_fu(goals_dir: Path, labels: dict[str, str], path: Path) -> None:
             continue
         series = [read_goal_series(goals_dir / name / f"seed_{seed}.txt") for seed in SEEDS]
         curves = np.vstack([evaluate_step(item, grid) for item in series])
-        mean, std = curves.mean(axis=0), curves.std(axis=0, ddof=1)
+        mean = curves.mean(axis=0)
+        # Banda: error estandar de la media de F_u(t).
+        error = curves.std(axis=0, ddof=1) / np.sqrt(len(series))
         t90 = np.mean([t90_from_series(item) for item in series])
         axis.plot(grid, mean, color=color, lw=2.6, label=labels[name])
-        axis.fill_between(grid, mean - std, mean + std, color=color, alpha=0.18, lw=0)
+        axis.fill_between(grid, mean - error, mean + error, color=color, alpha=0.18, lw=0)
         axis.axvline(t90, color=color, ls=":", lw=2)
     axis.axhline(0.9, color="black", ls="--", lw=1.5)
     axis.set_xlim(0, grid[-1])

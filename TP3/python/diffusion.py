@@ -24,6 +24,7 @@ import matplotlib
 if "--show" not in sys.argv:
     matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 import numpy as np
 
 from engine_runner import run_engine
@@ -76,7 +77,7 @@ class StudyCase:
     label: str
     config_path: Path | None
     t90_mean: float
-    t90_std: float
+    t90_se: float
 
 
 def _finite_float(text: str, context: str) -> float:
@@ -357,9 +358,11 @@ DIFFUSION_CASES = (
 
 
 def _load_t90_values() -> dict[str, tuple[float, float]]:
-    """<t90> y su desvio de python/final_comparison.py: las mismas 20 semillas para todos."""
+    """<t90> y su error estandar de python/final_comparison.py: las mismas 100
+    semillas para todos."""
     with FINAL_COMPARISON.open(newline="") as source:
-        values = {row["name"]: (float(row["t90_mean"]), float(row["t90_std"]))
+        values = {row["name"]: (float(row["t90_mean"]),
+                                float(row["t90_std"]) / math.sqrt(int(row["successful_runs"])))
                   for row in csv.DictReader(source)
                   if row["t90_mean"] not in ("", "NA")}
     missing = {name for name, _, _ in DIFFUSION_CASES} - set(values)
@@ -471,17 +474,17 @@ def plot_correlation(summary: list[dict], path: Path, show: bool) -> None:
     valid = [row for row in summary if row["fit_found"]]
     figure, axes = plt.subplots(figsize=(9.5, 6.5))
     # t90 siempre en el eje vertical (correccion de la primera consulta).
-    # Barras: error del ajuste de D (horizontal) y desvio de t90 entre realizaciones
+    # Barras: error del ajuste de D (horizontal) y error estandar de <t90>
     # (vertical).
     points = [(float(row["D"]), float(row["t90_mean"]), float(row["D_std"]),
-               float(row["t90_std"]), str(row["label"])) for row in valid]
-    for d, t90, d_std, t90_std, label in points:
-        axes.errorbar(d, t90, xerr=d_std, yerr=t90_std, marker="o", capsize=4,
+               float(row["t90_se"]), str(row["label"])) for row in valid]
+    for d, t90, d_std, t90_se, label in points:
+        axes.errorbar(d, t90, xerr=d_std, yerr=t90_se, marker="o", capsize=4,
                       linestyle="none", markersize=9, label=label)
     # Con barras verticales las etiquetas junto a cada punto se pisan: leyenda
     # por color en la franja superior, que se deja libre ampliando el eje y.
-    low = min(t90 - t90_std for _, t90, _, t90_std, _ in points)
-    high = max(t90 + t90_std for _, t90, _, t90_std, _ in points)
+    low = min(t90 - t90_se for _, t90, _, t90_se, _ in points)
+    high = max(t90 + t90_se for _, t90, _, t90_se, _ in points)
     axes.set_ylim(low - 0.08 * (high - low), high + 0.62 * (high - low))
     axes.legend(loc="upper center", ncol=2, fontsize=FS, frameon=False,
                 handletextpad=0.3, columnspacing=1.0, borderaxespad=0.2)
@@ -490,6 +493,11 @@ def plot_correlation(summary: list[dict], path: Path, show: bool) -> None:
     axes.set_xlabel(r"Coeficiente de difusión (m$^2$/s)", fontsize=FS)
     axes.set_ylabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
     axes.tick_params(axis="both", labelsize=FS)
+    # Guia 1.9: potencias de 10 (x 10^-2) en lugar de 0.005, 0.010, ...
+    formatter = ScalarFormatter(useMathText=True)
+    formatter.set_powerlimits((-1, 1))
+    axes.xaxis.set_major_formatter(formatter)
+    axes.xaxis.get_offset_text().set_fontsize(FS)
     axes.margins(x=0.1)
     axes.grid(False)
     figure.tight_layout()
@@ -567,7 +575,7 @@ def main() -> int:
                 "tmax": args.tmax,
                 "processed_events": series.processed_events,
                 "t90_mean": case.t90_mean,
-                "t90_std": case.t90_std,
+                "t90_se": case.t90_se,
                 "fit_found": fit is not None,
                 "fit_start": None if fit is None else series.times[fit.start_index],
                 "fit_end": None if fit is None else series.times[fit.end_index],

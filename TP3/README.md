@@ -194,8 +194,13 @@ parametros oficiales con trayectoria deshabilitada.
 
 ```bash
 make competition
-python3 python/competition.py --seeds 11 22 33 44 55 --wait-for-start
+python3 python/competition.py --seeds 11 22 33 44 55 \
+    --preview-dir data/competition/initial --wait-for-start
 ```
+
+`--preview-dir` dibuja antes de largar la condicion inicial de cada semilla
+(exactamente la que se va a simular), para mostrar que las posiciones son al
+azar en toda el area disponible, como pide el enunciado.
 
 Las corridas, el resumen y un manifiesto con semillas, parametros y checksum
 quedan en `data/competition/`.
