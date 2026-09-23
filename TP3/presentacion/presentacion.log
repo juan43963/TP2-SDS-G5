@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  23 SEP 2026 15:58
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  23 SEP 2026 16:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1269,7 +1269,7 @@ LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10.95> not available
 File: ../data/performance/performance.png Graphic file (type png)
 <use ../data/performance/performance.png>
 Package pdftex.def Info: ../data/performance/performance.png  used on input lin
-e 369.
+e 365.
 (pdftex.def)             Requested size: 334.63205pt x 137.83385pt.
  [13
 
@@ -1277,12 +1277,12 @@ e 369.
 <frame_vacia.png, id=997, 642.7212pt x 397.0032pt>
 File: frame_vacia.png Graphic file (type png)
 <use frame_vacia.png>
-Package pdftex.def Info: frame_vacia.png  used on input line 384.
+Package pdftex.def Info: frame_vacia.png  used on input line 380.
 (pdftex.def)             Requested size: 173.33496pt x 107.06508pt.
 <frame_elegida.png, id=999, 642.7212pt x 397.0032pt>
 File: frame_elegida.png Graphic file (type png)
 <use frame_elegida.png>
-Package pdftex.def Info: frame_elegida.png  used on input line 384.
+Package pdftex.def Info: frame_elegida.png  used on input line 380.
 (pdftex.def)             Requested size: 173.33496pt x 107.06508pt.
  [14
 
@@ -1292,7 +1292,7 @@ Package pdftex.def Info: frame_elegida.png  used on input line 384.
 File: ../data/final_comparison/plots/fu_comparison.png Graphic file (type png)
 <use ../data/final_comparison/plots/fu_comparison.png>
 Package pdftex.def Info: ../data/final_comparison/plots/fu_comparison.png  used
- on input line 396.
+ on input line 392.
 (pdftex.def)             Requested size: 280.29378pt x 164.40472pt.
  [15
 
@@ -1302,7 +1302,7 @@ t>
 File: ../data/obstacles/systematic/plots/single.png Graphic file (type png)
 <use ../data/obstacles/systematic/plots/single.png>
 Package pdftex.def Info: ../data/obstacles/systematic/plots/single.png  used on
- input line 408.
+ input line 404.
 (pdftex.def)             Requested size: 242.2178pt x 164.40186pt.
  [16
 
@@ -1313,7 +1313,7 @@ File: ../data/obstacles/systematic/plots/funnel_pairs_3.png Graphic file (type
 png)
 <use ../data/obstacles/systematic/plots/funnel_pairs_3.png>
 Package pdftex.def Info: ../data/obstacles/systematic/plots/funnel_pairs_3.png 
- used on input line 420.
+ used on input line 416.
 (pdftex.def)             Requested size: 242.07861pt x 164.40186pt.
 [17
 
@@ -1324,7 +1324,7 @@ File: ../data/obstacles/automatic/plots/random_search.png Graphic file (type pn
 g)
 <use ../data/obstacles/automatic/plots/random_search.png>
 Package pdftex.def Info: ../data/obstacles/automatic/plots/random_search.png  u
-sed on input line 432.
+sed on input line 428.
 (pdftex.def)             Requested size: 242.2178pt x 164.40186pt.
  [18
 
@@ -1334,7 +1334,7 @@ sed on input line 432.
 <casos_particion.png, id=1469, 731.3724pt x 132.0132pt>
 File: casos_particion.png Graphic file (type png)
 <use casos_particion.png>
-Package pdftex.def Info: casos_particion.png  used on input line 463.
+Package pdftex.def Info: casos_particion.png  used on input line 456.
 (pdftex.def)             Requested size: 303.3395pt x 54.75423pt.
 <../data/final_comparison/plots/partition_thickness.png, id=1470, 787.743pt x 4
 63.0098pt>
@@ -1342,7 +1342,7 @@ File: ../data/final_comparison/plots/partition_thickness.png Graphic file (type
  png)
 <use ../data/final_comparison/plots/partition_thickness.png>
 Package pdftex.def Info: ../data/final_comparison/plots/partition_thickness.png
-  used on input line 463.
+  used on input line 456.
 (pdftex.def)             Requested size: 212.57324pt x 124.94366pt.
  [20
 
@@ -1351,7 +1351,7 @@ g>]
 <casos_bloque.png, id=1549, 731.3724pt x 132.0132pt>
 File: casos_bloque.png Graphic file (type png)
 <use casos_bloque.png>
-Package pdftex.def Info: casos_bloque.png  used on input line 478.
+Package pdftex.def Info: casos_bloque.png  used on input line 471.
 (pdftex.def)             Requested size: 303.3395pt x 54.75423pt.
 <../data/final_comparison/plots/chamber_length.png, id=1550, 787.743pt x 463.00
 98pt>
@@ -1359,7 +1359,7 @@ File: ../data/final_comparison/plots/chamber_length.png Graphic file (type png)
 
 <use ../data/final_comparison/plots/chamber_length.png>
 Package pdftex.def Info: ../data/final_comparison/plots/chamber_length.png  use
-d on input line 478.
+d on input line 471.
 (pdftex.def)             Requested size: 212.57324pt x 124.94366pt.
  [21
 
@@ -1367,14 +1367,14 @@ d on input line 478.
 <casos_forma.png, id=1629, 731.3724pt x 132.9768pt>
 File: casos_forma.png Graphic file (type png)
 <use casos_forma.png>
-Package pdftex.def Info: casos_forma.png  used on input line 493.
+Package pdftex.def Info: casos_forma.png  used on input line 486.
 (pdftex.def)             Requested size: 303.3395pt x 55.1539pt.
 <../data/block_shapes/plots/shape_screening.png, id=1630, 787.743pt x 462.528pt
 >
 File: ../data/block_shapes/plots/shape_screening.png Graphic file (type png)
 <use ../data/block_shapes/plots/shape_screening.png>
 Package pdftex.def Info: ../data/block_shapes/plots/shape_screening.png  used o
-n input line 493.
+n input line 486.
 (pdftex.def)             Requested size: 212.80162pt x 124.94774pt.
  [22
 
@@ -1384,7 +1384,7 @@ pt>
 File: ../data/block_shapes/plots/shape_validation.png Graphic file (type png)
 <use ../data/block_shapes/plots/shape_validation.png>
 Package pdftex.def Info: ../data/block_shapes/plots/shape_validation.png  used 
-on input line 505.
+on input line 498.
 (pdftex.def)             Requested size: 279.83406pt x 164.40678pt.
  [23
 
@@ -1394,7 +1394,7 @@ on input line 505.
 File: ../data/final_comparison/plots/families.png Graphic file (type png)
 <use ../data/final_comparison/plots/families.png>
 Package pdftex.def Info: ../data/final_comparison/plots/families.png  used on i
-nput line 517.
+nput line 510.
 (pdftex.def)             Requested size: 260.61708pt x 164.4052pt.
  [24
 
@@ -1402,10 +1402,10 @@ nput line 517.
 <configuracion_elegida.png, id=1865, 642.7212pt x 397.0032pt>
 File: configuracion_elegida.png Graphic file (type png)
 <use configuracion_elegida.png>
-Package pdftex.def Info: configuracion_elegida.png  used on input line 543.
+Package pdftex.def Info: configuracion_elegida.png  used on input line 534.
 (pdftex.def)             Requested size: 242.67159pt x 149.89354pt.
 
-Overfull \hbox (9.93317pt too wide) in paragraph at lines 543--543
+Overfull \hbox (9.93317pt too wide) in paragraph at lines 534--534
 [][]  
  []
 
@@ -1416,7 +1416,7 @@ Overfull \hbox (9.93317pt too wide) in paragraph at lines 543--543
 File: ../data/diffusion/plots/msd_loglog.png Graphic file (type png)
 <use ../data/diffusion/plots/msd_loglog.png>
 Package pdftex.def Info: ../data/diffusion/plots/msd_loglog.png  used on input 
-line 568.
+line 546.
 (pdftex.def)             Requested size: 247.68289pt x 164.4071pt.
  [26
 
@@ -1425,7 +1425,7 @@ line 568.
 File: ../data/diffusion/plots/local_log_slope.png Graphic file (type png)
 <use ../data/diffusion/plots/local_log_slope.png>
 Package pdftex.def Info: ../data/diffusion/plots/local_log_slope.png  used on i
-nput line 580.
+nput line 558.
 (pdftex.def)             Requested size: 247.80203pt x 164.4071pt.
  [27
 
@@ -1433,7 +1433,7 @@ nput line 580.
 <ajuste_D_vacia.png, id=2102, 1076.823pt x 397.485pt>
 File: ajuste_D_vacia.png Graphic file (type png)
 <use ajuste_D_vacia.png>
-Package pdftex.def Info: ajuste_D_vacia.png  used on input line 592.
+Package pdftex.def Info: ajuste_D_vacia.png  used on input line 570.
 (pdftex.def)             Requested size: 326.03983pt x 120.35027pt.
  [28
 
@@ -1442,7 +1442,7 @@ Package pdftex.def Info: ajuste_D_vacia.png  used on input line 592.
 File: ../data/diffusion/plots/D_vs_t90.png Graphic file (type png)
 <use ../data/diffusion/plots/D_vs_t90.png>
 Package pdftex.def Info: ../data/diffusion/plots/D_vs_t90.png  used on input li
-ne 604.
+ne 582.
 (pdftex.def)             Requested size: 240.75925pt x 164.40527pt.
  [29
 
@@ -1479,7 +1479,7 @@ Package rerunfilecheck Info: File `presentacion.out' has not changed.
 Here is how much of TeX's memory you used:
  28152 strings out of 467871
  577405 string characters out of 5413500
- 982414 words of memory out of 5000000
+ 981403 words of memory out of 5000000
  56377 multiletter control sequences out of 15000+600000
  659797 words of font info for 116 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1524,9 +1524,9 @@ eX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/Lucas Di Candia/AppData/L
 ocal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/Lucas D
 i Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb
 >
-Output written on presentacion.pdf (32 pages, 3102631 bytes).
+Output written on presentacion.pdf (32 pages, 3095752 bytes).
 PDF statistics:
- 2948 PDF objects out of 2984 (max. 8388607)
+ 2936 PDF objects out of 2984 (max. 8388607)
  70 named destinations out of 1000 (max. 500000)
  225 words of extra memory for PDF output out of 10000 (max. 10000000)
 
