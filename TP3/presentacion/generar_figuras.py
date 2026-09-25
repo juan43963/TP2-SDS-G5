@@ -151,8 +151,35 @@ def guardar(fig, nombre: str):
     return out
 
 
+# Estudios de una variable (python/one_variable_studies.py): casos animados.
+UNA_VARIABLE = "data/one_variable/{}/configs/{}.txt"
+CASOS_ANIMADOS = [
+    ("vacia", []),
+    ("elegida", ["--config", CONFIG]),
+    ("radio_R03", ["--config", UNA_VARIABLE.format("radio", "radio_R03")]),
+    ("radio_R30", ["--config", UNA_VARIABLE.format("radio", "radio_R30")]),
+    ("reloj_hc04", ["--config", UNA_VARIABLE.format("reloj", "reloj_hc04")]),
+    ("reloj_hc40", ["--config", UNA_VARIABLE.format("reloj", "reloj_hc40")]),
+]
+
+
+def casos_radio():
+    """Obstaculo central de radio creciente (one_variable_studies.py)."""
+    tira_de_casos("casos_radio.png",
+                  [(f"R = {R:.2f} m".replace(".", ","), ((LENGTH / 2, WIDTH / 2, R),))
+                   for R in (0.03, 0.12, 0.21, 0.30)])
+
+
+def casos_reloj():
+    """Reloj de arena con h_w fijo y h_c creciente (one_variable_studies.py)."""
+    tira_de_casos("casos_reloj.png",
+                  [(f"$h_c$ = {hc:.2f} m".replace(".", ","),
+                    shaped_block(10, half_width_profile(hc, 0.50, "v")))
+                   for hc in (0.04, 0.16, 0.28, 0.40)])
+
+
 def fotogramas():
-    for tag, extra in [("vacia", []), ("elegida", ["--config", CONFIG])]:
+    for tag, extra in CASOS_ANIMADOS:
         system, frames = correr(tag, extra)
         frame = min(frames, key=lambda f: abs(f.time - T_FRAME))
         out = guardar(mesa(system, frame), f"frame_{tag}.png")
@@ -255,7 +282,7 @@ def ajuste_D(nombre: str = "hourglass"):
     print(guardar(fig, f"ajuste_D_{nombre}.png"))
 
 
-FIGURAS = {"fotogramas": fotogramas, "ajuste_D": ajuste_D, "dcm": dcm_elegida, "area_fija": casos_area_fija,
+FIGURAS = {"fotogramas": fotogramas, "radio": casos_radio, "reloj": casos_reloj, "ajuste_D": ajuste_D, "dcm": dcm_elegida, "area_fija": casos_area_fija,
            "particion": casos_particion, "bloque": casos_bloque, "forma": casos_forma}
 
 if __name__ == "__main__":

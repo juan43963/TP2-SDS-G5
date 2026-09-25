@@ -106,6 +106,7 @@ None yet.
 | 260824-i0l-05 | Tabla analítica ⟨k⟩ vs. umbral de percolación + barrido real ρ<1.5 + Fig. S(ρ) | 2026-08-24 | 1926e22 | [260824-i0l-cerrar-pendientes-de-entregables-tp2-inf](./quick/260824-i0l-cerrar-pendientes-de-entregables-tp2-inf/) |
 | 260923-eyc-01 | TP3: Config de competencia = bloque K=52 + ZIP del motor (17 KB) | 2026-09-23 | — | [260923-eyc-tp3-config-competencia-bloque-y-zip-de-c](./quick/260923-eyc-tp3-config-competencia-bloque-y-zip-de-c/) |
 | 260923-eyc-02 | TP3: observables en post-proceso + barras/σ/notación en presentación | 2026-09-23 | — | [260923-eyc-tp3-config-competencia-bloque-y-zip-de-c](./quick/260923-eyc-tp3-config-competencia-bloque-y-zip-de-c/) |
+| 260925-prf-01 | TP3: demo en vivo (conversiones + t90), solo tiempos de evento (frame final, DCM, ⟨F_u⟩), 1.2 a/b de una variable, ZIP con animación | 2026-09-25 | — | [260925-prf-tp3-pedidos-profesor-demo-eventos-1-2](./quick/260925-prf-tp3-pedidos-profesor-demo-eventos-1-2/) |
 
 ## Deferred Items
 

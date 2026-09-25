@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from engine_runner import ENGINE_SUMMARY_FIELDS, run_engine
-from tp3io import GoalSeries, read_goal_series, t90_from_series
+from tp3io import GoalSeries, mean_goal_times, read_goal_series, t90_from_series
 
 TP3_BIN = TP3_DIR / "tp3"
 OUTPUT_DIR = TP3_DIR / "data" / "baseline"
@@ -46,16 +46,6 @@ BASELINE_SUMMARY_FIELDS = (
     "used_fraction_at_tmax_mean",
     "used_fraction_at_tmax_std",
 )
-
-
-def evaluate_step(series: GoalSeries, sample_times: np.ndarray) -> np.ndarray:
-    """Evalua la funcion escalonada Fu(t) sin interpolar entre goles."""
-    if sample_times.ndim != 1 or not np.all(np.isfinite(sample_times)):
-        raise ValueError("la grilla temporal debe ser un vector finito")
-    if np.any(sample_times < series.times[0]) or np.any(sample_times > series.times[-1]):
-        raise ValueError("la grilla temporal queda fuera del registro de goles")
-    indices = np.searchsorted(series.times, sample_times, side="right") - 1
-    return series.used_fraction[indices]
 
 
 def collect(
@@ -147,6 +137,12 @@ def write_csv(path: Path, fields: tuple[str, ...], rows: list[dict]) -> None:
             writer.writerow({key: "NA" if value is None else value for key, value in row.items()})
 
 
+def mean_goal_std(series_collection: list[GoalSeries]) -> np.ndarray:
+    """Desvio de t_k entre realizaciones (0 en t=0), para la banda del baseline."""
+    fraction, _, error = mean_goal_times(series_collection)
+    return error * math.sqrt(len(series_collection))
+
+
 def plot_fu(
     series_collection: list[GoalSeries],
     seeds: list[int],
@@ -157,10 +153,8 @@ def plot_fu(
 ) -> None:
     if not series_collection or len(series_collection) != len(seeds):
         raise ValueError("series y semillas inconsistentes")
-    grid = np.linspace(0.0, tmax, 1001)
-    curves = np.vstack([evaluate_step(series, grid) for series in series_collection])
-    mean = np.mean(curves, axis=0)
-    std = np.std(curves, axis=0, ddof=1) if len(series_collection) > 1 else np.zeros_like(mean)
+    fraction, mean, _ = mean_goal_times(series_collection)
+    std = mean_goal_std(series_collection)
 
     figure, axes = plt.subplots(figsize=(9.0, 6.0))
     for index, (seed, series) in enumerate(zip(seeds, series_collection, strict=True)):
@@ -173,14 +167,11 @@ def plot_fu(
             linewidth=1.0,
             label="Realizaciones" if index == 0 else None,
         )
-    axes.plot(grid, mean, color="#174f91", linewidth=2.4, label=r"Promedio $\pm s$")
-    axes.fill_between(
-        grid,
-        np.clip(mean - std, 0.0, 1.0),
-        np.clip(mean + std, 0.0, 1.0),
-        color="#174f91",
-        alpha=0.18,
-    )
+    # Promedio por gol: <t_k> de cada k-esimo gol (solo tiempos de evento).
+    axes.step(mean, fraction, where="post", color="#174f91", linewidth=2.4,
+              label=r"Promedio $\pm s$")
+    axes.fill_betweenx(fraction, np.clip(mean - std, 0.0, None), mean + std,
+                       step="post", color="#174f91", alpha=0.18)
     axes.axhline(0.9, color="#b33b32", linestyle="--", linewidth=1.5, label=r"$F_u=0.9$")
     if summary["t90_mean"] is not None:
         axes.axvline(

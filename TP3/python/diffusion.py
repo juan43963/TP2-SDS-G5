@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Inciso 1.3: DCM, regimen difusivo, D y correlacion con t90."""
+"""Inciso 1.3: DCM, regimen difusivo, D y correlacion con t90.
+
+El DCM se evalua solo en instantes de evento, cada n eventos: no se usa
+ninguna grilla temporal ni se extrapolan posiciones a tiempos sin evento
+(pedido de la catedra, 25/09). n sale de la tasa media de eventos de la corrida
+para que haya en promedio una muestra cada ~0,05 s (`--mean-spacing`), la
+resolucion para la que esta calibrada la deteccion del regimen difusivo.
+"""
 
 from __future__ import annotations
 
@@ -35,7 +42,8 @@ SYSTEMATIC_DIR = TP3_DIR / "data" / "obstacles" / "systematic"
 AUTOMATIC_DIR = TP3_DIR / "data" / "obstacles" / "automatic"
 DEFAULT_SEED = 42
 DEFAULT_TMAX = 100.0
-DEFAULT_SAMPLE_DT = 0.05
+DEFAULT_SAMPLE_EVERY = 100
+DEFAULT_MEAN_SPACING = 0.05
 # Guia de presentaciones 1.8: toda la letra de las figuras en 20.
 FS = 20
 EVENT_TYPES = {
@@ -90,16 +98,14 @@ def _finite_float(text: str, context: str) -> float:
     return value
 
 
-def reconstruct_msd(path: Path, sample_times: np.ndarray) -> MsdSeries:
-    """Reconstruye posiciones con MRU entre cambios de velocidad compactos."""
-    if (
-        sample_times.ndim != 1
-        or sample_times.size == 0
-        or not np.all(np.isfinite(sample_times))
-        or sample_times[0] != 0.0
-        or np.any(np.diff(sample_times) <= 0.0)
-    ):
-        raise ValueError("la grilla debe ser finita, creciente y comenzar en cero")
+def reconstruct_msd(path: Path, every_events: int = DEFAULT_SAMPLE_EVERY) -> MsdSeries:
+    """DCM en t=0 y en cada `every_events`-esimo evento (y en el ultimo).
+
+    Entre eventos las particulas siguen MRU, asi que el estado completo en el
+    instante de un evento es exacto; el DCM nunca se evalua fuera de un evento.
+    """
+    if every_events <= 0:
+        raise ValueError("every_events debe ser positivo")
 
     with path.open() as source:
         numbered = iter(enumerate(source, start=1))
@@ -154,9 +160,8 @@ def reconstruct_msd(path: Path, sample_times: np.ndarray) -> MsdSeries:
             raise ValueError("falta END_INITIAL")
 
         initial_positions = positions.copy()
-        msd = np.empty(sample_times.size, dtype=float)
-        msd[0] = 0.0
-        sample_index = 1
+        sample_times = [0.0]
+        msd = [0.0]
         current_time = 0.0
         previous_event_count = 0
         final_time = None
@@ -175,12 +180,10 @@ def reconstruct_msd(path: Path, sample_times: np.ndarray) -> MsdSeries:
                     raise ValueError("el cierre no coincide con el ultimo evento")
                 if final_time < current_time:
                     raise ValueError("el tiempo final retrocede")
-                while sample_index < sample_times.size and sample_times[sample_index] <= final_time + 1e-12:
-                    sample_time = sample_times[sample_index]
-                    sampled = positions + velocities * (sample_time - current_time)
-                    displacement = sampled - initial_positions
-                    msd[sample_index] = float(np.mean(np.sum(displacement * displacement, axis=1)))
-                    sample_index += 1
+                if previous_event_count % every_events != 0 and previous_event_count > 0:
+                    displacement = positions - initial_positions
+                    sample_times.append(current_time)
+                    msd.append(float(np.mean(np.sum(displacement * displacement, axis=1))))
                 break
 
             if len(tokens) != 7 or tokens[0] != "EVENT" or tokens[3] not in EVENT_TYPES:
@@ -204,12 +207,6 @@ def reconstruct_msd(path: Path, sample_times: np.ndarray) -> MsdSeries:
             elif particle_b != -1:
                 raise ValueError("un evento simple no debe tener segundo participante")
 
-            while sample_index < sample_times.size and sample_times[sample_index] <= event_time + 1e-12:
-                sample_time = sample_times[sample_index]
-                sampled = positions + velocities * (sample_time - current_time)
-                displacement = sampled - initial_positions
-                msd[sample_index] = float(np.mean(np.sum(displacement * displacement, axis=1)))
-                sample_index += 1
             positions += velocities * (event_time - current_time)
             current_time = event_time
 
@@ -236,16 +233,35 @@ def reconstruct_msd(path: Path, sample_times: np.ndarray) -> MsdSeries:
             if event_end != "END_EVENT":
                 raise ValueError("falta END_EVENT")
             previous_event_count = event_count
+            if event_count % every_events == 0:
+                displacement = positions - initial_positions
+                sample_times.append(event_time)
+                msd.append(float(np.mean(np.sum(displacement * displacement, axis=1))))
 
         if final_time is None:
             raise ValueError("falta el cierre del log de eventos")
-        if sample_index != sample_times.size:
-            raise ValueError("la grilla temporal excede el tiempo final")
         for _, remaining in numbered:
             if remaining.strip():
                 raise ValueError("contenido inesperado despues del cierre")
-    return MsdSeries(sample_times.copy(), msd, particle_count, previous_event_count,
-                     final_time)
+    return MsdSeries(np.array(sample_times), np.array(msd), particle_count,
+                     previous_event_count, final_time)
+
+
+def events_per_sample(path: Path, mean_spacing: float) -> int:
+    """n tal que muestrear cada n eventos de una media de ~mean_spacing segundos.
+
+    Lee el cierre `END t_final eventos` del log; solo cuenta eventos.
+    """
+    with path.open("rb") as source:
+        source.seek(0, os.SEEK_END)
+        source.seek(max(0, source.tell() - 256))
+        tokens = source.read().decode().split()
+    if len(tokens) < 3 or tokens[-3] != "END":
+        raise ValueError("falta el cierre del log de eventos")
+    final_time, events = float(tokens[-2]), int(tokens[-1])
+    if final_time <= 0.0 or events <= 0:
+        return 1
+    return max(1, round(events / final_time * mean_spacing))
 
 
 def _linear_fit(x: np.ndarray, y: np.ndarray) -> tuple[float, float, float, float]:
@@ -514,7 +530,9 @@ def main() -> int:
     parser.add_argument("--binary", type=Path, default=TP3_BIN)
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
     parser.add_argument("--tmax", type=float, default=DEFAULT_TMAX)
-    parser.add_argument("--sample-dt", type=float, default=DEFAULT_SAMPLE_DT)
+    parser.add_argument("--mean-spacing", type=float, default=DEFAULT_MEAN_SPACING,
+                        help="separacion media buscada entre muestras del DCM (s); se "
+                             "traduce a un numero entero de eventos")
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
     event_mode = parser.add_mutually_exclusive_group()
     event_mode.add_argument(
@@ -530,17 +548,12 @@ def main() -> int:
     try:
         if not args.binary.is_file() or args.seed < 0:
             raise ValueError("motor inexistente o semilla invalida")
-        if not all(math.isfinite(value) and value > 0.0 for value in (args.tmax, args.sample_dt)):
-            raise ValueError("tmax y sample-dt deben ser finitos y positivos")
+        if not all(math.isfinite(v) and v > 0.0 for v in (args.tmax, args.mean_spacing)):
+            raise ValueError("tmax y mean-spacing deben ser finitos y positivos")
         cases = default_cases()
         for case in cases:
             if case.config_path is not None and not case.config_path.is_file():
                 raise ValueError(f"falta la configuracion {case.config_path}")
-        sample_times = np.arange(0.0, args.tmax + args.sample_dt * 0.5, args.sample_dt)
-        if sample_times[-1] > args.tmax:
-            sample_times[-1] = args.tmax
-        elif sample_times[-1] < args.tmax:
-            sample_times = np.append(sample_times, args.tmax)
 
         results = []
         summary = []
@@ -557,7 +570,8 @@ def main() -> int:
                     args.binary, 100, args.seed, args.tmax,
                     config=case.config_path, events_output=event_path,
                 )
-            series = reconstruct_msd(event_path, sample_times)
+            every = events_per_sample(event_path, args.mean_spacing)
+            series = reconstruct_msd(event_path, every)
             if engine is not None and series.processed_events != int(engine["processed_events"]):
                 raise RuntimeError(f"eventos inconsistentes para {case.name}")
             fit = detect_diffusive_regime(series)
@@ -574,6 +588,7 @@ def main() -> int:
                 "K": _obstacle_count(case.config_path),
                 "tmax": args.tmax,
                 "processed_events": series.processed_events,
+                "events_per_sample": every,
                 "t90_mean": case.t90_mean,
                 "t90_se": case.t90_se,
                 "fit_found": fit is not None,

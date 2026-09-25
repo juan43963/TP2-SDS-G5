@@ -28,13 +28,14 @@ END 1 1
 
 
 class DiffusionTests(unittest.TestCase):
-    def test_reconstructs_uniform_positions_between_events(self):
+    def test_evaluates_msd_only_at_event_times(self):
         with tempfile.TemporaryDirectory(prefix="tp3-msd-test-") as temporary:
             path = Path(temporary) / "events.txt"
             path.write_text(EVENT_LOG)
-            times = np.array([0.0, 0.5, 0.8, 1.0])
-            series = reconstruct_msd(path, times)
-            self.assertTrue(np.allclose(series.msd, [0.0, 0.25, 0.64, 0.36]))
+            series = reconstruct_msd(path, 1)
+            # t=0 y el unico evento (t=0.8): nunca la grilla ni el cierre.
+            self.assertTrue(np.allclose(series.times, [0.0, 0.8]))
+            self.assertTrue(np.allclose(series.msd, [0.0, 0.64]))
             self.assertEqual(series.processed_events, 1)
 
     def test_rejects_event_state_inconsistent_with_mru(self):
@@ -42,7 +43,7 @@ class DiffusionTests(unittest.TestCase):
             path = Path(temporary) / "events.txt"
             path.write_text(EVENT_LOG.replace("PARTICLE 0 1 0.5", "PARTICLE 0 0.9 0.5"))
             with self.assertRaises(ValueError):
-                reconstruct_msd(path, np.array([0.0, 1.0]))
+                reconstruct_msd(path, 1)
 
     def test_detects_linear_diffusive_interval(self):
         times = np.linspace(0.0, 10.0, 201)

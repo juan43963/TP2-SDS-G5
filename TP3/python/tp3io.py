@@ -255,6 +255,30 @@ def t90_from_series(series: GoalSeries) -> float | None:
     return float(series.times[reached[0]]) if reached.size else None
 
 
+def mean_goal_times(series_list: list[GoalSeries]) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """<F_u(t)> sin tiempos ajenos a eventos: para cada k promedia entre
+    realizaciones el instante del k-esimo gol (un evento de cada corrida).
+
+    Devuelve (F_u = k/N, <t_k>, error estandar de t_k), con k = 0 en t = 0 y
+    k hasta el menor numero de goles alcanzado por todas las realizaciones.
+    """
+    if not series_list:
+        raise ValueError("se requiere al menos una realizacion")
+    particle_count = series_list[0].particle_count
+    if any(item.particle_count != particle_count for item in series_list):
+        raise ValueError("las realizaciones deben tener el mismo N")
+    reached = min(int(item.goals[-1]) for item in series_list)
+    # times[1:1+g] son los instantes de gol (times[0]=0 y times[-1]=tmax no).
+    goal_times = np.vstack([item.times[1:1 + reached] for item in series_list])
+    mean = np.concatenate(([0.0], goal_times.mean(axis=0)))
+    if len(series_list) > 1:
+        error = goal_times.std(axis=0, ddof=1) / math.sqrt(len(series_list))
+    else:
+        error = np.zeros(reached)
+    fraction = np.arange(reached + 1) / particle_count
+    return fraction, mean, np.concatenate(([0.0], error))
+
+
 def observables_from_series(series: GoalSeries) -> dict[str, int | float | None]:
     """Observables escalares de una realizacion: t90, goles y Fu a tmax."""
     return {

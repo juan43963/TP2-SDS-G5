@@ -46,7 +46,7 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc,decorations.pathreplacing}
 
-\graphicspath{{../data/performance/}{../data/baseline/}{../data/obstacles/systematic/plots/}{../data/obstacles/automatic/plots/}{../data/final_comparison/plots/}{../data/block_shapes/plots/}{../data/diffusion/plots/}{./}}
+\graphicspath{{../data/performance/}{../data/baseline/}{../data/obstacles/systematic/plots/}{../data/obstacles/automatic/plots/}{../data/final_comparison/plots/}{../data/block_shapes/plots/}{../data/diffusion/plots/}{../data/one_variable/plots/}{./}}
 
 % Guia 3.5: vectores en negrita sin italica, escalares en italica sin negrita.
 \newcommand{\vect}[1]{\mathbf{#1}}
@@ -348,7 +348,8 @@
 
   \params{
   Objetivo: minimizar $\langle t_{90}\rangle$, promedio sobre $n = 100$ realizaciones, salvo que se indique otro.\\[4pt]
-  Error de $\langle t_{90}\rangle$ en todos los gráficos: \textbf{error estándar} $\sigma/\sqrt{n}$, salvo que se indique otro.
+  Error de $\langle t_{90}\rangle$ en todos los gráficos: \textbf{error estándar} $\sigma/\sqrt{n}$, salvo que se indique otro.\\[4pt]
+  Sólo instantes de evento: $\langle F_u\rangle$ promedia el instante del $k$-ésimo gol; el DCM se evalúa cada $n$ eventos.
   }
   \vfill
 \end{frame}
@@ -383,6 +384,51 @@
     \end{column}
   \end{columns}
   \vfill
+\end{frame}
+
+% ---------------------------------------------------------------- 14b
+% Pedido de la catedra (25/09), 1.2 a): un caso simple con un input continuo y
+% la estructura animacion -> F_u(t) -> input vs <t90>.
+\begin{frame}{Obstáculo central: dinámica}
+  \vfill
+  \begin{columns}[c]
+    \begin{column}{0.40\textwidth}
+      \animacion{frame_radio_R03.png}{$R = 3\times10^{-2}$ m}{https://youtu.be/PENDIENTE-radio-R03}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \animacion{frame_radio_R30.png}{$R = 3\times10^{-1}$ m}{https://youtu.be/PENDIENTE-radio-R30}
+    \end{column}
+    \begin{column}{0.16\textwidth}
+      \params{$K = 1$\\en $(L/2,\,W/2)$\\[6pt]$t = 8$ s}
+    \end{column}
+  \end{columns}
+  \vfill
+\end{frame}
+
+% ---------------------------------------------------------------- 14c
+\begin{frame}{Obstáculo central: evolución temporal}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{radio_fu.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$\langle F_u\rangle$: instante medio del $k$-ésimo gol\\[6pt]Punteada: $F_u = 0{,}9$}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 14d
+\begin{frame}{Obstáculo central: radio}
+  \begin{columns}[c]
+    \begin{column}{0.62\textwidth}
+      \centering\includegraphics[width=\linewidth,height=0.82\textheight,keepaspectratio]{radio_t90.png}
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \centering\includegraphics[width=\linewidth]{casos_radio.png}\\[10pt]
+      \raggedright
+      \params{$K = 1$ en $(L/2,\,W/2)$\\$R$ cada $3\times10^{-2}$ m\\Mesa vacía: $\langle t_{90}\rangle = (22{,}22 \pm 0{,}26)$ s}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 15
@@ -540,7 +586,7 @@
       \centering\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{fu_comparison.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Banda: error estándar\\Punteada: $\langle t_{90}\rangle$\\[6pt]Búsqueda aleatoria: $K = 3$\\Bloque central: $K = 52$\\Reloj de arena: $K = 113$}
+      \params{Punteada: $\langle t_{90}\rangle$\\[6pt]Búsqueda aleatoria: $K = 3$\\Bloque central: $K = 52$\\Reloj de arena: $K = 113$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -585,6 +631,51 @@
   \vfill
 \end{frame}
 
+% ---------------------------------------------------------------- 26b
+% Pedido de la catedra (25/09), 1.2 b): la elegida en funcion de una sola
+% variable, con la misma estructura animacion -> F_u(t) -> input vs <t90>.
+\begin{frame}{Reloj de arena: dinámica al variar $h_c$}
+  \vfill
+  \begin{columns}[c]
+    \begin{column}{0.40\textwidth}
+      \animacion{frame_reloj_hc04.png}{$h_c = 4\times10^{-2}$ m}{https://youtu.be/PENDIENTE-reloj-hc04}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \animacion{frame_reloj_hc40.png}{$h_c = 4\times10^{-1}$ m}{https://youtu.be/PENDIENTE-reloj-hc40}
+    \end{column}
+    \begin{column}{0.16\textwidth}
+      \params{$h_w = 0{,}50$ m\\10 filas\\[6pt]$t = 8$ s\\[6pt]Elegida:\\$h_c = 0{,}28$ m}
+    \end{column}
+  \end{columns}
+  \vfill
+\end{frame}
+
+% ---------------------------------------------------------------- 26c
+\begin{frame}{Reloj de arena: evolución temporal}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{reloj_fu.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$h_w = 0{,}50$ m fijo\\[6pt]$\langle F_u\rangle$: instante medio del $k$-ésimo gol}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 26d
+\begin{frame}{Reloj de arena: semiancho frente al arco}
+  \begin{columns}[c]
+    \begin{column}{0.62\textwidth}
+      \centering\includegraphics[width=\linewidth,height=0.82\textheight,keepaspectratio]{reloj_t90.png}
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \centering\includegraphics[width=\linewidth]{casos_reloj.png}\\[10pt]
+      \raggedright
+      \params{$h_w = 0{,}50$ m fijo, $h_c$ cada $6\times10^{-2}$ m\\$h_c \geq 0{,}52$ m: no entran las $N$ partículas\\Semillas nuevas}
+    \end{column}
+  \end{columns}
+\end{frame}
+
 % ---------------------------------------------------------------- 27
 % Segunda consulta: el DCM solo para la configuracion elegida, y D del
 % regimen inicial, antes de que las paredes saturen el DCM.
@@ -607,7 +698,7 @@
       \centering\includegraphics[width=\linewidth,height=0.70\textheight,keepaspectratio]{ajuste_D_hourglass.png}
     \end{column}
     \begin{column}{0.23\textwidth}
-      \params{Reloj de arena\\[6pt]Tramo: $0$ s a $1$ s\\[6pt]$D = (5{,}06 \pm 0{,}10)$\\$\times\,10^{-3}$ m$^2$/s}
+      \params{Reloj de arena\\[6pt]Tramo: $0$ s a $1$ s\\[6pt]$D = (5{,}08 \pm 0{,}10)$\\$\times\,10^{-3}$ m$^2$/s}
     \end{column}
   \end{columns}
   \vfill

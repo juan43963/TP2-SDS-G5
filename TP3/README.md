@@ -57,10 +57,17 @@ estados y Python calcula a partir de esos archivos:
 - DCM: `python/diffusion.py` reconstruye las posiciones desde `--events-output`.
 - Fotogramas y animaciones: `python/animate.py` lee la trayectoria.
 
+Solo tiempos de evento (pedido de la catedra, 25/09): ningun post-proceso
+interpola, busca ni usa instantes que no sean eventos. La animacion muestra
+solo frames escritos por el motor en eventos; el DCM se evalua cada
+`--sample-every-events` eventos; `<Fu(t)>` se promedia por gol (instante medio
+del k-esimo gol, `tp3io.mean_goal_times`), no sobre una grilla temporal.
+
 El motor emite formatos de texto versionados: sistema estatico, trayectoria
 por frames, registro de particulas usadas, log compacto de eventos y un resumen
 CSV sin observables. La trayectoria siempre incluye el estado
-inicial y el final en tmax; los frames intermedios se controlan con
+inicial y el del ultimo evento antes de tmax (nunca un estado en tmax, que no
+es un evento); los frames intermedios se controlan con
 `--output-every-events`. Para barridos, `--no-trajectory` elimina la salida
 pesada y deja disponible el resumen machine-readable mediante `--csv` o
 `--summary`.
@@ -166,9 +173,9 @@ Sale de dos pasos: `python/final_comparison.py` fija el bloque de 7 columnas
 
 ## Inciso 1.3: DCM y difusion
 
-`python/diffusion.py` reconstruye las posiciones en una grilla uniforme a
-partir de un registro compacto de todos los eventos. Calcula el DCM sobre las
-100 particulas, busca automaticamente un tramo con pendiente log-log compatible
+`python/diffusion.py` reconstruye las posiciones a partir de un registro
+compacto de todos los eventos y calcula el DCM sobre las 100 particulas solo en
+instantes de evento (cada 100 eventos, `--sample-every-events`), busca automaticamente un tramo con pendiente log-log compatible
 con uno y obtiene `D=pendiente/4` mediante un ajuste lineal.
 
 ```bash
@@ -185,7 +192,24 @@ python3 python/diffusion.py --keep-events
 python3 python/diffusion.py --reuse-events
 ```
 
+## Inciso 1.2: estudios de una variable
+
+`python/one_variable_studies.py` repite la estructura animacion -> `Fu(t)` ->
+input vs `<t90>` para dos inputs continuos, con 100 semillas nuevas
+(40001-40100): el radio de un obstaculo central (0,03 a 0,30 m) y el semiancho
+`h_c` del reloj de arena elegido frente al arco (0,04 a 0,46 m, `h_w=0,50`).
+Resultados en `data/one_variable/`; los fotogramas y trayectorias de las
+animaciones los genera `presentacion/generar_figuras.py fotogramas`.
+
 ## Inciso 1.4: competencia
+
+Demo en vivo: el motor, sin `--csv`, imprime cada conversion nueva
+(`t = ... s   convertidas: k / N`) y al final `t90`. Las cinco realizaciones:
+
+```bash
+./competencia.sh                 # cinco semillas al azar
+./competencia.sh 11 22 33 44 55  # semillas elegidas
+```
 
 El archivo definitivo es `SdS_TP3_2026Q2G05CS_Config.txt` (reloj de arena,
 K=113). El runner valida que coincida byte a byte con
@@ -207,10 +231,11 @@ quedan en `data/competition/`.
 
 ## Codigo entregable
 
-`SdS_TP3_2026Q2G05CS_Codigo.zip` contiene solo el motor: `src/` sin el
-self-test ni el oraculo de pruebas, y un `Makefile` reducido que compila
-unicamente `tp3` con los mismos flags. No incluye Python, datos, figuras ni
-documentacion, como pide el enunciado.
+`SdS_TP3_2026Q2G05CS_Codigo.zip` contiene el motor (`src/` sin el self-test
+ni el oraculo de pruebas, y un `Makefile` reducido que compila `tp3` con los
+mismos flags), `competencia.sh` y, por pedido de la catedra, el codigo de
+animacion (`python/animate.py` y `python/tp3io.py`). No incluye datos, figuras
+ni documentacion.
 
 ## Reutilizacion deliberada del TP2
 

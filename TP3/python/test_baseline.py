@@ -6,7 +6,8 @@ from pathlib import Path
 
 import numpy as np
 
-from baseline import evaluate_step, plot_fu, summarize, t90_from_series
+from baseline import plot_fu, summarize, t90_from_series
+from tp3io import mean_goal_times
 from tp3io import observables_from_series, read_goal_series
 
 
@@ -36,8 +37,10 @@ class BaselineTests(unittest.TestCase):
             self.assertEqual(series.goals[-1], 9)
             self.assertEqual(series.times[-1], 5.0)
             self.assertEqual(t90_from_series(series), 2.0)
-            values = evaluate_step(series, np.array([0.0, 0.5, 1.0, 1.2, 5.0]))
-            self.assertTrue(np.allclose(values, [0.0, 0.0, 0.3, 0.3, 0.9]))
+            fraction, mean, error = mean_goal_times([series, series])
+            self.assertEqual(fraction.size, 10)
+            self.assertTrue(np.allclose(mean, series.times[:10]))
+            self.assertTrue(np.allclose(error, 0.0))
             self.assertEqual(observables_from_series(series),
                              {"t90": 2.0, "goals": 9, "used_fraction": 0.9})
 

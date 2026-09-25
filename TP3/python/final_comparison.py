@@ -49,14 +49,14 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from baseline import evaluate_step, t90_from_series
+from baseline import t90_from_series
 from central_block_search import central_block_candidates, fill_wall_pockets
 from engine_runner import run_engine
 from obstacle_experiments import (
     LENGTH, PARTICLE_RADIUS, SUMMARY_FIELDS, WIDTH, Candidate, read_config,
     read_summary, summarize_candidate, t90_error, write_config, write_csv,
 )
-from tp3io import read_goal_series
+from tp3io import mean_goal_times, read_goal_series
 
 TP3_BIN = TP3_DIR / "tp3"
 OBSTACLES = TP3_DIR / "data" / "obstacles"
@@ -265,22 +265,21 @@ def plot_chamber(rows: list[dict], partition_rows: list[dict], path: Path) -> No
 
 
 def plot_fu(goals_dir: Path, labels: dict[str, str], path: Path) -> None:
-    grid = np.linspace(0.0, 50.0, 1001)
     figure, axis = plt.subplots(figsize=(10.4, 5.9))
     for name, color in FU_CASES:
         if not (goals_dir / name).is_dir():
             continue
         series = [read_goal_series(goals_dir / name / f"seed_{seed}.txt") for seed in SEEDS]
-        curves = np.vstack([evaluate_step(item, grid) for item in series])
-        mean = curves.mean(axis=0)
-        # Banda: error estandar de la media de F_u(t).
-        error = curves.std(axis=0, ddof=1) / np.sqrt(len(series))
+        # <F_u(t)>: instante medio del k-esimo gol (solo tiempos de evento);
+        # banda: error estandar de ese instante.
+        fraction, mean, error = mean_goal_times(series)
         t90 = np.mean([t90_from_series(item) for item in series])
-        axis.plot(grid, mean, color=color, lw=2.6, label=labels[name])
-        axis.fill_between(grid, mean - error, mean + error, color=color, alpha=0.18, lw=0)
+        axis.step(mean, fraction, where="post", color=color, lw=2.6, label=labels[name])
+        axis.fill_betweenx(fraction, mean - error, mean + error, step="post", color=color,
+                           alpha=0.18, lw=0)
         axis.axvline(t90, color=color, ls=":", lw=2)
     axis.axhline(0.9, color="black", ls="--", lw=1.5)
-    axis.set_xlim(0, grid[-1])
+    axis.set_xlim(0, 50.0)
     axis.set_ylim(0, 1.02)
     axis.set_xlabel("Tiempo (s)", fontsize=FS)
     axis.set_ylabel("Fracción de usadas", fontsize=FS)
