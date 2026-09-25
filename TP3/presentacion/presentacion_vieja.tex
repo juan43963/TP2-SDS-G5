@@ -23,12 +23,6 @@
 %  (23/09), tendencia lineal en la busqueda automatica; la diapositiva de
 %  area fija se reemplazo por la particion vertical que engorda hasta el bloque.
 %
-%  Correcciones de la segunda consulta (25/09): error estandar declarado una vez
-%  en Observables; esquemas de x, del embudo (a, theta) y de la cara (h_c, h_w);
-%  barrido fino de un obstaculo; busqueda aleatoria como modelo nulo, sin ajuste
-%  lineal; DCM hasta ~1 s y ajuste de D solo para la elegida; <t90> con dos
-%  decimales. Version anterior: presentacion_vieja.tex / .pdf.
-%
 %  DOS PDF DISTINTOS, igual que en el TP2:
 %      pdflatex presentacion.tex                                  -> entrega
 %      pdflatex -jobname=presentacion_vivo "\def\modo{vivo}\input{presentacion}"
@@ -327,31 +321,31 @@
 
 % ---------------------------------------------------------------- 11
 \begin{frame}{Observables}
-  \vfill
   \textbf{Fracción de usadas} y \textbf{tiempo de llegada al 90\%} --- post-proceso del output:
   \[
     F_u(t) = \frac{N_g(t)}{N},
-    \qquad
-    F_u(t_{90}) = 0{,}9
+    \quad
+    F_u(t_{90}) = 0{,}9,
+    \quad
+    \langle t_{90}\rangle = \frac{1}{n}\sum_{j=1}^{n} t_{90}^{(j)},
+    \quad
+    \sigma_{t_{90}} = \sqrt{\frac{1}{n-1}\sum_{j=1}^{n}\big(t_{90}^{(j)} - \langle t_{90}\rangle\big)^2}
   \]
 
-  \vfill
   \textbf{Desplazamiento cuadrático medio} --- sobre las $N$ partículas, frescas y usadas:
   \[
     \mathrm{DCM}(t) = \frac{1}{N}\sum_{i=1}^{N} \big|\vect{r}_i(t) - \vect{r}_i(0)\big|^2
     \;=\; 4\,D\,t \quad \text{(régimen difusivo)}
   \]
 
-  \vfill
+  \vspace{0.3em}
   \hrule
-  \vspace{0.6em}
+  \vspace{0.5em}
 
   \params{
-  Objetivo: minimizar $\langle t_{90}\rangle$, promedio sobre $n = 100$ realizaciones, salvo que se indique otro.\\[4pt]
-  Error de $\langle t_{90}\rangle$ en todos los gráficos: \textbf{error estándar} $\sigma/\sqrt{n}$, salvo que se indique otro.\\[4pt]
+  Objetivo: minimizar $\langle t_{90}\rangle$.\\[3pt]
   Tiempo simulado: $t_f = 30$ s (tiempo de ejecución), \ $t_{\max} = 100$ s (resto).
   }
-  \vfill
 \end{frame}
 
 % =====================================================================
@@ -360,267 +354,229 @@
 
 % ---------------------------------------------------------------- 13
 \begin{frame}{Tiempo de ejecución en función de $N$}
-  \vfill
   \begin{columns}[c]
     \begin{column}{0.78\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{performance.png}
+      \centering\includegraphics[width=0.99\linewidth,height=0.72\textheight,keepaspectratio]{performance.png}
     \end{column}
     \begin{column}{0.20\textwidth}
-      \params{$K = 0$\\$t_f = 30$ s}
+      \params{$K = 0$\\$t_f = 30$ s\\[6pt]Realizaciones: 100\\Barras: desvío estándar (del tamaño del símbolo)}
     \end{column}
   \end{columns}
-  \vfill
 \end{frame}
 
 % ---------------------------------------------------------------- 14
 \begin{frame}{Dinámica característica}
-  \vfill
-  \begin{columns}[c]
-    \begin{column}{0.60\textwidth}
+  \begin{columns}[T]
+    \begin{column}{0.40\textwidth}
       \animacion{frame_vacia.png}{Mesa vacía}{https://youtu.be/PENDIENTE}
     \end{column}
-    \begin{column}{0.30\textwidth}
+    \begin{column}{0.40\textwidth}
+      \animacion{frame_elegida.png}{Reloj de arena ($K = 113$)}{https://youtu.be/PENDIENTE}
+    \end{column}
+    \begin{column}{0.18\textwidth}
       \params{$t = 8$ s\\[6pt]Azul: fresca\\Rojo: usada\\Verde: arco}
-    \end{column}
-  \end{columns}
-  \vfill
-\end{frame}
-
-% ---------------------------------------------------------------- 26
-\begin{frame}{Evolución temporal de la fracción de usadas}
-  \begin{columns}[c]
-    \begin{column}{0.72\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{fu_comparison.png}
-    \end{column}
-    \begin{column}{0.26\textwidth}
-      \params{Banda: error estándar\\Punteada: $\langle t_{90}\rangle$\\[6pt]Búsqueda aleatoria: $K = 3$\\Bloque central: $K = 52$\\Reloj de arena: $K = 113$}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 15
-\begin{frame}{Un obstáculo sobre el eje longitudinal}
+\begin{frame}{Evolución temporal de la fracción de usadas}
   \begin{columns}[c]
-    \begin{column}{0.66\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{single.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{fu_comparison.png}
     \end{column}
-    \begin{column}{0.32\textwidth}
-      \centering
-      \begin{tikzpicture}[scale=0.68, font=\scriptsize]
-        \draw[black!75, thick] (0,0) rectangle (6,3.4);
-        \draw[arco, line width=2.5pt] (0,1.2) -- (0,2.2);
-        \draw[arco, line width=2.5pt] (6,1.2) -- (6,2.2);
-        \draw[black!40, dashed] (0,1.7) -- (6,1.7);
-        \fill[obst] (2.2,1.7) circle (0.35);
-        \draw[white, thick] (2.2,1.7) -- node[above, white, font=\tiny] {$R$} ++(0.35,0);
-        \draw[-{Latex[length=1.5mm]}, thick] (0,-0.35) -- node[below] {$x$} (2.2,-0.35);
-        \draw[black!50] (2.2,-0.2) -- (2.2,1.3);
-      \end{tikzpicture}\\[10pt]
-      \raggedright
-      \params{$K = 1$, \ $y_1 = W/2$\\$x$ cada $5\times10^{-2}$ m}
+    \begin{column}{0.26\textwidth}
+      \params{Realizaciones: 100\\Banda: error estándar de la media\\Punteada: $\langle t_{90}\rangle$\\[6pt]Búsqueda aleatoria: $K = 3$\\Bloque central: $K = 52$\\Reloj de arena: $K = 113$}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 16
-\begin{frame}{Embudos hacia los arcos}
+\begin{frame}{Un obstáculo sobre el eje longitudinal}
   \begin{columns}[c]
-    \begin{column}{0.62\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.74\textheight,keepaspectratio]{funnel_pairs_3.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{single.png}
     \end{column}
-    \begin{column}{0.36\textwidth}
-      \centering
-      \begin{tikzpicture}[scale=0.72, font=\scriptsize]
-        % mitad izquierda de la mesa (el embudo derecho es simetrico);
-        % angulo exagerado para que se lea
-        \draw[black!75, thick] (3.2,0) -- (0,0) -- (0,3.4) -- (3.2,3.4);
-        \draw[black!40, dotted] (3.2,0) -- (3.2,3.4);
-        \draw[arco, line width=2.5pt] (0,1.2) -- (0,2.2);
-        \draw[black!45, dashed] (0,1.45) -- (3.2,0.60);
-        \draw[black!45, dashed] (0,1.95) -- (3.2,2.80);
-        \foreach \x in {1.17, 3.2}{
-          \fill[obst] (\x,{1.45-0.2656*\x-0.14}) circle (0.14);
-          \fill[obst] (\x,{1.95+0.2656*\x+0.14}) circle (0.14);
-        }
-        \draw[black!45] (0,1.95) -- (1.9,1.95);
-        \draw (1.5,1.95) arc (0:14.9:1.5);
-        \node at (1.75,2.13) {$\theta$};
-        \draw[{Latex[length=1.3mm]}-{Latex[length=1.3mm]}, thick] (0.25,1.45) -- (0.25,1.95);
-        \node[right] at (0.28,1.7) {$a$};
-        \node[black!55, font=\tiny] at (3.2,-0.25) {$L/2$};
-      \end{tikzpicture}\\[4pt]
-      {\scriptsize $a$: apertura frente al arco\\$\theta$: ángulo de las guías}\\[8pt]
-      \raggedright
-      \params{3 pares simétricos ($K = 6$)\\$R_k = 2{,}5\times10^{-2}$ m}
+    \begin{column}{0.26\textwidth}
+      \params{$K = 1$, \ $y_1 = W/2$\\[6pt]Realizaciones: 100}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 17
-\begin{frame}{Modelo nulo: obstáculos al azar}
+\begin{frame}{Embudos hacia los arcos}
   \begin{columns}[c]
-    \begin{column}{0.66\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{random_search.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{funnel_pairs_3.png}
     \end{column}
-    \begin{column}{0.32\textwidth}
-      \params{$2\times10^{2}$ configuraciones al azar\\$1 \leq K \leq 12$, \ $r \leq R_k \leq 0{,}12$ m\\[6pt]Punto: promedio de $\langle t_{90}\rangle$ entre configuraciones con igual $K$}
+    \begin{column}{0.26\textwidth}
+      \params{3 pares simétricos ($K = 6$)\\$R_k = 2{,}5\times10^{-2}$ m\\[6pt]Realizaciones: 100}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 18
+\begin{frame}{Búsqueda automática}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{random_search.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$2\times10^{2}$ al azar\\$+\,2\times10^{2}$ mutaciones de las 10 mejores\\[6pt]$1 \leq K \leq 12$\\$r \leq R_k \leq 0{,}12$ m\\[6pt]Realizaciones: 100}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 19
 \begin{frame}{Hipótesis: área libre y acceso al arco}
-  \vfill
   \textbf{Tasa de goles por partícula} (gas diluido en 2D):
   \[
     \nu \approx \frac{v_0 \; 2d}{\pi\, A_{\mathrm{libre}}}
   \]
   % TODO: citar de dónde sale nu (Guía 1.11: autor, revista, año) o poder derivarla.
-  \vfill
   \begin{itemize}
     \item Menos área libre $\Rightarrow$ más visitas al arco, si toda región accesible tiene arco.
-    \vspace{0.4em}
     \item \textbf{Prueba:} dividir la mesa en dos cámaras y engrosar la pared.
   \end{itemize}
-  \vfill
-\end{frame}
-
-% ---------------------------------------------------------------- 19
-% Tercera revision: la tira de casos pasa a una grilla 2x2 al costado, asi el
-% grafico ocupa el alto de la diapositiva y la letra 20 se ve como en las demas.
-\begin{frame}{Partición vertical: tamaño de los círculos}
-  \begin{columns}[c]
-    \begin{column}{0.62\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.82\textheight,keepaspectratio]{partition_thickness.png}
-    \end{column}
-    \begin{column}{0.36\textwidth}
-      \centering\includegraphics[width=\linewidth]{casos_particion.png}\\[10pt]
-      \raggedright
-      \params{$K$ círculos tangentes en $x = L/2$\\$R = W/2K$, \ $2 \leq K \leq 19$}
-    \end{column}
-  \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 20
-\begin{frame}{Bloque central: seguir engrosando la pared}
+\begin{frame}{Partición vertical: tamaño de los círculos}
+  \centering
+  \includegraphics[width=0.70\linewidth]{casos_particion.png}
+  \vspace{2pt}
   \begin{columns}[c]
-    \begin{column}{0.62\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.82\textheight,keepaspectratio]{chamber_length.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.57\textheight,keepaspectratio]{partition_thickness.png}
     \end{column}
-    \begin{column}{0.36\textwidth}
-      \centering\includegraphics[width=\linewidth]{casos_bloque.png}\\[10pt]
-      \raggedright
-      \params{1 a 10 columnas hexagonales\\7 círculos por columna, $R = 4{,}86\times10^{-2}$ m}
+    \begin{column}{0.26\textwidth}
+      \params{$K$ círculos tangentes en $x = L/2$\\$R = W/2K$, \ $2 \leq K \leq 19$\\[6pt]Realizaciones: 100}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 21
-\begin{frame}{Bloque central: forma de la cara}
+\begin{frame}{Bloque central: seguir engrosando la pared}
+  \centering
+  \includegraphics[width=0.70\linewidth]{casos_bloque.png}
+  \vspace{2pt}
   \begin{columns}[c]
-    \begin{column}{0.62\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.82\textheight,keepaspectratio]{shape_screening.png}
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.57\textheight,keepaspectratio]{chamber_length.png}
     \end{column}
-    \begin{column}{0.36\textwidth}
-      \centering\includegraphics[width=0.82\linewidth]{casos_forma.png}\\[4pt]
-      \begin{minipage}[c]{0.44\linewidth}
-      \centering
-      \begin{tikzpicture}[scale=0.36, font=\scriptsize]
-        \draw[black!75, thick] (0,0) rectangle (6,3.4);
-        \draw[arco, line width=2pt] (0,1.2) -- (0,2.2);
-        \draw[arco, line width=2pt] (6,1.2) -- (6,2.2);
-        \fill[obst] (1.6,3.4) -- (2.3,1.7) -- (1.6,0) -- (4.4,0) -- (3.7,1.7) -- (4.4,3.4) -- cycle;
-        \draw[white, dashed] (3,0) -- (3,3.4);
-        \draw[{Latex[length=1.1mm]}-{Latex[length=1.1mm]}, white] (3,1.7) -- node[below, white] {$h_c$} (3.7,1.7);
-        \draw[{Latex[length=1.1mm]}-{Latex[length=1.1mm]}, thick] (3,3.7) -- node[above] {$h_w$} (4.4,3.7);
-      \end{tikzpicture}
-      \end{minipage}\hfill
-      \begin{minipage}[c]{0.54\linewidth}
-      \raggedright
-      \params{Semiancho: $h_c$ frente al arco, $h_w$ en las paredes}
-      \end{minipage}\\[4pt]
-      \raggedright
-      \params{$n = 7, 10, 14$ filas, 177 geometrías}
+    \begin{column}{0.26\textwidth}
+      \params{1 a 10 columnas hexagonales\\7 círculos por columna, $R = 4{,}86\times10^{-2}$ m\\[6pt]Realizaciones: 100}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 22
+\begin{frame}{Bloque central: forma de la cara}
+  \centering
+  \includegraphics[width=0.70\linewidth]{casos_forma.png}
+  \vspace{2pt}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.57\textheight,keepaspectratio]{shape_screening.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{Red hexagonal de $n = 7, 10, 14$ filas\\[6pt]177 geometrías\\[6pt]Realizaciones: 100}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 23
-\begin{frame}{Comparación de familias de obstáculos}
+\begin{frame}{Forma de la cara: validación con semillas nuevas}
   \begin{columns}[c]
     \begin{column}{0.72\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{families.png}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{shape_validation.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{Mejor configuración de cada familia\\[6pt]Mismas semillas\\[6pt]Mesa vacía:\\$\langle t_{90}\rangle = (22{,}22 \pm 0{,}26)$ s}
+      \params{Las 8 mejores del barrido\\[6pt]Realizaciones: 200, semillas nuevas\\[6pt]Diferencia pareada por semilla}
     \end{column}
   \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------- 24
-\begin{frame}{Configuración elegida: reloj de arena}
-  \vfill
+% ---------------------------------------------------------------- 22
+\begin{frame}{Comparación de familias de obstáculos}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{families.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{Mejor configuración de cada familia\\[6pt]Realizaciones: 100, mismas semillas\\[6pt]Mesa vacía: $\langle t_{90}\rangle = (22 \pm 3)$ s}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 23
+\begin{frame}{Configuración elegida}
   \begin{columns}[c]
     \begin{column}{0.56\textwidth}
-      \animacion{frame_elegida.png}{Reloj de arena ($K = 113$)}{https://youtu.be/PENDIENTE}
+      \centering\includegraphics[width=\linewidth]{configuracion_elegida.png}
     \end{column}
     \begin{column}{0.42\textwidth}
       \params{
-      $t = 8$ s \quad Azul: fresca, rojo: usada, verde: arco\\[8pt]
-      $K = 113$, \ $R = 3{,}4\times10^{-2}$ m\\[4pt]
-      Cara en V: $h_c = 0{,}28$ m, \ $h_w = 0{,}50$ m\\[10pt]
+      $K = 113$, \ $R = 3{,}4\times10^{-2}$ m\\[10pt]
       Realizaciones: 200, mismas semillas\\[4pt]
       {\scriptsize
       \begin{tabular}{lc}
         & $\langle t_{90}\rangle$ (s)\\
         \midrule
-        Reloj de arena & $13{,}68 \pm 0{,}11$\\
-        Bloque de cara plana & $14{,}51 \pm 0{,}12$\\
-        Mesa vacía & $21{,}86 \pm 0{,}18$\\
+        Reloj de arena & $14 \pm 2$\\
+        Bloque de cara plana & $15 \pm 2$\\
+        Mesa vacía & $22 \pm 3$\\
         \midrule
-        Dif.\ pareada con cara plana & $-0{,}83 \pm 0{,}16$\\
+        Diferencia pareada con la cara plana & $-0{,}8 \pm 0{,}2$\\
       \end{tabular}}}
     \end{column}
   \end{columns}
-  \vfill
+\end{frame}
+
+% ---------------------------------------------------------------- 24
+\begin{frame}{Desplazamiento cuadrático medio}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{msd_loglog.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{Una realización por configuración\\[6pt]Trazo grueso: tramo difusivo ajustado}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 25
+\begin{frame}{Selección del régimen difusivo}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{local_log_slope.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{$\alpha = \dfrac{d \log \mathrm{DCM}}{d \log t}$\\[8pt]Tramo aceptado: $0{,}75 \leq \alpha \leq 1{,}25$ durante al menos $0{,}5$ s}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------- 26
+\begin{frame}{Ajuste del coeficiente de difusión}
+  \begin{columns}[c]
+    \begin{column}{0.76\textwidth}
+      \centering\includegraphics[width=0.99\linewidth,height=0.62\textheight,keepaspectratio]{ajuste_D_vacia.png}
+    \end{column}
+    \begin{column}{0.23\textwidth}
+      \params{Mesa vacía\\[6pt]Tramo: $0{,}2$ s a $1{,}1$ s\\[6pt]$D = (2{,}33 \pm 0{,}06)$\\$\times\,10^{-2}$ m$^2$/s}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ---------------------------------------------------------------- 27
-% Segunda consulta: el DCM solo para la configuracion elegida, y D del
-% regimen inicial, antes de que las paredes saturen el DCM.
-\begin{frame}{Desplazamiento cuadrático medio}
-  \begin{columns}[c]
-    \begin{column}{0.66\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.82\textheight,keepaspectratio]{dcm_elegida.png}
-    \end{column}
-    \begin{column}{0.32\textwidth}
-      \params{Reloj de arena, una realización\\[6pt]$\alpha = \dfrac{d \log \mathrm{DCM}}{d \log t}$\\[8pt]Tramo ajustado (celeste): $0{,}75 \leq \alpha \leq 1{,}25$ durante al menos $0{,}5$ s\\[6pt]Solo la primera parte, antes de que el DCM sature}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% ---------------------------------------------------------------- 28
-\begin{frame}{Ajuste del coeficiente de difusión}
-  \vfill
-  \begin{columns}[c]
-    \begin{column}{0.76\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.70\textheight,keepaspectratio]{ajuste_D_hourglass.png}
-    \end{column}
-    \begin{column}{0.23\textwidth}
-      \params{Reloj de arena\\[6pt]Tramo: $0{,}2$ s a $1{,}2$ s\\[6pt]$D = (4{,}72 \pm 0{,}12)$\\$\times\,10^{-3}$ m$^2$/s}
-    \end{column}
-  \end{columns}
-  \vfill
-\end{frame}
-
-% ---------------------------------------------------------------- 29
 \begin{frame}{Coeficiente de difusión y tiempo de llegada}
   \begin{columns}[c]
     \begin{column}{0.72\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{D_vs_t90.png}
+      \centering\includegraphics[width=0.98\linewidth,height=0.75\textheight,keepaspectratio]{D_vs_t90.png}
     \end{column}
     \begin{column}{0.26\textwidth}
-      \params{$D$: una realización, mismo criterio de tramo\\[6pt]Mesa vacía:\\$D = (2{,}33 \pm 0{,}06)\times10^{-2}$ m$^2$/s\\[6pt]Sin $D$ identificable: bloque de cara plana}
+      \params{$D$: una realización\\$\langle t_{90}\rangle$: 100 realizaciones\\[6pt]Barras: error del ajuste y error estándar\\[6pt]Sin $D$ identificable: bloque de cara plana\\[6pt]$n = 7$: Pearson $0{,}73$, Spearman $0{,}39$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -629,23 +585,21 @@
 \section{Conclusiones}
 % =====================================================================
 
-% ---------------------------------------------------------------- 31
+% ---------------------------------------------------------------- 29
 \begin{frame}{Conclusiones}
-  \vfill
   \begin{itemize}
     \item El tiempo de ejecución crece con $N$ más rápido que la cantidad de eventos procesados.
-    \vspace{0.5em}
-    \item Un obstáculo baja $\langle t_{90}\rangle$ a lo sumo $\approx 1$ s; embudos y obstáculos al azar lo empeoran.
-    \vspace{0.5em}
+    \vspace{0.15em}
+    \item Obstáculos aislados, embudos, compuertas o un canal no bajan $\langle t_{90}\rangle$ por debajo de la mesa vacía más allá del desvío.
+    \vspace{0.15em}
     \item Dividir la mesa en dos cámaras sí lo baja, con un mínimo para cámaras de $\approx 2{,}5\times10^{-1}$ m.
-    \vspace{0.5em}
-    \item A igual área libre, la forma de la cara importa: el reloj de arena baja $(0{,}83 \pm 0{,}16)$ s respecto de la cara plana.
-    \vspace{0.5em}
-    \item La configuración elegida baja $\langle t_{90}\rangle$ de $(21{,}86 \pm 0{,}18)$ s a $(13{,}68 \pm 0{,}11)$ s.
-    \vspace{0.5em}
+    \vspace{0.15em}
+    \item La forma de reloj de arena baja $\langle t_{90}\rangle$ otros $(-0{,}8 \pm 0{,}2)$ s respecto de la cara plana.
+    \vspace{0.15em}
+    \item La configuración elegida baja $\langle t_{90}\rangle$ de $(22 \pm 3)$ s a $(14 \pm 2)$ s.
+    \vspace{0.15em}
     \item Las configuraciones con menor $D$ tienden a tener menor $\langle t_{90}\rangle$ ($n = 7$).
   \end{itemize}
-  \vfill
 \end{frame}
 
 % ---------------------------------------------------------------- 30

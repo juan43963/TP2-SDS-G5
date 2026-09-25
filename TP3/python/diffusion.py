@@ -472,7 +472,7 @@ def plot_local_slopes(results: list[tuple[StudyCase, MsdSeries, FitResult | None
 
 def plot_correlation(summary: list[dict], path: Path, show: bool) -> None:
     valid = [row for row in summary if row["fit_found"]]
-    figure, axes = plt.subplots(figsize=(9.5, 6.5))
+    figure, axes = plt.subplots(figsize=(10.4, 5.9))
     # t90 siempre en el eje vertical (correccion de la primera consulta).
     # Barras: error del ajuste de D (horizontal) y error estandar de <t90>
     # (vertical).

@@ -48,10 +48,12 @@ def single_obstacle_candidates() -> list[Candidate]:
     candidates = []
     for radius_multiple in (2, 3, 4):
         radius = radius_multiple * PARTICLE_RADIUS
-        for position in (0.20, 0.40, 0.60, 0.80, 1.00):
+        # Paso de 0,05 m (segunda consulta): el barrido grueso de 0,2 m podia
+        # esconder minimos desplazados del centro, simetricos respecto de L/2.
+        for position in [round(0.10 + 0.05 * i, 2) for i in range(21)]:
             candidates.append(
                 Candidate(
-                    name=f"single_r{radius_multiple}_x{int(position * 100):03d}",
+                    name=f"single_r{radius_multiple}_x{round(position * 100):03d}",
                     family="single",
                     series=f"R={radius_multiple}r",
                     x_value=position,

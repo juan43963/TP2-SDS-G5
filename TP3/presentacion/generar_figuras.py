@@ -22,7 +22,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Circle, Rectangle
-from matplotlib.ticker import ScalarFormatter
+from matplotlib.ticker import NullFormatter, ScalarFormatter
 
 from animate import FRESH_COLOR, GOAL_COLOR, OBSTACLE_COLOR, USED_COLOR
 from block_shape_search import half_width_profile, shaped_block
@@ -40,6 +40,7 @@ CONFIG = "data/obstacles/central_blocks/chosen_hourglass_config.txt"
 GOAL_SIZE = 0.20   # m, valor por defecto del motor (--goal-size)
 SEED = 42
 T_FRAME = 8.0   # s: ya hay particulas usadas, pero todavia lejos de t90
+T_DCM = 1.5     # s: fin del DCM graficado, poco despues del tramo ajustado
 
 
 def correr(tag: str, extra: list[str]):
@@ -56,7 +57,7 @@ def correr(tag: str, extra: list[str]):
 
 
 def mesa(system, frame=None):
-    fig, ax = plt.subplots(figsize=(10, 5.8))
+    fig, ax = plt.subplots(figsize=(8.6, 5.0))
     L, W = system.length, system.width
     ax.add_patch(Rectangle((0, 0), L, W, facecolor="#f5f1e8", edgecolor="#252525",
                            linewidth=2.0, zorder=0))
@@ -82,14 +83,18 @@ def mesa(system, frame=None):
 
 
 def tira_de_casos(nombre: str, casos):
-    """Imagen del caso para una diapositiva de barrido: varias mesas en fila.
+    """Imagen del caso para una diapositiva de barrido: mesas en una grilla 2x2.
 
     `casos` es una lista de (rotulo, obstaculos). Sin ejes: la geometria se lee
-    sola y el rotulo dice que varia.
+    sola y el rotulo dice que varia. Va en la columna derecha de la diapositiva;
+    el tamano hace que la letra 20 quede a la misma escala que los graficos.
     """
-    fig, axes = plt.subplots(1, len(casos), figsize=(3.2 * len(casos), 2.4))
+    filas = (len(casos) + 1) // 2
+    fig, axes = plt.subplots(filas, 2, figsize=(5.4, 2.0 * filas))
     g0, g1 = WIDTH / 2 - GOAL_SIZE / 2, WIDTH / 2 + GOAL_SIZE / 2
-    for ax, (rotulo, obstaculos) in zip(axes, casos):
+    for ax in axes.flat[len(casos):]:
+        ax.set_axis_off()
+    for ax, (rotulo, obstaculos) in zip(axes.flat, casos):
         ax.add_patch(Rectangle((0, 0), LENGTH, WIDTH, facecolor="#f5f1e8",
                                edgecolor="#252525", linewidth=1.5, zorder=0))
         for x in (0.0, LENGTH):
@@ -103,7 +108,7 @@ def tira_de_casos(nombre: str, casos):
         ax.set_aspect("equal")
         ax.set_axis_off()
         ax.set_title(rotulo, fontsize=FS, pad=4)
-    fig.subplots_adjust(wspace=0.08)
+    fig.subplots_adjust(wspace=0.08, hspace=0.35)
     print(guardar(fig, nombre))
 
 
@@ -153,18 +158,59 @@ def fotogramas():
     print(guardar(mesa(system), "configuracion_elegida.png"))
 
 
-def ajuste_D():
+def _fila_difusion(nombre: str) -> dict:
+    with open("data/diffusion/summary.csv", newline="") as fh:
+        return next(r for r in csv.DictReader(fh) if r["name"] == nombre)
+
+
+def dcm_elegida():
+    """DCM de la configuracion elegida y su pendiente local, con el tramo ajustado.
+
+    Segunda consulta: una vez elegida la configuracion, el DCM se muestra solo
+    para ella, y D sale del regimen inicial (antes de que la caja lo sature).
+    """
+    from diffusion import MsdSeries, local_log_slopes
+    fila = _fila_difusion("hourglass")
+    t0, t1 = float(fila["fit_start"]), float(fila["fit_end"])
+    t, dcm = np.loadtxt("data/diffusion/msd/hourglass.csv", delimiter=",", skiprows=1).T
+    alpha = local_log_slopes(MsdSeries(t, dcm, 100, 0, float(t[-1])))
+    # Solo la primera parte, hasta ~10^0 s, antes de que el DCM sature.
+    visible = t <= T_DCM
+    t, dcm, alpha = t[visible], dcm[visible], alpha[visible]
+
+    fig, (a1, a2) = plt.subplots(2, 1, figsize=(9.5, 6.0), sharex=True,
+                                 gridspec_kw={"height_ratios": [1.6, 1]})
+    for ax in (a1, a2):
+        ax.axvspan(t0, t1, color="#d6e6f5", zorder=0)
+    a1.loglog(t[1:], dcm[1:], color="#1f5fa8", lw=2.2)
+    a1.set_ylabel("DCM (m$^2$)", fontsize=FS)
+    # Menos de dos decadas: solo 10^-3 y 10^-2 rotulados, sin rotulos menores.
+    a1.set_ylim(1e-3, 4e-2)
+    a1.yaxis.set_minor_formatter(NullFormatter())
+    a2.semilogx(t, alpha, color="#1f5fa8", lw=2.0)
+    a2.axhline(1.0, color="black", ls="--", lw=1.2)
+    a2.set_ylim(-0.3, 2.3)
+    a2.set_yticks([0, 1, 2])
+    a2.set_ylabel(r"$\alpha$", fontsize=FS)
+    a2.set_xlabel("Tiempo (s)", fontsize=FS)
+    a2.set_xlim(0.05, T_DCM)
+    for ax in (a1, a2):
+        ax.tick_params(labelsize=FS)
+    fig.tight_layout()
+    print(guardar(fig, "dcm_elegida.png"))
+
+
+def ajuste_D(nombre: str = "hourglass"):
     """Guia 2.4.5 / Teorica 0: error cuadratico del ajuste en funcion de D.
 
     El ajuste de diffusion.py tiene ordenada libre b. Con b fijo en su optimo,
     E(D) tiene el minimo exactamente en el D reportado (dE/dD = 0 en el optimo
     conjunto), asi que la curva es coherente con data/diffusion/summary.csv.
     """
-    with open("data/diffusion/summary.csv", newline="") as fh:
-        fila = next(r for r in csv.DictReader(fh) if r["name"] == "empty")
+    fila = _fila_difusion(nombre)
     t0, t1 = float(fila["fit_start"]), float(fila["fit_end"])
     b, D_fit = float(fila["linear_intercept"]), float(fila["D"])
-    t, dcm = np.loadtxt("data/diffusion/msd/empty.csv", delimiter=",", skiprows=1).T
+    t, dcm = np.loadtxt(f"data/diffusion/msd/{nombre}.csv", delimiter=",", skiprows=1).T
     tramo = (t >= t0 - 1e-9) & (t <= t1 + 1e-9)
 
     Ds = np.linspace(0.6 * D_fit, 1.4 * D_fit, 801)
@@ -173,7 +219,7 @@ def ajuste_D():
     print(f"D reportado = {D_fit:.6f}  |  argmin E(D) = {D_min:.6f}  "
           f"(tramo {t0}-{t1} s, {tramo.sum()} puntos)")
 
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(15, 5.6))
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(11.0, 5.2))
     vis = t <= 3.0
     a1.plot(t[vis & ~tramo], dcm[vis & ~tramo], "o", color="0.65", ms=5)
     a1.plot(t[tramo], dcm[tramo], "o", color="#1f5fa8", ms=6)
@@ -185,7 +231,7 @@ def ajuste_D():
     a2.plot(Ds, E, "-", color="#1f5fa8", lw=2.5)
     a2.plot([D_min], [E.min()], "o", color="#c0392b", ms=10)
     a2.axvline(D_min, color="#c0392b", ls="--", lw=1.5)
-    a2.set_xlabel("Coeficiente de difusión D (m$^2$/s)", fontsize=FS)
+    a2.set_xlabel("D (m$^2$/s)", fontsize=FS)
     a2.set_ylabel("Error cuadrático E (m$^4$)", fontsize=FS)
 
     for ax in (a1, a2):
@@ -199,10 +245,10 @@ def ajuste_D():
     a2.xaxis.set_major_formatter(fmt)
     a2.xaxis.get_offset_text().set_fontsize(FS)
     fig.tight_layout()
-    print(guardar(fig, "ajuste_D_vacia.png"))
+    print(guardar(fig, f"ajuste_D_{nombre}.png"))
 
 
-FIGURAS = {"fotogramas": fotogramas, "ajuste_D": ajuste_D, "area_fija": casos_area_fija,
+FIGURAS = {"fotogramas": fotogramas, "ajuste_D": ajuste_D, "dcm": dcm_elegida, "area_fija": casos_area_fija,
            "particion": casos_particion, "bloque": casos_bloque, "forma": casos_forma}
 
 if __name__ == "__main__":

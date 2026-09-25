@@ -147,7 +147,7 @@ def plot_performance(summary: list[dict[str, int | float]], path: Path, show: bo
         raise ValueError("no hay datos para graficar")
     n_values = [int(row["N"]) for row in summary]
 
-    figure, axes = plt.subplots(1, 2, figsize=(13.5, 5.6))
+    figure, axes = plt.subplots(1, 2, figsize=(11.2, 5.7))
     axes[0].errorbar(
         n_values,
         [float(row["simulation_ms_mean"]) for row in summary],
@@ -175,7 +175,9 @@ def plot_performance(summary: list[dict[str, int | float]], path: Path, show: bo
     for axes_item in axes:
         axes_item.set_xscale("log")
         axes_item.set_yscale("log")
-        axes_item.set_xticks(n_values, labels=[str(value) for value in n_values])
+        # Con letra 20, 75 y 150 se pisan con sus vecinos en escala log.
+        ticks = [value for value in n_values if value in (25, 50, 100, 200)] or n_values
+        axes_item.set_xticks(ticks, labels=[str(value) for value in ticks])
         axes_item.xaxis.set_minor_formatter(NullFormatter())
         axes_item.tick_params(axis="both", which="major", labelsize=FS)
         axes_item.grid(False)

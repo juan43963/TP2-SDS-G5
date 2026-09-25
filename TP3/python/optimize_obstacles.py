@@ -219,30 +219,51 @@ def _systematic_pool(summary_path: Path) -> list[tuple[Candidate, dict]]:
     return pool
 
 
-def plot_search(initial: list[dict], finalists: list[dict], output_dir: Path, show: bool) -> None:
+def _empty_table_t90() -> tuple[float, float] | None:
+    """<t90> de la mesa vacia y su error estandar (final_comparison, 100 semillas)."""
+    path = TP3_DIR / "data" / "final_comparison" / "families.csv"
+    if not path.is_file():
+        return None
+    for row in read_summary(path):
+        if row["name"] == "empty":
+            return float(row["t90_mean"]), t90_error(row)
+    return None
+
+
+def plot_search(initial: list[dict], finalists: list[dict], output_dir: Path, show: bool,
+                empty: tuple[float, float] | None = None) -> None:
+    if empty is None:
+        empty = _empty_table_t90()
     plots = output_dir / "plots"
     plots.mkdir(parents=True, exist_ok=True)
+    # Modelo nulo (segunda consulta): K obstaculos tirados al azar. Solo las
+    # configuraciones aleatorias, no las mutaciones de las mejores. Cada punto
+    # es el promedio de <t90> entre las configuraciones con ese K y la barra su
+    # error estandar (desvio entre configuraciones / sqrt(configuraciones)), el
+    # mismo criterio que el resto de los graficos.
+    # Sin ajuste lineal: no hay evidencia de que la relacion lo sea.
     valid = [row for row in initial
              if row["t90_mean"] is not None and row["t90_std"] is not None]
-    counts = [int(row["K"]) for row in valid]
-    t90 = [float(row["t90_mean"]) for row in valid]
-    # Guia 2.4.3: cada punto es un promedio y lleva su error estandar.
-    t90_err = [t90_error(row) for row in valid]
+    by_count: dict[int, list[float]] = {}
+    for row in valid:
+        by_count.setdefault(int(row["K"]), []).append(float(row["t90_mean"]))
+    counts = sorted(by_count)
+    means = [float(np.mean(by_count[k])) for k in counts]
+    spreads = [float(np.std(by_count[k], ddof=1) / np.sqrt(len(by_count[k])))
+               for k in counts]
     figure, axes = plt.subplots(figsize=(8.8, 6.0))
-    axes.errorbar(counts, t90, yerr=t90_err, fmt="o", markersize=4, alpha=0.45,
-                  color="#2878b5", elinewidth=0.8, capsize=2,
-                  label="Configuración evaluada")
-    # Linea de tendencia: ajuste lineal por cuadrados minimos de <t90> contra K.
-    slope, intercept = np.polyfit(counts, t90, 1)
-    k_line = np.array([0.5, 12.5])
-    axes.plot(k_line, slope * k_line + intercept, color="#c0392b", linewidth=2.5,
-              label=f"Tendencia lineal: {slope:.2f} s por obstáculo".replace(".", ","))
-    axes.set_xlim(0.5, 12.5)
+    axes.errorbar(counts, means, yerr=spreads, fmt="o", markersize=9,
+                  color="#2878b5", elinewidth=1.4, capsize=5, label="Obstáculos al azar")
+    if empty is not None:
+        axes.errorbar([0], [empty[0]], yerr=[empty[1]], fmt="s", markersize=10,
+                      color="#1e8449", elinewidth=1.4, capsize=5, label="Mesa vacía")
+    axes.legend(frameon=False, fontsize=FS, loc="upper left")
+    axes.set_xlim(-0.7, 12.7)
+    axes.set_xticks(range(0, 13, 2))
     axes.set_xlabel("Cantidad de obstáculos K", fontsize=FS)
     axes.set_ylabel("Tiempo de llegada al 90 % (s)", fontsize=FS)
     axes.tick_params(axis="both", labelsize=FS)
     axes.grid(False)
-    axes.legend(frameon=False, fontsize=FS, loc="upper left")
     figure.tight_layout()
     if show:
         plt.show()
@@ -289,8 +310,7 @@ def main() -> int:
     try:
         if args.replot:
             plot_search(
-                read_summary(args.output_dir / "random" / "summary.csv")
-                + read_summary(args.output_dir / "refined" / "summary.csv"),
+                read_summary(args.output_dir / "random" / "summary.csv"),
                 read_summary(args.output_dir / "finalists" / "summary.csv"),
                 args.output_dir,
                 args.show,
@@ -389,7 +409,7 @@ def main() -> int:
         if best_config.read_bytes() != evaluated_path.read_bytes():
             raise RuntimeError("la configuracion ganadora no coincide con la evaluada")
 
-        plot_search(initial_summary + refined_summary, final_summary, args.output_dir, args.show)
+        plot_search(initial_summary, final_summary, args.output_dir, args.show)
         metadata = {
             "optimizer_seed": args.optimizer_seed,
             "requested_random_candidates": args.candidates,

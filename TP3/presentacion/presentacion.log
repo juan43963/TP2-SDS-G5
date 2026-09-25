@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  23 SEP 2026 16:37
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  25 SEP 2026 14:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -885,9 +885,9 @@ Package babel Info: Making " an active character on input line 570.
 Package babel Info: Making . an active character on input line 675.
 ))
 LaTeX Encoding Info:    Redeclaring text command \guillemotleft (encoding OT1) 
-on input line 39.
+on input line 45.
 LaTeX Encoding Info:    Redeclaring text command \guillemotright (encoding OT1)
- on input line 39.
+ on input line 45.
 
 (C:\Users\Lucas Di Candia\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\book
 tabs.sty
@@ -1042,24 +1042,24 @@ Package babel Info: 'spanish' activates 'spanish' shorthands.
 )
 \openout1 = `presentacion.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 96.
-LaTeX Font Info:    ... okay on input line 96.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 102.
+LaTeX Font Info:    ... okay on input line 102.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -1121,68 +1121,69 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 opdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 96.
+Package hyperref Info: Link coloring OFF on input line 102.
  (presentacion.out) (presentacion.out)
 \@outlinefile=\write5
 \openout5 = `presentacion.out'.
 
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmr/m/n --> OT1/cmss/m/n on input line 96.
+(Font)                  OT1/cmr/m/n --> OT1/cmss/m/n on input line 102.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 96.
+(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 102.
 \symnumbers=\mathgroup6
 \sympureletters=\mathgroup7
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
-(Font)                  OT1/cmss/m/n --> T1/cmr/m/n on input line 96.
-LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 96.
+(Font)                  OT1/cmss/m/n --> T1/cmr/m/n on input line 102.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> T1/cmss/b/n on input line 96.
+(Font)                  OT1/cmr/bx/n --> T1/cmss/b/n on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/cmr/bx/n --> T1/cmss/b/n on input line 96.
-LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 96.
+(Font)                  OT1/cmr/bx/n --> T1/cmss/b/n on input line 102.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> T1/cmss/m/n on input line 96.
+(Font)                  OT1/cmss/m/n --> T1/cmss/m/n on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> T1/cmss/m/n on input line 96.
-LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 96.
+(Font)                  OT1/cmss/bx/n --> T1/cmss/m/n on input line 102.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> T1/cmss/m/it on input line 96.
+(Font)                  OT1/cmr/m/it --> T1/cmss/m/it on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmr/bx/it --> T1/cmss/m/it on input line 96.
-LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 96.
+(Font)                  OT1/cmr/bx/it --> T1/cmss/m/it on input line 102.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> T1/cmtt/m/n on input line 96.
+(Font)                  OT1/cmtt/m/n --> T1/cmtt/m/n on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> T1/cmtt/m/n on input line 96.
+(Font)                  OT1/cmtt/m/n --> T1/cmtt/m/n on input line 102.
 LaTeX Font Info:    Overwriting symbol font `numbers' in version `bold'
-(Font)                  T1/cmss/m/n --> T1/cmss/b/n on input line 96.
+(Font)                  T1/cmss/m/n --> T1/cmss/b/n on input line 102.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  T1/cmss/m/it --> T1/cmss/b/it on input line 96.
+(Font)                  T1/cmss/m/it --> T1/cmss/b/it on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `bold'
-(Font)                  OT1/cmss/b/n --> T1/cmr/b/n on input line 96.
+(Font)                  OT1/cmss/b/n --> T1/cmr/b/n on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  T1/cmss/b/n --> T1/cmss/b/n on input line 96.
+(Font)                  T1/cmss/b/n --> T1/cmss/b/n on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  T1/cmss/m/n --> T1/cmss/b/n on input line 96.
+(Font)                  T1/cmss/m/n --> T1/cmss/b/n on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  T1/cmss/m/it --> T1/cmss/b/it on input line 96.
+(Font)                  T1/cmss/m/it --> T1/cmss/b/it on input line 102.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  T1/cmtt/m/n --> T1/cmtt/b/n on input line 96.
-LaTeX Font Info:    Redeclaring symbol font `pureletters' on input line 96.
+(Font)                  T1/cmtt/m/n --> T1/cmtt/b/n on input line 102.
+LaTeX Font Info:    Redeclaring symbol font `pureletters' on input line 102.
 LaTeX Font Info:    Encoding `T1' has changed to `OT1' for symbol font
-(Font)              `pureletters' in the math version `normal' on input line 96
-.
+(Font)              `pureletters' in the math version `normal' on input line 10
+2.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `normal'
-(Font)                  T1/cmss/m/it --> OT1/mathkerncmss/m/sl on input line 96
-.
+(Font)                  T1/cmss/m/it --> OT1/mathkerncmss/m/sl on input line 10
+2.
 LaTeX Font Info:    Encoding `T1' has changed to `OT1' for symbol font
-(Font)              `pureletters' in the math version `bold' on input line 96.
+(Font)              `pureletters' in the math version `bold' on input line 102.
+
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  T1/cmss/b/it --> OT1/mathkerncmss/m/sl on input line 96
-.
+(Font)                  T1/cmss/b/it --> OT1/mathkerncmss/m/sl on input line 10
+2.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
 (Font)                  OT1/mathkerncmss/m/sl --> OT1/mathkerncmss/bx/sl on inp
-ut line 96.
+ut line 102.
 
 (C:\Users\Lucas Di Candia\AppData\Local\Programs\MiKTeX\tex/latex/translator\tr
 anslator-basic-dictionary-English.dict
@@ -1208,21 +1209,21 @@ Dictionary: translator-numbers-dictionary, Language: English
 anslator-theorem-dictionary-English.dict
 Dictionary: translator-theorem-dictionary, Language: English 
 )
-LaTeX Info: Redefining \. on input line 96.
-LaTeX Info: Redefining \% on input line 96.
+LaTeX Info: Redefining \. on input line 102.
+LaTeX Info: Redefining \% on input line 102.
  (presentacion.nav) [1
 
 {C:/Users/Lucas Di Candia/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2
 
 ]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 136
+LaTeX Font Info:    Trying to load font information for U+msa on input line 142
 .
 
 (C:\Users\Lucas Di Candia\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa
 .fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 136
+LaTeX Font Info:    Trying to load font information for U+msb on input line 142
 .
 
 (C:\Users\Lucas Di Candia\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb
@@ -1230,7 +1231,7 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 136
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Trying to load font information for OT1+mathkerncmss on inp
-ut line 136.
+ut line 142.
 
 (C:\Users\Lucas Di Candia\AppData\Local\Programs\MiKTeX\tex/latex/sansmathaccen
 t\ot1mathkerncmss.fd
@@ -1241,7 +1242,7 @@ thkerncmss.
 ]
 
 LaTeX Font Warning: Font shape `T1/cmss/b/n' undefined
-(Font)              using `T1/cmss/m/n' instead on input line 170.
+(Font)              using `T1/cmss/m/n' instead on input line 176.
 
 [4
 
@@ -1251,7 +1252,7 @@ LaTeX Font Warning: Font shape `T1/cmss/b/n' undefined
 
 ]
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 241.
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 247.
  [7
 
 ] [8
@@ -1265,192 +1266,167 @@ LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10.95> not available
 ] [12
 
 ]
-<../data/performance/performance.png, id=916, 965.88855pt x 397.84634pt>
+<../data/performance/performance.png, id=872, 801.11295pt x 405.07335pt>
 File: ../data/performance/performance.png Graphic file (type png)
 <use ../data/performance/performance.png>
 Package pdftex.def Info: ../data/performance/performance.png  used on input lin
-e 365.
-(pdftex.def)             Requested size: 334.63205pt x 137.83385pt.
+e 373.
+(pdftex.def)             Requested size: 338.00537pt x 170.90843pt.
  [13
 
  <../data/performance/performance.png>]
-<frame_vacia.png, id=997, 642.7212pt x 397.0032pt>
+<frame_vacia.png, id=949, 567.0786pt x 344.9688pt>
 File: frame_vacia.png Graphic file (type png)
 <use frame_vacia.png>
-Package pdftex.def Info: frame_vacia.png  used on input line 380.
-(pdftex.def)             Requested size: 173.33496pt x 107.06508pt.
-<frame_elegida.png, id=999, 642.7212pt x 397.0032pt>
-File: frame_elegida.png Graphic file (type png)
-<use frame_elegida.png>
-Package pdftex.def Info: frame_elegida.png  used on input line 380.
-(pdftex.def)             Requested size: 173.33496pt x 107.06508pt.
- [14
+Package pdftex.def Info: frame_vacia.png  used on input line 387.
+(pdftex.def)             Requested size: 260.00905pt x 158.1717pt.
 
- <./frame_vacia.png> <./frame_elegida.png>]
-<../data/final_comparison/plots/fu_comparison.png, id=1079, 787.743pt x 462.046
+Overfull \vbox (1.20758pt too high) detected at line 387
+ []
+
+[14
+
+ <./frame_vacia.png>]
+<../data/final_comparison/plots/fu_comparison.png, id=1024, 744.381pt x 418.684
 2pt>
 File: ../data/final_comparison/plots/fu_comparison.png Graphic file (type png)
 <use ../data/final_comparison/plots/fu_comparison.png>
 Package pdftex.def Info: ../data/final_comparison/plots/fu_comparison.png  used
- on input line 392.
-(pdftex.def)             Requested size: 280.29378pt x 164.40472pt.
+ on input line 399.
+(pdftex.def)             Requested size: 311.78601pt x 175.36702pt.
  [15
 
  <../data/final_comparison/plots/fu_comparison.png>]
-<../data/obstacles/systematic/plots/single.png, id=1157, 628.749pt x 426.75435p
+<../data/obstacles/systematic/plots/single.png, id=1098, 628.749pt x 426.75435p
 t>
 File: ../data/obstacles/systematic/plots/single.png Graphic file (type png)
 <use ../data/obstacles/systematic/plots/single.png>
 Package pdftex.def Info: ../data/obstacles/systematic/plots/single.png  used on
- input line 404.
-(pdftex.def)             Requested size: 242.2178pt x 164.40186pt.
+ input line 423.
+(pdftex.def)             Requested size: 258.37398pt x 175.36763pt.
  [16
 
  <../data/obstacles/systematic/plots/single.png>]
-<../data/obstacles/systematic/plots/funnel_pairs_3.png, id=1235, 628.38765pt x 
+<../data/obstacles/systematic/plots/funnel_pairs_3.png, id=1172, 628.38765pt x 
 426.75435pt>
 File: ../data/obstacles/systematic/plots/funnel_pairs_3.png Graphic file (type 
 png)
 <use ../data/obstacles/systematic/plots/funnel_pairs_3.png>
 Package pdftex.def Info: ../data/obstacles/systematic/plots/funnel_pairs_3.png 
- used on input line 416.
-(pdftex.def)             Requested size: 242.07861pt x 164.40186pt.
-[17
+ used on input line 457.
+(pdftex.def)             Requested size: 238.8569pt x 162.21391pt.
+ [17
 
  <../data/obstacles/systematic/plots/funnel_pairs_3.png>]
-<../data/obstacles/automatic/plots/random_search.png, id=1313, 628.749pt x 426.
+<../data/obstacles/automatic/plots/random_search.png, id=1248, 628.749pt x 426.
 75435pt>
 File: ../data/obstacles/automatic/plots/random_search.png Graphic file (type pn
 g)
 <use ../data/obstacles/automatic/plots/random_search.png>
 Package pdftex.def Info: ../data/obstacles/automatic/plots/random_search.png  u
-sed on input line 428.
-(pdftex.def)             Requested size: 242.2178pt x 164.40186pt.
+sed on input line 469.
+(pdftex.def)             Requested size: 258.37398pt x 175.36763pt.
  [18
 
  <../data/obstacles/automatic/plots/random_search.png>] [19
 
 ]
-<casos_particion.png, id=1469, 731.3724pt x 132.0132pt>
-File: casos_particion.png Graphic file (type png)
-<use casos_particion.png>
-Package pdftex.def Info: casos_particion.png  used on input line 456.
-(pdftex.def)             Requested size: 303.3395pt x 54.75423pt.
-<../data/final_comparison/plots/partition_thickness.png, id=1470, 787.743pt x 4
-63.0098pt>
+<../data/final_comparison/plots/partition_thickness.png, id=1396, 627.7854pt x 
+426.8748pt>
 File: ../data/final_comparison/plots/partition_thickness.png Graphic file (type
  png)
 <use ../data/final_comparison/plots/partition_thickness.png>
 Package pdftex.def Info: ../data/final_comparison/plots/partition_thickness.png
-  used on input line 456.
-(pdftex.def)             Requested size: 212.57324pt x 124.94366pt.
+  used on input line 502.
+(pdftex.def)             Requested size: 264.35777pt x 179.75516pt.
+<casos_particion.png, id=1397, 316.5426pt x 246.1998pt>
+File: casos_particion.png Graphic file (type png)
+<use casos_particion.png>
+Package pdftex.def Info: casos_particion.png  used on input line 502.
+(pdftex.def)             Requested size: 156.0041pt x 121.33769pt.
  [20
 
- <./casos_particion.png> <../data/final_comparison/plots/partition_thickness.pn
+ <../data/final_comparison/plots/partition_thickness.png> <./casos_particion.pn
 g>]
-<casos_bloque.png, id=1549, 731.3724pt x 132.0132pt>
-File: casos_bloque.png Graphic file (type png)
-<use casos_bloque.png>
-Package pdftex.def Info: casos_bloque.png  used on input line 471.
-(pdftex.def)             Requested size: 303.3395pt x 54.75423pt.
-<../data/final_comparison/plots/chamber_length.png, id=1550, 787.743pt x 463.00
-98pt>
+<../data/final_comparison/plots/chamber_length.png, id=1472, 628.749pt x 426.87
+48pt>
 File: ../data/final_comparison/plots/chamber_length.png Graphic file (type png)
 
 <use ../data/final_comparison/plots/chamber_length.png>
 Package pdftex.def Info: ../data/final_comparison/plots/chamber_length.png  use
-d on input line 471.
-(pdftex.def)             Requested size: 212.57324pt x 124.94366pt.
+d on input line 516.
+(pdftex.def)             Requested size: 264.76353pt x 179.75516pt.
+<casos_bloque.png, id=1473, 316.5426pt x 246.1998pt>
+File: casos_bloque.png Graphic file (type png)
+<use casos_bloque.png>
+Package pdftex.def Info: casos_bloque.png  used on input line 516.
+(pdftex.def)             Requested size: 156.0041pt x 121.33769pt.
  [21
 
- <./casos_bloque.png> <../data/final_comparison/plots/chamber_length.png>]
-<casos_forma.png, id=1629, 731.3724pt x 132.9768pt>
-File: casos_forma.png Graphic file (type png)
-<use casos_forma.png>
-Package pdftex.def Info: casos_forma.png  used on input line 486.
-(pdftex.def)             Requested size: 303.3395pt x 55.1539pt.
-<../data/block_shapes/plots/shape_screening.png, id=1630, 787.743pt x 462.528pt
+ <../data/final_comparison/plots/chamber_length.png> <./casos_bloque.png>]
+<../data/block_shapes/plots/shape_screening.png, id=1548, 628.749pt x 426.393pt
 >
 File: ../data/block_shapes/plots/shape_screening.png Graphic file (type png)
 <use ../data/block_shapes/plots/shape_screening.png>
 Package pdftex.def Info: ../data/block_shapes/plots/shape_screening.png  used o
-n input line 486.
-(pdftex.def)             Requested size: 212.80162pt x 124.94774pt.
+n input line 546.
+(pdftex.def)             Requested size: 265.05135pt x 179.74747pt.
+<casos_forma.png, id=1549, 316.5426pt x 246.1998pt>
+File: casos_forma.png Graphic file (type png)
+<use casos_forma.png>
+Package pdftex.def Info: casos_forma.png  used on input line 546.
+(pdftex.def)             Requested size: 127.9245pt x 99.49623pt.
  [22
 
- <./casos_forma.png> <../data/block_shapes/plots/shape_screening.png>]
-<../data/block_shapes/plots/shape_validation.png, id=1709, 787.2612pt x 462.528
-pt>
-File: ../data/block_shapes/plots/shape_validation.png Graphic file (type png)
-<use ../data/block_shapes/plots/shape_validation.png>
-Package pdftex.def Info: ../data/block_shapes/plots/shape_validation.png  used 
-on input line 498.
-(pdftex.def)             Requested size: 279.83406pt x 164.40678pt.
- [23
-
- <../data/block_shapes/plots/shape_validation.png>]
-<../data/final_comparison/plots/families.png, id=1787, 847.0044pt x 534.3162pt>
+ <../data/block_shapes/plots/shape_screening.png> <./casos_forma.png>]
+<../data/final_comparison/plots/families.png, id=1624, 737.6358pt x 453.8556pt>
 
 File: ../data/final_comparison/plots/families.png Graphic file (type png)
 <use ../data/final_comparison/plots/families.png>
 Package pdftex.def Info: ../data/final_comparison/plots/families.png  used on i
-nput line 510.
-(pdftex.def)             Requested size: 260.61708pt x 164.4052pt.
- [24
+nput line 558.
+(pdftex.def)             Requested size: 285.02052pt x 175.3686pt.
+ [23
 
  <../data/final_comparison/plots/families.png>]
-<configuracion_elegida.png, id=1865, 642.7212pt x 397.0032pt>
-File: configuracion_elegida.png Graphic file (type png)
-<use configuracion_elegida.png>
-Package pdftex.def Info: configuracion_elegida.png  used on input line 534.
-(pdftex.def)             Requested size: 242.67159pt x 149.89354pt.
+<frame_elegida.png, id=1698, 567.0786pt x 344.9688pt>
+File: frame_elegida.png Graphic file (type png)
+<use frame_elegida.png>
+Package pdftex.def Info: frame_elegida.png  used on input line 586.
+(pdftex.def)             Requested size: 242.67159pt x 147.62306pt.
 
-Overfull \hbox (9.93317pt too wide) in paragraph at lines 534--534
-[][]  
- []
+[24
 
-[25
+ <./frame_elegida.png>]
+<dcm_elegida.png, id=1773, 678.8562pt x 426.393pt>
+File: dcm_elegida.png Graphic file (type png)
+<use dcm_elegida.png>
+Package pdftex.def Info: dcm_elegida.png  used on input line 600.
+(pdftex.def)             Requested size: 286.0085pt x 179.64337pt.
+ [25
 
- <./configuracion_elegida.png>]
-<../data/diffusion/plots/msd_loglog.png, id=1945, 751.24664pt x 498.663pt>
-File: ../data/diffusion/plots/msd_loglog.png Graphic file (type png)
-<use ../data/diffusion/plots/msd_loglog.png>
-Package pdftex.def Info: ../data/diffusion/plots/msd_loglog.png  used on input 
-line 546.
-(pdftex.def)             Requested size: 247.68289pt x 164.4071pt.
+ <./dcm_elegida.png>]
+<ajuste_D_hourglass.png, id=1849, 787.743pt x 368.577pt>
+File: ajuste_D_hourglass.png Graphic file (type png)
+<use ajuste_D_hourglass.png>
+Package pdftex.def Info: ajuste_D_hourglass.png  used on input line 614.
+(pdftex.def)             Requested size: 327.95299pt x 153.44588pt.
  [26
 
- <../data/diffusion/plots/msd_loglog.png>]
-<../data/diffusion/plots/local_log_slope.png, id=2023, 751.608pt x 498.663pt>
-File: ../data/diffusion/plots/local_log_slope.png Graphic file (type png)
-<use ../data/diffusion/plots/local_log_slope.png>
-Package pdftex.def Info: ../data/diffusion/plots/local_log_slope.png  used on i
-nput line 558.
-(pdftex.def)             Requested size: 247.80203pt x 164.4071pt.
- [27
-
- <../data/diffusion/plots/local_log_slope.png>]
-<ajuste_D_vacia.png, id=2102, 1076.823pt x 397.485pt>
-File: ajuste_D_vacia.png Graphic file (type png)
-<use ajuste_D_vacia.png>
-Package pdftex.def Info: ajuste_D_vacia.png  used on input line 570.
-(pdftex.def)             Requested size: 326.03983pt x 120.35027pt.
- [28
-
- <./ajuste_D_vacia.png>]
-<../data/diffusion/plots/D_vs_t90.png, id=2180, 676.80855pt x 462.16666pt>
+ <./ajuste_D_hourglass.png>]
+<../data/diffusion/plots/D_vs_t90.png, id=1923, 744.381pt x 418.80466pt>
 File: ../data/diffusion/plots/D_vs_t90.png Graphic file (type png)
 <use ../data/diffusion/plots/D_vs_t90.png>
 Package pdftex.def Info: ../data/diffusion/plots/D_vs_t90.png  used on input li
-ne 582.
-(pdftex.def)             Requested size: 240.75925pt x 164.40527pt.
- [29
+ne 626.
+(pdftex.def)             Requested size: 311.69514pt x 175.36633pt.
+ [27
 
- <../data/diffusion/plots/D_vs_t90.png>] [30
+ <../data/diffusion/plots/D_vs_t90.png>] [28
 
-] [31
+] [29
 
-] [32
+] [30
 
 ]
 \tf@nav=\write6
@@ -1462,7 +1438,8 @@ ne 582.
 \tf@snm=\write8
 \openout8 = `presentacion.snm'.
 
- (presentacion.aux
+
+(presentacion.aux
 LaTeX Info: Redefining \. on input line 8.
 LaTeX Info: Redefining \% on input line 8.
 )
@@ -1471,16 +1448,17 @@ LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 
+
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `presentacion.out' has not changed.
 (rerunfilecheck)             Checksum: FAA0C37F149251817206DE704FACB028;521.
  ) 
 Here is how much of TeX's memory you used:
- 28152 strings out of 467871
- 577405 string characters out of 5413500
- 981403 words of memory out of 5000000
- 56377 multiletter control sequences out of 15000+600000
+ 28228 strings out of 467871
+ 578859 string characters out of 5413500
+ 978747 words of memory out of 5000000
+ 56457 multiletter control sequences out of 15000+600000
  659797 words of font info for 116 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,19n,123p,389b,1087s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1508,25 +1486,26 @@ jfour/jknappen/ec/dpi600\ecss1440.pk><C:/Users/Lucas Di Candia/AppData/Local/Pr
 ograms/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Lucas Di Cand
 ia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/
 Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts
-/cm/cmmi8.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/typ
-e1/public/amsfonts/cm/cmmi9.pfb><C:/Users/Lucas Di Candia/AppData/Local/Program
-s/MiKTeX/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Users/Lucas Di Candia/Ap
-pData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Users/
+/cm/cmmi6.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/typ
+e1/public/amsfonts/cm/cmmi8.pfb><C:/Users/Lucas Di Candia/AppData/Local/Program
+s/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi9.pfb><C:/Users/Lucas Di Candia/App
+Data/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Users/
 Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cm
-ss9.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/pub
-lic/amsfonts/cm/cmssi10.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/Mi
-KTeX/fonts/type1/public/amsfonts/cm/cmssi12.pfb><C:/Users/Lucas Di Candia/AppDa
-ta/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi8.pfb><C:/Users/Lu
-cas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss
-i9.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/publ
-ic/amsfonts/cm/cmsy10.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKT
-eX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/Lucas Di Candia/AppData/L
-ocal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/Lucas D
-i Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb
->
-Output written on presentacion.pdf (32 pages, 3095752 bytes).
+ss8.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/pub
+lic/amsfonts/cm/cmss9.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKT
+eX/fonts/type1/public/amsfonts/cm/cmssi10.pfb><C:/Users/Lucas Di Candia/AppData
+/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi12.pfb><C:/Users/Luc
+as Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi
+8.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/publi
+c/amsfonts/cm/cmssi9.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTe
+X/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/Lucas Di Candia/AppData/L
+ocal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/Lucas D
+i Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb
+><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
+fonts/cm/cmsy9.pfb>
+Output written on presentacion.pdf (30 pages, 2077726 bytes).
 PDF statistics:
- 2936 PDF objects out of 2984 (max. 8388607)
- 70 named destinations out of 1000 (max. 500000)
- 225 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 2672 PDF objects out of 2984 (max. 8388607)
+ 66 named destinations out of 1000 (max. 500000)
+ 210 words of extra memory for PDF output out of 10000 (max. 10000000)
 

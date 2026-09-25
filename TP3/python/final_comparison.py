@@ -201,7 +201,7 @@ def plot_families(rows: list[dict], path: Path) -> None:
     # t90 en el eje vertical; la mesa vacia no se grafica.
     rows = sorted((row for row in rows if row["name"] != "empty"),
                   key=lambda row: -float(row["t90_mean"]))
-    figure, axis = plt.subplots(figsize=(12, 7.5))
+    figure, axis = plt.subplots(figsize=(10.4, 6.0))
     x = np.arange(len(rows))
     axis.errorbar(x, [row["t90_mean"] for row in rows],
                   yerr=[t90_error(row) for row in rows], fmt="o", ms=11, capsize=6,
@@ -230,7 +230,7 @@ def _sweep_series(axis, rows: list[dict], color: str, label: str) -> None:
 def plot_partition(rows: list[dict], path: Path) -> None:
     """Circulos chicos (K=19, pared fina) -> circulos grandes (K=2, pared gruesa)."""
     rows = sorted(rows, key=lambda row: int(row["K"]))
-    figure, axis = plt.subplots(figsize=(11, 6.5))
+    figure, axis = plt.subplots(figsize=(8.8, 6.0))
     radii = [WIDTH / (2.0 * int(row["K"])) for row in rows]
     axis.errorbar(radii, [row["t90_mean"] for row in rows],
                   yerr=[t90_error(row) for row in rows], fmt="o-", ms=10, capsize=6, lw=1.2,
@@ -246,7 +246,7 @@ def plot_partition(rows: list[dict], path: Path) -> None:
 def plot_chamber(rows: list[dict], partition_rows: list[dict], path: Path) -> None:
     """El bloque sigue engrosando la pared donde la particion se queda: mismas
     semillas y mismo eje, con la configuracion elegida resaltada."""
-    figure, axis = plt.subplots(figsize=(11, 6.5))
+    figure, axis = plt.subplots(figsize=(8.8, 6.0))
     if partition_rows:
         _sweep_series(axis, partition_rows, PARTITION_COLOR, "Partición de K círculos")
     _sweep_series(axis, rows, BLOCK_COLOR, "Bloque de columnas")
@@ -266,7 +266,7 @@ def plot_chamber(rows: list[dict], partition_rows: list[dict], path: Path) -> No
 
 def plot_fu(goals_dir: Path, labels: dict[str, str], path: Path) -> None:
     grid = np.linspace(0.0, 50.0, 1001)
-    figure, axis = plt.subplots(figsize=(11, 6.5))
+    figure, axis = plt.subplots(figsize=(10.4, 5.9))
     for name, color in FU_CASES:
         if not (goals_dir / name).is_dir():
             continue

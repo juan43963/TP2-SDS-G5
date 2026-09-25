@@ -296,7 +296,7 @@ def _style(axis) -> None:
 
 
 def plot_screening(rows: list[dict], chosen_name: str, path: Path) -> None:
-    figure, axis = plt.subplots(figsize=(11, 6.5))
+    figure, axis = plt.subplots(figsize=(8.8, 6.0))
     for series in SERIES.values():
         points = sorted((row for row in rows if row["series"] == series
                          and row["t90_mean"] is not None), key=lambda row: row["x_value"])
