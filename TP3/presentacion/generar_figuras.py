@@ -41,6 +41,9 @@ GOAL_SIZE = 0.20   # m, valor por defecto del motor (--goal-size)
 SEED = 42
 T_FRAME = 8.0   # s: ya hay particulas usadas, pero todavia lejos de t90
 T_DCM = 1.5     # s: fin del DCM graficado, poco despues del tramo ajustado
+# Tercera consulta: D sale de la primera parte del DCM, desde que arranca hasta
+# ~10^0 s (regimen difusivo inicial), no del tramo que detecta diffusion.py.
+TRAMO_D = (0.0, 1.0)
 
 
 def correr(tag: str, extra: list[str]):
@@ -169,20 +172,22 @@ def dcm_elegida():
     Segunda consulta: una vez elegida la configuracion, el DCM se muestra solo
     para ella, y D sale del regimen inicial (antes de que la caja lo sature).
     """
-    from diffusion import MsdSeries, local_log_slopes
-    fila = _fila_difusion("hourglass")
-    t0, t1 = float(fila["fit_start"]), float(fila["fit_end"])
+    t0, t1 = TRAMO_D
     t, dcm = np.loadtxt("data/diffusion/msd/hourglass.csv", delimiter=",", skiprows=1).T
-    alpha = local_log_slopes(MsdSeries(t, dcm, 100, 0, float(t[-1])))
-    # Solo la primera parte, hasta ~10^0 s, antes de que el DCM sature.
-    visible = t <= T_DCM
-    t, dcm, alpha = t[visible], dcm[visible], alpha[visible]
+    # Solo la primera parte, antes de que el DCM sature.
+    visible = (t > 0) & (t <= T_DCM)
+    t, dcm = t[visible], dcm[visible]
+    # Pendiente local en log-log con ventanas de 7 muestras (desde el inicio).
+    lt, ld = np.log(t), np.log(dcm)
+    alpha = np.array([np.polyfit(lt[max(0, i - 3):i + 4], ld[max(0, i - 3):i + 4], 1)[0]
+                      for i in range(t.size)])
+    t0 = max(t0, t[0])
 
     fig, (a1, a2) = plt.subplots(2, 1, figsize=(9.5, 6.0), sharex=True,
                                  gridspec_kw={"height_ratios": [1.6, 1]})
     for ax in (a1, a2):
         ax.axvspan(t0, t1, color="#d6e6f5", zorder=0)
-    a1.loglog(t[1:], dcm[1:], color="#1f5fa8", lw=2.2)
+    a1.loglog(t, dcm, color="#1f5fa8", lw=2.2)
     a1.set_ylabel("DCM (m$^2$)", fontsize=FS)
     # Menos de dos decadas: solo 10^-3 y 10^-2 rotulados, sin rotulos menores.
     a1.set_ylim(1e-3, 4e-2)
@@ -203,15 +208,17 @@ def dcm_elegida():
 def ajuste_D(nombre: str = "hourglass"):
     """Guia 2.4.5 / Teorica 0: error cuadratico del ajuste en funcion de D.
 
-    El ajuste de diffusion.py tiene ordenada libre b. Con b fijo en su optimo,
-    E(D) tiene el minimo exactamente en el D reportado (dE/dD = 0 en el optimo
-    conjunto), asi que la curva es coherente con data/diffusion/summary.csv.
+    Ajuste DCM = 4 D t + b en el tramo inicial TRAMO_D, con ordenada libre b.
+    Con b fijo en su optimo, E(D) tiene el minimo exactamente en el D ajustado
+    (dE/dD = 0 en el optimo conjunto).
     """
-    fila = _fila_difusion(nombre)
-    t0, t1 = float(fila["fit_start"]), float(fila["fit_end"])
-    b, D_fit = float(fila["linear_intercept"]), float(fila["D"])
+    from diffusion import _linear_fit
+    t0, t1 = TRAMO_D
     t, dcm = np.loadtxt(f"data/diffusion/msd/{nombre}.csv", delimiter=",", skiprows=1).T
     tramo = (t >= t0 - 1e-9) & (t <= t1 + 1e-9)
+    pendiente, b, pendiente_std, r2 = _linear_fit(t[tramo], dcm[tramo])
+    D_fit = pendiente / 4
+    print(f"D = {D_fit:.6f} +- {pendiente_std / 4:.6f} m^2/s  (R^2 = {r2:.4f})")
 
     Ds = np.linspace(0.6 * D_fit, 1.4 * D_fit, 801)
     E = np.array([np.sum((dcm[tramo] - 4 * D * t[tramo] - b) ** 2) for D in Ds])

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  25 SEP 2026 15:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  25 SEP 2026 16:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1270,7 +1270,7 @@ LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10.95> not available
 File: ../data/performance/performance.png Graphic file (type png)
 <use ../data/performance/performance.png>
 Package pdftex.def Info: ../data/performance/performance.png  used on input lin
-e 373.
+e 372.
 (pdftex.def)             Requested size: 338.00537pt x 170.90843pt.
  [13
 
@@ -1278,107 +1278,108 @@ e 373.
 <frame_vacia.png, id=949, 567.0786pt x 344.9688pt>
 File: frame_vacia.png Graphic file (type png)
 <use frame_vacia.png>
-Package pdftex.def Info: frame_vacia.png  used on input line 387.
+Package pdftex.def Info: frame_vacia.png  used on input line 386.
 (pdftex.def)             Requested size: 260.00905pt x 158.1717pt.
 
-Overfull \vbox (1.20758pt too high) detected at line 387
+Overfull \vbox (1.20758pt too high) detected at line 386
  []
 
 [14
 
  <./frame_vacia.png>]
-<../data/final_comparison/plots/fu_comparison.png, id=1024, 744.381pt x 418.684
-2pt>
-File: ../data/final_comparison/plots/fu_comparison.png Graphic file (type png)
-<use ../data/final_comparison/plots/fu_comparison.png>
-Package pdftex.def Info: ../data/final_comparison/plots/fu_comparison.png  used
- on input line 399.
-(pdftex.def)             Requested size: 311.78601pt x 175.36702pt.
- [15
-
- <../data/final_comparison/plots/fu_comparison.png>]
-<../data/obstacles/systematic/plots/single.png, id=1098, 628.749pt x 426.75435p
+<../data/obstacles/systematic/plots/single.png, id=1024, 628.749pt x 426.75435p
 t>
 File: ../data/obstacles/systematic/plots/single.png Graphic file (type png)
 <use ../data/obstacles/systematic/plots/single.png>
 Package pdftex.def Info: ../data/obstacles/systematic/plots/single.png  used on
- input line 423.
+ input line 411.
 (pdftex.def)             Requested size: 258.37398pt x 175.36763pt.
- [16
+ [15
 
  <../data/obstacles/systematic/plots/single.png>]
-<../data/obstacles/systematic/plots/funnel_pairs_3.png, id=1172, 628.38765pt x 
+<../data/obstacles/systematic/plots/funnel_pairs_3.png, id=1098, 628.38765pt x 
 426.75435pt>
 File: ../data/obstacles/systematic/plots/funnel_pairs_3.png Graphic file (type 
 png)
 <use ../data/obstacles/systematic/plots/funnel_pairs_3.png>
 Package pdftex.def Info: ../data/obstacles/systematic/plots/funnel_pairs_3.png 
- used on input line 457.
+ used on input line 445.
 (pdftex.def)             Requested size: 238.8569pt x 162.21391pt.
- [17
+
+[16
 
  <../data/obstacles/systematic/plots/funnel_pairs_3.png>]
-<../data/obstacles/automatic/plots/random_search.png, id=1248, 628.749pt x 426.
+<../data/obstacles/automatic/plots/random_search.png, id=1174, 628.749pt x 426.
 75435pt>
 File: ../data/obstacles/automatic/plots/random_search.png Graphic file (type pn
 g)
 <use ../data/obstacles/automatic/plots/random_search.png>
 Package pdftex.def Info: ../data/obstacles/automatic/plots/random_search.png  u
-sed on input line 469.
+sed on input line 457.
 (pdftex.def)             Requested size: 258.37398pt x 175.36763pt.
- [18
+ [17
 
- <../data/obstacles/automatic/plots/random_search.png>] [19
+ <../data/obstacles/automatic/plots/random_search.png>] [18
 
 ]
-<../data/final_comparison/plots/partition_thickness.png, id=1396, 627.7854pt x 
+<../data/final_comparison/plots/partition_thickness.png, id=1321, 627.7854pt x 
 426.8748pt>
 File: ../data/final_comparison/plots/partition_thickness.png Graphic file (type
  png)
 <use ../data/final_comparison/plots/partition_thickness.png>
 Package pdftex.def Info: ../data/final_comparison/plots/partition_thickness.png
-  used on input line 502.
+  used on input line 490.
 (pdftex.def)             Requested size: 264.35777pt x 179.75516pt.
-<casos_particion.png, id=1397, 316.5426pt x 246.1998pt>
+<casos_particion.png, id=1322, 316.5426pt x 246.1998pt>
 File: casos_particion.png Graphic file (type png)
 <use casos_particion.png>
-Package pdftex.def Info: casos_particion.png  used on input line 502.
+Package pdftex.def Info: casos_particion.png  used on input line 490.
 (pdftex.def)             Requested size: 156.0041pt x 121.33769pt.
- [20
+ [19
 
  <../data/final_comparison/plots/partition_thickness.png> <./casos_particion.pn
 g>]
-<../data/final_comparison/plots/chamber_length.png, id=1472, 628.749pt x 426.87
+<../data/final_comparison/plots/chamber_length.png, id=1398, 628.749pt x 426.87
 48pt>
 File: ../data/final_comparison/plots/chamber_length.png Graphic file (type png)
 
 <use ../data/final_comparison/plots/chamber_length.png>
 Package pdftex.def Info: ../data/final_comparison/plots/chamber_length.png  use
-d on input line 516.
+d on input line 504.
 (pdftex.def)             Requested size: 264.76353pt x 179.75516pt.
-<casos_bloque.png, id=1473, 316.5426pt x 246.1998pt>
+<casos_bloque.png, id=1399, 316.5426pt x 246.1998pt>
 File: casos_bloque.png Graphic file (type png)
 <use casos_bloque.png>
-Package pdftex.def Info: casos_bloque.png  used on input line 516.
+Package pdftex.def Info: casos_bloque.png  used on input line 504.
 (pdftex.def)             Requested size: 156.0041pt x 121.33769pt.
- [21
+ [20
 
  <../data/final_comparison/plots/chamber_length.png> <./casos_bloque.png>]
-<../data/block_shapes/plots/shape_screening.png, id=1548, 628.749pt x 426.393pt
+<../data/block_shapes/plots/shape_screening.png, id=1474, 628.749pt x 426.393pt
 >
 File: ../data/block_shapes/plots/shape_screening.png Graphic file (type png)
 <use ../data/block_shapes/plots/shape_screening.png>
 Package pdftex.def Info: ../data/block_shapes/plots/shape_screening.png  used o
-n input line 546.
+n input line 534.
 (pdftex.def)             Requested size: 265.05135pt x 179.74747pt.
-<casos_forma.png, id=1549, 316.5426pt x 246.1998pt>
+<casos_forma.png, id=1475, 316.5426pt x 246.1998pt>
 File: casos_forma.png Graphic file (type png)
 <use casos_forma.png>
-Package pdftex.def Info: casos_forma.png  used on input line 546.
+Package pdftex.def Info: casos_forma.png  used on input line 534.
 (pdftex.def)             Requested size: 127.9245pt x 99.49623pt.
- [22
+ [21
 
  <../data/block_shapes/plots/shape_screening.png> <./casos_forma.png>]
+<../data/final_comparison/plots/fu_comparison.png, id=1550, 744.381pt x 418.684
+2pt>
+File: ../data/final_comparison/plots/fu_comparison.png Graphic file (type png)
+<use ../data/final_comparison/plots/fu_comparison.png>
+Package pdftex.def Info: ../data/final_comparison/plots/fu_comparison.png  used
+ on input line 546.
+(pdftex.def)             Requested size: 311.78601pt x 175.36702pt.
+ [22
+
+ <../data/final_comparison/plots/fu_comparison.png>]
 <../data/final_comparison/plots/families.png, id=1624, 737.6358pt x 453.8556pt>
 
 File: ../data/final_comparison/plots/families.png Graphic file (type png)
@@ -1418,8 +1419,8 @@ Package pdftex.def Info: ajuste_D_hourglass.png  used on input line 614.
 File: ../data/diffusion/plots/D_vs_t90.png Graphic file (type png)
 <use ../data/diffusion/plots/D_vs_t90.png>
 Package pdftex.def Info: ../data/diffusion/plots/D_vs_t90.png  used on input li
-ne 626.
-(pdftex.def)             Requested size: 311.69514pt x 175.36633pt.
+ne 619.
+(pdftex.def)             Requested size: 319.48695pt x 179.75018pt.
  [27
 
  <../data/diffusion/plots/D_vs_t90.png>] [28
@@ -1455,10 +1456,10 @@ Package rerunfilecheck Info: File `presentacion.out' has not changed.
 (rerunfilecheck)             Checksum: FAA0C37F149251817206DE704FACB028;521.
  ) 
 Here is how much of TeX's memory you used:
- 28228 strings out of 467871
- 578859 string characters out of 5413500
+ 28244 strings out of 467871
+ 579170 string characters out of 5413500
  978747 words of memory out of 5000000
- 56457 multiletter control sequences out of 15000+600000
+ 56473 multiletter control sequences out of 15000+600000
  659797 words of font info for 116 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,19n,123p,389b,1087s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1503,7 +1504,7 @@ ocal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/Lucas D
 i Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb
 ><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
 fonts/cm/cmsy9.pfb>
-Output written on presentacion.pdf (30 pages, 2077740 bytes).
+Output written on presentacion.pdf (30 pages, 2082144 bytes).
 PDF statistics:
  2672 PDF objects out of 2984 (max. 8388607)
  66 named destinations out of 1000 (max. 500000)
