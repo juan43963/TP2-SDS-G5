@@ -250,8 +250,8 @@ def plot_chamber(rows: list[dict], partition_rows: list[dict], path: Path) -> No
     if partition_rows:
         _sweep_series(axis, partition_rows, PARTITION_COLOR, "Partición de K círculos")
     _sweep_series(axis, rows, BLOCK_COLOR, "Bloque de columnas")
-    chosen = next((row for row in rows if row["name"] == block_candidate(CHOSEN_COLUMNS).name),
-                  None)
+    # Se resalta el minimo: 7 y 8 columnas empatan dentro del error y asi se lee directo.
+    chosen = min(rows, key=lambda row: row["t90_mean"], default=None)
     if chosen is not None:
         axis.plot(float(chosen["x_value"]), chosen["t90_mean"], marker="o", ms=24, mfc="none",
                   mec="#c0392b", mew=2.5, ls="none", label="Base del reloj de arena")
