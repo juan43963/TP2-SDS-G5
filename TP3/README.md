@@ -234,8 +234,9 @@ quedan en `data/competition/`.
 `SdS_TP3_2026Q2G05CS_Codigo.zip` contiene el motor (`src/` sin el self-test
 ni el oraculo de pruebas, y un `Makefile` reducido que compila `tp3` con los
 mismos flags), `competencia.sh` y, por pedido de la catedra, el codigo de
-animacion (`python/animate.py` y `python/tp3io.py`). No incluye datos, figuras
-ni documentacion.
+animacion (`python/animate.py` y `python/tp3io.py`), mas un `README.md` propio
+(fuente: `README_codigo.md`) que solo describe lo que trae el zip. No incluye
+datos, figuras ni otra documentacion.
 
 ## Reutilizacion deliberada del TP2
 

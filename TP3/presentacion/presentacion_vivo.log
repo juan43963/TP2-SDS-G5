@@ -1,8 +1,8 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  25 SEP 2026 17:47
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  27 SEP 2026 12:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**\def\modo{vivo}\input{presentacion}
+**\def\modo{vivo}\input{presentacion.tex}
 (presentacion.tex
 (C:\Users\Lucas Di Candia\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamer
 .cls
@@ -1488,13 +1488,13 @@ Package rerunfilecheck Info: File `presentacion_vivo.out' has not changed.
 (rerunfilecheck)             Checksum: FAA0C37F149251817206DE704FACB028;521.
  ) 
 Here is how much of TeX's memory you used:
- 28315 strings out of 467871
- 581221 string characters out of 5413500
+ 28313 strings out of 467871
+ 581172 string characters out of 5413500
  987003 words of memory out of 5000000
- 56532 multiletter control sequences out of 15000+600000
+ 56530 multiletter control sequences out of 15000+600000
  659797 words of font info for 116 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 132i,19n,126p,406b,1087s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 132i,19n,126p,410b,1087s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\Lucas Di Candia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/d
 pi600\ecrm0900.pk> <C:\Users\Lucas Di Candia\AppData\Local\MiKTeX\fonts/pk/ljfo
 ur/jknappen/ec/dpi600\ecrm0800.pk> <C:\Users\Lucas Di Candia\AppData\Local\MiKT
