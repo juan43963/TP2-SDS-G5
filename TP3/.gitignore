@@ -5,6 +5,7 @@ data/
 __pycache__/
 *.pyc
 .DS_Store
+.venv/
 
 # Artefactos de build_pptx.py: el .pptx pesa decenas de MB por los GIF embebidos.
 presentacion/presentacion_vivo.pptx
