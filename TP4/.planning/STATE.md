@@ -1,17 +1,17 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 03
-current_phase_name: Pipeline de análisis y selección de dt (2.1a)
+current_phase: 04
+current_phase_name: Tiempos vs TP3 (2.1b) y densidad (2.4a)
 status: executing
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-10-02T21:24:33.572Z"
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-10-02T23:01:56.012Z"
 last_activity: 2026-10-02
-last_activity_desc: Phase 03 execution started
+last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 9
-  completed_plans: 6
+  total_plans: 13
+  completed_plans: 12
   percent: 0
 ---
 
@@ -22,15 +22,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-02)
 
 **Core value:** Producir las figuras correctas y justificadas para la presentación oral de 13 min: ECM vs dt, energía vs dt con la elección de dt, tiempo vs N contra TP3, Fu(t)/⟨t90⟩ vs x0, f(v) con ajuste MB, ⟨t90⟩/⟨t100⟩ vs densidad y mapa de calor (x0, N). Además, el motor tiene que ser lo bastante rápido para los barridos.
-**Current focus:** Phase 03 — Pipeline de análisis y selección de dt (2.1a)
+**Current focus:** Phase 04 — Tiempos vs TP3 (2.1b) y densidad (2.4a)
 **Deadline:** 2026-10-23 13:00 (campus) + presentación oral
 
 ## Current Position
 
-Phase: 03 (Pipeline de análisis y selección de dt (2.1a)) — EXECUTING
-Plan: 2 of 4
+Phase: 04 (Tiempos vs TP3 (2.1b) y densidad (2.4a)) — EXECUTING
+Plan: 4 of 4
 Status: Ready to execute
-Last activity: 2026-10-02 — Phase 03 execution started
+Last activity: 2026-10-02 — Phase 04 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -62,6 +62,9 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P02 | 4 min | 3 tasks | 5 files |
 | Phase 02 P03 | 12min | 2 tasks | 5 files |
 | Phase 03 P01 | 25min | 3 tasks | 10 files |
+| Phase 04 P01 | 5 min | 2 tasks | 5 files |
+| Phase 04 P02 | 11min | 3 tasks | 5 files |
+| Phase 04 P03 | 8min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -82,6 +85,12 @@ Recent decisions affecting current work:
 - [Phase 02]: Plan 02-02: tp4_test con oraculo O(N^2) de imagen literal; chequeo extra de energia por frame para fijar la velocidad centrada (ENG-06)
 - [Phase 02]: Plan 02-03: --init auto = RSA hasta N=400 y red triangular (gap 1 mm, jitter < 0.5 mm) por encima; capacidad 666 en x0=r; init= registra el metodo resuelto
 - [Phase 03]: 03-01: E(0) reference is analytic N*m*v0^2/2 at rtol 1e-9; crosscheck exact only for --every 1, bracket otherwise
+- [Phase 04]: Engine frozen 2026-10-02 (digest 243554eb37b6, 11 src files + CXXFLAGS) after strict+test on WSL g++ 13.3.0, before any timing run; make freeze-check must print FREEZE OK before every timing session and Phase 5 sweep
+- [Phase 04]: freeze.check_against_git lists REV files with git ls-tree (not ls-files) and also compares the committed CXXFLAGS line
+- [Phase 04]: 2.1b preflight also requires freeze check --against-git HEAD; check_session verifies the manifest binary hash in both modes
+- [Phase 04]: TP3 outputs of 2.1b live in ejercicio2/data/timing/tp3/ (roadmap path TP4/data/timing/tp3/ remapped, gitignored data root)
+- [Phase 04]: 2.4a censoring: per N and threshold all -> mean +- sample sigma, partial -> lower bound mean(min(t,tf)) drawn hollow, none -> no time; the successful-only mean is never computed (Q7 default)
+- [Phase 04]: 2.4a optimum flags: edge (minimum at first/last complete N) and distinct (separated from each complete neighbour by more than the combined sigma); never called the optimal density unless interior and distinct
 
 ### Pending Todos
 
@@ -105,6 +114,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T21:24:33.557Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-10-02T23:01:55.772Z
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None

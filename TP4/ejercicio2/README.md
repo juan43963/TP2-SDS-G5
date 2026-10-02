@@ -24,6 +24,13 @@ Motor C++20 del Sistema 2 (billar circular de R = 0.51 m con N partículas bland
   make energy-study   # estudio 2.1a: barrido de dt (WORKERS=4 por defecto)
   make energy-replot  # regenera las figuras de 2.1a desde los CSV, sin simular
   make energy-check   # verifica que DT_STAR coincide con la regla aplicada a los datos
+  make freeze         # congela src/ + CXXFLAGS en engine_freeze.json (ver "Congelamiento del motor")
+  make freeze-check   # FREEZE OK solo si el motor coincide con el freeze
+  make print-toolchain # CXX y CXXFLAGS que make resuelve (TP3 se compila con el mismo CXX)
+  make timing-smoke   # 2.1b a escala chica en data/timing_smoke (ver "Estudio 2.1b")
+  make timing-session # sesion oficial 2.1b: la lanza una persona con la maquina ociosa
+  make timing-replot  # figuras de 2.1b desde los CSV (TIMING_ARGS="--study timing_smoke")
+  make timing-check   # SESSION OK solo si session.json cumple todos los invariantes
   make clean
   ```
 
@@ -166,7 +173,10 @@ Cociente N600/N100 de costo por partícula-paso: **1.202**, dentro de [0.5, 2.0]
 Se cierran al terminar la Fase 2 con la decisión por defecto de abajo.
 
 - **Q1 — Verlet original vs Velocity Verlet en el billar.** Default: Verlet original (el enunciado dice «Verlet»), con velocidad centrada con un paso de retraso. Cambiar a Velocity Verlet es local a `simulate` (misma trayectoria de posiciones, otra velocidad de salida).
+- **Q2 — La curva de TP3 en 2.1b se corta donde se corta su generador.** El generador RSA de TP3 deja de ubicar partículas en algún N de su mesa de 1.2 × 0.68. Default: la curva de TP3 llega hasta el mayor N que pudo ubicar (las extensiones N = 300 y 400 que fallan con `no se pudo ubicar` quedan como `generator_limit` en `session.json`) y se declara en la presentación.
+- **Q3 — Comparación TP4 con obstáculos contra TP3 1.1 con mesa vacía.** TP4 corre con obstáculos en x0 = r y TP3 1.1 con mesa vacía; en ambos lados el registro (conversiones en TP4, goles en TP3) cae dentro de la región cronometrada, con buffer. Default: se comparan tal cual y se declara.
 - **Q4 — Inicialización en red a N alto y pre-corrida de fusión.** Default: la red parte ordenada y no hay pre-corrida; se declara en el informe. Si los docentes piden un estado termalizado, bastaría una corrida previa descartada con la misma semilla.
+- **Q7 — 2.4a cuando t90 o t100 no se alcanzan en tf = 30 s.** Las corridas de 2.1b terminan en tf = 30 s, así que en algunos N el umbral queda censurado. Default: no se promedia sobre las realizaciones exitosas; ese N se reporta con Fu(30 s) ± σ y la fracción de realizaciones que alcanzaron el umbral (figura `success_fu_vs_density`), y en la figura de tiempos se dibuja la cota inferior mean(min(t, tf)) con marcador hueco y sin barra. Si los docentes piden ⟨t100⟩ en todo N, habría que re-correr con tf mayor, lo que ya no es reutilizar 2.1b.
 
 ## Capa de Python (Fase 3)
 
@@ -280,3 +290,65 @@ Segundos proyectados de **una** corrida a dt* = 5e-5 (ns por partícula-paso med
 | 2.4b (N = 400, tmax = 100 s, sin corte temprano) | 2 000 000 | 7.7 |
 
 Es una cota superior para 2.2/2.4b (con `--stop-at-t90` o `--stop-when-all-used` cada corrida termina antes). A dt* el costo es 2× el de dt = 1e-4 y 1/5 del de dt = 1e-5.
+
+### Congelamiento del motor (freeze.py)
+
+```bash
+make freeze                                   # python3 python/freeze.py write
+make freeze-check                             # python3 python/freeze.py check
+python3 python/freeze.py check --against-git HEAD
+```
+
+- **Qué se congela:** el sha256 de cada `.cpp`/`.h` bajo `src/` (código de test incluido: `selftest.cpp` y el oráculo de fuerza bruta), con CRLF normalizado a LF para que el resultado sea el mismo en Windows, WSL y macOS, más el valor de la línea `CXXFLAGS ?=` del Makefile (el resto del Makefile puede cambiar). Todo se resume en un digest combinado guardado en `engine_freeze.json`, que **se commitea junto con el código**. El binario no se congela, porque su hash depende de la máquina: cada sesión de tiempos guarda `binary_sha256` en su propio registro.
+- **Por qué:** es la compuerta 2 del roadmap. Los tiempos de 2.1b (TP4 contra TP3) solo valen para el motor que se midió, y los barridos de la Fase 5 tienen que correr sobre ese mismo motor.
+- **Orden:** `make strict` (cero warnings) → `make test` → `make freeze`, una sola vez y antes de la primera corrida de tiempos (no existe `data/timing*` cuando se escribe). Congelado el 2026-10-02 con g++ 13.3.0 en WSL Ubuntu-24.04: digest `243554eb37b6`, 11 archivos.
+- **Verificación:** `make freeze-check` imprime `FREEZE OK` y sale con 0 si `src/` y `CXXFLAGS` coinciden con el registro. Si no coinciden, imprime `FREEZE BROKEN:` con una línea por diferencia (`cambiado`, `agregado`, `eliminado`, `CXXFLAGS cambiado`) y sale con 1. `check --against-git HEAD` compara el registro con los blobs commiteados (`src/` y la línea `CXXFLAGS` del Makefile de esa revisión), así que un cambio sin commitear nunca entra al freeze. Antes de llamar a git se rechaza toda revisión que empiece con `-` o que no resuelva a un commit.
+- **Re-congelar cuesta caro:** `write` sobre un árbol sin cambios no hace nada (conserva el digest y `frozen_utc`), y se niega (`error:`, exit 1) a reemplazar un freeze con otro digest salvo con `--force`. Re-congelar invalida 2.1b y la Fase 5: hay que re-correr la sesión de 2.1b (unos 10 minutos) y todos los barridos.
+- **Regla:** desde ahora, `make freeze-check` tiene que imprimir `FREEZE OK` antes de cada sesión de tiempos y de cada barrido de la Fase 5. Cualquier cambio posterior del motor rompe `make freeze-check` y obliga a re-correr 2.1b.
+
+### Estudio 2.1b: tiempo de ejecución contra TP3 (study_timing.py)
+
+```bash
+make freeze-check                          # tiene que dar FREEZE OK (el freeze ya existe: make freeze)
+make timing-smoke                          # mismo camino a escala chica, en data/timing_smoke/ (< 1 min)
+make timing-session                        # sesión oficial: solo con la máquina ociosa (unos 10-12 min)
+make timing-check                          # SESSION OK mode=official ... o SESSION FAILED: <motivo>
+make timing-replot                         # figuras, tablas, pendientes y cruce desde los CSV
+make timing-check TIMING_ARGS="--study timing_smoke"   # TIMING_ARGS pasa opciones a study_timing.py
+```
+
+- **Protocolo.** El motor se congela antes con `make freeze` (qué se congela y cuánto cuesta re-congelar: ver "Congelamiento del motor"). Cada sesión verifica el freeze al principio (también contra el motor commiteado en `HEAD`) y al final, junto con el sha256 del binario. Es una sola sesión, en un solo proceso y en serie (`workers = 1`; el corredor rechaza corridas de tiempos en paralelo), con la máquina ociosa: preflight → compilación de TP3 → benchmark oficial de TP3 → extensiones de TP3 → barrido de TP4 → postflight → `session.json`, CSV y figuras. El barrido de TP4 usa x0 = r = 0.0175 m (obstáculos en contacto), tf = 30 s, dt = dt* = 5e-5 s (600 000 pasos), N = 50, 100, ..., 650, semillas 1 a 10, red hexagonal (`--init lattice`) para todo N, sin trayectoria y sin corte temprano. Va en orden semilla por semilla (todo N dentro de cada semilla, como TP3) y se conserva el registro de conversiones de cada corrida, porque 2.4a reutiliza estas corridas.
+- **Re-corrida de TP3 (`tp3_rerun.py`).** TP3 es de solo lectura. Sus fuentes se compilan fuera del árbol, en `build/tp3_bench/`, con los `CXXFLAGS` leídos literalmente de `TP3/Makefile` y el mismo compilador que make resuelve para TP4 (`make print-toolchain`). make nunca se ejecuta dentro de TP3. Su `python/benchmark.py` corre **sin modificar** con sus defaults (N = 25 a 200, semillas 1 a 100, tmax = 30 s, mesa vacía, es decir el inciso 1.1 tal cual), y además una invocación por N = 300 y N = 400 con 10 semillas para ubicar el cruce. Solo se le redirigen `--binary`, `--raw`, `--summary` y `--plot`, con `PYTHONDONTWRITEBYTECODE=1` y `MPLCONFIGDIR` fuera de TP3. Que TP3 quedó intacto se prueba con una instantánea de contenido (sha256 de cada archivo versionado más `tp3`, `tp3_test` y `data/performance/*.csv`) antes y después. El `git status` de WSL sobre `/mnt/c` no sirve de compuerta, porque reporta decenas de ` M TP3/...` espurios por CRLF y modos de archivo. Una extensión que falla con `no se pudo ubicar` queda como `generator_limit` y la sesión sigue (Q2). Si falla la invocación oficial, la sesión se aborta.
+- **Dónde quedan las salidas.** AN-04 y el criterio de éxito 2 del roadmap nombran `TP4/data/timing/tp3/`. La sesión las escribe en `ejercicio2/data/timing/tp3/`, porque `ejercicio2/data/` es el directorio de datos del corredor y está en `.gitignore`, mientras que `TP4/data/` no lo está. La intención del requisito no cambia (las salidas de TP3 quedan bajo TP4 y nunca dentro de `TP3/`); solo cambia la ruta. En `ejercicio2/data/timing/` quedan los directorios de corrida, `manifest.json`, `session.json`, `tp4_runs.csv`, `tp4_summary.csv`, `tp3/` (`runs.csv`, `summary.csv`, `tp3_benchmark.png`, `ext_N{N}_*.csv`, `tp3_rerun.json`), `tp3_summary_all.csv`, `scaling.json` y `figures/` (`timing_vs_N`, `cost_per_particle_step`).
+- **Qué se cronometra.** En ambos lados, `simulation_ms` medido dentro del motor con `steady_clock` alrededor del loop físico. La generación, el arranque del proceso y la apertura de archivos quedan afuera. El registro de conversiones de TP4 y el de goles de TP3 caen adentro, pero con buffer (1 MiB en TP4), así que no hay E/S real dentro del loop (Q3). La figura muestra media ± σ muestral en segundos. Las pendientes log-log (mínimos cuadrados) y el N de cruce TP3/TP4 (interpolación log-log en el primer par de N comunes donde TP3 deja de ser más rápido) se imprimen y se guardan en `scaling.json`, pero nunca se dibujan como curvas. `cost_per_particle_step` muestra simulation_ms / (N · pasos): si la curva es plana, el costo por paso es proporcional a N (DIF-05).
+- **Presupuesto** (PD-67; la sesión imprime su estimación al arrancar):
+
+  | Bloque | Estimación |
+  |--------|------------|
+  | TP4: Σ N = 4550 × 600 000 pasos × 10 semillas = 2.73e10 partícula-pasos | 5.6 min a 12.2 ns (M4 Pro) / 8.2 min a 18 ns (Ryzen/WSL); la corrida más lenta (N = 650) tarda unos 7 s |
+  | TP3 oficial (100 semillas × 6 N) | unos 75 s más el arranque de los procesos |
+  | TP3 extensión (N = 300, 400 × 10 semillas) | unos 65 s |
+  | Compilación de TP3 | menos de 1 min |
+  | Total | unos 10 a 12 min; unos 3 MB de disco |
+
+  El smoke medido en WSL (Ryzen 7 9800X3D) dio 12 a 15 ns por partícula-paso a N = 50 y 100, y la sesión completa de smoke tardó 14 s.
+- **Guardas.** El modo oficial nunca borra nada y se niega a arrancar si `data/timing/` existe y no está vacío. `--smoke` borra solo `data/timing_smoke/`. Si falla el preflight no se escribe nada. Si algo falla después, `session.json` queda con `status: aborted` y el bloque (`tp3_build`, `tp3_benchmark`, `tp4` o `postflight`), y el comando sale con 1. `session.json` guarda rutas relativas a `TP4/` y no guarda hostname ni usuario.
+- **Después de una caída:** mover el directorio a un costado (`mv ejercicio2/data/timing ejercicio2/data/timing_old_<fecha>`) y relanzar **la sesión completa**. Nunca se mezclan corridas de dos sesiones.
+- **Regla:** cualquier cambio del motor a partir de ahora rompe `make freeze-check`, y la sesión de 2.1b hay que re-correrla entera.
+
+### Estudio 2.4a: t90 y t100 contra densidad (study_density.py)
+
+```bash
+make density                               # lee data/timing/ (la sesión oficial 2.1b) y escribe data/density/
+make density DENSITY_ARGS="--timing-study timing_smoke --study density_smoke --min-seeds 2"   # sobre el smoke
+make density-replot                        # figuras, tabla y óptimo desde data/density/summary.csv solo
+make density-replot DENSITY_ARGS="--study density_smoke"
+```
+
+- **Entradas: solo las corridas de 2.1b, sin corridas nuevas** (compuerta 3 del roadmap). El estudio recorre los subdirectorios de `data/timing/` (o de `data/<estudio>/` con `--timing-study`) cuyo nombre encaja completo con `N<N>_..._seed<s>`, así que `tp3/`, `figures/`, `*.partial` y `*.failed` quedan afuera. No usa `manifest.json`, porque el corredor lo reescribe en cada lote. Lee `summary.txt` y `conversions.txt` con los lectores estrictos de `tp4io` (un archivo sin `# END` se rechaza). `study_density.py` no importa `engine`, `subprocess` ni `concurrent`, y un test AST lo verifica.
+- **Validación (cualquier violación aborta con `error:` y el directorio, exit 1; nada se saltea en silencio).** Exige obstáculos en x0 = r = 0.0175 m, `init = lattice`, `stop = tf` sin `--stop-when-all-used` ni `--stop-at-t90`, tf = 30 s con `final_time = tf`, dt = dt* (`dt_star.DT_STAR`), el mismo R y r en todas las corridas, `used` igual en `summary.txt` y `conversions.txt`, ninguna marca `diverged.json`, ningún (N, semilla) repetido y al menos `--min-seeds` semillas por N (10 por defecto para los datos oficiales, 2 para el smoke).
+- **Definiciones.** k90 = (9N + 9) // 10 es el umbral entero del motor (`conversionTarget90`), sin umbral en punto flotante. t90 es el tiempo de la conversión número k90, t100 el de la conversión número N y Fu(30 s) = usadas / N, porque toda corrida termina en tf. La densidad es ρ = N / (π R²) en m⁻², con π R² = 0.817 m², y la fracción de empaquetamiento φ = N r² / R² queda en los CSV. El eje x es ρ y el eje superior muestra N.
+- **Regla de censura (Q7).** Para cada N y cada umbral: `all` (todas las realizaciones lo alcanzan) se reporta como media ± σ muestral; `partial` (solo algunas) no tiene media, y se reporta la cota inferior mean(min(t_i, tf)), dibujada con marcador hueco y sin barra; `none` (ninguna) no aparece en la figura de tiempos. **Nunca se calcula ni se muestra la media sobre las realizaciones exitosas**, porque sesga ⟨t⟩ hacia abajo. Fu(30 s) ± σ y las fracciones de realizaciones con t90 ≤ 30 s y con t100 ≤ 30 s se reportan siempre, así que un punto censurado sigue visible en la segunda figura.
+- **Salidas en `data/density/`.** `runs.csv` (N, seed, rho, phi, used, fu30, t90, t100, final_time; censurado = `nan`), `summary.csv` (N, rho, phi, n_runs, n90, frac90, t90_status, t90_mean, t90_sigma, t90_lower, n100, frac100, t100_status, t100_mean, t100_sigma, t100_lower, fu30_mean, fu30_sigma), `optimum.json` y `figures/t90_t100_vs_density.{png,pdf}` y `figures/success_fu_vs_density.{png,pdf}`. Las figuras no llevan título ni curvas ajustadas; la línea punteada en tf = 30 s es un valor de referencia, no un ajuste.
+- **Densidad óptima.** El estudio imprime `optimum: t90 ...` y `optimum: t100 ...` y los guarda en `optimum.json`: el N de menor ⟨t⟩ entre los puntos completos, con dos banderas. `edge` indica que el mínimo cae en el menor o el mayor N completo. `distinct` indica que el mínimo se separa de cada vecino completo por más que sqrt(σ² + σ_vecino²), y es falso si no hay vecinos. Si no hay ningún punto completo se imprime `optimum: t90 none (<motivo>)`. Un mínimo en el borde o no separado de sus vecinos se informa como tal, nunca como "la densidad óptima". La estrella de la figura marca el mínimo de ⟨t90⟩.
+- **Arranque en red (Q4).** Todas las corridas de 2.1b arrancan de la red hexagonal con perturbación, así que a densidad alta los tiempos de conversión incluyen el enjaulamiento de un estado inicial ordenado. No hay pre-corrida de fusión, porque exigiría cambiar el motor después del freeze. Esto se declara junto a los resultados.

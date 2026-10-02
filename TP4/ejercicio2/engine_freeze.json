@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "frozen_utc": "2026-10-02T22:33:42Z",
+  "dt_star": 5e-05,
+  "cxxflags": "-std=c++20 -O2 -Wall -Wextra -Wpedantic -Wconversion -Isrc/include",
+  "files": {
+    "src/billiard/billiard_cli.cpp": "d41d27f63dd33debf504c39592086d423b9e14d2345c4856724676dd8bdf4cfe",
+    "src/billiard/forces.cpp": "6a2c66ebe9c0c313f187a6a7e1b49c865e84dc0ba29f26c0b194c7c5599951d9",
+    "src/billiard/generator.cpp": "28fdb9630a35a8b61c46b1cd2b9a601ead81447e899d002a3ded595c5555c66c",
+    "src/billiard/simulation.cpp": "30a763fec87338bd2ad9e8831b4a386a992dbffc321c4e5714f28b4f9e30b104",
+    "src/billiard_main.cpp": "885d3b1dfa7437c3ffe0eae8714bbcd88fa583ab6dcbec2d1efa607959fbf2e6",
+    "src/include/billiard.h": "b27a517ccd5f7f8fad759133b05fca12ce4d251c8afcfae53ab8ecf8b62641c5",
+    "src/include/billiard_cli.h": "c11b3e80754745fd2d8e2f06307f247f45ddb2b17c2d0be42292c067693ee387",
+    "src/include/brute_force_forces.h": "5d4395d82c98731c4f0f1052e080bc0c4abc8c46955cc915a3ce8aafbfbcfd8f",
+    "src/include/test_support.h": "79e1e656ed4ab2bd46322e61f28bfa95fbb86e18a0bdc509272efb8fb0362bcd",
+    "src/selftest.cpp": "9e38518f639642f01de4f63176eb155f9e175383d0bd9d61532139d47c7b2baf",
+    "src/tests/brute_force_forces.cpp": "0dc146db9ae0c56b02767af3a12533244bea6595b2d49921e7d4b9d7c102a039"
+  },
+  "digest": "243554eb37b66cc9b255f633f322717f7716d873a90ad19d98b4902af4ab82e7",
+  "note": "Motor congelado antes de 2.1b; cambiar src/ o CXXFLAGS obliga a re-correr 2.1b y la Fase 5."
+}

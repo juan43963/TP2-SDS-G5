@@ -56,6 +56,49 @@ energy-replot:
 energy-check:
 	$(PY) python/study_energy.py --check-frozen
 
+# Congelamiento del motor (compuerta 2): sha256 de src/**/*.cpp|h (CRLF -> LF) + CXXFLAGS en
+# engine_freeze.json. Se congela una vez, despues de strict y test, antes de 2.1b;
+# freeze-check debe dar FREEZE OK antes de cada sesion de tiempos y barrido de la Fase 5.
+.PHONY: freeze freeze-check
+
+freeze:
+	$(PY) python/freeze.py write
+
+freeze-check:
+	$(PY) python/freeze.py check
+
+# Estudio 2.1b (tiempos TP4 vs TP3): sesion serial con el motor congelado. print-toolchain
+# expone el CXX que make resuelve, para compilar TP3 con el mismo compilador.
+TIMING_ARGS ?=
+.PHONY: print-toolchain timing-smoke timing-session timing-replot timing-check
+
+print-toolchain:
+	@echo "CXX=$(CXX)"
+	@echo "CXXFLAGS=$(CXXFLAGS)"
+
+timing-smoke: billiard
+	$(PY) python/study_timing.py --smoke $(TIMING_ARGS)
+
+# Sesion oficial: la lanza una persona con la maquina ociosa (Plan 04-04), nunca un agente.
+timing-session: billiard
+	$(PY) python/study_timing.py --session $(TIMING_ARGS)
+
+timing-replot:
+	$(PY) python/study_timing.py --replot $(TIMING_ARGS)
+
+timing-check:
+	$(PY) python/study_timing.py --check-session $(TIMING_ARGS)
+
+# Estudio 2.4a (t90 y t100 contra densidad): solo lee las corridas de 2.1b, nunca simula.
+DENSITY_ARGS ?=
+.PHONY: density density-replot
+
+density:
+	$(PY) python/study_density.py $(DENSITY_ARGS)
+
+density-replot:
+	$(PY) python/study_density.py --replot $(DENSITY_ARGS)
+
 $(BUILD)/%.o: $(SRC)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -MMD -MP -c -o $@ $<

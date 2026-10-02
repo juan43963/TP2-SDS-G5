@@ -16,12 +16,12 @@
     {
       "number": "3",
       "name": "Pipeline de análisis y selección de dt (2.1a)",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "number": "4",
       "name": "Tiempos vs TP3 (2.1b) y densidad (2.4a)",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "number": "5",
@@ -37,7 +37,7 @@
   "next": {
     "command": "/gsd:progress --next",
     "label": "Advance to the next step",
-    "reason": "Phase 03 of 6 · 0% · executing"
+    "reason": "Phase 04 of 6 · 0% · executing"
   },
-  "updated_at": "2026-10-02T21:24:33.175Z"
+  "updated_at": "2026-10-02T23:01:52.162Z"
 }

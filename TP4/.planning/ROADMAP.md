@@ -117,7 +117,20 @@ Plans:
   3. Un único gráfico log-log muestra el tiempo de ejecución medio ± σ vs N de TP4 y de TP3. Lo acompaña un panel de costo por paso y por partícula que sostiene la discusión del escalamiento
   4. ⟨t90⟩ y ⟨t100⟩ vs densidad salen de los logs de conversión de 2.1b, sin corridas nuevas. Donde no se alcanzan, se informan Fu(30 s) y la fracción de realizaciones exitosas, y el grupo puede decir si hay una densidad óptima
 
-**Plans**: TBD
+**Plans**: 3/4 plans executed
+
+Plans:
+**Wave 1**
+- [x] 04-01-PLAN.md — Congelamiento del motor antes de cualquier corrida de tiempos: `make strict` y `make test`, huella de `src/` + CXXFLAGS en `engine_freeze.json` (`freeze.py`, `make freeze`/`freeze-check`, chequeo contra el commit), tests de la huella y sección del README
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [x] 04-02-PLAN.md — Tubería 2.1b sobre el motor congelado: TP3 compilado fuera de árbol con sus flags y su `benchmark.py` sin cambios, barrido serial de TP4 (x0 = r, tf = 30 s, N 50–650, 10 semillas, red), `session.json`, figura log-log TP4 vs TP3, panel de costo por partícula-paso, `--replot` y `--check-session`, probado a escala humo
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [x] 04-03-PLAN.md — Estudio 2.4a `study_density.py`: ⟨t90⟩/⟨t100⟩ vs densidad desde los logs de conversión de 2.1b sin corridas nuevas, censura sin sesgo (Fu(30 s) y fracción de éxito), densidad óptima con banderas de borde y significancia
+
+**Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 04-04-PLAN.md — Sesión oficial lanzada por una persona con la máquina libre (checkpoint), verificación de la sesión, figuras oficiales, 2.4a sobre los logs oficiales y resultados con trazabilidad en el README
 
 ### Phase 5: Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)
 
@@ -188,7 +201,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6. La Fase 2 pued
 | 1. Sistema 1 — Oscilador amortiguado y andamiaje | 2/2 | In Progress|  |
 | 2. Motor del billar circular | 3/3 | In Progress|  |
 | 3. Pipeline de análisis y selección de dt (2.1a) | 4/4 | In Progress|  |
-| 4. Tiempos vs TP3 (2.1b) y densidad (2.4a) | 0/TBD | Not started | - |
+| 4. Tiempos vs TP3 (2.1b) y densidad (2.4a) | 3/4 | In Progress|  |
 | 5. Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b) | 0/TBD | Not started | - |
 | 6. Animaciones, presentación y entrega | 0/TBD | Not started | - |
 
