@@ -32,6 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Sistema 1 — Oscilador amortiguado y andamiaje
+
 **Goal**: El grupo tiene la figura de la única diapositiva del Sistema 1: ECM vs dt en log-log para Beeman, Verlet original, Velocity Verlet, Euler predictor-corrector y Gear-5, con las pendientes medidas. Con ella puede responder qué método conviene para este sistema. Además quedan fijadas las convenciones compartidas que usa el resto del TP: Makefile en WSL, salida `%.17g` con reloj de pasos entero, self-test sin framework y módulo de estilo de figuras.
 **Depends on**: Nothing (first phase)
 **Requirements**: OSC-01, OSC-02, OSC-03, OSC-04, OSC-05, OSC-06, OSC-07, OSC-08, DIF-01, DIF-02, AN-12
@@ -41,9 +42,18 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. La figura ECM vs dt (log-log, dt log-espaciados en [~1e-6, 1e-2), ECM contra la solución analítica) muestra las cinco curvas con la pendiente medida de cada una anotada. El piso de redondeo está explicado en la figura o queda fuera de la grilla de dt
   4. Mirando la figura, el grupo puede decir qué método es mejor para este sistema y justificarlo con el orden y la constante del error
   5. La figura se genera con el módulo de estilo compartido (ejes con palabras y unidades MKS, fuente ≥ 20, notación 10ˣ, puntos con símbolo, barras = σ), el mismo que importan todos los scripts de estudio posteriores
-**Plans**: TBD
+
+**Plans**: 2 plans
+
+Plans:
+**Wave 1**
+- [ ] 01-01-PLAN.md — Motor `osc` en C++ (wave 1). Contiene el Makefile con `make strict`, la CLI `--key value`, la salida `%.17g` con t = k·dt, los integradores Euler PC, Verlet, Velocity Verlet, Beeman PC y Gear-5, y el self-test `tp4_test` de pendientes, CLI y formato
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 01-02-PLAN.md — Figura ECM vs dt (wave 2). Contiene el módulo de estilo compartido `plot_style.py`, el ECM en Python leído por pipe, el barrido de 12 dt × 5 métodos con pendientes anotadas y el piso de redondeo explicado, `--replot`, los tests de Python y el README del entorno
 
 ### Phase 2: Motor del billar circular
+
 **Goal**: Existe un binario `billiard` validado que simula el billar circular (R = 0.51 m): N partículas blandas, 2 obstáculos fijos opcionales en (±x0, 0) y pared por partícula imagen, integradas con Verlet original a dt fijo. Escribe estados, log de conversiones y una línea de resumen en texto, y su costo por paso es lineal en N, así que alcanza para los barridos de N > 600.
 **Depends on**: Phase 1 (Makefile, convenciones de CLI y salida, flujo WSL). Puede solaparse con el cierre de la figura del Sistema 1
 **Requirements**: ENG-01, ENG-02, ENG-03, ENG-04, ENG-05, ENG-06, ENG-07, ENG-08, ENG-09, ENG-10, ENG-11, ENG-12, ENG-13, ENG-14, ENG-15
@@ -58,9 +68,11 @@ Decimal phases appear between their surrounding integers in numeric order.
      - N = 650 se genera sin solapes;
      - x0 = r y x0 = R − r corren.
   4. El build en WSL con los mismos flags que TP3 no emite warnings. El costo por paso, medido en N = 100 y N = 600, escala linealmente (costo por partícula-paso ≈ constante) y queda registrado para dimensionar los barridos
+
 **Plans**: TBD
 
 ### Phase 3: Pipeline de análisis y selección de dt (2.1a)
+
 **Goal**: La capa Python (lectura, física, observables, runner paralelo y animador) está validada contra el motor. Con ella, el grupo elige y justifica dt* a partir de la energía total para N = 300 sin obstáculos. dt* queda congelado como única fuente de verdad para todos los barridos del billar. Esta fase es el GATE de las Fases 4 y 5.
 **Depends on**: Phase 2
 **Requirements**: AN-01, AN-02, AN-13, DIF-03, DIF-06, DIF-08, DEL-01
@@ -70,9 +82,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. E(t) = cinética + ½k·ξ² (pares, pared y obstáculos contados una vez cada uno) está graficada para N = 300 sin obstáculos y varios dt < 1e-2 s, con el mismo intervalo de salida absoluto en todos
   4. La figura ε(dt) = ⟨|E(t) − E(0)|⟩/E(0) vs dt en log-log muestra el umbral declarado y tc = π√(μ/k) marcado. dt* también se expresa en pasos por contacto y queda congelado en `DT_STAR`, de donde lo leen todos los estudios posteriores
   5. El runner por lotes lanza corridas en un process pool con seeds determinísticas y rutas de salida que codifican todos los parámetros (incluido dt). Al re-lanzar un lote saltea las corridas ya hechas y retoma un lote interrumpido, y `study_*.py --replot` regenera las figuras sin re-simular
+
 **Plans**: TBD
 
 ### Phase 4: Tiempos vs TP3 (2.1b) y densidad (2.4a)
+
 **Goal**: Con el motor congelado y dt* fijo, el grupo tiene la curva de tiempo de ejecución vs N de TP4 superpuesta a la de TP3 1.1, medidas en la misma máquina y la misma sesión, y puede discutir el escalamiento. Sin corridas nuevas, también tiene ⟨t90⟩ y ⟨t100⟩ vs densidad.
 **Depends on**: Phase 3
 **Requirements**: AN-03, AN-04, AN-10, DIF-05
@@ -81,9 +95,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. TP3 se recompila fuera de árbol con sus propios flags en WSL y su `benchmark.py` se re-corre en la misma sesión, con salidas en `TP4/data/timing/tp3/`. Al terminar, `git status` no muestra cambios dentro de `TP3/`
   3. Un único gráfico log-log muestra el tiempo de ejecución medio ± σ vs N de TP4 y de TP3. Lo acompaña un panel de costo por paso y por partícula que sostiene la discusión del escalamiento
   4. ⟨t90⟩ y ⟨t100⟩ vs densidad salen de los logs de conversión de 2.1b, sin corridas nuevas. Donde no se alcanzan, se informan Fu(30 s) y la fracción de realizaciones exitosas, y el grupo puede decir si hay una densidad óptima
+
 **Plans**: TBD
 
 ### Phase 5: Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)
+
 **Goal**: El grupo tiene, con la censura reportada sin sesgo, las figuras de 2.2 (Fu(t) y ⟨t90⟩ vs x0 para N = 100 y N = 20, con el x0 óptimo), de 2.3 (f(v) evolucionando hasta el estacionario, más el ajuste de kBT) y de 2.4b (mapa de calor de ⟨t90⟩ en (x0, N)).
 **Depends on**: Phase 4. Usa dt* y el runner de la Fase 3, pero corre en paralelo recién después de terminadas las corridas de tiempos y con el motor ya congelado
 **Requirements**: AN-05, AN-06, AN-07, AN-08, AN-09, AN-11, DIF-04, DIF-07
@@ -93,9 +109,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Se muestra f(v) normalizada (∫f dv = 1) a distintos t, desde t = 0 hasta el estacionario (N = 100, sin obstáculos, promedio sobre realizaciones). La acompaña ⟨v⁴⟩/⟨v²⟩² vs t (de 1 a 2), que define la ventana estacionaria declarada
   4. El ajuste de kBT por barrido de un parámetro muestra la curva E(kBT) con su mínimo, y el kBT ajustado se compara con m·v0²/2 = 0.0125 J
   5. El mapa de calor de ⟨t90⟩ (o ⟨t100⟩) en (x0, N), hecho con `pcolormesh`, reutiliza la fila N = 100 de 2.2, marca las celdas censuradas y señala el x0 óptimo de cada N
+
 **Plans**: TBD
 
 ### Phase 6: Animaciones, presentación y entrega
+
 **Goal**: El grupo puede subir a campus, antes del 23/10/2026 13hs, la presentación PDF y el .zip de código con los nombres exactos del enunciado, y dar la presentación oral de 13 minutos con las animaciones accesibles por link.
 **Depends on**: Phase 5
 **Requirements**: DEL-02, DEL-03, DEL-04, DEL-05
@@ -109,6 +127,7 @@ Decimal phases appear between their surrounding integers in numeric order.
      - muestra fotograma + link en cada diapositiva con animación.
   3. `SdS_TP4_2026Q2G05CS_Presentación.pdf` existe con ese nombre exacto, sin animaciones embebidas ni placeholders pendientes, y todas sus figuras pasan la revisión contra la guía
   4. `SdS_TP4_2026Q2G05CS_Codigo.zip` pesa < 100 KB y lo genera un script con allowlist (solo `src/` del motor + Makefile). Descomprimido en un directorio limpio, compila desde cero sin warnings
+
 **Plans**: TBD
 
 ## Notas para la planificación
@@ -145,7 +164,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6. La Fase 2 pued
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Sistema 1 — Oscilador amortiguado y andamiaje | 0/TBD | Not started | - |
+| 1. Sistema 1 — Oscilador amortiguado y andamiaje | 0/2 | Planned | - |
 | 2. Motor del billar circular | 0/TBD | Not started | - |
 | 3. Pipeline de análisis y selección de dt (2.1a) | 0/TBD | Not started | - |
 | 4. Tiempos vs TP3 (2.1b) y densidad (2.4a) | 0/TBD | Not started | - |

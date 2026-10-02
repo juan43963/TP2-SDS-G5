@@ -1,0 +1,1 @@
+No external API integration: Phase 1 builds a local C++ oscillator engine (`osc`, `tp4_test`) and local Python analysis modules (`plot_style.py`, `observables.py`, `study_oscillator.py`). The detector's "api" hit refers to the internal Python function interface of the shared figure-style module, not to an external service, SDK or network API.

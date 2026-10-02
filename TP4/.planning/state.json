@@ -1,0 +1,43 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": null,
+  "phases": [
+    {
+      "number": "1",
+      "name": "Sistema 1 — Oscilador amortiguado y andamiaje",
+      "status": "pending"
+    },
+    {
+      "number": "2",
+      "name": "Motor del billar circular",
+      "status": "pending"
+    },
+    {
+      "number": "3",
+      "name": "Pipeline de análisis y selección de dt (2.1a)",
+      "status": "pending"
+    },
+    {
+      "number": "4",
+      "name": "Tiempos vs TP3 (2.1b) y densidad (2.4a)",
+      "status": "pending"
+    },
+    {
+      "number": "5",
+      "name": "Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)",
+      "status": "pending"
+    },
+    {
+      "number": "6",
+      "name": "Animaciones, presentación y entrega",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 1 of 6 · 0% · executing"
+  },
+  "updated_at": "2026-10-02T16:11:16.219Z"
+}
