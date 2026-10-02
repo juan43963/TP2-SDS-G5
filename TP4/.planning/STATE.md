@@ -1,17 +1,17 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 2
-current_phase_name: Motor del billar circular
+current_phase: 03
+current_phase_name: Pipeline de análisis y selección de dt (2.1a)
 status: executing
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-10-02T20:11:11.415Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-10-02T21:24:33.572Z"
 last_activity: 2026-10-02
-last_activity_desc: Phase 01 execution started
+last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 5
-  completed_plans: 2
+  total_plans: 9
+  completed_plans: 6
   percent: 0
 ---
 
@@ -22,15 +22,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-02)
 
 **Core value:** Producir las figuras correctas y justificadas para la presentación oral de 13 min: ECM vs dt, energía vs dt con la elección de dt, tiempo vs N contra TP3, Fu(t)/⟨t90⟩ vs x0, f(v) con ajuste MB, ⟨t90⟩/⟨t100⟩ vs densidad y mapa de calor (x0, N). Además, el motor tiene que ser lo bastante rápido para los barridos.
-**Current focus:** Phase 01 — Sistema 1 — Oscilador amortiguado y andamiaje
+**Current focus:** Phase 03 — Pipeline de análisis y selección de dt (2.1a)
 **Deadline:** 2026-10-23 13:00 (campus) + presentación oral
 
 ## Current Position
 
-Phase: 2 (Motor del billar circular) — READY TO EXECUTE
-Plan: 2 of 2
+Phase: 03 (Pipeline de análisis y selección de dt (2.1a)) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-10-02 — Phase 01 execution started
+Last activity: 2026-10-02 — Phase 03 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -58,6 +58,10 @@ Progress: [░░░░░░░░░░] 0%
 |------|----------|-------|-------|
 | Phase 01 P01 | 14min | 2 tasks | 9 files |
 | Phase 01 P02 | 35min | 3 tasks | 9 files |
+| Phase 02 P01 | 4 min | 2 tasks | 10 files |
+| Phase 02 P02 | 4 min | 3 tasks | 5 files |
+| Phase 02 P03 | 12min | 2 tasks | 5 files |
+| Phase 03 P01 | 25min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -74,6 +78,10 @@ Recent decisions affecting current work:
 - [Phase 01]: Gear-5 expuesto como quinto metodo gear5 con alpha de la diap. 29; pendiente de docentes Q9
 - [Phase 01]: plot_style API fixed (FONT_SIZE, MARKERS, apply_style, series_kwargs, axis_label, set_log_axes, set_scientific_linear, mean_and_sigma, errorbar, save_figure): all later study scripts import it
 - [Phase 01]: ECM figure keeps all 60 points; round-off-dominated ones (ECM > 3x fitted power law outside fit window) drawn hollow and annotated; Gear-5 labelled as extra
+- [Phase 02]: Plan 02-01: Verlet original + CIM no periodico; pared en forma cerrada xi=|r|+r-R equivalente a la imagen; contacto estricto xi>0; t90 = Nu >= (9N+9)/10 en enteros
+- [Phase 02]: Plan 02-02: tp4_test con oraculo O(N^2) de imagen literal; chequeo extra de energia por frame para fijar la velocidad centrada (ENG-06)
+- [Phase 02]: Plan 02-03: --init auto = RSA hasta N=400 y red triangular (gap 1 mm, jitter < 0.5 mm) por encima; capacidad 666 en x0=r; init= registra el metodo resuelto
+- [Phase 03]: 03-01: E(0) reference is analytic N*m*v0^2/2 at rtol 1e-9; crosscheck exact only for --every 1, bracket otherwise
 
 ### Pending Todos
 
@@ -97,6 +105,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T19:30:41.011Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-10-02T21:24:33.557Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

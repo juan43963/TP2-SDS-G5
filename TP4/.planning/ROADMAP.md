@@ -69,17 +69,17 @@ Plans:
      - x0 = r y x0 = R − r corren.
   4. El build en WSL con los mismos flags que TP3 no emite warnings. El costo por paso, medido en N = 100 y N = 600, escala linealmente (costo por partícula-paso ≈ constante) y queda registrado para dimensionar los barridos
 
-**Plans**: 3 plans
+**Plans**: 3/3 plans executed
 
 Plans:
 **Wave 1**
-- [ ] 02-01-PLAN.md — Motor `billiard` de punta a punta en `ejercicio2/` (proyecto propio, mismo layout que `ejercicio1/`): CLI `--key value`, RSA, fuerzas por CIM (pares, obstáculos, pared por imagen), Verlet original con velocidad centrada, conversiones, salidas versionadas TP4_FRAMES/TP4_CONVERSIONS/TP4_SUMMARY con cronómetro steady_clock; modos de barrido `--no-trajectory`, `--stop-when-all-used`, `--stop-at-t90` probados desde la CLI
+- [x] 02-01-PLAN.md — Motor `billiard` de punta a punta en `ejercicio2/` (proyecto propio, mismo layout que `ejercicio1/`): CLI `--key value`, RSA, fuerzas por CIM (pares, obstáculos, pared por imagen), Verlet original con velocidad centrada, conversiones, salidas versionadas TP4_FRAMES/TP4_CONVERSIONS/TP4_SUMMARY con cronómetro steady_clock; modos de barrido `--no-trajectory`, `--stop-when-all-used`, `--stop-at-t90` probados desde la CLI
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 02-02-PLAN.md — `tp4_test` propio de `ejercicio2/`: oráculo O(N²) con partícula imagen literal, contacto exacto, choque frontal, pared radial y tangencial, conversión única, bordes de x0, guarda de no finitos, cortes tempranos, matriz de la CLI y round-trip bit a bit del formato
+- [x] 02-02-PLAN.md — `tp4_test` propio de `ejercicio2/`: oráculo O(N²) con partícula imagen literal, contacto exacto, choque frontal, pared radial y tangencial, conversión única, bordes de x0, guarda de no finitos, cortes tempranos, matriz de la CLI y round-trip bit a bit del formato
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 02-03-PLAN.md — Régimen denso y cierre del motor: red triangular con jitter, `--init {rsa,lattice,auto}` con chequeo de capacidad y N = 650 sin solapes; costo por paso medido en N = 100 y N = 600; README de `ejercicio2/`
+- [x] 02-03-PLAN.md — Régimen denso y cierre del motor: red triangular con jitter, `--init {rsa,lattice,auto}` con chequeo de capacidad y N = 650 sin solapes; costo por paso medido en N = 100 y N = 600; README de `ejercicio2/`
 
 ### Phase 3: Pipeline de análisis y selección de dt (2.1a)
 
@@ -93,7 +93,18 @@ Plans:
   4. La figura ε(dt) = ⟨|E(t) − E(0)|⟩/E(0) vs dt en log-log muestra el umbral declarado y tc = π√(μ/k) marcado. dt* también se expresa en pasos por contacto y queda congelado en `DT_STAR`, de donde lo leen todos los estudios posteriores
   5. El runner por lotes lanza corridas en un process pool con seeds determinísticas y rutas de salida que codifican todos los parámetros (incluido dt). Al re-lanzar un lote saltea las corridas ya hechas y retoma un lote interrumpido, y `study_*.py --replot` regenera las figuras sin re-simular
 
-**Plans**: TBD
+**Plans**: 4/4 plans executed
+
+Plans:
+**Wave 1**
+- [x] 03-01-PLAN.md — Base de Python en `ejercicio2/python/`: lectores estrictos de los tres formatos de texto (`tp4io`), energía E = K + ½kξ² desde snapshots con chequeo de E(0) (`physics`), shim del estilo compartido de la Fase 1 y validación cruzada de E(0) e instantes de conversión contra el motor (`crosscheck`, DIF-08), con `make python-test`
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [x] 03-02-PLAN.md — Runner por lotes `engine.py`: process pool, seeds determinísticas, rutas que codifican todos los parámetros (dt incluido), promoción atómica desde `.partial`, salto de corridas terminadas, reanudación tras SIGKILL, divergencia como resultado, corridas de tiempos nunca en paralelo y manifiesto
+- [x] 03-03-PLAN.md — Animador independiente `animate.py` (círculo, obstáculos negros, partículas a su radio real azules/rojas, reloj t; PNG y video MP4 o GIF de respaldo) y revisión visual de una corrida con obstáculos antes de cualquier barrido
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [x] 03-04-PLAN.md — Estudio 2.1a `study_energy.py` (N = 300 sin obstáculos, 10 dt × 5 seeds, mismo dt2): E(t), desvío relativo y ε(dt) con umbral declarado y tc marcado, regla de selección, `DT_STAR` congelado en `dt_star.py` (GATE de las Fases 4 y 5), `--replot`, `--check-frozen` y presupuesto de cómputo
 
 ### Phase 4: Tiempos vs TP3 (2.1b) y densidad (2.4a)
 
@@ -175,8 +186,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6. La Fase 2 pued
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Sistema 1 — Oscilador amortiguado y andamiaje | 2/2 | In Progress|  |
-| 2. Motor del billar circular | 0/3 | Planned | - |
-| 3. Pipeline de análisis y selección de dt (2.1a) | 0/TBD | Not started | - |
+| 2. Motor del billar circular | 3/3 | In Progress|  |
+| 3. Pipeline de análisis y selección de dt (2.1a) | 4/4 | In Progress|  |
 | 4. Tiempos vs TP3 (2.1b) y densidad (2.4a) | 0/TBD | Not started | - |
 | 5. Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b) | 0/TBD | Not started | - |
 | 6. Animaciones, presentación y entrega | 0/TBD | Not started | - |

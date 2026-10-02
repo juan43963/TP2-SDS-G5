@@ -20,25 +20,25 @@ Detalle técnico y fuentes de cada ítem: `.planning/research/FEATURES.md` y `.p
 
 ### Motor del billar circular (ENG)
 
-- [ ] **ENG-01**: El binario `billiard` acepta por CLI (`--key value`, sin getopt) N, x0, `--no-obstacles`, dt, n (dt2 = n·dt), tf, seed, rutas de salida y los parámetros físicos (R = 0.51, r = 0.0175, m = 0.025, k = 1e4, v0 = 1) con los valores del enunciado por defecto
-- [ ] **ENG-02**: El generador ubica N partículas sin solape (entre sí, con obstáculos y con la pared) con |v| = v0 y ángulo uniforme en [0, 2π), con modo `--init {rsa,lattice,auto}`: RSA y red hexagonal con jitter para N > ~400, llegando al menos a N = 650, con chequeo de capacidad que falla explícitamente y método registrado en la salida
-- [ ] **ENG-03**: Fuerza de resorte normal partícula-partícula F = −k·ξ·ê con ξ = 2r − |rj − ri| > 0, calculada una vez por par y aplicada con signo opuesto
-- [ ] **ENG-04**: Contacto partícula-obstáculo (fijo, radio r, masa infinita, en (±x0, 0)) con la misma fuerza aplicada solo a la partícula; x0 configurable en [r, R − r]
-- [ ] **ENG-05**: Contacto con la pared vía partícula imagen r_img = (R + r)·r̂ si |ri| > R − r, con ξ = |ri| + r − R, recalculada en cada dt
-- [ ] **ENG-06**: Integración con Verlet original a dt fijo; la velocidad de salida se obtiene por diferencia central (un paso de retraso)
-- [ ] **ENG-07**: Búsqueda de vecinos con Cell Index Method no periódico sobre [−R, R]² (celda ≥ 2r, M = 29), reconstruido cada paso, con costo por paso lineal en N
-- [ ] **ENG-08**: Conversión fresca → usada en el primer paso con contacto (ξ > 0) contra cualquier obstáculo, irreversible, chequeada en cada paso
-- [ ] **ENG-09**: Salida de estado cada dt2 = n·dt: tiempo y N filas `x y vx vy estado`, en texto con precisión suficiente para recalcular la energía elástica (`%.17g` en posiciones)
-- [ ] **ENG-10**: Log de conversiones (`t id` por partícula convertida) siempre activo, más una línea de resumen por corrida (parámetros, método de init, pasos, tiempo del loop)
-- [ ] **ENG-11**: Modo sin trayectoria (`--no-trajectory`) que solo escribe log de conversiones y resumen
-- [ ] **ENG-12**: Cronómetro `steady_clock` solo alrededor del loop físico (excluye generación y E/S de frames), con la misma definición que `simulation_ms` de TP3
-- [ ] **ENG-13**: Parada temprana opcional (`--stop-when-all-used`, o al alcanzar Fu ≥ 0.9) para los barridos de 2.2/2.4b; nunca se usa en 2.1b
-- [ ] **ENG-14**: Self-test `tp4_test` sin framework: fuerzas CIM = oráculo O(N²); choque frontal de 2 partículas (tc, energía, momento); rebote radial y tangencial en pared; conversión una sola vez; N = 650 sin solapes; x0 = r y x0 = R − r corren
-- [ ] **ENG-15**: Build en WSL (g++ 13.3, GNU Make) con `-std=c++20 -O2 -Wall -Wextra -pedantic`, sin warnings, igual que TP3; costo por paso medido en N = 100 y N = 600 al cerrar el motor
+- [x] **ENG-01**: El binario `billiard` acepta por CLI (`--key value`, sin getopt) N, x0, `--no-obstacles`, dt, n (dt2 = n·dt), tf, seed, rutas de salida y los parámetros físicos (R = 0.51, r = 0.0175, m = 0.025, k = 1e4, v0 = 1) con los valores del enunciado por defecto
+- [x] **ENG-02**: El generador ubica N partículas sin solape (entre sí, con obstáculos y con la pared) con |v| = v0 y ángulo uniforme en [0, 2π), con modo `--init {rsa,lattice,auto}`: RSA y red hexagonal con jitter para N > ~400, llegando al menos a N = 650, con chequeo de capacidad que falla explícitamente y método registrado en la salida
+- [x] **ENG-03**: Fuerza de resorte normal partícula-partícula F = −k·ξ·ê con ξ = 2r − |rj − ri| > 0, calculada una vez por par y aplicada con signo opuesto
+- [x] **ENG-04**: Contacto partícula-obstáculo (fijo, radio r, masa infinita, en (±x0, 0)) con la misma fuerza aplicada solo a la partícula; x0 configurable en [r, R − r]
+- [x] **ENG-05**: Contacto con la pared vía partícula imagen r_img = (R + r)·r̂ si |ri| > R − r, con ξ = |ri| + r − R, recalculada en cada dt
+- [x] **ENG-06**: Integración con Verlet original a dt fijo; la velocidad de salida se obtiene por diferencia central (un paso de retraso)
+- [x] **ENG-07**: Búsqueda de vecinos con Cell Index Method no periódico sobre [−R, R]² (celda ≥ 2r, M = 29), reconstruido cada paso, con costo por paso lineal en N
+- [x] **ENG-08**: Conversión fresca → usada en el primer paso con contacto (ξ > 0) contra cualquier obstáculo, irreversible, chequeada en cada paso
+- [x] **ENG-09**: Salida de estado cada dt2 = n·dt: tiempo y N filas `x y vx vy estado`, en texto con precisión suficiente para recalcular la energía elástica (`%.17g` en posiciones)
+- [x] **ENG-10**: Log de conversiones (`t id` por partícula convertida) siempre activo, más una línea de resumen por corrida (parámetros, método de init, pasos, tiempo del loop)
+- [x] **ENG-11**: Modo sin trayectoria (`--no-trajectory`) que solo escribe log de conversiones y resumen
+- [x] **ENG-12**: Cronómetro `steady_clock` solo alrededor del loop físico (excluye generación y E/S de frames), con la misma definición que `simulation_ms` de TP3
+- [x] **ENG-13**: Parada temprana opcional (`--stop-when-all-used`, o al alcanzar Fu ≥ 0.9) para los barridos de 2.2/2.4b; nunca se usa en 2.1b
+- [x] **ENG-14**: Self-test `tp4_test` sin framework: fuerzas CIM = oráculo O(N²); choque frontal de 2 partículas (tc, energía, momento); rebote radial y tangencial en pared; conversión una sola vez; N = 650 sin solapes; x0 = r y x0 = R − r corren
+- [x] **ENG-15**: Build en WSL (g++ 13.3, GNU Make) con `-std=c++20 -O2 -Wall -Wextra -pedantic`, sin warnings, igual que TP3; costo por paso medido en N = 100 y N = 600 al cerrar el motor
 
 ### Análisis en Python (AN)
 
-- [ ] **AN-01**: 2.1a — E(t) = cinética + ½k·ξ² (pares, pared y obstáculos contados una vez) calculada desde snapshots, para N = 300 sin obstáculos y varios dt < 1e-2 s con el mismo intervalo de salida absoluto; frame 0 verificado contra E(0) = N·½·m·v0²
+- [x] **AN-01**: 2.1a — E(t) = cinética + ½k·ξ² (pares, pared y obstáculos contados una vez) calculada desde snapshots, para N = 300 sin obstáculos y varios dt < 1e-2 s con el mismo intervalo de salida absoluto; frame 0 verificado contra E(0) = N·½·m·v0²
 - [ ] **AN-02**: 2.1a — observable escalar ε(dt) = ⟨|E(t) − E(0)|⟩/E(0) vs dt en log-log, con umbral declarado y dt* congelado como única fuente de verdad (`DT_STAR`) para todo el resto
 - [ ] **AN-03**: 2.1b — tiempo de ejecución medio ± σ vs N (x0 = r, tf = 30 s, N de 50 a ≥ 650, ≥ 10 realizaciones, init en red para todo N, corridas en serie con la máquina libre) en el mismo gráfico log-log que TP3 1.1
 - [ ] **AN-04**: 2.1b — TP3 recompilado fuera de árbol con sus propios flags en WSL y su `benchmark.py` re-corrido sin modificar ningún archivo de `TP3/`, en la misma sesión, con salidas en `TP4/data/timing/tp3/`
@@ -69,7 +69,7 @@ Detalle técnico y fuentes de cada ítem: `.planning/research/FEATURES.md` y `.p
 - [ ] **DIF-05**: Panel de costo por paso y por partícula en 2.1b
 - [ ] **DIF-06**: Runner Python por lotes en paralelo (process pool), con cache por parámetros y reanudable, para 2.2, 2.3 y 2.4b
 - [ ] **DIF-07**: Fu(t) de N = 20 y N = 100 superpuestas en 2.2, y x0 óptimo por N marcado en el mapa de calor de 2.4b
-- [ ] **DIF-08**: Validación cruzada en Python: E(0) y conversiones de algunas partículas recalculadas desde los snapshots y comparadas con el motor
+- [x] **DIF-08**: Validación cruzada en Python: E(0) y conversiones de algunas partículas recalculadas desde los snapshots y comparadas con el motor
 
 ## v2 Requirements
 
@@ -109,27 +109,27 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DIF-01 | Phase 1 | Complete |
 | DIF-02 | Phase 1 | Complete |
 | AN-12 | Phase 1 | Complete |
-| ENG-01 | Phase 2 | Pending |
-| ENG-02 | Phase 2 | Pending |
-| ENG-03 | Phase 2 | Pending |
-| ENG-04 | Phase 2 | Pending |
-| ENG-05 | Phase 2 | Pending |
-| ENG-06 | Phase 2 | Pending |
-| ENG-07 | Phase 2 | Pending |
-| ENG-08 | Phase 2 | Pending |
-| ENG-09 | Phase 2 | Pending |
-| ENG-10 | Phase 2 | Pending |
-| ENG-11 | Phase 2 | Pending |
-| ENG-12 | Phase 2 | Pending |
-| ENG-13 | Phase 2 | Pending |
-| ENG-14 | Phase 2 | Pending |
-| ENG-15 | Phase 2 | Pending |
-| AN-01 | Phase 3 | Pending |
+| ENG-01 | Phase 2 | Complete |
+| ENG-02 | Phase 2 | Complete |
+| ENG-03 | Phase 2 | Complete |
+| ENG-04 | Phase 2 | Complete |
+| ENG-05 | Phase 2 | Complete |
+| ENG-06 | Phase 2 | Complete |
+| ENG-07 | Phase 2 | Complete |
+| ENG-08 | Phase 2 | Complete |
+| ENG-09 | Phase 2 | Complete |
+| ENG-10 | Phase 2 | Complete |
+| ENG-11 | Phase 2 | Complete |
+| ENG-12 | Phase 2 | Complete |
+| ENG-13 | Phase 2 | Complete |
+| ENG-14 | Phase 2 | Complete |
+| ENG-15 | Phase 2 | Complete |
+| AN-01 | Phase 3 | Complete |
 | AN-02 | Phase 3 | Pending |
 | AN-13 | Phase 3 | Pending |
 | DIF-03 | Phase 3 | Pending |
 | DIF-06 | Phase 3 | Pending |
-| DIF-08 | Phase 3 | Pending |
+| DIF-08 | Phase 3 | Complete |
 | DEL-01 | Phase 3 | Pending |
 | AN-03 | Phase 4 | Pending |
 | AN-04 | Phase 4 | Pending |

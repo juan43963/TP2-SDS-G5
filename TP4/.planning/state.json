@@ -11,7 +11,7 @@
     {
       "number": "2",
       "name": "Motor del billar circular",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "number": "3",
@@ -37,7 +37,7 @@
   "next": {
     "command": "/gsd:progress --next",
     "label": "Advance to the next step",
-    "reason": "Phase 2 of 6 · 0% · executing"
+    "reason": "Phase 03 of 6 · 0% · executing"
   },
-  "updated_at": "2026-10-02T20:11:11.421Z"
+  "updated_at": "2026-10-02T21:24:33.175Z"
 }
