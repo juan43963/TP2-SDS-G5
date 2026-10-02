@@ -1,0 +1,235 @@
+% =====================================================================
+%  PLANTILLA BEAMER SDS - Cátedra 72.25 Simulación de Sistemas
+%  Estructura validada según GuiaPresentaciones.md y feedback docente.
+%
+%  Compilación:
+%   - Para entrega en PDF (muestra fotograma estático + link YouTube):
+%       pdflatex presentacion.tex
+%   - Para generar .pptx en vivo con GIFs embebidos:
+%       pdflatex -jobname=presentacion_vivo "\def\modo{vivo}\input{presentacion}"
+%       py scripts/build_pptx.py
+% =====================================================================
+\documentclass[aspectratio=169]{beamer}
+
+\usetheme{Boadilla}
+\useoutertheme{miniframes}
+\usecolortheme{whale}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noquoting]{babel}
+\usepackage{amsmath,amssymb,graphicx,booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+
+% Guía 3.5: Vectores en negrita sin itálica, escalares en itálica sin negrita.
+\newcommand{\vect}[1]{\mathbf{#1}}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+\setbeamercovered{transparent}
+
+% Diapositiva divisoria automática por sección (Guía 1.13)
+\AtBeginSection[]{%
+  \begin{frame}[plain]
+    \vfill
+    \begin{beamercolorbox}[sep=8pt,center]{title}
+      \usebeamerfont{title}\insertsection
+    \end{beamercolorbox}
+    \vfill
+  \end{frame}
+}
+
+% Bloque de parámetros al costado de una figura (Guía 1.7)
+\newcommand{\params}[1]{{\footnotesize #1}}
+
+% --- Modo de compilación: entrega (default) vs. vivo ------------------
+\providecommand{\modo}{entrega}
+\def\modovivo{vivo}
+
+% Color marcador del hueco de animación para build_pptx.py (RGB 255, 0, 255)
+\definecolor{huecoanim}{RGB}{255,0,255}
+\newcommand{\soloentrega}[1]{\ifx\modo\modovivo\else#1\fi}
+
+% Macro para insertar animaciones
+% #1: Fotograma PNG, #2: Título/subtítulo, #3: Link a video
+\newcommand{\animacion}[3]{%
+  \centering
+  \ifx\modo\modovivo
+    \tikz\fill[huecoanim] (0,0) rectangle (0.48\textheight,0.48\textheight);%
+  \else
+    \includegraphics[height=0.48\textheight]{#1}%
+  \fi
+  \\[2pt]
+  {\scriptsize #2}\\
+  \soloentrega{{\tiny\color{blue}\url{#3}}}%
+}
+
+% --- Metadatos de la Presentación ------------------------------------
+\title[Título Corto]{Título Completo del Trabajo Práctico}
+\subtitle{Subtítulo o Modelo Físico Estudiado}
+\author[Grupo G]{Integrante 1 \and Integrante 2 \and Integrante 3}
+\institute[ITBA]{Grupo G --- Comisión S \\ Instituto Tecnológico de Buenos Aires}
+\date{72.25 Simulación de Sistemas --- Trabajo Práctico N\textdegree{}X --- 2026}
+
+\begin{document}
+
+% Portada
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+% =====================================================================
+\section{Introducción}
+% =====================================================================
+
+\begin{frame}{Sistema Real}
+  \begin{columns}[c]
+    \begin{column}{0.55\textwidth}
+      \centering
+      % \includegraphics[height=0.65\textheight,keepaspectratio]{sistema_real.png}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \begin{itemize}
+        \item Fenómeno físico observado en la naturaleza o ingeniería.
+        \item Características dinámicas relevantes.
+        \item Motivación del estudio por simulación computacional.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Modelo Matemático}
+  \begin{itemize}
+    \item Leyes físicas que gobiernan el sistema:
+      \begin{equation}
+        \vect{v}_i(t + \Delta t) = \dots
+      \end{equation}
+    \item Ecuaciones de conservación e interacciones generales.
+    \item Sin introducir discretizaciones numéricas particulares todavía.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Implementación}
+% =====================================================================
+
+\begin{frame}{Arquitectura del Motor de Simulación}
+  \begin{columns}[c]
+    \begin{column}{0.60\textwidth}
+      % Diagrama de arquitectura / diagrama UML / ciclo principal
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}
+        \item Algoritmo del motor (C++).
+        \item Estructura de datos (e.g. Cola de eventos, grilla espacial).
+        \item \textbf{Nota cátedra:} Solo el motor; post-proceso excluido.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =====================================================================
+\section{Simulaciones}
+% =====================================================================
+
+\begin{frame}{Sistema Simulado}
+  \begin{columns}[c]
+    \begin{column}{0.55\textwidth}
+      % Esquema geométrico con parámetros acotados
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \params{
+        Geometría: $L \times W$\\[4pt]
+        Partículas: $N = 100$, $r = 1{,}75\times10^{-2}$ m\\[4pt]
+        Condiciones de contorno: periódicas / rígidas\\[4pt]
+        Realizaciones: 100 por punto
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Definición de Observables}
+  \begin{itemize}
+    \item Definición matemática estricta de las métricas evaluadas:
+      \begin{equation}
+        \langle \mathcal{O} \rangle = \frac{1}{M} \sum_{k=1}^M \mathcal{O}_k
+      \end{equation}
+    \item Barra de error: error estándar de la media ($\sigma / \sqrt{M}$), declarada aquí para toda la presentación.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Resultados}
+% =====================================================================
+
+% Tríada: 1. Dinámica (animación) -> 2. Evolución temporal -> 3. Input vs Observable
+\begin{frame}{Parámetro $X$: Dinámica del Sistema}
+  \vfill
+  \begin{columns}[c]
+    \begin{column}{0.45\textwidth}
+      \animacion{frame_caso_a.png}{Caso Extremo A (bajo $X$)}{https://youtu.be/PENDIENTE}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \animacion{frame_caso_b.png}{Caso Extremo B (alto $X$)}{https://youtu.be/PENDIENTE}
+    \end{column}
+    \begin{column}{0.10\textwidth}
+      \params{$t = 10$ s}
+    \end{column}
+  \end{columns}
+  \vfill
+\end{frame}
+
+\begin{frame}{Parámetro $X$: Evolución Temporal}
+  \begin{columns}[c]
+    \begin{column}{0.72\textwidth}
+      % \centering\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{evolucion_temporal.png}
+    \end{column}
+    \begin{column}{0.26\textwidth}
+      \params{
+        Verificación de estado estacionario o tiempo característico.
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Parámetro $X$ vs Observable}
+  \begin{columns}[c]
+    \begin{column}{0.70\textwidth}
+      % \centering\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{input_vs_observable.png}
+    \end{column}
+    \begin{column}{0.28\textwidth}
+      \params{
+        Símbolos: promedio sobre 100 semillas.\\[4pt]
+        Barras: error estándar.\\[4pt]
+        Línea: guía visual (sin interpolación espuria).
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =====================================================================
+\section{Conclusiones}
+% =====================================================================
+
+\begin{frame}{Conclusiones}
+  \vfill
+  \begin{itemize}
+    \item Conclusión 1: Respaldada directamente por los datos presentados.
+    \vspace{0.6em}
+    \item Conclusión 2: Comparación cuantitativa entre configuraciones ($A$ vs $B$).
+    \vspace{0.6em}
+    \item Conclusión 3: Tendencia física o leyes de escala verificadas.
+  \end{itemize}
+  \vfill
+\end{frame}
+
+% Cierre
+\begin{frame}[plain]
+  \vfill
+  \centering
+  \Huge \textbf{Muchas Gracias}
+  \vfill
+\end{frame}
+
+\end{document}
