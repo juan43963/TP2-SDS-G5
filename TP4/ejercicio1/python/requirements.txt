@@ -1,0 +1,5 @@
+numpy>=2.4
+matplotlib>=3.11
+Pillow>=11.0
+# scipy esta ausente a proposito: el Python de WSL no lo tiene y los ajustes
+# (Teorica 0) se hacen con barrido de error sobre una grilla, solo con numpy.

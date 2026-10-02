@@ -9,14 +9,14 @@ Detalle técnico y fuentes de cada ítem: `.planning/research/FEATURES.md` y `.p
 
 ### Sistema 1 — Oscilador amortiguado (OSC)
 
-- [ ] **OSC-01**: El grupo puede correr el oscilador con los parámetros de la Teórica 4 (p. 37 del PDF): m = 70 kg, k = 1e4 N/m, γ = 100 kg/s, tf = 5 s, r(0) = 1 m, v(0) = −Aγ/(2m), A = 1, y compararlo contra la solución analítica
-- [ ] **OSC-02**: El motor integra con Euler predictor-corrector tal como lo define la Teórica 4 (diap. 23), no Heun
-- [ ] **OSC-03**: El motor integra con Verlet original, arrancando con r(−dt) = r0 − v0·dt + ½·a0·dt² y tratando el amortiguamiento con velocidad centrada implícita (orden global 2)
-- [ ] **OSC-04**: El motor integra con Velocity Verlet con el amortiguamiento resuelto de forma que conserve el orden 2 (implícito o con velocidad predicha)
-- [ ] **OSC-05**: El motor integra con Beeman en su variante predictor-corrector para fuerzas dependientes de la velocidad (diap. 20), con a(−dt) bien inicializada
-- [ ] **OSC-06**: Un binario C++ (`osc`) integra con cualquier método y dt y escribe `t r v` en texto con `%.17g`, usando reloj de pasos entero (t = k·dt)
-- [ ] **OSC-07**: El grupo obtiene ECM(dt) = (1/Npasos)·Σ[r_num − r_an]² en Python para dt log-espaciados en [~1e-6, 1e-2), en ejes log-log, para todos los métodos, con el piso de redondeo explicado o evitado
-- [ ] **OSC-08**: Un self-test verifica que la pendiente de ECM vs dt sea ≈ 4 para Verlet, Velocity Verlet y Beeman, y ≈ 2 para Euler PC
+- [x] **OSC-01**: El grupo puede correr el oscilador con los parámetros de la Teórica 4 (p. 37 del PDF): m = 70 kg, k = 1e4 N/m, γ = 100 kg/s, tf = 5 s, r(0) = 1 m, v(0) = −Aγ/(2m), A = 1, y compararlo contra la solución analítica
+- [x] **OSC-02**: El motor integra con Euler predictor-corrector tal como lo define la Teórica 4 (diap. 23), no Heun
+- [x] **OSC-03**: El motor integra con Verlet original, arrancando con r(−dt) = r0 − v0·dt + ½·a0·dt² y tratando el amortiguamiento con velocidad centrada implícita (orden global 2)
+- [x] **OSC-04**: El motor integra con Velocity Verlet con el amortiguamiento resuelto de forma que conserve el orden 2 (implícito o con velocidad predicha)
+- [x] **OSC-05**: El motor integra con Beeman en su variante predictor-corrector para fuerzas dependientes de la velocidad (diap. 20), con a(−dt) bien inicializada
+- [x] **OSC-06**: Un binario C++ (`osc`) integra con cualquier método y dt y escribe `t r v` en texto con `%.17g`, usando reloj de pasos entero (t = k·dt)
+- [x] **OSC-07**: El grupo obtiene ECM(dt) = (1/Npasos)·Σ[r_num − r_an]² en Python para dt log-espaciados en [~1e-6, 1e-2), en ejes log-log, para todos los métodos, con el piso de redondeo explicado o evitado
+- [x] **OSC-08**: Un self-test verifica que la pendiente de ECM vs dt sea ≈ 4 para Verlet, Velocity Verlet y Beeman, y ≈ 2 para Euler PC
 
 ### Motor del billar circular (ENG)
 
@@ -49,7 +49,7 @@ Detalle técnico y fuentes de cada ítem: `.planning/research/FEATURES.md` y `.p
 - [ ] **AN-09**: 2.3 — ajuste de kBT con f_MB(v) = (m·v/kBT)·exp(−m·v²/2kBT) por barrido de un parámetro minimizando E(kBT) = Σ[fᵢ − f_MB]² (método Teórica 0), mostrando la curva E(kBT) y comparando con m·v0²/2 = 0.0125 J
 - [ ] **AN-10**: 2.4a — ⟨t90⟩ y ⟨t100⟩ vs densidad a partir de los logs de conversión de 2.1b (sin corridas nuevas), con Fu(30 s) y fracción de éxito cuando no se alcanzan
 - [ ] **AN-11**: 2.4b — mapa de calor de ⟨t90⟩ (o ⟨t100⟩) en (x0, N) con `pcolormesh`, celdas censuradas marcadas, reutilizando la fila N = 100 de 2.2
-- [ ] **AN-12**: Todas las figuras siguen la guía: ejes con palabras y unidades MKS, fuente ≥ 20, notación 10ˣ, puntos con símbolo, barras de error = σ (desvío estándar), mediante un módulo de estilo compartido
+- [x] **AN-12**: Todas las figuras siguen la guía: ejes con palabras y unidades MKS, fuente ≥ 20, notación 10ˣ, puntos con símbolo, barras de error = σ (desvío estándar), mediante un módulo de estilo compartido
 - [ ] **AN-13**: Cada estudio (`study_*.py`) codifica todos los parámetros (incluido dt) en las rutas de salida y puede re-graficar sin re-simular (`--replot`); seeds determinísticas
 
 ### Animaciones y entregables (DEL)
@@ -62,8 +62,8 @@ Detalle técnico y fuentes de cada ítem: `.planning/research/FEATURES.md` y `.p
 
 ### Extras incluidos en v1 (DIF)
 
-- [ ] **DIF-01**: Gear predictor-corrector de orden 5 como quinta curva en ECM vs dt
-- [ ] **DIF-02**: Pendiente medida de cada método anotada en la figura de ECM vs dt
+- [x] **DIF-01**: Gear predictor-corrector de orden 5 como quinta curva en ECM vs dt
+- [x] **DIF-02**: Pendiente medida de cada método anotada en la figura de ECM vs dt
 - [ ] **DIF-03**: En 2.1a, tiempo de contacto tc = π√(μ/k) marcado y dt* expresado como pasos por contacto
 - [ ] **DIF-04**: Escalar de relajación ⟨v⁴⟩/⟨v²⟩² vs t en 2.3 (1 para la condición inicial, 2 para MB en 2D) para definir el estacionario
 - [ ] **DIF-05**: Panel de costo por paso y por partícula en 2.1b
@@ -98,17 +98,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| OSC-01 | Phase 1 | Pending |
-| OSC-02 | Phase 1 | Pending |
-| OSC-03 | Phase 1 | Pending |
-| OSC-04 | Phase 1 | Pending |
-| OSC-05 | Phase 1 | Pending |
-| OSC-06 | Phase 1 | Pending |
-| OSC-07 | Phase 1 | Pending |
-| OSC-08 | Phase 1 | Pending |
-| DIF-01 | Phase 1 | Pending |
-| DIF-02 | Phase 1 | Pending |
-| AN-12 | Phase 1 | Pending |
+| OSC-01 | Phase 1 | Complete |
+| OSC-02 | Phase 1 | Complete |
+| OSC-03 | Phase 1 | Complete |
+| OSC-04 | Phase 1 | Complete |
+| OSC-05 | Phase 1 | Complete |
+| OSC-06 | Phase 1 | Complete |
+| OSC-07 | Phase 1 | Complete |
+| OSC-08 | Phase 1 | Complete |
+| DIF-01 | Phase 1 | Complete |
+| DIF-02 | Phase 1 | Complete |
+| AN-12 | Phase 1 | Complete |
 | ENG-01 | Phase 2 | Pending |
 | ENG-02 | Phase 2 | Pending |
 | ENG-03 | Phase 2 | Pending |

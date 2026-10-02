@@ -43,14 +43,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Mirando la figura, el grupo puede decir qué método es mejor para este sistema y justificarlo con el orden y la constante del error
   5. La figura se genera con el módulo de estilo compartido (ejes con palabras y unidades MKS, fuente ≥ 20, notación 10ˣ, puntos con símbolo, barras = σ), el mismo que importan todos los scripts de estudio posteriores
 
-**Plans**: 2 plans
+**Plans**: 2/2 plans executed
 
 Plans:
 **Wave 1**
-- [ ] 01-01-PLAN.md — Motor `osc` en C++ (wave 1). Contiene el Makefile con `make strict`, la CLI `--key value`, la salida `%.17g` con t = k·dt, los integradores Euler PC, Verlet, Velocity Verlet, Beeman PC y Gear-5, y el self-test `tp4_test` de pendientes, CLI y formato
+- [x] 01-01-PLAN.md — Motor `osc` en C++ (wave 1). Contiene el Makefile con `make strict`, la CLI `--key value`, la salida `%.17g` con t = k·dt, los integradores Euler PC, Verlet, Velocity Verlet, Beeman PC y Gear-5, y el self-test `tp4_test` de pendientes, CLI y formato
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 01-02-PLAN.md — Figura ECM vs dt (wave 2). Contiene el módulo de estilo compartido `plot_style.py`, el ECM en Python leído por pipe, el barrido de 12 dt × 5 métodos con pendientes anotadas y el piso de redondeo explicado, `--replot`, los tests de Python y el README del entorno
+- [x] 01-02-PLAN.md — Figura ECM vs dt (wave 2). Contiene el módulo de estilo compartido `plot_style.py`, el ECM en Python leído por pipe, el barrido de 12 dt × 5 métodos con pendientes anotadas y el piso de redondeo explicado, `--replot`, los tests de Python y el README del entorno
 
 ### Phase 2: Motor del billar circular
 
@@ -69,7 +69,17 @@ Plans:
      - x0 = r y x0 = R − r corren.
   4. El build en WSL con los mismos flags que TP3 no emite warnings. El costo por paso, medido en N = 100 y N = 600, escala linealmente (costo por partícula-paso ≈ constante) y queda registrado para dimensionar los barridos
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+**Wave 1**
+- [ ] 02-01-PLAN.md — Motor `billiard` de punta a punta en `ejercicio2/` (proyecto propio, mismo layout que `ejercicio1/`): CLI `--key value`, RSA, fuerzas por CIM (pares, obstáculos, pared por imagen), Verlet original con velocidad centrada, conversiones, salidas versionadas TP4_FRAMES/TP4_CONVERSIONS/TP4_SUMMARY con cronómetro steady_clock; modos de barrido `--no-trajectory`, `--stop-when-all-used`, `--stop-at-t90` probados desde la CLI
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 02-02-PLAN.md — `tp4_test` propio de `ejercicio2/`: oráculo O(N²) con partícula imagen literal, contacto exacto, choque frontal, pared radial y tangencial, conversión única, bordes de x0, guarda de no finitos, cortes tempranos, matriz de la CLI y round-trip bit a bit del formato
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 02-03-PLAN.md — Régimen denso y cierre del motor: red triangular con jitter, `--init {rsa,lattice,auto}` con chequeo de capacidad y N = 650 sin solapes; costo por paso medido en N = 100 y N = 600; README de `ejercicio2/`
 
 ### Phase 3: Pipeline de análisis y selección de dt (2.1a)
 
@@ -164,8 +174,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6. La Fase 2 pued
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Sistema 1 — Oscilador amortiguado y andamiaje | 0/2 | Planned | - |
-| 2. Motor del billar circular | 0/TBD | Not started | - |
+| 1. Sistema 1 — Oscilador amortiguado y andamiaje | 2/2 | In Progress|  |
+| 2. Motor del billar circular | 0/3 | Planned | - |
 | 3. Pipeline de análisis y selección de dt (2.1a) | 0/TBD | Not started | - |
 | 4. Tiempos vs TP3 (2.1b) y densidad (2.4a) | 0/TBD | Not started | - |
 | 5. Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b) | 0/TBD | Not started | - |

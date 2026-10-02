@@ -1,17 +1,17 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 1
-current_phase_name: Sistema 1 — Oscilador amortiguado y andamiaje
+current_phase: 2
+current_phase_name: Motor del billar circular
 status: executing
-stopped_at: Roadmap y STATE creados; REQUIREMENTS.md con trazabilidad completa
-last_updated: "2026-10-02T16:11:16.214Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-10-02T20:11:11.415Z"
 last_activity: 2026-10-02
-last_activity_desc: Roadmap creado (6 fases, 49/49 requisitos mapeados)
+last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 2
-  completed_plans: 0
+  total_plans: 5
+  completed_plans: 2
   percent: 0
 ---
 
@@ -22,15 +22,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-02)
 
 **Core value:** Producir las figuras correctas y justificadas para la presentación oral de 13 min: ECM vs dt, energía vs dt con la elección de dt, tiempo vs N contra TP3, Fu(t)/⟨t90⟩ vs x0, f(v) con ajuste MB, ⟨t90⟩/⟨t100⟩ vs densidad y mapa de calor (x0, N). Además, el motor tiene que ser lo bastante rápido para los barridos.
-**Current focus:** Phase 1 — Sistema 1: oscilador amortiguado y andamiaje
+**Current focus:** Phase 01 — Sistema 1 — Oscilador amortiguado y andamiaje
 **Deadline:** 2026-10-23 13:00 (campus) + presentación oral
 
 ## Current Position
 
-Phase: 1 (Sistema 1 — Oscilador amortiguado y andamiaje) — READY TO EXECUTE
-Plan: 0 of TBD in current phase
+Phase: 2 (Motor del billar circular) — READY TO EXECUTE
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-10-02 — Roadmap creado (6 fases, 49/49 requisitos mapeados)
+Last activity: 2026-10-02 — Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,12 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: N/A
 
 *Updated after each plan completion*
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 01 P01 | 14min | 2 tasks | 9 files |
+| Phase 01 P02 | 35min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -64,6 +70,10 @@ Recent decisions affecting current work:
 - [Roadmap]: el motor se congela al inicio de la Fase 4, antes de la primera corrida de tiempos. Cualquier cambio posterior en `src/` obliga a re-correr 2.1b y a revisar dt*
 - [Roadmap]: las Fases 4 y 5 no se solapan. 2.1b corre en serie con la máquina libre; el runner paralelo solo arranca después
 - [Roadmap]: los IDs de REQUIREMENTS.md son la fuente de verdad. FEATURES.md usa una numeración anterior en AN y DIF
+- [Phase 01]: Velocity Verlet con amortiguamiento implicito y termino dt^2/(2m) (diap. 17 imprime dt^2/m, errata)
+- [Phase 01]: Gear-5 expuesto como quinto metodo gear5 con alpha de la diap. 29; pendiente de docentes Q9
+- [Phase 01]: plot_style API fixed (FONT_SIZE, MARKERS, apply_style, series_kwargs, axis_label, set_log_axes, set_scientific_linear, mean_and_sigma, errorbar, save_figure): all later study scripts import it
+- [Phase 01]: ECM figure keeps all 60 points; round-off-dominated ones (ECM > 3x fitted power law outside fit window) drawn hollow and annotated; Gear-5 labelled as extra
 
 ### Pending Todos
 
@@ -87,6 +97,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02
-Stopped at: Roadmap y STATE creados; REQUIREMENTS.md con trazabilidad completa
+Last session: 2026-10-02T19:30:41.011Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None

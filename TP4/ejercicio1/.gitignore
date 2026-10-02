@@ -1,0 +1,7 @@
+/build/
+/osc
+/tp4_test
+/data/
+__pycache__/
+*.pyc
+.venv/
