@@ -1,43 +1,43 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 05
-current_phase_name: Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)
-status: ready_to_execute
-stopped_at: Phase 04 complete (UAT 4/4, SECURITY 18/18 closed); Phase 05 planned (3 plans), blocked on CR-01 fix before 05-01
-last_updated: "2026-10-03T06:40:29.324Z"
+current_phase: 6
+current_phase_name: Animaciones, presentación y entrega
+status: planning
+stopped_at: Phase 05 complete (UAT 8/8, SECURITY verified), ready to plan Phase 6
+last_updated: "2026-10-03T17:12:07.021Z"
 last_activity: 2026-10-03
-last_activity_desc: Phase 04 complete; next Phase 05 (fix CR-01 first)
+last_activity_desc: Phase 05 complete, transitioned to Phase 6
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 16
-  completed_plans: 13
-  percent: 17
+  completed_plans: 16
+  percent: 33
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-10-02)
+See: .planning/PROJECT.md (updated 2026-10-03)
 
 **Core value:** Producir las figuras correctas y justificadas para la presentación oral de 13 min: ECM vs dt, energía vs dt con la elección de dt, tiempo vs N contra TP3, Fu(t)/⟨t90⟩ vs x0, f(v) con ajuste MB, ⟨t90⟩/⟨t100⟩ vs densidad y mapa de calor (x0, N). Además, el motor tiene que ser lo bastante rápido para los barridos.
-**Current focus:** Phase 05 — Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)
+**Current focus:** Phase 6 — Animaciones, presentación y entrega
 **Deadline:** 2026-10-23 13:00 (campus) + presentación oral
 
 ## Current Position
 
-Phase: 05 — Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)
-Plan: 0 of 3 (05-01 next)
-Status: Ready to execute — fix CR-01 (freeze.py case-sensitive git paths) before 05-01
-Last activity: 2026-10-03 — Phase 04 complete (phases 1–3 still have pending UAT)
+Phase: 6 — Animaciones, presentación y entrega
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-10-03 — Phase 05 complete (UAT 8/8, SECURITY verified), transitioned to Phase 6
 
-Progress: [████████████████░░░░] 13/16 plans (81%)
+Progress: [████████████████░░░░] 13/16 plans ([███░░░░░░░] 33%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 7
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -46,6 +46,7 @@ Progress: [████████████████░░░░] 13/16 p
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 04 | 4 | - | - |
+| 05 | 3 | - | - |
 
 **Recent Trend:**
 - Last 5 plans: none yet
@@ -66,6 +67,9 @@ Progress: [████████████████░░░░] 13/16 p
 | Phase 04 P02 | 11min | 3 tasks | 5 files |
 | Phase 04 P03 | 8min | 2 tasks | 4 files |
 | Phase 04 P04 | 15min | 3 tasks | 1 files |
+| Phase 05 P01 | 15min | 3 tasks | 6 files |
+| Phase 05 P02 | 13min | 3 tasks | 4 files |
+| Phase 05 P03 | 20min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -94,6 +98,14 @@ Recent decisions affecting current work:
 - [Phase 04]: 2.4a optimum flags: edge (minimum at first/last complete N) and distinct (separated from each complete neighbour by more than the combined sigma); never called the optimal density unless interior and distinct
 - [Phase 04]: Phase 04 P04: official 2.1b session accepted (SESSION OK mode=official runs=130; tp3_rows=8 = 6 official + 2 extensions); TP4 slope 1.136, TP3 3.221, crossover N ~ 310
 - [Phase 04]: Phase 04 P04: 2.4a on official logs gives no defensible optimal density (t90 min at N=50 edge, not distinct; t100 never reached at tf=30 s); Fu(30 s) decreases with density
+- [Phase 05]: Phase 05 P01: sweep_gate.require_gate guards every Phase 5 batch (freeze, freeze vs HEAD, dt*, official 2.1b session.json or the README '#### Resultados de la sesión oficial' heading; timing run/.partial dirs without session.json block)
+- [Phase 05]: Phase 05 P01: official 2.2 (220 runs, tmax 100 s) has zero censoring and no distinct optimal x0: N=100 min x0=0.20 (14.6+-1.8 s) and N=20 min x0=0.40 (10.7+-2.9 s), both interior and distinct=False; N=20 faster than N=100 at 10/11 x0
+- [Phase 05]: Phase 05 P01: typical x0 for Fu(t) = 0.0175, 0.20, 0.4925 m; Q5 default = sample sigma everywhere; sweep.json keeps a history of launches
+- [Phase 05]: 2.3: frame-0 speeds pinned to V0 after validating |v-v0|<=1e-9 (round-off at the 1.0 m/s bin edge split the t=0 delta)
+- [Phase 05]: 2.3 official: window [1.02, 10] s from the declared rule (t_relax 0.34 s); kBT = 0.0124 +- 0.0002 J (-0.96% vs m v0^2/2), kBT_kinetic 0.01233 J, window ratio 1.99 +- 0.03
+- [Phase 05]: 2.4b: x0 grid refined around the non-distinct interior 2.2 optimum (0.175, 0.225 added); probe accepted n_top=400; no per-N t90 minimum is distinct, minimum at x0 0.20-0.25 m for N>=50, <t90>min grows 11->45 s with N
+- [Phase 05]: 2.4b censoring concentrates at high N and x0 extremes (t100), none at N<=100 - opposite of Pitfall 10
+- [Phase 05 UAT]: "distinct" keeps the sigma rule (WR-04); README must state "no distinto" = within one realization spread. Sweep gate not fixed (CR-01/WR-01/WR-02 accepted, AR-05-01); official data final
 
 ### Pending Todos
 
@@ -103,7 +115,8 @@ None yet.
 
 - [Docentes] Q1 (Verlet original vs Velocity Verlet en el billar) y Q4 (init en red a N alto) se necesitan al cerrar la Fase 2. Hasta entonces, defaults de research/SUMMARY.md
 - [Docentes] Q6 (contenido del .zip: ¿animador?, ¿self-test?) antes de la Fase 6
-- [Phase 4 → 5] CR-01: `freeze.check_against_git` falla (falso "Makefile ausente") si el cwd difiere en mayúsculas del árbol git (`tp4` vs `TP4`); el sweep gate de 05-01 lo reutiliza → arreglar antes de 05-01 (junto con WR-01/IN-07). Ver 04-REVIEW.md
+- [Phase 5] Texto: README.md:450, :465 y 05-01-SUMMARY.md:141 dicen "k90 = 91 para N = 100"; el motor usa (9N+9)//10 = 90. El grupo lo corrige a mano antes de la diapositiva de Observables (UAT 05 test 8)
+- [Phase 5] Riesgo aceptado AR-05-01 (05-SECURITY.md): huecos del sweep gate CR-01/WR-01/WR-02 sin arreglar; datos oficiales definitivos (binario 96bf9ec0 verificado). No tocar `src/`; correr siempre vía `make`. Si el motor cambia, borrar a mano data/conversion, data/thermal, data/heatmap antes de re-correr
 - [Phase 1–3] UAT pendientes (01/02/03-UAT.md, verificación `human_needed`); 03-UAT test 1 (dt* = 5e-5) aceptado implícitamente al lanzar la sesión oficial
 - [Cómputo] dt* se desconoce hasta la Fase 3; el presupuesto de las Fases 4 y 5 cambia ×10 entre dt = 1e-4 y 1e-5. Hay que redimensionar las grillas al congelar dt*
 - [Calendario] 3 semanas hasta el 23/10 13hs. La subida a YouTube/Vimeo y la compilación con MiKTeX son pasos manuales en Windows (Fase 6)
@@ -118,6 +131,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-03T06:40:54Z
-Stopped at: Phase 04 complete; Phase 05 ready to execute after CR-01 fix
+Last session: 2026-10-03T17:15:00Z
+Stopped at: Phase 05 complete, ready to plan Phase 6
 Resume file: None

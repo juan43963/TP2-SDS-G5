@@ -26,7 +26,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 2: Motor del billar circular** - Binario `billiard` validado: generador RSA/red, CIM, resortes con pared por imagen, Verlet, conversiones, salidas y self-test
 - [ ] **Phase 3: Pipeline de análisis y selección de dt (2.1a)** - Capa Python validada contra el motor (animador, validación cruzada, runner) y dt* elegido por energía y congelado (GATE)
 - [x] **Phase 4: Tiempos vs TP3 (2.1b) y densidad (2.4a)** - Motor congelado, barrido serial de tiempos vs N superpuesto a TP3 re-corrido, y t90/t100 vs densidad desde los mismos logs (completed 2026-10-03)
-- [ ] **Phase 5: Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)** - Fu(t) y ⟨t90⟩ vs x0 (N = 100 y 20), f(v) + ajuste de kBT, y mapa de calor (x0, N)
+- [x] **Phase 5: Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)** - Fu(t) y ⟨t90⟩ vs x0 (N = 100 y 20), f(v) + ajuste de kBT, y mapa de calor (x0, N) (completed 2026-10-03)
 - [ ] **Phase 6: Animaciones, presentación y entrega** - MP4 con link, Beamer de 13 min, PDF y .zip con los nombres exactos del enunciado
 
 ## Phase Details
@@ -144,17 +144,17 @@ Plans:
   4. El ajuste de kBT por barrido de un parámetro muestra la curva E(kBT) con su mínimo, y el kBT ajustado se compara con m·v0²/2 = 0.0125 J
   5. El mapa de calor de ⟨t90⟩ (o ⟨t100⟩) en (x0, N), hecho con `pcolormesh`, reutiliza la fila N = 100 de 2.2, marca las celdas censuradas y señala el x0 óptimo de cada N
 
-**Plans**: 3 plans
+**Plans**: 3/3 plans complete
 
 Plans:
 **Wave 1**
-- [ ] 05-01-PLAN.md — Compuerta de barridos `sweep_gate.py` (motor congelado, dt*, sesión oficial 2.1b terminada, ninguna sesión de tiempos en curso) y estudio 2.2 `study_conversion.py`: 11 x0 con r y R − r, N = 100 y 20, 10 semillas, tmax = 100 s, Fu(t), ⟨t90⟩ ± σ con la censura de 2.4a, x0 óptimo con banderas, Fu(t) N = 20 vs N = 100, `--replot`, humo y corrida oficial
+- [x] 05-01-PLAN.md — Compuerta de barridos `sweep_gate.py` (motor congelado, dt*, sesión oficial 2.1b terminada, ninguna sesión de tiempos en curso) y estudio 2.2 `study_conversion.py`: 11 x0 con r y R − r, N = 100 y 20, 10 semillas, tmax = 100 s, Fu(t), ⟨t90⟩ ± σ con la censura de 2.4a, x0 óptimo con banderas, Fu(t) N = 20 vs N = 100, `--replot`, humo y corrida oficial
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 05-02-PLAN.md — Estudio 2.3 `study_thermal.py`: N = 100 sin obstáculos, f(v) normalizada a varios t, ⟨v⁴⟩/⟨v²⟩² con ventana estacionaria declarada antes de los datos, ajuste de kBT por barrido E(kBT) (Teórica 0) comparado con m·v0²/2, `--replot`, humo y corrida oficial
+- [x] 05-02-PLAN.md — Estudio 2.3 `study_thermal.py`: N = 100 sin obstáculos, f(v) normalizada a varios t, ⟨v⁴⟩/⟨v²⟩² con ventana estacionaria declarada antes de los datos, ajuste de kBT por barrido E(kBT) (Teórica 0) comparado con m·v0²/2, `--replot`, humo y corrida oficial
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 05-03-PLAN.md — Estudio 2.4b `study_heatmap.py`: grilla de x0 desde el óptimo de 2.2, sonda de generación en el N máximo, barrido que reutiliza las filas N = 100 y 20 de 2.2 (con chequeo de consistencia), `pcolormesh` por celdas con censura marcada y x0 óptimo por N, `--replot`, humo y corrida oficial
+- [x] 05-03-PLAN.md — Estudio 2.4b `study_heatmap.py`: grilla de x0 desde el óptimo de 2.2, sonda de generación en el N máximo, barrido que reutiliza las filas N = 100 y 20 de 2.2 (con chequeo de consistencia), `pcolormesh` por celdas con censura marcada y x0 óptimo por N, `--replot`, humo y corrida oficial
 
 ### Phase 6: Animaciones, presentación y entrega
 
@@ -212,7 +212,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6. La Fase 2 pued
 | 2. Motor del billar circular | 3/3 | In Progress|  |
 | 3. Pipeline de análisis y selección de dt (2.1a) | 4/4 | In Progress|  |
 | 4. Tiempos vs TP3 (2.1b) y densidad (2.4a) | 4/4 | Complete    | 2026-10-03 |
-| 5. Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b) | 0/3 | Planned | - |
+| 5. Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b) | 3/3 | Complete    | 2026-10-03 |
 | 6. Animaciones, presentación y entrega | 0/TBD | Not started | - |
 
 ---

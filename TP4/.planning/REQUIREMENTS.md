@@ -42,13 +42,13 @@ Detalle técnico y fuentes de cada ítem: `.planning/research/FEATURES.md` y `.p
 - [ ] **AN-02**: 2.1a — observable escalar ε(dt) = ⟨|E(t) − E(0)|⟩/E(0) vs dt en log-log, con umbral declarado y dt* congelado como única fuente de verdad (`DT_STAR`) para todo el resto
 - [x] **AN-03**: 2.1b — tiempo de ejecución medio ± σ vs N (x0 = r, tf = 30 s, N de 50 a ≥ 650, ≥ 10 realizaciones, init en red para todo N, corridas en serie con la máquina libre) en el mismo gráfico log-log que TP3 1.1
 - [x] **AN-04**: 2.1b — TP3 recompilado fuera de árbol con sus propios flags en WSL y su `benchmark.py` re-corrido sin modificar ningún archivo de `TP3/`, en la misma sesión, con salidas en `TP4/data/timing/tp3/`
-- [ ] **AN-05**: 2.2 — Fu(t) para 2–4 valores típicos de x0 (N = 100, tmax = 100 s), reconstruida desde el log de conversiones
-- [ ] **AN-06**: 2.2 — ⟨t90⟩ ± σ vs x0 ∈ [r, R − r] (~10–12 valores incluyendo extremos, ≥ 5 realizaciones), reportando cuántas realizaciones no llegaron a 0.9 y su Fu(tmax), sin promediar solo las exitosas
-- [ ] **AN-07**: 2.2 — misma curva para N = 20, comparada con N = 100, para discutir la dependencia con la frecuencia de choques
-- [ ] **AN-08**: 2.3 — f(v) normalizada (∫f dv = 1) a distintos t desde t = 0 hasta el estacionario (N = 100, sin obstáculos), promediada sobre realizaciones, con ventana estacionaria declarada
-- [ ] **AN-09**: 2.3 — ajuste de kBT con f_MB(v) = (m·v/kBT)·exp(−m·v²/2kBT) por barrido de un parámetro minimizando E(kBT) = Σ[fᵢ − f_MB]² (método Teórica 0), mostrando la curva E(kBT) y comparando con m·v0²/2 = 0.0125 J
+- [x] **AN-05**: 2.2 — Fu(t) para 2–4 valores típicos de x0 (N = 100, tmax = 100 s), reconstruida desde el log de conversiones
+- [x] **AN-06**: 2.2 — ⟨t90⟩ ± σ vs x0 ∈ [r, R − r] (~10–12 valores incluyendo extremos, ≥ 5 realizaciones), reportando cuántas realizaciones no llegaron a 0.9 y su Fu(tmax), sin promediar solo las exitosas
+- [x] **AN-07**: 2.2 — misma curva para N = 20, comparada con N = 100, para discutir la dependencia con la frecuencia de choques
+- [x] **AN-08**: 2.3 — f(v) normalizada (∫f dv = 1) a distintos t desde t = 0 hasta el estacionario (N = 100, sin obstáculos), promediada sobre realizaciones, con ventana estacionaria declarada
+- [x] **AN-09**: 2.3 — ajuste de kBT con f_MB(v) = (m·v/kBT)·exp(−m·v²/2kBT) por barrido de un parámetro minimizando E(kBT) = Σ[fᵢ − f_MB]² (método Teórica 0), mostrando la curva E(kBT) y comparando con m·v0²/2 = 0.0125 J
 - [x] **AN-10**: 2.4a — ⟨t90⟩ y ⟨t100⟩ vs densidad a partir de los logs de conversión de 2.1b (sin corridas nuevas), con Fu(30 s) y fracción de éxito cuando no se alcanzan
-- [ ] **AN-11**: 2.4b — mapa de calor de ⟨t90⟩ (o ⟨t100⟩) en (x0, N) con `pcolormesh`, celdas censuradas marcadas, reutilizando la fila N = 100 de 2.2
+- [x] **AN-11**: 2.4b — mapa de calor de ⟨t90⟩ (o ⟨t100⟩) en (x0, N) con `pcolormesh`, celdas censuradas marcadas, reutilizando la fila N = 100 de 2.2
 - [x] **AN-12**: Todas las figuras siguen la guía: ejes con palabras y unidades MKS, fuente ≥ 20, notación 10ˣ, puntos con símbolo, barras de error = σ (desvío estándar), mediante un módulo de estilo compartido
 - [ ] **AN-13**: Cada estudio (`study_*.py`) codifica todos los parámetros (incluido dt) en las rutas de salida y puede re-graficar sin re-simular (`--replot`); seeds determinísticas
 
@@ -65,10 +65,10 @@ Detalle técnico y fuentes de cada ítem: `.planning/research/FEATURES.md` y `.p
 - [x] **DIF-01**: Gear predictor-corrector de orden 5 como quinta curva en ECM vs dt
 - [x] **DIF-02**: Pendiente medida de cada método anotada en la figura de ECM vs dt
 - [ ] **DIF-03**: En 2.1a, tiempo de contacto tc = π√(μ/k) marcado y dt* expresado como pasos por contacto
-- [ ] **DIF-04**: Escalar de relajación ⟨v⁴⟩/⟨v²⟩² vs t en 2.3 (1 para la condición inicial, 2 para MB en 2D) para definir el estacionario
+- [x] **DIF-04**: Escalar de relajación ⟨v⁴⟩/⟨v²⟩² vs t en 2.3 (1 para la condición inicial, 2 para MB en 2D) para definir el estacionario
 - [x] **DIF-05**: Panel de costo por paso y por partícula en 2.1b
 - [ ] **DIF-06**: Runner Python por lotes en paralelo (process pool), con cache por parámetros y reanudable, para 2.2, 2.3 y 2.4b
-- [ ] **DIF-07**: Fu(t) de N = 20 y N = 100 superpuestas en 2.2, y x0 óptimo por N marcado en el mapa de calor de 2.4b
+- [x] **DIF-07**: Fu(t) de N = 20 y N = 100 superpuestas en 2.2, y x0 óptimo por N marcado en el mapa de calor de 2.4b
 - [x] **DIF-08**: Validación cruzada en Python: E(0) y conversiones de algunas partículas recalculadas desde los snapshots y comparadas con el motor
 
 ## v2 Requirements
@@ -135,14 +135,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AN-04 | Phase 4 | Complete |
 | AN-10 | Phase 4 | Complete |
 | DIF-05 | Phase 4 | Complete |
-| AN-05 | Phase 5 | Pending |
-| AN-06 | Phase 5 | Pending |
-| AN-07 | Phase 5 | Pending |
-| AN-08 | Phase 5 | Pending |
-| AN-09 | Phase 5 | Pending |
-| AN-11 | Phase 5 | Pending |
-| DIF-04 | Phase 5 | Pending |
-| DIF-07 | Phase 5 | Pending |
+| AN-05 | Phase 5 | Complete |
+| AN-06 | Phase 5 | Complete |
+| AN-07 | Phase 5 | Complete |
+| AN-08 | Phase 5 | Complete |
+| AN-09 | Phase 5 | Complete |
+| AN-11 | Phase 5 | Complete |
+| DIF-04 | Phase 5 | Complete |
+| DIF-07 | Phase 5 | Complete |
 | DEL-02 | Phase 6 | Pending |
 | DEL-03 | Phase 6 | Pending |
 | DEL-04 | Phase 6 | Pending |

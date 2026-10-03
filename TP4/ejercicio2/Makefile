@@ -125,3 +125,53 @@ strict:
 
 clean:
 	rm -rf $(BUILD) billiard tp4_test
+
+# Fase 5: compuerta de los barridos (motor congelado y commiteado, dt*, sesion 2.1b terminada)
+# y estudio 2.2 (Fu(t) y <t90> contra x0). Ningun lote de la Fase 5 corre sin GATE OK.
+CONVERSION_ARGS ?=
+.PHONY: sweep-gate conversion-smoke conversion-study conversion-replot
+
+sweep-gate:
+	$(PY) python/sweep_gate.py check
+
+conversion-smoke: billiard
+	$(PY) python/study_conversion.py --smoke $(CONVERSION_ARGS)
+
+conversion-study: billiard
+	$(PY) python/study_conversion.py $(CONVERSION_ARGS)
+
+conversion-replot:
+	$(PY) python/study_conversion.py --replot $(CONVERSION_ARGS)
+
+# Estudio 2.3 (f(v), relajacion y ajuste de kBT): N = 100 sin obstaculos con trayectoria,
+# detras de la misma compuerta (study_conversion.collect). Unico estudio de la Fase 5 que
+# escribe frames (unos 95 MB la corrida oficial; THERMAL_ARGS="--budget" lo estima).
+THERMAL_ARGS ?=
+.PHONY: thermal-smoke thermal-study thermal-replot
+
+thermal-smoke: billiard
+	$(PY) python/study_thermal.py --smoke $(THERMAL_ARGS)
+
+thermal-study: billiard
+	$(PY) python/study_thermal.py $(THERMAL_ARGS)
+
+thermal-replot:
+	$(PY) python/study_thermal.py --replot $(THERMAL_ARGS)
+
+# Estudio 2.4b (mapa de calor de t90 en (x0, N)): reusa las corridas de 2.2 en data/conversion/.
+# Orden: conversion-study -> heatmap-probe (sonda rsa al N mas grande) -> heatmap-study.
+# HEATMAP_ARGS="--smoke" usa la grilla chica; HEATMAP_ARGS="--budget" imprime el presupuesto.
+HEATMAP_ARGS ?=
+.PHONY: heatmap-probe heatmap-smoke heatmap-study heatmap-replot
+
+heatmap-probe: billiard
+	$(PY) python/study_heatmap.py --probe $(HEATMAP_ARGS)
+
+heatmap-smoke: billiard
+	$(PY) python/study_heatmap.py --smoke $(HEATMAP_ARGS)
+
+heatmap-study: billiard
+	$(PY) python/study_heatmap.py $(HEATMAP_ARGS)
+
+heatmap-replot:
+	$(PY) python/study_heatmap.py --replot $(HEATMAP_ARGS)

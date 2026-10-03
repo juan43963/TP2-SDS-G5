@@ -26,7 +26,7 @@
     {
       "number": "5",
       "name": "Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "6",
@@ -39,5 +39,5 @@
     "label": "Advance to the next step (plan phase 1)",
     "reason": "Phase 1 of 6 — needs a plan"
   },
-  "updated_at": "2026-10-03T06:40:29.331Z"
+  "updated_at": "2026-10-03T17:12:07.028Z"
 }

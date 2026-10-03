@@ -176,6 +176,7 @@ Se cierran al terminar la Fase 2 con la decisión por defecto de abajo.
 - **Q2 — La curva de TP3 en 2.1b se corta donde se corta su generador.** El generador RSA de TP3 deja de ubicar partículas en algún N de su mesa de 1.2 × 0.68. Default: la curva de TP3 llega hasta el mayor N que pudo ubicar (las extensiones N = 300 y 400 que fallan con `no se pudo ubicar` quedan como `generator_limit` en `session.json`) y se declara en la presentación.
 - **Q3 — Comparación TP4 con obstáculos contra TP3 1.1 con mesa vacía.** TP4 corre con obstáculos en x0 = r y TP3 1.1 con mesa vacía; en ambos lados el registro (conversiones en TP4, goles en TP3) cae dentro de la región cronometrada, con buffer. Default: se comparan tal cual y se declara.
 - **Q4 — Inicialización en red a N alto y pre-corrida de fusión.** Default: la red parte ordenada y no hay pre-corrida; se declara en el informe. Si los docentes piden un estado termalizado, bastaría una corrida previa descartada con la misma semilla.
+- **Q5 — Barras de error: σ o σ/√n.** Default: el desvío muestral σ (ddof = 1) en todas las figuras y tablas, que es la fórmula de la diapositiva de Observables (Teórica 0, diap. 61); nunca σ/√n (REQUIREMENTS, fuera de alcance). Rige para 2.1a, 2.1b, 2.2, 2.3 y 2.4.
 - **Q7 — 2.4a cuando t90 o t100 no se alcanzan en tf = 30 s.** Las corridas de 2.1b terminan en tf = 30 s, así que en algunos N el umbral queda censurado. Default: no se promedia sobre las realizaciones exitosas; ese N se reporta con Fu(30 s) ± σ y la fracción de realizaciones que alcanzaron el umbral (figura `success_fu_vs_density`), y en la figura de tiempos se dibuja la cota inferior mean(min(t, tf)) con marcador hueco y sin barra. Si los docentes piden ⟨t100⟩ en todo N, habría que re-correr con tf mayor, lo que ya no es reutilizar 2.1b.
 
 ## Capa de Python (Fase 3)
@@ -195,6 +196,10 @@ Todo vive en `python/` y se puede lanzar desde cualquier directorio (los scripts
   | `study_energy.py` | estudio 2.1a: E(t) desde snapshots, ε(dt), regla de elección y figuras |
   | `dt_star.py` | `DT_STAR` congelado y la regla declarada; fuente única del paso temporal de todos los barridos |
   | `crosscheck.py` | recalcula E(0) y el instante de conversión de cada partícula desde los snapshots y los compara con el log y el resumen del motor |
+| `sweep_gate.py` | compuerta de los barridos de la Fase 5: motor congelado y commiteado, dt*, sesión oficial 2.1b terminada (`make sweep-gate`) |
+| `study_conversion.py` | estudio 2.2: Fu(t) y ⟨t90⟩ contra x0 para N = 100 y 20, censura, óptimo y figuras; corridas compartidas con 2.4b |
+| `study_thermal.py` | estudio 2.3: f(v) desde los frames, cociente ⟨v⁴⟩/⟨v²⟩², ventana estacionaria declarada y ajuste de kBT por barrido (Teórica 0) |
+| `study_heatmap.py` | estudio 2.4b: mapa de calor de t90 y t100 en (x0, N) que reusa las corridas de 2.2, grilla de x0 refinada con el óptimo de 2.2, sonda de generación rsa, censura por celda y x0 óptimo por N |
 
 - **Estrictez:** un archivo sin su línea `# END` (corrida incompleta o fallida), con una fila corta, un valor no finito, un estado fuera de {0, 1}, `t != k·dt` o conteos que no cierran se rechaza con `TP4FormatError`; no existe un modo "incompleto".
 - **Energía de una corrida** (E(0) debe dar N·½·m·v0² = 3.75 J para N = 300, sin obstáculos):
@@ -424,3 +429,225 @@ make density-replot DENSITY_ARGS="--study density_smoke"
 - **Q7 aplicada.** Nunca se promedia sobre las realizaciones exitosas. N = 100 y 150 (t90 parcial) aparecen como cota inferior con marcador hueco y sin barra. Los N sin ninguna realización con t90 ≤ 30 s, y t100 en todo N, quedan fuera de la figura de tiempos y se leen en `success_fu_vs_density`, con Fu(30 s) ± σ y las fracciones de realizaciones que alcanzaron cada umbral. Para tener ⟨t100⟩, o ⟨t90⟩ a densidad alta, habría que correr con un tf mayor, y eso ya no sería reutilizar 2.1b.
 - **Arranque en red (Q4).** Todas las corridas parten de la red hexagonal perturbada. A densidad alta (φ ≥ 0.6), la caída de Fu(30 s) incluye el enjaulamiento de ese estado inicial ordenado, que no se fundió con una pre-corrida.
 - **Figuras:** `ejercicio2/data/density/figures/t90_t100_vs_density.{png,pdf}` y `ejercicio2/data/density/figures/success_fu_vs_density.{png,pdf}`. `make density-replot` las regenera desde `summary.csv`.
+
+### Estudio 2.2: Fu(t) y t90 contra x0 (study_conversion.py)
+
+```bash
+make sweep-gate                                    # compuerta de la Fase 5: GATE OK ... o GATE BLOCKED: ...
+make conversion-smoke                              # 12 corridas (x0 = r, 0.25, R - r; N = 100 y 20; semillas 1 y 2; tmax = 30 s) en data/conversion_smoke/
+make conversion-study CONVERSION_ARGS="--budget"   # presupuesto del barrido oficial (peor caso), sin compuerta y sin correr nada
+make conversion-study                              # barrido oficial: 220 corridas en data/conversion/
+make conversion-study CONVERSION_ARGS="--workers 8"
+make conversion-replot                             # tabla, óptimos y las cuatro figuras desde los CSV, sin motor
+make conversion-replot CONVERSION_ARGS="--fu-x0 0.0175 0.15 0.4925"   # otros x0 típicos para Fu(t)
+make conversion-replot CONVERSION_ARGS="--smoke"
+```
+
+- **Compuerta (`make sweep-gate`, `python/sweep_gate.py`; compuertas 1, 2 y 5 del roadmap).** Todo lote de la Fase 5 (smoke u oficial, 2.2, 2.3 y 2.4b) llama a `sweep_gate.require_gate` antes de lanzar la primera corrida, y `study_conversion.py` lo hace antes de `engine.run_batch`. La compuerta exige: `freeze.check()` OK (src/ y CXXFLAGS iguales al freeze), `freeze.check_against_git("HEAD")` OK (lo congelado es lo commiteado), dt* congelado (`dt_star.require_dt_star()`) y la sesión oficial 2.1b terminada. Esa última evidencia es `data/timing/session.json` con `mode = official` y `status = ok`; cualquier otro valor bloquea. Si no hay session.json pero `data/timing/` tiene directorios de corrida `N<N>_..._seed<s>` o `.partial`, hay una sesión de tiempos corriendo o abortada (session.json se escribe recién al final) y la compuerta bloquea aunque el README diga otra cosa: los barridos en paralelo no pueden pisar la sesión serial. Sin nada local (en la otra máquina del grupo, porque `data/` no se versiona) vale el encabezado `Resultados de la sesión oficial` de este README, que el Plan 04-04 escribe solo después de `make timing-check`. Bloqueada imprime `GATE BLOCKED: <problemas>` y sale con 1. `--budget` y `--replot` no pasan por la compuerta porque no lanzan nada. El registro de la compuerta (digest del freeze, evidencia, sha256 del binario) queda en `sweep.json`.
+- **Grilla.** x0 ∈ {0.0175, 0.06, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.4925} m: 11 valores con los dos extremos, x0 = r (obstáculos tocándose) y x0 = R - r (obstáculo tangente a la pared). N = 100 y N = 20, semillas 1 a 10 (las mismas en todo x0 y N), tmax = 100 s, dt = dt* = 5e-5 s, `init = rsa` (un único método para todo N <= 400), sin trayectoria y corte `--stop-when-all-used`. El corte no pierde información de Fu(t): después de la conversión N, Fu = 1, y siguen saliendo t90 y t100. `every = 200` solo fija el nombre del directorio.
+- **Estudio de corridas compartido con 2.4b.** Todas las corridas de 2.2 y 2.4b viven en `data/conversion/`. El mapa de calor (Plan 05-03) arma sus specs con `build_specs` y las mismas constantes, así que las filas N = 100 y N = 20 en esta grilla tienen el mismo nombre y el corredor las saltea. El análisis carga exactamente los nombres esperados: corridas extra en el directorio nunca entran en 2.2. Nunca borrar directorios terminados de `data/conversion/`.
+- **Validación (cualquier violación aborta con `error:` y el directorio).** Cada corrida se lee con los lectores estrictos de `tp4io` y debe coincidir con su spec: N, semilla, x0 (tolerancia 1e-12), dt = dt*, tf, every, obstáculos, `init = rsa`, `stop_when_all_used = 1`, `stop_at_t90 = 0`, los dos encabezados iguales y `used` igual en summary.txt y conversions.txt. Con `stop = all_used` tiene que ser used = N; con `stop = tf`, used < N y final_time = tf. Un directorio faltante o con `diverged.json` también aborta.
+- **Definiciones.** k90 = (9N + 9) // 10, el umbral entero del motor (k90 = 91 para N = 100 y 18 para N = 20). t90 es el tiempo de la conversión número k90, t100 el de la conversión número N y Fu(tmax) = usadas / N. Fu(t) se reconstruye del log de conversiones en una grilla de 0.1 s entre 0 y tmax (conversiones con tiempo <= t, divididas por N; vale 1 después de un corte all_used), y por (N, x0) se promedia sobre las realizaciones con su σ muestral. Un umbral no alcanzado antes de tmax queda censurado (`nan`), nunca imputado.
+- **Regla de censura (la misma función que 2.4a, Q7) y reporte AN-06.** `study_conversion.threshold_stats` es `study_density._threshold_stats` (el mismo objeto, por import). Por (N, x0): `all` → media ± σ; `partial` → sin media, cota inferior mean(min(t_i, tmax)), marcador hueco sin barra; `none` → sin tiempo, triángulo hueco en tmax. **Nunca se calcula la media sobre las realizaciones exitosas.** Además, cada celda censurada reporta cuántas realizaciones no llegaron a t90 (`k/n`, anotado junto al punto) y su Fu(tmax) media ± σ: línea `censored: N=... x0=... runs_without_t90=k/n fu_tmax=... +- ...`.
+- **Óptimo.** Para cada N, el x0 de menor ⟨t90⟩ entre los puntos completos, con las banderas de 2.4a: `edge` (mínimo en el primer o el último x0 completo) y `distinct` (separado de cada vecino completo por más que sqrt(σ² + σ_vecino²)); `censored_challengers` lista los x0 parciales cuya cota inferior ya es menor. Se imprime `optimum: N=<N> x0=... t90=... sigma=... edge=... distinct=... n_complete=...` (o `optimum: N=<N> none (<motivo>)`), queda en `optimum.json` y se marca con una estrella. Solo se llama "x0 óptimo" a un mínimo interior y `distinct`.
+- **x0 típicos para Fu(t).** r, el óptimo de N = 100 (si hay) y R - r; si quedan menos de 3, se agrega 0.25 m. `--fu-x0` (hasta 4 valores de la grilla) los reemplaza y queda registrado en `optimum.json` (`typical_source`).
+- **Figuras (`data/<estudio>/figures/`, PNG y PDF).** `t90_vs_x0_N100` (⟨t90⟩ ± σ contra x0 para N = 100), `t90_vs_x0_compare` (N = 100 y N = 20 en los mismos ejes, misma convención de censura, los dos óptimos), `fu_vs_t_N100` (Fu(t) medio para los x0 típicos, barra σ cada 10 s) y `fu_vs_t_N20_vs_N100` (mismo color por x0; N = 100 línea llena y símbolo lleno, N = 20 línea de trazos y símbolo hueco). Sin título, letra de 20 pt, rótulos con unidades MKS, un símbolo en cada serie; la línea de trazos en tmax y la punteada en Fu = 0.9 son referencias, no ajustes. No hay curvas ajustadas ni interpoladas por los puntos ⟨t90⟩(x0).
+- **Salidas (`data/conversion/`).** `runs.csv` (N, x0, seed, used, fu_tmax, t90, t100, final_time, stop), `summary.csv` (N, x0, n_runs, n90, frac90, t90_status, t90_mean, t90_sigma, t90_lower, n100, frac100, t100_status, t100_mean, t100_sigma, t100_lower, fu_tmax_mean, fu_tmax_sigma, n_censored90, fu_tmax_censored90_mean, fu_tmax_censored90_sigma), `fu_curves.csv` (N, x0, t, fu_mean, fu_sigma, n_runs), `optimum.json` (tmax, by_N, typical_x0), `sweep.json` (grilla, workers, conteos del lote, tiempo, registro de la compuerta y `history` con cada lanzamiento, así un relanzamiento que saltea todo no borra el registro del lote que produjo los datos) y `manifest.json` del corredor. `--replot` usa solo summary.csv, fu_curves.csv y optimum.json.
+- **Presupuesto.** `--budget` estima el peor caso sin corte temprano: N × (tmax / dt) × 18 ns por corrida pendiente, dividido por los workers (default min(12, núcleos - 2)). Para las 220 corridas oficiales son unos 475 s de CPU, menos de un minuto con 12 procesos.
+- **Advertencia (Pitfall 10).** Con N = 20 se espera mucha censura. Una explicación por momento angular (trayectorias con parámetro de impacto b > x0 + 2r que nunca tocan un obstáculo) solo se puede afirmar en el informe si se mide; los datos de 2.2 solo muestran cuántas realizaciones no llegan a t90 y su Fu(tmax).
+
+#### Resultados 2.2 (corrida oficial)
+
+`make conversion-study` el 2026-10-03 (compuerta 15:54:17Z, `GATE OK freeze=243554eb37b6 dt_star=5e-05 timing=session.json`) en la AMD Ryzen 7 9800X3D (8 núcleos, 16 hilos) bajo WSL2 Ubuntu 24.04 (kernel 6.6.87.2), Python 3.12.3, con 12 procesos: `batch: done=220 skipped=0 diverged=0 failed=0`, 33 s de reloj para lote y análisis (presupuesto de peor caso: 475 s de CPU, 40 s de reloj). Freeze `243554eb37b6` (de `sweep.json`). Grilla: 11 x0 entre r = 0.0175 m y R - r = 0.4925 m, N = 100 y N = 20, semillas 1 a 10, tmax = 100 s, dt* = 5e-5 s, `init = rsa`, corte `all_used`. Los valores salen de la tabla que imprime `study_conversion.py` y de `data/conversion/summary.csv`, redondeados a la primera cifra significativa de σ (guía 1.10).
+
+**Censura.** Las 220 corridas terminaron por `all_used` (todas las partículas usadas antes de tmax; la más larga, a los 90.3 s), así que ninguna celda tiene realizaciones sin t90 ni sin t100: 0 de 10 en las 22 celdas, sin líneas `censored:` y sin puntos huecos en las figuras. En particular, x0 = r y x0 = R - r generan y corren con `rsa` para los dos N, y N = 20 (k90 = 18) no muestra el enjaulamiento esperado (Pitfall 10) a tmax = 100 s.
+
+N = 100 (k90 = 91):
+
+| x0 (m) | ⟨t90⟩ (s) | sin t90 (de 10) | Fu(tmax) de las censuradas | ⟨t100⟩ (s) |
+|--------|-----------|-----------------|----------------------------|------------|
+| 0.0175 | 24 ± 2 | 0 | — | 60 ± 10 |
+| 0.06 | 18 ± 2 | 0 | — | 50 ± 10 |
+| 0.10 | 18 ± 3 | 0 | — | 32 ± 5 |
+| 0.15 | 15 ± 2 | 0 | — | 30 ± 10 |
+| 0.20 | 15 ± 2 | 0 | — | 30 ± 10 |
+| 0.25 | 15 ± 2 | 0 | — | 33 ± 5 |
+| 0.30 | 17 ± 1 | 0 | — | 33 ± 7 |
+| 0.35 | 16 ± 2 | 0 | — | 44 ± 7 |
+| 0.40 | 18 ± 2 | 0 | — | 39 ± 9 |
+| 0.45 | 21 ± 3 | 0 | — | 40 ± 10 |
+| 0.4925 | 31 ± 5 | 0 | — | 70 ± 10 |
+
+N = 20 (k90 = 18):
+
+| x0 (m) | ⟨t90⟩ (s) | sin t90 (de 10) | Fu(tmax) de las censuradas | ⟨t100⟩ (s) |
+|--------|-----------|-----------------|----------------------------|------------|
+| 0.0175 | 21 ± 7 | 0 | — | 40 ± 10 |
+| 0.06 | 15 ± 5 | 0 | — | 24 ± 7 |
+| 0.10 | 16 ± 5 | 0 | — | 30 ± 10 |
+| 0.15 | 16 ± 4 | 0 | — | 30 ± 10 |
+| 0.20 | 12 ± 5 | 0 | — | 21 ± 8 |
+| 0.25 | 13 ± 3 | 0 | — | 22 ± 7 |
+| 0.30 | 12 ± 3 | 0 | — | 19 ± 5 |
+| 0.35 | 12 ± 3 | 0 | — | 21 ± 6 |
+| 0.40 | 11 ± 3 | 0 | — | 19 ± 6 |
+| 0.45 | 14 ± 3 | 0 | — | 30 ± 10 |
+| 0.4925 | 29 ± 8 | 0 | — | 50 ± 10 |
+
+- **Líneas de óptimo** (también en `data/conversion/optimum.json`):
+  - `optimum: N=100 x0=0.2 t90=14.63 sigma=1.771 edge=False distinct=False n_complete=11`
+  - `optimum: N=20 x0=0.4 t90=10.71 sigma=2.88 edge=False distinct=False n_complete=11`
+- **Lectura.** En los dos N el mínimo de ⟨t90⟩ es interior pero **no se distingue de sus vecinos** (`distinct=False`): para N = 100, x0 = 0.20 m (14.6 ± 1.8 s) queda dentro de σ combinada de x0 = 0.15 m (15.2 ± 2.0 s) y 0.25 m (15.4 ± 2.4 s). Por eso no se presenta "el x0 óptimo" sino una **zona de x0 favorables**, de 0.15 a 0.35 m para N = 100 (⟨t90⟩ entre 15 y 17 s), con ⟨t90⟩ que sube hacia los dos extremos: 24 ± 2 s en x0 = r y 31 ± 5 s en x0 = R - r. Para N = 20 el mínimo cae en x0 = 0.40 m (10.7 ± 2.9 s), también sin separarse de 0.35 m y 0.45 m.
+- **N = 20 contra N = 100.** ⟨t90⟩ de N = 20 es menor que el de N = 100 en 10 de los 11 x0 (en x0 = 0.15 m son iguales dentro de σ), y la diferencia supera la σ combinada en x0 = 0.30, 0.35, 0.40 y 0.45 m. Las σ de N = 20 son mayores (cada realización tiene 20 partículas). Atribuir la diferencia a la frecuencia de colisiones (o al momento angular, Pitfall 10) requiere una medición que 2.2 no hace; acá solo se reportan los tiempos.
+- **x0 típicos para Fu(t):** 0.0175, 0.20 y 0.4925 m (r, el mínimo de N = 100 y R - r; `typical_source = auto`). Las curvas Fu(t) son no decrecientes y terminan en 1 (corte `all_used`), y la línea Fu = 0.9 las cruza en el orden de la tabla.
+- **Figuras:** `ejercicio2/data/conversion/figures/t90_vs_x0_N100.{png,pdf}`, `t90_vs_x0_compare.{png,pdf}`, `fu_vs_t_N100.{png,pdf}` y `fu_vs_t_N20_vs_N100.{png,pdf}`. `make conversion-replot` las regenera desde los CSV.
+- **Reutilización.** El Plan 05-03 (mapa de calor 2.4b) reutiliza estas 220 corridas de `data/conversion/` como las filas N = 100 y N = 20 del mapa, con la misma grilla de x0, las mismas semillas y el mismo tmax.
+
+### Estudio 2.3: f(v), relajación y ajuste de kBT (study_thermal.py)
+
+```bash
+make sweep-gate                                  # la misma compuerta de la Fase 5 (GATE OK ...)
+make thermal-smoke                               # 4 corridas (semillas 1 a 4, tf = 4 s) en data/thermal_smoke/
+make thermal-study THERMAL_ARGS="--budget"       # presupuesto de cómputo y de disco, sin compuerta y sin correr nada
+make thermal-study                               # corrida oficial: 10 corridas en data/thermal/
+make thermal-replot                              # líneas de resumen y las cuatro figuras desde los CSV y fit.json, sin motor
+make thermal-replot THERMAL_ARGS="--smoke"
+```
+
+- **Corridas (PD-100).** N = 100 sin obstáculos (nadie se convierte: solo importa cómo se reparte la energía cinética), dt = dt* = 5e-5 s, tf = 10 s, un frame cada dt2 = 0.01 s (`every = 200`, 1001 frames por corrida), semillas 1 a 10, `init = rsa`, con trayectoria y sin cortes. Todas las corridas pasan por `study_conversion.collect`, o sea detrás de `sweep_gate.require_gate`. Es el único estudio de la Fase 5 que escribe frames: unos 9.2 MB por corrida y 92 MB en total (`--budget` imprime `disk: frames_per_run=1001 bytes_per_run=9209200 total_mb=92.1`, a 92 bytes por partícula y frame). Con tiempos de colisión de unos 0.08 s, la relajación tarda menos de 1 s y quedan unos 8 s de ventana estacionaria.
+- **Validación (`load_speeds`, cualquier violación aborta con `error:` y el directorio).** frames.txt se lee con el lector estricto de `tp4io` y su encabezado tiene que ser el de la spec: N, semilla, sin obstáculos, dt = dt* (tolerancia relativa 1e-12), every, tf, `init = rsa`, los dos cortes apagados y m y v0 del enunciado. Además, la cantidad de frames tiene que ser round(tf/dt)/every + 1, el trailer tiene que terminar en `max_steps` y toda rapidez del frame 0 tiene que valer v0 con tolerancia 1e-9. El motor arranca con |v| = v0 exacto, pero el frame 0 lo reescribe como diferencia centrada, con unos 1e-12 de redondeo. Como v0 = 1 m/s cae justo en un borde de bin, ese redondeo partiría la delta inicial en dos bines. Por eso, una vez validado, el frame 0 se toma como v0 exacto.
+- **f(v).** Es una densidad de probabilidad, no un histograma de cuentas. Bines fijos de DV = 0.05 m/s en [0, V_MAX = 5] m/s (100 bines) y f = cuentas / (n · DV), así que ∫ f dv = Σ f · DV = 1 exactamente, con los bines vacíos incluidos. Una rapidez >= 5 m/s detiene el estudio (P(v > 5 m/s) ≈ 1e-11 a kBT = 0.0125 J). Por realización hay un histograma en cada t de {0, 0.1, 0.2, 0.5, 1} s y uno con todos los snapshots de la ventana estacionaria. Las figuras muestran la media ± σ muestral sobre realizaciones. A t = 0 la f(v) es una sola barra de altura 1/DV = 20 s/m en el bin de v0, que se dibuja como una flecha en v0 para no aplastar las demás curvas.
+- **Relajación: ⟨v⁴⟩/⟨v²⟩².** Se calcula por snapshot y por realización (sobre las N rapideces) y después se promedia sobre realizaciones. Vale 1 para la delta inicial (todas las rapideces iguales) y 2 para Maxwell-Boltzmann en 2D (u = v² es exponencial y ⟨u²⟩ = 2⟨u⟩²).
+- **Regla de la ventana estacionaria (PD-101, declarada antes de la corrida oficial).** Para n rapideces muestreadas de f_MB, el desvío de muestreo del cociente es 2/√n (método delta sobre u). Con n = N · n_semillas rapideces por snapshot:
+  - t_relax es el primer snapshot en que la media sobre realizaciones alcanza 2 − RELAX_SIGMAS · 2/√n, con RELAX_SIGMAS = 3. El umbral es 1.810 con 10 semillas y 1.700 con las 4 del smoke.
+  - t_stat = T_STAT_FACTOR · t_relax redondeado hacia arriba a la grilla de 0.01 s, con T_STAT_FACTOR = 3. Para una aproximación exponencial, el salto restante en 3 t_relax queda por debajo del 1 %.
+  - La ventana es [t_stat, tf] y tiene que durar al menos MIN_WINDOW_S = 2 s.
+
+  Si el cociente nunca alcanza el umbral, si el umbral queda por debajo del cociente en t = 0 o si la ventana es corta, el estudio se detiene con `error:` y la ventana **nunca** se elige a mano. Ningún snapshot anterior a t_stat entra en la f(v) estacionaria, en el chequeo del cociente ni en el ajuste. La media del cociente en la ventana (media ± σ sobre realizaciones) se imprime como control (`ratio_window:`), no se usa para elegir la ventana. RELAX_SIGMAS, T_STAT_FACTOR, MIN_WINDOW_S, DV, V_MAX y la grilla de kBT quedan fijos en el módulo, en `fit.json` y en un test (`test_constants_pinned`). Cambiarlos después de ver los datos oficiales está prohibido. Si la regla falla, se informa al grupo.
+- **Ajuste de kBT (Teórica 0, diap. 65-72; PD-103).** Hay un solo parámetro y el modelo teórico de rapideces en 2D:
+
+  f_MB(v; kBT) = (m v / kBT) · exp(−m v² / 2kBT)
+
+  El error es E(kBT) = Σᵢ [fᵢ − f_MB(vᵢ; kBT)]², sumado sobre los centros de los 100 bines (vacíos incluidos). Se barre kBT en una grilla de 1e-3 J a 5e-2 J con paso 1e-5 J (4901 valores) y kBT es el argmin. Un mínimo en un extremo de la grilla es un error (no está encerrado). No se usan optimizadores (scipy), amplitud libre ni un segundo parámetro, y un test AST lo verifica. kBT se ajusta sobre la f(v) estacionaria media, y su σ es el desvío muestral de los ajustes de la f(v) estacionaria de cada realización.
+- **Comparación.** kBT se compara con m v0²/2 = 0.0125 J (toda la energía inicial es cinética: E = N · m v0²/2 = N kBT en 2D) y con kBT_cinético = m ⟨v²⟩/2 sobre la ventana (equipartición 2D, se imprime, no se ajusta). kBT puede quedar levemente por debajo de 0.0125 J porque las partículas son blandas: en cada instante, parte de la energía total está guardada como energía potencial de los contactos (solapamientos) y no como energía cinética. Es un punto de discusión, no un bug (Pitfall 12).
+- **Líneas impresas.** `stationary: t_relax=<s> t_stat=<s> window=[<a>, <b>] s threshold=<x> n_samples=<n>`, `ratio_window: mean=<m> sigma=<s>` y `fit: kBT=<x> J sigma=<s> J expected=0.0125 J rel_diff=<pct> kBT_kinetic=<y> J`.
+- **Figuras (`data/<estudio>/figures/`, PNG y PDF).**
+  - `ratio_vs_t`: cociente medio con barra σ cada 0.5 s, referencias en 1 y 2, umbral punteado y ventana sombreada con su inicio t_est.
+  - `fv_evolution`: f(v) a t = 0.1, 0.2, 0.5 y 1 s y la estacionaria, con barras σ cada 4 bines, entre 0 y 3 m/s; la delta de t = 0 es una flecha en v0 anotada «t = 0 s: δ(v − v0)».
+  - `fv_stationary_fit`: f(v) estacionaria ± σ con símbolos, f_MB al kBT ajustado (línea llena) y f_MB a m v0²/2 (trazos).
+  - `fit_error_kbt`: E(kBT) entre kBT/2 y 2 kBT con notación científica, estrella en el mínimo y línea de trazos en 0.0125 J.
+
+  Sin título, letra de 20 pt y rótulos con unidades MKS.
+- **Salidas (`data/thermal/`).**
+  - `ratio.csv`: t, ratio_mean, ratio_sigma, n_seeds.
+  - `fv_snapshots.csv`: t, v, f_mean, f_sigma.
+  - `fv_stationary.csv`: v, f_mean, f_sigma.
+  - `fit_scan.csv`: kbt, error, sobre toda la grilla.
+  - `fit.json`: t_relax, threshold, t_stat, window, n_seeds, n_samples, kbt_fit, kbt_sigma, kbt_per_seed, kbt_expected, rel_diff, kbt_kinetic, ratio_window_mean, ratio_window_sigma, bracketed y las constantes.
+  - `sweep.json`: modo, semillas, tf, dt, dt2, every, workers, conteos, tiempo, registro de la compuerta y `history`.
+  - `manifest.json` del corredor.
+
+  `--replot` usa solo los cuatro CSV y fit.json.
+
+#### Resultados 2.3 (corrida oficial)
+
+**Corrida y procedencia.**
+- Lanzada con `make thermal-study` el 2026-10-03, con la compuerta abierta a las 16:12:21Z: `GATE OK freeze=243554eb37b6 dt_star=5e-05 timing=session.json`.
+- Máquina: AMD Ryzen 7 9800X3D (8 núcleos, 16 hilos) bajo WSL2 Ubuntu 24.04, Python 3.12.3, 12 procesos.
+- Lote: `batch: done=10 skipped=0 diverged=0 failed=0`, 6.1 s de reloj para lote y análisis.
+- Freeze `243554eb37b6` (tomado de `sweep.json`).
+- Parámetros: N = 100 sin obstáculos, semillas 1 a 10, tf = 10 s, dt* = 5e-5 s, dt2 = 0.01 s (1001 frames por corrida), `init = rsa`.
+- Disco: 84.4 MB de frames en `data/thermal/`. El presupuesto `--budget`, de peor caso, estimaba 92.1 MB.
+
+Los valores salen de las líneas que imprime `study_thermal.py` y de `data/thermal/fit.json`, redondeados a la primera cifra significativa de σ (guía 1.10).
+
+- **Líneas impresas:**
+  - `stationary: t_relax=0.34 t_stat=1.02 window=[1.02, 10] s threshold=1.8103 n_samples=1000`
+  - `ratio_window: mean=1.9918 sigma=0.0303`
+  - `fit: kBT=0.01238 J sigma=0.00019 J expected=0.0125 J rel_diff=-0.96% kBT_kinetic=0.01233 J`
+- **Relajación y ventana (regla declarada, sin retoques).** El cociente medio ⟨v⁴⟩/⟨v²⟩² vale 1 en t = 0 y alcanza el umbral 2 − 6/√1000 = 1.810 en t_relax = 0.34 s. Entonces t_stat = 3 · 0.34 = 1.02 s y la ventana estacionaria es [1.02, 10] s: 8.98 s y 899 snapshots, muy por encima del mínimo de 2 s. En la ventana, el cociente vale 1.99 ± 0.03 (media ± σ sobre realizaciones), compatible con el 2 de Maxwell-Boltzmann en 2D. El valor esperable para N = 100 a energía fija es 2N/(N + 1) ≈ 1.98.
+- **Evolución de f(v).** A t = 0, f(v) es una sola barra de altura 1/DV = 20 s/m en v0. A t = 0.1 s todavía queda un pico de unas 3.4 s/m en los dos bines vecinos de v0 (las partículas que aún no chocaron con otra). A t = 0.2 s el pico baja a 1.9 s/m. A t = 0.5 s y 1 s el pico en v0 ya desapareció y la forma es la de la estacionaria, con el ruido propio de un único snapshot de 100 partículas por realización: solo 3 y 2 de los 100 bines se apartan de la estacionaria en más de 2 σ combinada. La estacionaria tiene forma de Rayleigh, con máximo cerca de √(kBT/m) ≈ 0.70 m/s.
+- **kBT.**
+  - Ajuste Teórica 0 (barrido de E(kBT), mínimo encerrado): **kBT = 0.0124 ± 0.0002 J**. Valor sin redondear: 0.01238 J, σ = 0.00019 J sobre los 10 ajustes por realización, que van de 0.01210 a 0.01268 J.
+  - Comparado con m v0²/2 = 0.0125 J, la diferencia relativa es −0.96 %, dentro de 1 σ.
+  - Control cinético: m ⟨v²⟩/2 = 0.01233 J sobre la ventana, 1.4 % por debajo de 0.0125 J. Coincide con el ajuste (0.01238 J) mucho mejor que su σ.
+- **Lectura.** El faltante de alrededor de 1 % respecto de m v0²/2 es esperable y no es un error del ajuste. Las partículas son blandas (k = 1e4 N/m), y en todo instante una parte de la energía total, que se conserva (ε medio ≈ 1e-4 a dt* en 2.1a), está guardada como energía potencial elástica de los contactos y no como energía cinética. Por eso el kBT que surge de las velocidades queda apenas por debajo de la energía cinética inicial por partícula.
+- **Smoke (4 semillas, tf = 4 s), como referencia de plausibilidad.** Umbral 1.700, t_relax = 0.29 s, t_stat = 0.87 s, cociente en la ventana 1.99 ± 0.09, kBT = 0.01236 ± 0.0004 J (−1.1 %) y kBT_cinético = 0.01233 J. Es consistente con la corrida oficial.
+- **Figuras:** `ejercicio2/data/thermal/figures/ratio_vs_t.{png,pdf}`, `fv_evolution.{png,pdf}`, `fv_stationary_fit.{png,pdf}` y `fit_error_kbt.{png,pdf}`. `make thermal-replot` las regenera desde los CSV y fit.json.
+
+### Estudio 2.4b: mapa de calor de t90 en (x0, N) (study_heatmap.py)
+
+```bash
+make conversion-study                              # primero 2.2: sus 220 corridas son las filas N = 100 y N = 20 del mapa
+make heatmap-probe                                 # sonda de generación rsa al N más grande (escribe data/heatmap/probe.json)
+make heatmap-study HEATMAP_ARGS="--budget"         # grillas y presupuesto de peor caso, sin compuerta y sin correr nada
+make heatmap-study                                 # barrido oficial (reanudable: relanzar saltea lo terminado)
+make heatmap-replot                                # tabla, óptimos y los dos mapas desde cells.csv, sin motor
+make heatmap-probe HEATMAP_ARGS="--smoke"          # smoke: sonda, después
+make heatmap-smoke                                 #        barrido chico en data/heatmap_smoke/
+make heatmap-replot HEATMAP_ARGS="--smoke"
+```
+
+El orden es fijo: 2.2 → sonda → mapa. Cada paso se niega a arrancar sin el anterior.
+
+- **Reuso de 2.2 (sin volver a correr nada).** Todas las corridas del mapa se arman con `study_conversion.build_specs` y las constantes de 2.2 (dt*, tmax = 100 s, `init = rsa`, corte `all_used`, sin trayectoria) en el mismo estudio de corridas `data/conversion/`. Las filas N = 100 y N = 20 sobre la grilla de 2.2 tienen exactamente el mismo nombre de directorio y el corredor las saltea. Antes del lote, `require_conversion_rows` exige las 220 corridas de 2.2 completas (si no, `error:` con cuántas faltan y `make conversion-study`) y se imprime `reused: <k>/<n> runs of 2.2`. Después del análisis, cada celda N = 100 y N = 20 de esa grilla se compara campo por campo con la fila de `data/conversion/summary.csv` (floats con tolerancia relativa 1e-12, NaN igual a NaN, estados y conteos exactos). Si coinciden, se imprime `reuse-consistency: ok cells=<k>`; si no, el estudio se detiene nombrando el (N, x0) y la columna. El motor reescribe `data/conversion/manifest.json` en cada lote, pero nadie lo lee. 2.2 sigue analizando solo su grilla, así que sus resultados publicados no cambian cuando el mapa agrega corridas.
+- **Grilla de x0 (PD-110).** La grilla de 2.2 completa, más los dos puntos medios entre el óptimo de N = 100 de 2.2 y sus vecinos de la grilla (redondeados a 1e-6), si ese óptimo es interior (`edge = False`). Se refina también cuando el óptimo no es distinto: los puntos medios quedan dentro de la zona favorable y le dan resolución. Si el óptimo está en el borde o no hay óptimo, se usa la grilla de 2.2 sola. La grilla, los valores agregados, el motivo y el óptimo de origen quedan en `x0_grid.json`. Los extremos x0 = r y x0 = R - r están en todas las filas.
+- **Grilla de N y un único método de inicialización (PD-111).** N ∈ {20, 50, 100, 150, 200, 250, 300, 400}, semillas 1 a 10, todas con `init = rsa`. El método nunca se cambia dentro del barrido: si rsa no puede ubicar el N más grande, se baja ese N, nunca se pasa a la red. N = 400 es una fracción de empaquetamiento de ≈ 0.47. El régimen denso con red ya lo cubre 2.4a.
+- **Sonda de generación (PD-112).** El único paso que puede fallar por construcción es ubicar el N más grande (saturación de rsa, Pitfall 6; obstáculos contra la pared, Pitfall 16). Por eso `make heatmap-probe` corre todas las combinaciones (x0, semilla) de la grilla final con ese N y tf = 20 dt (solo generación; la misma semilla da la misma ubicación que en la corrida real), en su propio estudio `data/heatmap_probe/`. Sin fallas, ese N se acepta. Si todas las fallas dicen `no se pudo ubicar`, el N baja de a 50, con a lo sumo 3 candidatos: 400, 350 y 300 (smoke: 100 y 50). Cualquier otra falla, o que fallen todos los candidatos, detiene el estudio, porque la grilla de N pasa a ser una decisión del grupo. La grilla final de N son los N base menores que el elegido, más el elegido. El resultado (`n_top`, candidatos probados y ejemplos de fallas) queda en `probe.json`. El barrido se niega a arrancar si falta `probe.json` o si sus x0 o semillas no coinciden con la grilla actual.
+- **Presupuesto (PD-114).** `HEATMAP_ARGS="--budget"` imprime las grillas y el peor caso sin corte temprano: N × (tmax / dt) × 18 ns por corrida pendiente. Usa `probe.json` si es válido; si no, la grilla base, y lo dice. Con la grilla completa son unos 53 s de CPU por (x0, semilla), unos 115 min de CPU en total menos lo reusado, o sea del orden de 10 a 20 min de reloj con 12 procesos (menos con los cortes `all_used`).
+- **Censura por celda (la regla de 2.4a, por import).** Por (N, x0) y por umbral (t90 y t100): `all` → la celda se pinta con la media; `partial` → se pinta con la cota inferior mean(min(t_i, tmax)) en la misma escala, rayada `//`; `none` → gris con rayado cruzado `xx`. Nunca se pinta una celda censurada como completa ni con la media de las realizaciones exitosas. Las celdas de N bajo que salgan censuradas se muestran rayadas, nunca se descartan. Las líneas `censored: <t90|t100> N=... x0=... status=... runs_without=k/n` listan cada celda censurada.
+- **Óptimo por N.** Para cada N, `optimum_along(celdas de N, clave, "x0")`, solo entre celdas completas, con las banderas de 2.4a: `edge` (mínimo en el primer o último x0 completo) y `distinct` (la diferencia con cada vecino completo supera la σ combinada). Se imprime una línea `optimum: <t90|t100> N=<N> x0=... mean=... sigma=... edge=... distinct=...` por N, o `optimum: <clave> N=<N> none (<motivo>)` si la fila no tiene celdas completas, y todo queda en `optimum_by_N.json`. En el mapa, una estrella negra llena marca un óptimo interior y distinto; una estrella hueca, un mínimo en el borde o no distinto. Una fila sin celdas completas no lleva estrella.
+- **Figura (PD-115).** `pcolormesh` por celdas con sombreado plano (`shading="flat"`). Los bordes están en los puntos medios entre valores de la grilla y medio paso más allá de cada extremo. No se interpola ni se suaviza: un test AST prohíbe `contourf`, `contour`, `tricontourf`, `imshow` y `griddata`. Mapa de color viridis con una sola escala de 0 a tmax para t90 y t100, barra de color rotulada (`Tiempo t90 (s)`), x0 en m y N con ticks en los valores de la grilla, sin título y con la leyenda debajo de los ejes. t90 es el mapa principal (menos censurado, Pitfall 10); t100 se dibuja igual.
+- **Archivos.** En `data/heatmap/` (smoke: `data/heatmap_smoke/`): `probe.json`, `x0_grid.json`, `runs.csv`, `cells.csv` (columnas de `summary.csv` de 2.2, una fila por (N, x0)), `optimum_by_N.json`, `sweep.json` (grillas, `n_top`, `reused`, conteos, compuerta e historial de lanzamientos, como en 2.2) y `figures/heatmap_t90.{png,pdf}` y `figures/heatmap_t100.{png,pdf}`. Las corridas nuevas viven en `data/conversion/` (smoke: `data/conversion_smoke/`) y las de la sonda en `data/heatmap_probe/`. `--replot` usa solo cells.csv, optimum_by_N.json y x0_grid.json, sin compuerta, motor ni corridas.
+- **Smoke (PD-116).** Usa el estudio de corridas `conversion_smoke` (reusa las 12 corridas smoke de 2.2), N ∈ {20, 50, 100}, los x0 smoke de 2.2 refinados con su óptimo, semillas 1 y 2, tmax = 30 s y candidatos de sonda 100 y 50.
+
+#### Resultados 2.4b (corrida oficial)
+
+**Corrida y procedencia.**
+- `make heatmap-probe`, `make heatmap-study HEATMAP_ARGS="--budget"` y `make heatmap-study` el 2026-10-03. La compuerta abrió a las 16:23:58Z: `GATE OK freeze=243554eb37b6 dt_star=5e-05 timing=session.json`.
+- Máquina: AMD Ryzen 7 9800X3D (8 núcleos, 16 hilos) bajo WSL2 Ubuntu 24.04 (kernel 6.6.87.2), Python 3.12.3, 12 procesos.
+- Freeze `243554eb37b6` (de `sweep.json`).
+- Lote: `batch: done=820 skipped=220 diverged=0 failed=0`, 620 s de reloj para lote y análisis (10.3 min). El presupuesto de peor caso era 6404 s de CPU y 534 s de reloj. El reloj real lo superó un poco: 12 procesos comparten 8 núcleos, y en N alto el corte `all_used` casi no acorta porque muchas corridas no llegan a t100. La lectura y validación de las 1040 corridas tarda unos 46 s (relanzamiento: `batch: done=0 skipped=1040 diverged=0 failed=0`).
+- Parámetros: semillas 1 a 10, tmax = 100 s, dt* = 5e-5 s, `init = rsa` para todo N, corte `all_used`, sin trayectoria.
+
+**Grillas, sonda y reuso.**
+- x0: `x0_grid: 0.0175 0.06 0.1 0.15 0.175 0.2 0.225 0.25 0.3 0.35 0.4 0.45 0.4925 added=[0.175, 0.225]`. El motivo: el óptimo de N = 100 de 2.2 es interior (x0 = 0.20 m), pero no distinto. Se agregaron los puntos medios con sus vecinos, que caen dentro de la zona favorable de 2.2.
+- Sonda: `probe: N=400 runs=130 failed=0` y `probe: n_top=400 tried=[400]`. rsa ubicó N = 400 en los 13 x0 y las 10 semillas, así que no hizo falta bajar N. Grilla final de N: 20, 50, 100, 150, 200, 250, 300, 400.
+- Reuso: `reused: 220/220 runs of 2.2` y `reuse-consistency: ok cells=22`. Las 22 celdas N = 100 y N = 20 sobre la grilla de 2.2 coinciden campo por campo con `data/conversion/summary.csv`. Ninguna corrida de 2.2 se volvió a correr ni se tocó: 2.2 sigue dando `optimum: N=100 x0=0.2` y `optimum: N=20 x0=0.4`.
+- Celdas: 104 = 8 N × 13 x0, cada una con 10 corridas.
+
+**x0 óptimo por N** (solo entre celdas completas; media ± σ redondeada a la primera cifra significativa de σ, guía 1.10):
+
+| N | x0 óptimo t90 (m) | ⟨t90⟩ (s) | edge / distinct | x0 óptimo t100 (m) | ⟨t100⟩ (s) | edge / distinct |
+|---|---|---|---|---|---|---|
+| 20 | 0.40 | 11 ± 3 | False / False | 0.40 | 19 ± 6 | False / False |
+| 50 | 0.20 | 14 ± 2 | False / False | 0.15 | 27 ± 6 | False / False |
+| 100 | 0.20 | 15 ± 2 | False / False | 0.10 | 32 ± 5 | False / False |
+| 150 | 0.25 | 17 ± 1 | False / False | 0.20 | 40 ± 10 | False / False |
+| 200 | 0.225 | 20 ± 2 | False / False | 0.175 | 50 ± 10 | False / False |
+| 250 | 0.225 | 24 ± 1 | False / False | 0.25 | 57 ± 9 | False / False |
+| 300 | 0.225 | 29 ± 1 | False / False | 0.175 | 80 ± 8 | True / False (y x0 = 0.20, parcial, ya tiene cota inferior 78.9 s) |
+| 400 | 0.20 | 45 ± 3 | False / False | ninguno | — | ninguna celda completa |
+
+Ningún mínimo es distinto, así que todas las estrellas del mapa son huecas.
+
+**Celdas censuradas.**
+- t90: solo N = 400, x0 = 0.4925 (`none`: ninguna de las 10 llegó a t90 en 100 s). Las otras 103 celdas son completas.
+- t100 (`partial` salvo que se indique `none`; k/10 = realizaciones sin t100):
+  - N = 150: x0 = 0.0175 (1), 0.4925 (4).
+  - N = 200: x0 = 0.0175 (3), 0.45 (3), 0.4925 (4).
+  - N = 250: x0 = 0.0175 (6), 0.06 (3), 0.10 (1), 0.15 (1), 0.175 (1), 0.40 (2), 0.45 (6); 0.4925 `none`.
+  - N = 300: x0 = 0.06 (8), 0.10 (6), 0.15 (4), 0.20 (1), 0.225 (3), 0.25 (3), 0.30 (2), 0.40 (4); 0.0175, 0.45 y 0.4925 `none`.
+  - N = 400: x0 = 0.225 (9); los otros 12 x0 `none`.
+  - N = 20, 50 y 100: ninguna celda censurada.
+
+**Lectura (hasta donde lo permiten las banderas).**
+- Para N ≥ 50, el mínimo de ⟨t90⟩ queda siempre entre x0 = 0.20 y 0.25 m. Como ningún mínimo es distinto, los datos no muestran que el x0 óptimo se mueva con N: muestran una zona favorable centrada en x0 ≈ 0.20 a 0.25 m que se mantiene en todas las densidades. En cada fila, los vecinos inmediatos del mínimo quedan dentro de la σ combinada.
+- Para N = 20 el mínimo está en 0.40 m, pero la fila es plana entre 0.20 y 0.40 m dentro de σ.
+- Lo que sí cambia con N:
+  - ⟨t90⟩ en el mínimo crece con N (11, 14, 15, 17, 20, 24, 29 y 45 s).
+  - La penalización de los extremos x0 = r y x0 = R - r crece con la densidad. Con N = 400, x0 = r da 89 ± 5 s y x0 = R - r no llega a t90 en 100 s, contra 45 ± 3 s en 0.20 m.
+- Para dónde poner los obstáculos: en todas las densidades medidas, lejos de los dos extremos, alrededor de x0 ≈ 0.2 m.
+- La censura de t100 se concentra en N alto y en los x0 extremos, no en N bajo. Es lo contrario de lo que anticipaba el Pitfall 10. Con N ≤ 100 no hay ninguna celda censurada a tmax = 100 s.
+
+**Figuras:** `ejercicio2/data/heatmap/figures/heatmap_t90.{png,pdf}` y `heatmap_t100.{png,pdf}`. `make heatmap-replot` las regenera desde `cells.csv`, `optimum_by_N.json` y `x0_grid.json`.
