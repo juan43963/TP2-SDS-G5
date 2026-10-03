@@ -54,6 +54,7 @@ import tp4io  # noqa: E402
 
 EJ2_DIR = Path(__file__).resolve().parents[1]
 TP4_DIR = EJ2_DIR.parent
+BUILD_STAMP = EJ2_DIR / "build" / "cxxflags.stamp"
 
 STUDY = "timing"
 SMOKE_STUDY = "timing_smoke"
@@ -255,22 +256,72 @@ def host_info() -> dict:
 
 def _freeze_state(stage: str) -> dict:
     """Chequeo del freeze; SessionError si esta roto. Los tests lo reemplazan."""
-    ok, msgs = freeze.check()
+    try:
+        ok, msgs = freeze.check()
+    except (ValueError, OSError) as exc:
+        raise SessionError(stage, f"chequeo del freeze: {exc}") from exc
     if not ok:
         raise SessionError(stage, "motor no congelado o distinto del freeze: " + "; ".join(msgs))
-    return {"frozen_digest": freeze.read_freeze()["digest"],
+    record = freeze.read_freeze()
+    return {"frozen_digest": record["digest"], "cxxflags": record["cxxflags"],
             "current_digest": freeze.current_state()["digest"]}
 
 
 def _against_git_head() -> bool:
-    ok, msgs = freeze.check_against_git("HEAD")
+    try:
+        ok, msgs = freeze.check_against_git("HEAD")
+    except (ValueError, RuntimeError, OSError) as exc:
+        raise SessionError("preflight", f"chequeo del freeze contra HEAD: {exc}") from exc
     if not ok:
         raise SessionError("preflight", "el freeze difiere del motor commiteado en HEAD: "
                            + "; ".join(msgs))
     return True
 
 
-def preflight(mode, out_dir, binary, tp3_dir, data_root) -> dict:
+def _current_freeze_digest() -> str:
+    """Digest de engine_freeze.json hoy (los tests lo reemplazan)."""
+    return freeze.read_freeze()["digest"]
+
+
+def _build_stamp(binary, tools, frozen_cxxflags, stamp=BUILD_STAMP) -> dict:
+    """CXX y CXXFLAGS con que make compilo los objetos (build/cxxflags.stamp del Makefile).
+
+    make no recompila cuando cambian los flags, y `CXXFLAGS ?=` toma el valor del entorno:
+    sin esto un binario compilado con `-O0` pasaba el freeze. El stamp lo reescribe make
+    solo si los flags cambiaron, y los objetos dependen de el.
+    """
+    stamp = Path(stamp)
+    try:
+        text = stamp.read_text(encoding="utf-8")
+        stamp_mtime = stamp.stat().st_mtime
+    except OSError as exc:
+        raise SessionError("preflight", f"falta {stamp} ({exc}): recompilar con "
+                           "`make -C ejercicio2 billiard`") from exc
+    values = {}
+    for line in text.splitlines():
+        key, sep, value = line.partition("=")
+        if sep and key in ("CXX", "CXXFLAGS"):
+            values[key] = value.strip()
+    problems = []
+    if values.get("CXXFLAGS") != frozen_cxxflags:
+        problems.append(f"el motor se compilo con CXXFLAGS={values.get('CXXFLAGS')!r} y el "
+                        f"freeze dice {frozen_cxxflags!r}")
+    if tools.get("tp4_cxxflags") != frozen_cxxflags:
+        problems.append(f"make resuelve CXXFLAGS={tools.get('tp4_cxxflags')!r} (entorno?) y el "
+                        f"freeze dice {frozen_cxxflags!r}")
+    if values.get("CXX") != tools.get("cxx"):
+        problems.append(f"el motor se compilo con CXX={values.get('CXX')!r} y make resuelve "
+                        f"{tools.get('cxx')!r}")
+    if Path(binary).stat().st_mtime < stamp_mtime:
+        problems.append(f"{binary} es anterior a {stamp.name}: no se enlazo con los flags actuales")
+    if problems:
+        raise SessionError("preflight", "; ".join(problems) +
+                           " (recompilar en un entorno limpio con `make -C ejercicio2 billiard`)")
+    return values
+
+
+def preflight(mode, out_dir, binary, tp3_dir, data_root, n_values=N_GRID, seeds=SEEDS,
+              study=STUDY) -> dict:
     """Todas las verificaciones antes de crear nada; en smoke borra solo timing_smoke."""
     if mode not in MODES:
         raise SessionError("preflight", f"modo {mode!r} invalido")
@@ -279,6 +330,18 @@ def preflight(mode, out_dir, binary, tp3_dir, data_root) -> dict:
         dt = dt_star.require_dt_star()
     except RuntimeError as exc:
         raise SessionError("preflight", str(exc)) from exc
+    # Las specs se validan aca y no despues de TP3 (una hora): un N o semilla invalido o
+    # repetido abortaria la sesion con data/timing/ ya escrito.
+    try:
+        specs = build_specs(n_values, seeds, dt, study)
+    except (ValueError, TypeError) as exc:
+        raise SessionError("preflight", f"N o semillas invalidos: {exc}") from exc
+    names = [s.name() for s in specs]
+    if not specs:
+        raise SessionError("preflight", "no hay corridas: N y semillas no pueden estar vacios")
+    if len(set(names)) != len(names):
+        raise SessionError("preflight", f"N o semillas repetidos (N={list(n_values)}, "
+                           f"semillas={list(seeds)})")
     if mode == "official" and out_dir.exists() and any(out_dir.iterdir()):
         rel = _rel(out_dir)
         raise SessionError("preflight", (
@@ -296,9 +359,11 @@ def preflight(mode, out_dir, binary, tp3_dir, data_root) -> dict:
             raise SessionError("preflight", f"falta {needed} (TP3)")
     try:
         tp3_flags, _ = tp3_rerun.parse_tp3_makefile(tp3 / "Makefile")
+        tp3_rerun.tracked_files(tp3)  # instantanea de TP3 no vacia antes de escribir nada
         tools = toolchain()
     except (ValueError, RuntimeError, OSError) as exc:
         raise SessionError("preflight", str(exc)) from exc
+    tools["build_stamp"] = _build_stamp(binary, tools, frozen.get("cxxflags"))
     tools["tp3_cxxflags"] = " ".join(tp3_flags)
     tools["codegen_flags_equal"] = (_codegen_flags(shlex.split(tools["tp4_cxxflags"]))
                                     == _codegen_flags(tp3_flags))
@@ -308,7 +373,7 @@ def preflight(mode, out_dir, binary, tp3_dir, data_root) -> dict:
             raise SessionError("preflight", f"smoke: {out_dir} no es {expected}")
         if out_dir.exists():
             shutil.rmtree(out_dir)
-    return {"dt": dt, "freeze": frozen, "against_git_head": against_git,
+    return {"dt": dt, "freeze": frozen, "against_git_head": against_git, "specs": specs,
             "toolchain": tools, "binary_sha256": freeze.binary_sha256(binary)}
 
 
@@ -326,9 +391,10 @@ def run_session(mode, data_root, binary, tp3_dir, n_values, seeds, study=None) -
     out_dir = _study_dir(data_root, study)
     started_utc = _utc_now()
     t_start = time.monotonic()
-    pre = preflight(mode, out_dir, binary, tp3_dir, data_root)  # no escribe nada si falla
-    dt = pre["dt"]
     n_values, seeds = tuple(int(n) for n in n_values), tuple(int(s) for s in seeds)
+    # no escribe nada si falla
+    pre = preflight(mode, out_dir, binary, tp3_dir, data_root, n_values, seeds, study)
+    dt = pre["dt"]
     print(f"sesion 2.1b mode={mode} dir={_rel(out_dir)} dt={dt:g} tf={TF:g} x0={X0:g} "
           f"init={INIT} N={list(n_values)} semillas={list(seeds)} workers=1")
     print(f"presupuesto TP4: {budget_seconds(n_values, seeds, dt) / 60.0:.1f} min a "
@@ -366,7 +432,7 @@ def run_session(mode, data_root, binary, tp3_dir, n_values, seeds, study=None) -
 
         block = "tp4"
         session["loadavg"]["before_tp4"] = _loadavg()
-        specs = build_specs(n_values, seeds, dt, study)
+        specs = pre["specs"]
         t0 = time.monotonic()
 
         def show(r: engine.RunResult) -> None:
@@ -690,11 +756,24 @@ def check_session(out_dir) -> int:
     need(bool(fr.get("frozen_digest"))
          and fr.get("before_digest") == fr.get("after_digest") == fr.get("frozen_digest"),
          "freeze: los digests frozen/before/after no coinciden")
+    # Una sesion hecha antes de re-congelar (`write --force`) ya no mide el motor actual.
+    try:
+        current = _current_freeze_digest()
+        need(fr.get("frozen_digest") == current,
+             f"freeze: la sesion uso {str(fr.get('frozen_digest'))[:12]}, el freeze actual es "
+             f"{current[:12]} (re-correr 2.1b)")
+    except (OSError, ValueError) as exc:
+        problems.append(f"freeze: no se pudo leer engine_freeze.json: {exc}")
+    need(fr.get("against_git_head") is True, "freeze: against_git_head no es true")
     b = s.get("binary") or {}
     need(bool(b.get("sha256_before")) and b.get("sha256_before") == b.get("sha256_after"),
          "binario: sha256 antes y despues distintos")
     tp3 = s.get("tp3") or {}
     need(tp3.get("unchanged") is True, "TP3: la instantanea de contenido cambio o falta")
+    # Una instantanea con solo tp3/tp3_test/CSV no prueba que las fuentes no cambiaron.
+    snap_files = (tp3.get("snapshot_before") or {}).get("files")
+    need(isinstance(snap_files, int) and snap_files > 2,
+         f"TP3: la instantanea cubre {snap_files!r} archivos (sin las fuentes versionadas)")
     official_inv = [i for i in tp3.get("invocations") or [] if i.get("tag") == "official"]
     need(len(official_inv) == 1 and official_inv[0].get("status") == "ok",
          "TP3: la invocacion oficial de benchmark.py no termino ok")

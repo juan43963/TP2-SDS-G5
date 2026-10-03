@@ -243,10 +243,12 @@ def make_session_dir(root, mode="smoke", n_values=(50, 100), seeds=(1, 2), tp3_r
         "seeds": list(seeds),
         "toolchain": {"cxx": "g++", "codegen_flags_equal": True},
         "freeze": {"frozen_digest": FREEZE_DIGEST, "before_digest": FREEZE_DIGEST,
-                   "after_digest": FREEZE_DIGEST},
+                   "after_digest": FREEZE_DIGEST, "against_git_head": True},
         "binary": {"path": "ejercicio2/billiard", "sha256_before": BIN_SHA,
                    "sha256_after": BIN_SHA},
-        "tp3": {"unchanged": True, "invocations": [{"tag": "official", "status": "ok"}]},
+        "tp3": {"unchanged": True, "invocations": [{"tag": "official", "status": "ok"}],
+                "snapshot_before": {"files": 125, "digest": "0a" * 32},
+                "snapshot_after": {"files": 125, "digest": "0a" * 32}},
         "tp4": {"counts": {"done": len(specs), "skipped": 0, "diverged": 0, "failed": 0}},
     }
     (out / "session.json").write_text(json.dumps(session), encoding="utf-8")
@@ -264,6 +266,28 @@ class CheckSessionTests(unittest.TestCase):
     def setUp(self):
         self.root = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, self.root, True)
+        patcher = mock.patch.object(st, "_current_freeze_digest", return_value=FREEZE_DIGEST)
+        self.current_digest = patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_session_before_refreeze_fails(self):
+        self.current_digest.return_value = "99" * 32
+        self.assertBroken(make_session_dir(self.root), "re-correr 2.1b")
+
+    def test_unreadable_current_freeze_fails(self):
+        self.current_digest.side_effect = OSError("falta engine_freeze.json")
+        self.assertBroken(make_session_dir(self.root), "engine_freeze.json")
+
+    def test_against_git_head_not_true_fails(self):
+        out = make_session_dir(self.root)
+        _edit_session(out, lambda d: d["freeze"].pop("against_git_head"))
+        self.assertBroken(out, "against_git_head")
+
+    def test_near_empty_tp3_snapshot_fails(self):
+        out = make_session_dir(self.root)
+        _edit_session(out, lambda d: d["tp3"].update(snapshot_before={"files": 2,
+                                                                      "digest": "0a" * 32}))
+        self.assertBroken(out, "instantanea cubre 2")
 
     def check(self, out):
         return _quiet(st.check_session, out)
@@ -387,9 +411,33 @@ class SessionGuardTests(unittest.TestCase):
 
     def _patch_ok_freeze(self):
         mock.patch.object(st, "_freeze_state", return_value={
-            "frozen_digest": FREEZE_DIGEST, "current_digest": FREEZE_DIGEST}).start()
+            "frozen_digest": FREEZE_DIGEST, "current_digest": FREEZE_DIGEST,
+            "cxxflags": _fake_toolchain()["tp4_cxxflags"]}).start()
         mock.patch.object(st, "_against_git_head", return_value=True).start()
         mock.patch.object(st, "toolchain", side_effect=_fake_toolchain).start()
+        mock.patch.object(st, "_build_stamp", return_value={"CXX": "g++"}).start()
+        mock.patch.object(st, "_current_freeze_digest", return_value=FREEZE_DIGEST).start()
+
+    def test_invalid_or_repeated_specs_fail_before_tp3(self):
+        # Antes se detectaban despues del benchmark de TP3 (una hora) con data/timing/ escrito.
+        for extra in (("--n-values", "0"), ("--seeds", "-1"), ("--seeds", "1", "1"),
+                      ("--n-values", "50", "50")):
+            with self.subTest(extra):
+                rc, _, err = self.session("--binary", sys.executable, *extra)
+                self.assertEqual(rc, 1, err)
+                self.assertIn("[preflight]", err)
+                self.assertFalse((self.root / "timing").exists())
+
+    def test_git_error_in_against_head_is_a_preflight_error(self):
+        mock.patch.object(st, "_freeze_state", return_value={
+            "frozen_digest": FREEZE_DIGEST, "current_digest": FREEZE_DIGEST}).start()
+        mock.patch.object(st.freeze, "check_against_git",
+                          side_effect=RuntimeError("no se encontro tp4/ejercicio2/Makefile")).start()
+        rc, _, err = self.session("--binary", sys.executable)
+        self.assertEqual(rc, 1)
+        self.assertIn("[preflight]", err)
+        self.assertIn("Makefile", err)
+        self.assertFalse((self.root / "timing").exists())
 
     def test_missing_binary(self):
         self._patch_ok_freeze()
@@ -429,6 +477,61 @@ class SessionGuardTests(unittest.TestCase):
         rc, out, _ = _quiet(st.check_session, self.root / "timing_smoke")
         self.assertEqual(rc, 1)
         self.assertIn("status", out)
+
+
+class BuildStampTests(unittest.TestCase):
+    """build/cxxflags.stamp contra el freeze y lo que resuelve make (WR-04)."""
+
+    FLAGS = _fake_toolchain()["tp4_cxxflags"]
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.stamp = self.tmp / "cxxflags.stamp"
+        self.binary = self.tmp / "billiard"
+
+    def write(self, cxx="g++", flags=None, binary_after=True):
+        self.stamp.write_text(f"CXX={cxx}\nCXXFLAGS={self.FLAGS if flags is None else flags}\n")
+        self.binary.write_bytes(b"\x7fELF")
+        t = self.stamp.stat().st_mtime
+        os.utime(self.binary, (t + 10, t + 10) if binary_after else (t - 10, t - 10))
+
+    def stamp_check(self, tools=None):
+        return st._build_stamp(self.binary, tools or _fake_toolchain(), self.FLAGS, self.stamp)
+
+    def test_matching_stamp(self):
+        self.write()
+        self.assertEqual(self.stamp_check(), {"CXX": "g++", "CXXFLAGS": self.FLAGS})
+
+    def test_missing_stamp(self):
+        self.binary.write_bytes(b"x")
+        with self.assertRaises(st.SessionError) as ctx:
+            self.stamp_check()
+        self.assertIn("make -C ejercicio2 billiard", str(ctx.exception))
+
+    def test_built_with_other_flags(self):
+        self.write(flags="-std=c++20 -O0 -g -Isrc/include")
+        with self.assertRaises(st.SessionError) as ctx:
+            self.stamp_check()
+        self.assertIn("-O0", str(ctx.exception))
+
+    def test_environment_cxxflags_differ_from_freeze(self):
+        self.write()
+        tools = dict(_fake_toolchain(), tp4_cxxflags="-O3")
+        with self.assertRaises(st.SessionError) as ctx:
+            self.stamp_check(tools)
+        self.assertIn("entorno", str(ctx.exception))
+
+    def test_other_compiler(self):
+        self.write(cxx="clang++")
+        with self.assertRaises(st.SessionError):
+            self.stamp_check()
+
+    def test_binary_older_than_stamp(self):
+        self.write(binary_after=False)
+        with self.assertRaises(st.SessionError) as ctx:
+            self.stamp_check()
+        self.assertIn("anterior", str(ctx.exception))
 
 
 # --------------------------------------------------------------------------- tp3_rerun
@@ -529,6 +632,37 @@ class TP3RerunTests(unittest.TestCase):
         self.assertEqual(changed["files"], 1)
         (repo / "tp3").write_text("binario\n")
         self.assertEqual(tp3_rerun.snapshot_tp3(repo)["files"], 2)
+
+    def test_snapshot_from_cwd_with_other_case(self):
+        # El indice guarda TP3/ y se pasa tp3/: antes git ls-files no listaba nada y la
+        # instantanea quedaba vacia (pero "unchanged") sin aviso.
+        if shutil.which("git") is None:
+            self.skipTest("git no disponible")
+        repo = self.tmp / "repo"
+        (repo / "TP3" / "src").mkdir(parents=True)
+        (repo / "TP3" / "src" / "a.cpp").write_text("int a;\n")
+        (repo / "TP3" / "Makefile").write_text("all:\n")
+        (repo / "other.txt").write_text("fuera de TP3\n")
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        subprocess.run(["git", "add", "TP3", "other.txt"], cwd=repo, check=True)
+        (repo / "TP3").rename(repo / "tp3")
+        self.assertEqual(tp3_rerun.tracked_files(repo / "tp3"), {"src/a.cpp", "Makefile"})
+        snap = tp3_rerun.snapshot_tp3(repo / "tp3")
+        self.assertEqual(snap["files"], 2)
+        (repo / "tp3" / "src" / "a.cpp").write_text("int b;\n")
+        self.assertNotEqual(tp3_rerun.snapshot_tp3(repo / "tp3")["digest"], snap["digest"])
+
+    def test_snapshot_without_tracked_files_raises(self):
+        if shutil.which("git") is None:
+            self.skipTest("git no disponible")
+        repo = self.tmp / "repo"
+        (repo / "TP3").mkdir(parents=True)
+        (repo / "TP3" / "tp3").write_text("binario sin versionar\n")
+        (repo / "x.txt").write_text("x\n")
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        subprocess.run(["git", "add", "x.txt"], cwd=repo, check=True)
+        with self.assertRaises(RuntimeError):
+            tp3_rerun.snapshot_tp3(repo / "TP3")
 
     def test_build_rejects_out_dir_outside_bench(self):
         with self.assertRaises(ValueError):

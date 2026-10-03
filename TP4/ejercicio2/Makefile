@@ -99,7 +99,20 @@ density:
 density-replot:
 	$(PY) python/study_density.py --replot $(DENSITY_ARGS)
 
-$(BUILD)/%.o: $(SRC)/%.cpp
+# make no recompila si cambian los flags, y `CXXFLAGS ?=` toma el valor del entorno: el
+# stamp guarda CXX y CXXFLAGS de la ultima compilacion y se reescribe solo cuando cambian,
+# asi los objetos se recompilan y study_timing.py puede verificar con que flags se compilo.
+FLAGS_STAMP := $(BUILD)/cxxflags.stamp
+
+$(FLAGS_STAMP): FORCE
+	@mkdir -p $(dir $@)
+	@printf '%s\n' 'CXX=$(CXX)' 'CXXFLAGS=$(CXXFLAGS)' > $@.tmp
+	@if cmp -s $@.tmp $@; then rm -f $@.tmp; else mv -f $@.tmp $@; fi
+
+.PHONY: FORCE
+FORCE:
+
+$(BUILD)/%.o: $(SRC)/%.cpp $(FLAGS_STAMP)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -MMD -MP -c -o $@ $<
 

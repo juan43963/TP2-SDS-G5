@@ -6,7 +6,9 @@ de conversiones que guardan las corridas del estudio de tiempos 2.1b (`data/timi
 o el estudio que se pase con --timing-study). Cada subdirectorio con nombre
 `N<N>_..._seed<s>` se lee con los lectores estrictos de tp4io (summary.txt y
 conversions.txt) y se valida antes de usarse: obstaculos en x0 = r, red hexagonal,
-tf = 30 s sin corte temprano, dt = dt*. Cualquier violacion aborta el estudio.
+tf = 30 s sin corte temprano, dt = dt*. Ademas las corridas tienen que ser exactamente
+las (N, semilla) de `session.json`, con status ok y el freeze actual. Cualquier violacion
+aborta el estudio.
 
 Por corrida: k90 = (9N + 9) // 10 (el umbral entero del motor), t90 = tiempo de la
 conversion k90, t100 = tiempo de la conversion N y Fu(30 s) = usadas / N. Un umbral
@@ -41,6 +43,7 @@ import numpy as np  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import dt_star  # noqa: E402
+import freeze  # noqa: E402  (solo lee engine_freeze.json; nunca compila ni simula)
 import plot_style  # noqa: E402
 import tp4io  # noqa: E402
 
@@ -190,6 +193,41 @@ def validate_run(summary, conv, run_dir) -> None:
                   f"{conv.used} conversiones")
 
 
+def check_timing_session(timing_dir, entries, freeze_path) -> dict:
+    """Exige que las corridas sean exactamente las de una sesion 2.1b terminada (status ok)
+    hecha con el motor que congela hoy engine_freeze.json; ValueError si no.
+
+    Sin esto, una sesion abortada en postflight, lanzada con otros N o semillas, o anterior
+    a un re-congelamiento pasaba igual porque cada corrida por separado es valida.
+    """
+    path = Path(timing_dir) / "session.json"
+    try:
+        session = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"{path}: no se pudo leer ({exc}); 2.4a solo reutiliza una sesion "
+                         "2.1b completa (`make timing-session` y `make timing-check`)") from exc
+    if not isinstance(session, dict) or session.get("status") != "ok":
+        status = session.get("status") if isinstance(session, dict) else None
+        raise ValueError(f"{path}: status = {status!r} (la sesion 2.1b no termino ok)")
+    used = (session.get("freeze") or {}).get("frozen_digest")
+    current = freeze.read_freeze(freeze_path)["digest"]
+    if used != current:
+        raise ValueError(f"{path}: la sesion uso el freeze {str(used)[:12]} y el actual es "
+                         f"{current[:12]}; re-correr 2.1b antes de 2.4a")
+    try:
+        expected = {(int(n), int(s)) for n in session.get("n_values") or []
+                    for s in session.get("seeds") or []}
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{path}: n_values o seeds invalidos ({exc})") from exc
+    found = {(summary.header.N, summary.header.seed) for _, summary, _ in entries}
+    if not expected or found != expected:
+        missing, extra = sorted(expected - found), sorted(found - expected)
+        raise ValueError(f"{timing_dir}: las corridas no son las de session.json "
+                         f"(faltan {len(missing)}: {missing[:5]}; sobran {len(extra)}: "
+                         f"{extra[:5]})")
+    return session
+
+
 def check_runs(entries, min_seeds: int) -> None:
     """Chequeos entre corridas: mismo R y r, sin (N, semilla) repetidos, semillas minimas.
 
@@ -287,6 +325,8 @@ def optimum(summary_rows, key: str) -> dict:
     edge: el minimo esta en el menor o mayor N completo. distinct: la diferencia con
     cada vecino completo (en la lista ordenada de puntos completos) supera
     sqrt(sigma^2 + sigma_vecino^2); False si no hay vecinos o algun sigma es NaN.
+    censored_challengers: N parciales cuya cota inferior ya es menor que el minimo; si
+    no esta vacia el optimo es solo entre puntos completos y no queda establecido.
     """
     if key not in KEYS:
         raise ValueError(f"key={key!r}: debe ser t90 o t100")
@@ -314,6 +354,9 @@ def optimum(summary_rows, key: str) -> dict:
         "distinct": bool(neighbours) and all(separated(o) for o in neighbours),
         "n_complete": len(complete),
         "neighbours": [int(o["N"]) for o in neighbours],
+        "censored_challengers": sorted(
+            int(r["N"]) for r in summary_rows
+            if r[f"{key}_status"] == "partial" and r[f"{key}_lower"] < best[f"{key}_mean"]),
     }
 
 
@@ -438,7 +481,9 @@ def plot_times(summary_rows, opt, tf: float, stem) -> None:
     if "N" in best:
         ax.plot([best["rho"]], [best["mean"]], marker="*", markersize=24, color="C3",
                 linestyle="none", zorder=5)
-        ax.annotate("óptimo", (best["rho"], best["mean"]), textcoords="offset points",
+        text = ("óptimo (entre puntos completos)" if best.get("censored_challengers")
+                else "óptimo")
+        ax.annotate(text, (best["rho"], best["mean"]), textcoords="offset points",
                     xytext=(12, -28))
     ax.set_xlabel(_density_label())
     ax.set_ylabel(plot_style.axis_label("Tiempo", "s"))
@@ -511,9 +556,14 @@ def _optimum_line(key: str, opt: dict) -> str:
     if "none" in opt:
         return f"optimum: {key} none ({opt['none']})"
     sigma = f"{opt['sigma']:.4g}" if math.isfinite(opt["sigma"]) else "nan"
-    return (f"optimum: {key} N={opt['N']} rho={opt['rho']:.2f} m^-2 phi={opt['phi']:.4f} "
+    challengers = opt.get("censored_challengers") or []
+    line = (f"optimum: {key} N={opt['N']} rho={opt['rho']:.2f} m^-2 phi={opt['phi']:.4f} "
             f"mean={opt['mean']:.4g} s sigma={sigma} s edge={opt['edge']} "
             f"distinct={opt['distinct']} complete_points={opt['n_complete']}")
+    if challengers:
+        line += (f" censored_challengers={challengers} (optimo solo entre puntos completos: "
+                 "esos N censurados ya tienen cota inferior menor)")
+    return line
 
 
 def report_and_plot(out_dir) -> int:
@@ -556,6 +606,8 @@ def _build_parser() -> argparse.ArgumentParser:
                         help="semillas minimas por N (default 10; 2 para el smoke)")
     parser.add_argument("--replot", action="store_true",
                         help="regenera figuras, tabla y optimo desde summary.csv")
+    parser.add_argument("--freeze-file", default=str(freeze.FREEZE_PATH),
+                        help="registro de freeze contra el que se valida la sesion (tests)")
     return parser
 
 
@@ -576,6 +628,7 @@ def main(argv=None) -> int:
             validate_run(summary, conv, run_dir)
             entries.append((run_dir, summary, conv))
         check_runs(entries, args.min_seeds)
+        check_timing_session(timing_dir, entries, args.freeze_file)
         rows = [run_observables(summary, conv) for _, summary, conv in entries]
         rows.sort(key=lambda r: (r["N"], r["seed"]))
         print(f"runs: {len(rows)} from {timing_dir}")

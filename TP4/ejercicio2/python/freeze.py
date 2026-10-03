@@ -4,7 +4,10 @@ Que se congela: el sha256 de cada archivo `.cpp`/`.h` bajo `ejercicio2/src` (cod
 test incluido), con CRLF normalizado a LF para que el resultado no dependa de la maquina
 ni de la configuracion de fin de linea de git, mas el valor literal de la linea
 `CXXFLAGS ?=` del Makefile. Todo eso se resume en un digest combinado y se guarda en
-`ejercicio2/engine_freeze.json`, que va versionado junto al codigo.
+`ejercicio2/engine_freeze.json`, que va versionado junto al codigo. Ademas el Makefile se
+rechaza si redefine CXXFLAGS por otra via (`+=`, `override`, `export`, variables por
+objetivo), define CPPFLAGS/LDFLAGS/LDLIBS o cambia las recetas del compilador; eso no
+entra en el digest (no invalida el freeze existente).
 
 Por que: los tiempos de 2.1b (TP4 contra TP3) solo valen para el motor que se midio, y
 los barridos de la Fase 5 tienen que usar ese mismo motor. El freeze se escribe una sola
@@ -25,6 +28,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -60,7 +64,40 @@ def source_fingerprint(root=EJ2_DIR) -> dict[str, str]:
     return dict(sorted(files.items()))
 
 
+# El digest solo cubre `CXXFLAGS ?=`; estas reglas rechazan las otras formas de cambiar
+# como se compila el motor sin tocar esa linea (sin cambiar el digest ya congelado).
+_ASSIGN_OPS = r"(?:\+=|:::=|::=|:=|\?=|!=|=)"
+_CXXFLAGS_ASSIGN_RE = re.compile(r"\bCXXFLAGS\s*" + _ASSIGN_OPS)
+_CXXFLAGS_DIRECTIVE_RE = re.compile(r"\b(?:override|export|unexport|undefine)\b.*\bCXXFLAGS\b")
+_IMPLICIT_FLAGS_RE = re.compile(r"\b(?:CPPFLAGS|LDFLAGS|LDLIBS|TARGET_ARCH)\s*" + _ASSIGN_OPS)
+_COMPILER_RECIPES = ("$(CXX) $(CXXFLAGS) -o $@ $^", "$(CXX) $(CXXFLAGS) -MMD -MP -c -o $@ $<")
+
+
+def _check_build_lines(text: str, where: str) -> None:
+    """ValueError si el Makefile cambia flags o recetas del compilador fuera de `CXXFLAGS ?=`."""
+    joined = re.sub(r"\\\r?\n", " ", text)
+    for raw in joined.splitlines():
+        if raw.startswith("\t"):
+            recipe = " ".join(raw.strip().lstrip("@+-").split())
+            if recipe.startswith(("$(CXX)", "${CXX}")) and recipe not in _COMPILER_RECIPES:
+                raise ValueError(f"{where}: receta del compilador no reconocida {recipe!r} "
+                                 f"(se admiten {list(_COMPILER_RECIPES)})")
+            continue
+        line = raw.split("#", 1)[0].strip()
+        if not line:
+            continue
+        if line.startswith("CXXFLAGS") and line.partition("?=")[0].strip() == "CXXFLAGS":
+            continue  # la unica linea congelada; _cxxflags_from_text exige que sea una sola
+        if _CXXFLAGS_ASSIGN_RE.search(line) or _CXXFLAGS_DIRECTIVE_RE.search(line):
+            raise ValueError(f"{where}: CXXFLAGS solo puede definirse con la linea "
+                             f"`CXXFLAGS ?= ...`; linea rechazada: {line!r}")
+        if _IMPLICIT_FLAGS_RE.search(line):
+            raise ValueError(f"{where}: el motor no usa CPPFLAGS/LDFLAGS/LDLIBS/TARGET_ARCH y el "
+                             f"freeze no los cubre; linea rechazada: {line!r}")
+
+
 def _cxxflags_from_text(text: str, where: str) -> str:
+    _check_build_lines(text, where)
     lines = [line for line in text.splitlines() if line.startswith("CXXFLAGS")]
     if len(lines) != 1:
         raise ValueError(f"{where}: se esperaba exactamente una linea CXXFLAGS, hay {len(lines)}")
@@ -183,6 +220,35 @@ def _resolve_rev(rev: str, root: Path) -> str:
     return sha
 
 
+def _git_text(args: list[str], root: Path) -> str:
+    res = _git(args, root)
+    if res.returncode != 0:
+        raise RuntimeError(f"git {' '.join(args[:2])} fallo: "
+                           f"{res.stderr.decode('utf-8', 'replace').strip()}")
+    return res.stdout.decode("utf-8")
+
+
+def _tree_prefix(sha: str, root: Path) -> tuple[str, list[str]]:
+    """(prefijo de root tal como esta escrito en el arbol de sha, listado completo del arbol).
+
+    git calcula el prefijo del cwd recortando la ruta textual: en un montaje que no
+    distingue mayusculas (WSL /mnt/c) `.../tp4/ejercicio2` da `tp4/ejercicio2/` aunque el
+    arbol guarde `TP4/ejercicio2/`, y ni las pathspecs ni `<rev>:<ruta>` lo corrigen. Por
+    eso se busca el Makefile en el listado completo, sin distinguir mayusculas.
+    """
+    prefix = _git_text(["rev-parse", "--show-prefix"], root).strip()
+    names = [n for n in _git_text(["ls-tree", "-r", "--name-only", "-z", "--full-tree", sha],
+                                  root).split("\0") if n]
+    want = prefix + "Makefile"
+    if want in names:
+        return prefix, names
+    hits = sorted({n[: -len("Makefile")] for n in names if n.lower() == want.lower()})
+    if len(hits) != 1:
+        raise RuntimeError(f"no se encontro {want} en {sha[:12]} (prefijo calculado por git: "
+                           f"{prefix!r}; candidatos: {hits})")
+    return hits[0], names
+
+
 def check_against_git(rev, path=FREEZE_PATH, root=EJ2_DIR) -> tuple[bool, list[str]]:
     """Compara el registro congelado con los blobs .cpp/.h de src/ (y el Makefile) en REV."""
     path, root = Path(path), Path(root)
@@ -191,22 +257,25 @@ def check_against_git(rev, path=FREEZE_PATH, root=EJ2_DIR) -> tuple[bool, list[s
     frozen = read_freeze(path)
     sha = _resolve_rev(rev, root)
     # Se listan los archivos de REV (ls-tree) y no los del indice (ls-files): asi un
-    # archivo agregado al indice pero sin commitear aparece como diferencia.
-    listed = _git(["ls-tree", "-r", "--name-only", "-z", sha, "--", "src"], root)
-    if listed.returncode != 0:
-        raise RuntimeError(f"git ls-tree fallo: {listed.stderr.decode('utf-8', 'replace').strip()}")
+    # archivo agregado al indice pero sin commitear aparece como diferencia. Las rutas
+    # son las del arbol completo (prefijo canonico), no relativas al cwd.
+    prefix, names = _tree_prefix(sha, root)
     files = {}
-    for rel in listed.stdout.decode("utf-8").split("\0"):
-        if not rel or not _is_source(rel):
+    for full in names:
+        if not full.startswith(prefix + "src/") or not _is_source(full):
             continue
-        blob = _git(["show", f"{sha}:./{rel}"], root)
+        blob = _git(["show", f"{sha}:{full}"], root)
         if blob.returncode != 0:
-            raise RuntimeError(f"git show {sha[:12]}:./{rel} fallo: "
+            raise RuntimeError(f"git show {sha[:12]}:{full} fallo: "
                                f"{blob.stderr.decode('utf-8', 'replace').strip()}")
-        files[rel] = _normalized_sha256(blob.stdout)
-    makefile = _git(["show", f"{sha}:./Makefile"], root)
+        files[full[len(prefix):]] = _normalized_sha256(blob.stdout)
+    if not files:
+        raise RuntimeError(f"{sha[:12]}:{prefix}src no tiene fuentes .cpp/.h "
+                           f"(prefijo {prefix!r})")
+    makefile = _git(["show", f"{sha}:{prefix}Makefile"], root)
     if makefile.returncode != 0:
-        return False, [f"Makefile ausente en {sha[:12]}"]
+        raise RuntimeError(f"git show {sha[:12]}:{prefix}Makefile fallo: "
+                           f"{makefile.stderr.decode('utf-8', 'replace').strip()}")
     cxxflags = _cxxflags_from_text(makefile.stdout.decode("utf-8"), f"{sha[:12]}:Makefile")
     committed = {"files": dict(sorted(files.items())), "cxxflags": cxxflags,
                  "digest": combined_digest(files, cxxflags)}

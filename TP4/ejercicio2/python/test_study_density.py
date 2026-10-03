@@ -76,14 +76,38 @@ def run_main(*args):
     return rc, out.getvalue(), err.getvalue()
 
 
-def srow(N, key_status, mean=math.nan, sigma=math.nan, rho=None):
+def srow(N, key_status, mean=math.nan, sigma=math.nan, rho=None, lower=math.nan):
     """Fila de summary minima para optimum()."""
     row = {"N": N, "rho": float(N if rho is None else rho), "phi": 0.001 * N}
     for key in sd.KEYS:
         row[f"{key}_status"] = key_status
         row[f"{key}_mean"] = mean
         row[f"{key}_sigma"] = sigma
+        row[f"{key}_lower"] = lower
     return row
+
+
+FREEZE_DIGEST = "24" * 32
+
+
+def write_freeze_record(path, digest=FREEZE_DIGEST):
+    """engine_freeze.json minimo para read_freeze (nunca el registro real)."""
+    Path(path).write_text(json.dumps({"files": {}, "cxxflags": "-O2", "digest": digest}),
+                          encoding="utf-8")
+    return Path(path)
+
+
+def write_session(timing_dir, *, status="ok", digest=FREEZE_DIGEST, n_values=None,
+                  seeds=None):
+    """session.json de 2.1b; por defecto N y semillas salen de los directorios presentes."""
+    timing_dir = Path(timing_dir)
+    keys = [tuple(map(int, m.groups())) for p in timing_dir.iterdir()
+            if p.is_dir() and (m := sd.RUN_DIR_RE.fullmatch(p.name))]
+    session = {"status": status, "mode": "smoke",
+               "n_values": sorted({n for n, _ in keys}) if n_values is None else list(n_values),
+               "seeds": sorted({s for _, s in keys}) if seeds is None else list(seeds),
+               "freeze": {"frozen_digest": digest}}
+    (timing_dir / "session.json").write_text(json.dumps(session), encoding="utf-8")
 
 
 class TempStudy(unittest.TestCase):
@@ -92,6 +116,7 @@ class TempStudy(unittest.TestCase):
         self.root = Path(self._tmp.name)
         self.timing = self.root / TIMING
         self.timing.mkdir()
+        self.freeze = write_freeze_record(self.root / "engine_freeze.json")
 
     def tearDown(self):
         self._tmp.cleanup()
@@ -101,9 +126,12 @@ class TempStudy(unittest.TestCase):
             for s in seeds:
                 write_run(self.timing, n, s, ramp(n - 2 + s, 20.0 + s))
 
-    def analyze(self, min_seeds=2):
+    def analyze(self, min_seeds=2, session=True):
+        if session and not (self.timing / "session.json").exists():
+            write_session(self.timing)
         return run_main("--data-root", str(self.root), "--timing-study", TIMING,
-                        "--study", DENSITY, "--min-seeds", str(min_seeds))
+                        "--study", DENSITY, "--min-seeds", str(min_seeds),
+                        "--freeze-file", str(self.freeze))
 
     def assert_refused(self, bad_dir, min_seeds=2):
         rc, _, err = self.analyze(min_seeds)
@@ -199,8 +227,37 @@ class ValidationTests(TempStudy):
                   "figures/t90_t100_vs_density.pdf", "figures/success_fu_vs_density.png",
                   "figures/success_fu_vs_density.pdf"):
             self.assertTrue((self.root / DENSITY / f).is_file(), f)
-        # El estudio 2.1b queda intacto: solo los 4 directorios de corrida.
-        self.assertEqual(len(list(self.timing.iterdir())), 4)
+        # El estudio 2.1b queda intacto: solo los 4 directorios de corrida y session.json.
+        self.assertEqual(sorted(p.name for p in self.timing.iterdir() if not p.is_dir()),
+                         ["session.json"])
+        self.assertEqual(len([p for p in self.timing.iterdir() if p.is_dir()]), 4)
+
+    def assert_session_refused(self, fragment):
+        rc, _, err = self.analyze(session=False)
+        self.assertEqual(rc, 1, err)
+        self.assertIn("error:", err)
+        self.assertIn(fragment, err)
+        self.assertFalse((self.root / DENSITY / "summary.csv").exists())
+
+    def test_rejects_missing_session(self):
+        self.assert_session_refused("session.json")
+
+    def test_rejects_aborted_session(self):
+        write_session(self.timing, status="aborted")
+        self.assert_session_refused("aborted")
+
+    def test_rejects_session_from_other_freeze(self):
+        write_session(self.timing, digest="99" * 32)
+        self.assert_session_refused("re-correr 2.1b")
+
+    def test_rejects_session_with_missing_n(self):
+        # Una sesion con N = 50, 100, 150 de la que falta todo N = 150.
+        write_session(self.timing, n_values=(50, 100, 150))
+        self.assert_session_refused("faltan 2")
+
+    def test_rejects_runs_outside_session(self):
+        write_session(self.timing, seeds=(1,))
+        self.assert_session_refused("sobran 2")
 
     def test_rejects_other_dt(self):
         self.assert_refused(write_run(self.timing, 150, 1, ramp(140, 20.0), dt="0.0001"))
@@ -291,6 +348,20 @@ class OptimumTests(unittest.TestCase):
         self.assertTrue(opt["edge"])
         self.assertFalse(opt["distinct"])  # sin vecinos completos
 
+    def test_censored_point_below_optimum_is_flagged(self):
+        rows = [srow(50, "all", 25.0, 0.5), srow(100, "partial", lower=14.7),
+                srow(150, "partial", lower=28.0)]
+        opt = sd.optimum(rows, "t90")
+        self.assertEqual(opt["N"], 50)
+        self.assertEqual(opt["censored_challengers"], [100])
+        self.assertIn("censored_challengers=[100]", sd._optimum_line("t90", opt))
+
+    def test_no_challengers_line_unchanged(self):
+        rows = [srow(50, "all", 10.0, 0.5), srow(100, "partial", lower=14.7)]
+        opt = sd.optimum(rows, "t90")
+        self.assertEqual(opt["censored_challengers"], [])
+        self.assertNotIn("censored_challengers", sd._optimum_line("t90", opt))
+
     def test_no_complete_point(self):
         opt = sd.optimum([srow(50, "partial"), srow(100, "none")], "t90")
         self.assertEqual(set(opt), {"none"})
@@ -305,6 +376,7 @@ class ReplotTests(TempStudy):
         for f in ("runs.csv", "optimum.json", "figures/t90_t100_vs_density.png",
                   "figures/success_fu_vs_density.png"):
             (out_dir / f).unlink()
+        (self.timing / "session.json").unlink()
         for run in list(self.timing.iterdir()):
             for f in run.iterdir():
                 f.unlink()
@@ -358,8 +430,9 @@ class NoSimulationTest(unittest.TestCase):
             self.assertNotIn(forbidden, modules)
         for forbidden in ("run_batch", "execute_run", "system", "popen"):
             self.assertNotIn(forbidden, names)
+        # freeze solo se usa para leer engine_freeze.json (read_freeze), nunca para compilar.
         allowed = set(sys.stdlib_module_names) | {"numpy", "matplotlib", "dt_star", "plot_style",
-                                                  "tp4io"}
+                                                  "tp4io", "freeze"}
         self.assertEqual(modules - allowed, set())
 
 
@@ -378,8 +451,11 @@ class RealEngineIntegrationTest(unittest.TestCase):
                      for s in (1, 2) for n in (20, 30)]
             report = engine.run_batch(specs, binary=BINARY, data_root=tmp, workers=1)
             self.assertEqual([r.status for r in report.results], ["done"] * 4)
+            write_session(Path(tmp) / "timing", n_values=(20, 30), seeds=(1, 2))
+            frozen = write_freeze_record(Path(tmp) / "engine_freeze.json")
             rc, out, err = run_main("--data-root", tmp, "--timing-study", "timing",
-                                    "--study", "density", "--min-seeds", "2")
+                                    "--study", "density", "--min-seeds", "2",
+                                    "--freeze-file", str(frozen))
             self.assertEqual(rc, 0, err)
             self.assertIn("optimum: t90", out)
             summary = sd.read_summary_csv(Path(tmp) / "density" / "summary.csv")

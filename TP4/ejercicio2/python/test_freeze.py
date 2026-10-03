@@ -77,6 +77,38 @@ class FingerprintTest(unittest.TestCase):
             mk.write_text(f"CXXFLAGS ?= {FLAGS}  \r\n")
             self.assertEqual(freeze.makefile_cxxflags(mk), FLAGS)
 
+    def test_other_ways_of_changing_the_build_are_rejected(self):
+        base = (f"CXX ?= c++\nCXXFLAGS ?= {FLAGS}\n"
+                "billiard: a.o\n\t$(CXX) $(CXXFLAGS) -o $@ $^\n"
+                "build/%.o: src/%.cpp\n\t@mkdir -p $(dir $@)\n"
+                "\t$(CXX) $(CXXFLAGS) -MMD -MP -c -o $@ $<\n"
+                "print:\n\t@echo \"CXXFLAGS=$(CXXFLAGS)\"\n"
+                "strict:\n\t$(MAKE) all CXXFLAGS=\"$(CXXFLAGS) -Werror\"\n"
+                "# comentario: CXXFLAGS = no cuenta\n")
+        with tempfile.TemporaryDirectory() as d:
+            mk = Path(d) / "Makefile"
+            mk.write_text(base)
+            self.assertEqual(freeze.makefile_cxxflags(mk), FLAGS)
+            bad = {
+                "+=": base + "CXXFLAGS += -O3\n",
+                "override": base + "override CXXFLAGS += -ffast-math\n",
+                "export": base + "export CXXFLAGS\n",
+                "por objetivo": base + "billiard: CXXFLAGS += -O3\n",
+                "continuacion": base + "billiard: \\\n  CXXFLAGS := -O3\n",
+                "LDFLAGS": base + "LDFLAGS := -static\n",
+                "CPPFLAGS": base + "CPPFLAGS += -DNDEBUG\n",
+                "receta link": base.replace("-o $@ $^", "-O3 -o $@ $^"),
+                "receta compile": base.replace("-MMD -MP -c", "-ffast-math -MMD -MP -c"),
+            }
+            for name, text in bad.items():
+                with self.subTest(name):
+                    mk.write_text(text)
+                    with self.assertRaises(ValueError):
+                        freeze.makefile_cxxflags(mk)
+
+    def test_real_makefile_passes_build_line_rules(self):
+        self.assertTrue(freeze.makefile_cxxflags(freeze.EJ2_DIR / "Makefile"))
+
 
 class CompareTest(unittest.TestCase):
     def setUp(self):
@@ -248,6 +280,55 @@ class AgainstGitTest(unittest.TestCase):
         freeze.write_freeze(self.path, root=self.root)
         ok, msgs = freeze.check_against_git("HEAD", self.path, self.root)
         self.assertTrue(ok, msgs)
+
+    def test_cwd_with_other_case_than_tree_uses_tree_prefix(self):
+        # El arbol guarda EJ2/ y se trabaja desde ej2/: git calcula el prefijo `ej2/`, que
+        # no existe en el arbol (lo que pasa en WSL /mnt/c con .../tp4 en vez de .../TP4).
+        repo = self.repo / "case"
+        make_tree(repo / "EJ2")
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True, capture_output=True)
+        git = ["git", "-c", "core.autocrlf=false", "-c", "core.hooksPath=/dev/null",
+               "-c", "user.name=test", "-c", "user.email=test@example.invalid",
+               "-c", "commit.gpgsign=false"]
+        subprocess.run([*git, "add", "EJ2"], cwd=repo, check=True, capture_output=True)
+        subprocess.run([*git, "commit", "-q", "-m", "v1"], cwd=repo, check=True,
+                       capture_output=True)
+        (repo / "EJ2").rename(repo / "ej2")
+        root = repo / "ej2"
+        prefix = subprocess.run(["git", "rev-parse", "--show-prefix"], cwd=root, check=True,
+                                capture_output=True, text=True).stdout.strip()
+        self.assertEqual(prefix, "ej2/")  # el caso que antes rompia la compuerta
+        path = root / "engine_freeze.json"
+        freeze.write_freeze(path, root=root)
+        ok, msgs = freeze.check_against_git("HEAD", path, root)
+        self.assertTrue(ok, msgs)
+        (root / "src/a/forces.cpp").write_text("int f() {\n    return 9;\n}\n")
+        subprocess.run([*git, "add", "-A"], cwd=repo, check=True, capture_output=True)
+        subprocess.run([*git, "commit", "-q", "-m", "v2"], cwd=repo, check=True,
+                       capture_output=True)
+        ok, msgs = freeze.check_against_git("HEAD", path, root)
+        self.assertFalse(ok)
+        self.assertTrue(any("cambiado: src/a/forces.cpp" in m for m in msgs), msgs)
+
+    def test_rev_without_sources_raises(self):
+        freeze.write_freeze(self.path, root=self.root)
+        self.git("rm", "-r", "-q", "--cached", "ej2/src")
+        self.git("-c", "user.name=test", "-c", "user.email=test@example.invalid",
+                 "-c", "commit.gpgsign=false", "commit", "-q", "-m", "sin fuentes")
+        with self.assertRaises(RuntimeError) as ctx:
+            freeze.check_against_git("HEAD", self.path, self.root)
+        self.assertIn("no tiene fuentes", str(ctx.exception))
+        code, _, err = run_main(["--root", str(self.root), "check", "--against-git", "HEAD"])
+        self.assertEqual(code, 1)
+        self.assertTrue(err.startswith("error:"), err)
+
+    def test_rev_without_makefile_at_prefix_raises(self):
+        freeze.write_freeze(self.path, root=self.root)
+        other = self.repo / "other"
+        other.mkdir()
+        with self.assertRaises(RuntimeError) as ctx:
+            freeze.check_against_git("HEAD", self.path, other)
+        self.assertIn("no se encontro other/Makefile", str(ctx.exception))
 
     def test_option_like_or_unknown_rev_is_rejected(self):
         freeze.write_freeze(self.path, root=self.root)

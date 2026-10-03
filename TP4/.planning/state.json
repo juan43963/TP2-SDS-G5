@@ -21,7 +21,7 @@
     {
       "number": "4",
       "name": "Tiempos vs TP3 (2.1b) y densidad (2.4a)",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "5",
@@ -36,8 +36,8 @@
   ],
   "next": {
     "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 04 of 6 · 0% · executing"
+    "label": "Advance to the next step (plan phase 1)",
+    "reason": "Phase 1 of 6 — needs a plan"
   },
-  "updated_at": "2026-10-02T23:01:52.162Z"
+  "updated_at": "2026-10-03T06:40:29.331Z"
 }

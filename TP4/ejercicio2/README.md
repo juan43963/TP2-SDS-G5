@@ -334,7 +334,51 @@ make timing-check TIMING_ARGS="--study timing_smoke"   # TIMING_ARGS pasa opcion
   El smoke medido en WSL (Ryzen 7 9800X3D) dio 12 a 15 ns por partícula-paso a N = 50 y 100, y la sesión completa de smoke tardó 14 s.
 - **Guardas.** El modo oficial nunca borra nada y se niega a arrancar si `data/timing/` existe y no está vacío. `--smoke` borra solo `data/timing_smoke/`. Si falla el preflight no se escribe nada. Si algo falla después, `session.json` queda con `status: aborted` y el bloque (`tp3_build`, `tp3_benchmark`, `tp4` o `postflight`), y el comando sale con 1. `session.json` guarda rutas relativas a `TP4/` y no guarda hostname ni usuario.
 - **Después de una caída:** mover el directorio a un costado (`mv ejercicio2/data/timing ejercicio2/data/timing_old_<fecha>`) y relanzar **la sesión completa**. Nunca se mezclan corridas de dos sesiones.
+- **Ruta con mayúsculas exactas.** Lanzar la sesión desde `/mnt/c/Users/Lucas Di Candia/Desktop/SDS/TP2-SDS-G5/TP4` (con `TP4` en mayúsculas). `/mnt/c` no distingue mayúsculas, pero git sí: desde `.../tp4` el preflight (`check --against-git HEAD`, que pide `git show <sha>:./Makefile`) falla con `Makefile ausente en <sha>` y aborta sin escribir datos.
 - **Regla:** cualquier cambio del motor a partir de ahora rompe `make freeze-check`, y la sesión de 2.1b hay que re-correrla entera.
+
+#### Resultados de la sesión oficial (2026-10-03T06:10:37Z)
+
+Fuente: `ejercicio2/data/timing/session.json` (`mode: official`, `status: ok`, `workers: 1`) y las tablas que imprime `make timing-replot`. `make timing-check` da `SESSION OK mode=official runs=130 tp3_rows=8 freeze=243554eb37b6 binary=96bf9ec06276`: las 8 filas de TP3 son las 6 oficiales más las extensiones N = 300 y 400.
+
+- **Máquina:** AMD Ryzen 7 9800X3D (8 núcleos, 16 hilos), WSL2 Ubuntu-24.04 (`Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39`), Python 3.12.3.
+- **Compilador:** `g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0`, `CXXFLAGS` idénticos en TP3 y TP4 (`-std=c++20 -O2 -Wall -Wextra -Wpedantic -Wconversion`, `codegen_flags_equal: true`).
+- **Motor:** freeze `243554eb37b6` (`frozen_digest` = `before_digest` = `after_digest`, verificado también contra `HEAD` = `7b0b707ecd9e`). El sha256 del binario TP4 no cambió durante la sesión (`96bf9ec06276…`). TP3 quedó intacto (`tp3.unchanged: true`, misma instantánea de 125 archivos antes y después).
+- **Duración:** de 2026-10-03T05:59:53Z a 06:10:37Z, 644 s en total (10.7 min, dentro del presupuesto de 10 a 12 min). Por bloque: compilación de TP3 6 s, benchmark de TP3 177 s (oficial 77 s, extensión N = 300 23 s, extensión N = 400 77 s), barrido de TP4 458 s y postflight 0.6 s.
+- **Carga (loadavg 1/5/15 min):** antes de TP3 0.15 / 0.03 / 0.01; antes de TP4 0.96 / 0.49 / 0.20; al final 1.01 / 0.92 / 0.53. Un valor cercano a 1 es el propio proceso serie: la máquina estaba ociosa.
+- **TP4:** 130 corridas (`done` 130; 0 salteadas, 0 divergidas y 0 fallidas). x0 = r = 0.0175 m, dt = dt* = 5e-5 s, tf = 30 s (600 000 pasos), red hexagonal y semillas 1 a 10 por N.
+- **TP3:** inciso 1.1 sin modificar (mesa vacía, tmax = 30 s, 100 semillas por N) más N = 300 y 400 con 10 semillas. Las tres invocaciones terminaron con `ok`: el generador de TP3 pudo ubicar N = 400, así que no apareció `generator_limit`.
+
+Media ± σ muestral, redondeadas a la primera cifra significativa de σ. El costo por partícula y por paso es simulation_ms / (N · pasos).
+
+| N | TP4 ⟨t⟩ (s) | TP4 costo por partícula-paso (ns) | TP3 ⟨t⟩ (s) | corridas TP3 |
+|---|-------------|-----------------------------------|-------------|--------------|
+| 25 | — | — | (9.7 ± 0.7)·10⁻⁴ | 100 |
+| 50 | 0.46 ± 0.01 | 15.2 ± 0.3 | (6.3 ± 0.4)·10⁻³ | 100 |
+| 75 | — | — | (2.02 ± 0.08)·10⁻² | 100 |
+| 100 | 0.77 ± 0.02 | 12.8 ± 0.4 | (4.9 ± 0.4)·10⁻² | 100 |
+| 150 | 1.12 ± 0.02 | 12.4 ± 0.3 | 0.179 ± 0.006 | 100 |
+| 200 | 1.53 ± 0.02 | 12.7 ± 0.2 | 0.48 ± 0.01 | 100 |
+| 250 | 1.96 ± 0.03 | 13.1 ± 0.2 | — | — |
+| 300 | 2.46 ± 0.06 | 13.6 ± 0.3 | 2.23 ± 0.04 | 10 |
+| 350 | 3.02 ± 0.07 | 14.4 ± 0.3 | — | — |
+| 400 | 3.63 ± 0.06 | 15.1 ± 0.2 | 7.6 ± 0.1 | 10 |
+| 450 | 4.29 ± 0.07 | 15.9 ± 0.3 | — | — |
+| 500 | 5.1 ± 0.1 | 16.9 ± 0.3 | — | — |
+| 550 | 5.91 ± 0.08 | 17.9 ± 0.2 | — | — |
+| 600 | 6.81 ± 0.08 | 18.9 ± 0.2 | — | — |
+| 650 | 7.9 ± 0.1 | 20.2 ± 0.3 | — | — |
+
+- **Pendientes log-log** (mínimos cuadrados sobre las medias, solo como texto, guardadas en `scaling.json`): TP4 1.136 (13 puntos, N = 50 a 650); TP3 3.221 (8 puntos, N = 25 a 400).
+- **Cruce:** TP3 es más rápido hasta N = 300 (2.23 s contra 2.46 s) y más lento en N = 400 (7.6 s contra 3.63 s). La interpolación log-log entre esos dos N comunes da un cruce en N ≈ 310.
+- **Costo por partícula-paso:** no es plano. Baja de 15.2 ns en N = 50 a un mínimo de 12.4 ns en N = 150 y sube hasta 20.2 ns en N = 650 (un 60 % más). Por eso la pendiente de TP4 es 1.14 y no 1, pero queda muy lejos del crecimiento de TP3. Dos lecturas posibles, que no se separaron con mediciones: a N chico pesa el costo fijo por paso (pared, obstáculos y limpiar las 29 × 29 celdas), y a N alto hay más contactos por partícula (φ llega a 0.77 en N = 650, arrancando desde la red).
+- **Plausibilidad:** σ/⟨t⟩ de TP4 está entre 0.011 y 0.030 en todo N, sin señales de carga durante la sesión. Las medias de TP3 en N = 25 a 200 quedan a menos del 2 % de las medidas para TP3 1.1 (`TP3/data/performance/summary.csv`).
+- **Figuras:** `ejercicio2/data/timing/figures/timing_vs_N.{png,pdf}` (TP4 y TP3, media ± σ, ejes log-log) y `ejercicio2/data/timing/figures/cost_per_particle_step.{png,pdf}`. `make timing-replot TIMING_ARGS="--binary /nonexistent/billiard"` las regenera sin el motor.
+- **Lo que hay que declarar:**
+  - Q3: TP3 1.1 corre con la mesa vacía y TP4 con los obstáculos en x0 = r. Se comparan tal cual.
+  - Q2: la curva de TP3 termina en N = 400 porque es el último N medido, no por el límite de su generador (las dos extensiones dieron `ok`). Los puntos N = 300 y 400 de TP3 promedian 10 semillas y no 100.
+  - En ambos motores el cronómetro excluye la generación del estado inicial y el arranque del proceso, e incluye el registro con buffer (conversiones en TP4, goles en TP3).
+- **Desde ahora**, `make freeze-check` tiene que imprimir `FREEZE OK` antes de cada barrido de la Fase 5. Después de la sesión dio `FREEZE OK digest=243554eb37b6`, igual que `check --against-git HEAD`.
 
 ### Estudio 2.4a: t90 y t100 contra densidad (study_density.py)
 
@@ -352,3 +396,31 @@ make density-replot DENSITY_ARGS="--study density_smoke"
 - **Salidas en `data/density/`.** `runs.csv` (N, seed, rho, phi, used, fu30, t90, t100, final_time; censurado = `nan`), `summary.csv` (N, rho, phi, n_runs, n90, frac90, t90_status, t90_mean, t90_sigma, t90_lower, n100, frac100, t100_status, t100_mean, t100_sigma, t100_lower, fu30_mean, fu30_sigma), `optimum.json` y `figures/t90_t100_vs_density.{png,pdf}` y `figures/success_fu_vs_density.{png,pdf}`. Las figuras no llevan título ni curvas ajustadas; la línea punteada en tf = 30 s es un valor de referencia, no un ajuste.
 - **Densidad óptima.** El estudio imprime `optimum: t90 ...` y `optimum: t100 ...` y los guarda en `optimum.json`: el N de menor ⟨t⟩ entre los puntos completos, con dos banderas. `edge` indica que el mínimo cae en el menor o el mayor N completo. `distinct` indica que el mínimo se separa de cada vecino completo por más que sqrt(σ² + σ_vecino²), y es falso si no hay vecinos. Si no hay ningún punto completo se imprime `optimum: t90 none (<motivo>)`. Un mínimo en el borde o no separado de sus vecinos se informa como tal, nunca como "la densidad óptima". La estrella de la figura marca el mínimo de ⟨t90⟩.
 - **Arranque en red (Q4).** Todas las corridas de 2.1b arrancan de la red hexagonal con perturbación, así que a densidad alta los tiempos de conversión incluyen el enjaulamiento de un estado inicial ordenado. No hay pre-corrida de fusión, porque exigiría cambiar el motor después del freeze. Esto se declara junto a los resultados.
+
+#### Resultados con los logs de la sesión oficial
+
+`make density` sobre las 130 corridas de la sesión oficial de 2.1b (2026-10-03T06:10:37Z, freeze `243554eb37b6`), sin lanzar corridas nuevas: había 130 directorios de corrida en `data/timing/` antes y después. Cada N tiene 10 realizaciones (x0 = r, dt* = 5e-5 s, tf = 30 s, red hexagonal). Los valores salen de la tabla que imprime `study_density.py` y de `data/density/summary.csv`, redondeados a la primera cifra significativa de σ. "> x" es la cota inferior mean(min(t_i, tf)) de un umbral censurado.
+
+| N | ρ (m⁻²) | φ | t90 alcanzado (de 10) | ⟨t90⟩ (s) | t100 alcanzado (de 10) | ⟨t100⟩ (s) | Fu(30 s) |
+|---|---------|---|-----------------------|-----------|------------------------|------------|----------|
+| 50 | 61.2 | 0.059 | 10 | 23 ± 3 | 0 | > 30 (ninguna) | 0.93 ± 0.03 |
+| 100 | 122.4 | 0.118 | 9 | > 24.8 | 0 | > 30 (ninguna) | 0.94 ± 0.02 |
+| 150 | 183.6 | 0.177 | 5 | > 28.9 | 0 | > 30 (ninguna) | 0.90 ± 0.03 |
+| 200 | 244.8 | 0.235 | 0 | > 30 (ninguna) | 0 | > 30 (ninguna) | 0.84 ± 0.02 |
+| 250 | 305.9 | 0.294 | 0 | > 30 (ninguna) | 0 | > 30 (ninguna) | 0.78 ± 0.01 |
+| 300 | 367.1 | 0.353 | 0 | > 30 (ninguna) | 0 | > 30 (ninguna) | 0.71 ± 0.03 |
+| 350 | 428.3 | 0.412 | 0 | > 30 (ninguna) | 0 | > 30 (ninguna) | 0.64 ± 0.01 |
+| 400 | 489.5 | 0.471 | 0 | > 30 (ninguna) | 0 | > 30 (ninguna) | 0.55 ± 0.01 |
+| 450 | 550.7 | 0.530 | 0 | > 30 (ninguna) | 0 | > 30 (ninguna) | 0.45 ± 0.02 |
+| 500 | 611.9 | 0.589 | 0 | > 30 (ninguna) | 0 | > 30 (ninguna) | 0.34 ± 0.01 |
+| 550 | 673.1 | 0.648 | 0 | > 30 (ninguna) | 0 | > 30 (ninguna) | 0.23 ± 0.01 |
+| 600 | 734.3 | 0.706 | 0 | > 30 (ninguna) | 0 | > 30 (ninguna) | 0.14 ± 0.01 |
+| 650 | 795.5 | 0.765 | 0 | > 30 (ninguna) | 0 | > 30 (ninguna) | 0.018 ± 0.005 |
+
+- **Líneas de óptimo** (también en `data/density/optimum.json`):
+  - `optimum: t90 N=50 rho=61.19 m^-2 phi=0.0589 mean=23.43 s sigma=3.466 s edge=True distinct=False complete_points=1`
+  - `optimum: t100 none (ningun N tiene todas sus realizaciones con t100 <= tf)`
+- **Lectura.** Con estos datos **no se puede afirmar que exista una densidad óptima.** N = 50 es el único N en el que las 10 realizaciones alcanzan t90 en 30 s. El "mínimo" está entonces en el borde de la grilla (`edge=True`) y no tiene vecinos completos con los que compararse (`distinct=False`). t100 no se alcanza en ninguna de las 130 corridas. Lo que sí muestran los datos es que Fu(30 s) es máxima a densidad baja (0.93 a 0.94 en N = 50 y 100, iguales dentro de σ) y cae de forma monótona con ρ desde N = 100, hasta 0.018 en N = 650.
+- **Q7 aplicada.** Nunca se promedia sobre las realizaciones exitosas. N = 100 y 150 (t90 parcial) aparecen como cota inferior con marcador hueco y sin barra. Los N sin ninguna realización con t90 ≤ 30 s, y t100 en todo N, quedan fuera de la figura de tiempos y se leen en `success_fu_vs_density`, con Fu(30 s) ± σ y las fracciones de realizaciones que alcanzaron cada umbral. Para tener ⟨t100⟩, o ⟨t90⟩ a densidad alta, habría que correr con un tf mayor, y eso ya no sería reutilizar 2.1b.
+- **Arranque en red (Q4).** Todas las corridas parten de la red hexagonal perturbada. A densidad alta (φ ≥ 0.6), la caída de Fu(30 s) incluye el enjaulamiento de ese estado inicial ordenado, que no se fundió con una pre-corrida.
+- **Figuras:** `ejercicio2/data/density/figures/t90_t100_vs_density.{png,pdf}` y `ejercicio2/data/density/figures/success_fu_vs_density.{png,pdf}`. `make density-replot` las regenera desde `summary.csv`.

@@ -170,18 +170,41 @@ def _run_tool(argv, cwd, what: str) -> None:
 # --------------------------------------------------------------------------- snapshot
 
 
+def _git_out(args, cwd) -> str:
+    try:
+        proc = subprocess.run(["git", *args], cwd=str(cwd), capture_output=True,
+                              check=False, timeout=120)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeError(f"git {args[0]} fallo en {cwd}: {exc}") from exc
+    if proc.returncode != 0:
+        raise RuntimeError(f"git {args[0]} fallo en {cwd}: "
+                           f"{proc.stderr.decode('utf-8', 'replace').strip()}")
+    return proc.stdout.decode("utf-8")
+
+
+def tracked_files(tp3_dir) -> set[str]:
+    """Archivos versionados bajo tp3_dir, relativos a el.
+
+    Se lista desde la raiz del repositorio con nombres completos y se filtra por el
+    prefijo sin distinguir mayusculas: en WSL /mnt/c un cwd `.../tp3` hace que git
+    calcule el prefijo `tp3/` y `git ls-files` desde ahi no liste nada aunque el arbol
+    guarde `TP3/`.
+    """
+    tp3 = Path(tp3_dir).resolve()
+    top = _git_out(["rev-parse", "--show-toplevel"], tp3).strip()
+    prefix = _git_out(["rev-parse", "--show-prefix"], tp3).strip().lower()
+    listed = _git_out(["ls-files", "-z", "--full-name"], top)
+    names = {n[len(prefix):] for n in listed.split("\0") if n and n.lower().startswith(prefix)}
+    if not names:
+        raise RuntimeError(f"git ls-files no lista archivos versionados en {tp3} "
+                           f"(prefijo {prefix!r}): la instantanea de TP3 quedaria vacia")
+    return names
+
+
 def snapshot_tp3(tp3_dir) -> dict:
     """sha256 del contenido de TP3: archivos versionados mas binarios y CSV de 1.1."""
     tp3 = Path(tp3_dir).resolve()
-    try:
-        proc = subprocess.run(["git", "ls-files", "-z"], cwd=str(tp3), capture_output=True,
-                              check=False, timeout=120)
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        raise RuntimeError(f"git ls-files fallo en {tp3}: {exc}") from exc
-    if proc.returncode != 0:
-        raise RuntimeError(f"git ls-files fallo en {tp3}: "
-                           f"{proc.stderr.decode('utf-8', 'replace').strip()}")
-    names = {n for n in proc.stdout.decode("utf-8").split("\0") if n}
+    names = tracked_files(tp3)
     for extra in ("tp3", "tp3_test"):
         names.add(extra)
     perf = tp3 / "data" / "performance"

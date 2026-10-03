@@ -1,18 +1,18 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 04
-current_phase_name: Tiempos vs TP3 (2.1b) y densidad (2.4a)
-status: executing
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-10-02T23:01:56.012Z"
-last_activity: 2026-10-02
-last_activity_desc: Phase 04 execution started
+current_phase: 05
+current_phase_name: Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)
+status: ready_to_execute
+stopped_at: Phase 04 complete (UAT 4/4, SECURITY 18/18 closed); Phase 05 planned (3 plans), blocked on CR-01 fix before 05-01
+last_updated: "2026-10-03T06:40:29.324Z"
+last_activity: 2026-10-03
+last_activity_desc: Phase 04 complete; next Phase 05 (fix CR-01 first)
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 13
-  completed_plans: 12
-  percent: 0
+  completed_phases: 1
+  total_plans: 16
+  completed_plans: 13
+  percent: 17
 ---
 
 # Project State
@@ -22,22 +22,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-02)
 
 **Core value:** Producir las figuras correctas y justificadas para la presentación oral de 13 min: ECM vs dt, energía vs dt con la elección de dt, tiempo vs N contra TP3, Fu(t)/⟨t90⟩ vs x0, f(v) con ajuste MB, ⟨t90⟩/⟨t100⟩ vs densidad y mapa de calor (x0, N). Además, el motor tiene que ser lo bastante rápido para los barridos.
-**Current focus:** Phase 04 — Tiempos vs TP3 (2.1b) y densidad (2.4a)
+**Current focus:** Phase 05 — Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)
 **Deadline:** 2026-10-23 13:00 (campus) + presentación oral
 
 ## Current Position
 
-Phase: 04 (Tiempos vs TP3 (2.1b) y densidad (2.4a)) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute
-Last activity: 2026-10-02 — Phase 04 execution started
+Phase: 05 — Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)
+Plan: 0 of 3 (05-01 next)
+Status: Ready to execute — fix CR-01 (freeze.py case-sensitive git paths) before 05-01
+Last activity: 2026-10-03 — Phase 04 complete (phases 1–3 still have pending UAT)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [████████████████░░░░] 13/16 plans (81%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
+- Total plans completed: 4
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -45,7 +45,7 @@ Progress: [░░░░░░░░░░] 0%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 04 | 4 | - | - |
 
 **Recent Trend:**
 - Last 5 plans: none yet
@@ -65,6 +65,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P01 | 5 min | 2 tasks | 5 files |
 | Phase 04 P02 | 11min | 3 tasks | 5 files |
 | Phase 04 P03 | 8min | 2 tasks | 4 files |
+| Phase 04 P04 | 15min | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,8 @@ Recent decisions affecting current work:
 - [Phase 04]: TP3 outputs of 2.1b live in ejercicio2/data/timing/tp3/ (roadmap path TP4/data/timing/tp3/ remapped, gitignored data root)
 - [Phase 04]: 2.4a censoring: per N and threshold all -> mean +- sample sigma, partial -> lower bound mean(min(t,tf)) drawn hollow, none -> no time; the successful-only mean is never computed (Q7 default)
 - [Phase 04]: 2.4a optimum flags: edge (minimum at first/last complete N) and distinct (separated from each complete neighbour by more than the combined sigma); never called the optimal density unless interior and distinct
+- [Phase 04]: Phase 04 P04: official 2.1b session accepted (SESSION OK mode=official runs=130; tp3_rows=8 = 6 official + 2 extensions); TP4 slope 1.136, TP3 3.221, crossover N ~ 310
+- [Phase 04]: Phase 04 P04: 2.4a on official logs gives no defensible optimal density (t90 min at N=50 edge, not distinct; t100 never reached at tf=30 s); Fu(30 s) decreases with density
 
 ### Pending Todos
 
@@ -100,7 +103,8 @@ None yet.
 
 - [Docentes] Q1 (Verlet original vs Velocity Verlet en el billar) y Q4 (init en red a N alto) se necesitan al cerrar la Fase 2. Hasta entonces, defaults de research/SUMMARY.md
 - [Docentes] Q6 (contenido del .zip: ¿animador?, ¿self-test?) antes de la Fase 6
-- [Docentes] Q2, Q3 y Q7 (corte de TP3 en N ≈ 400, mesa vacía vs obstáculos, Fu(30 s)) antes de cerrar la Fase 4
+- [Phase 4 → 5] CR-01: `freeze.check_against_git` falla (falso "Makefile ausente") si el cwd difiere en mayúsculas del árbol git (`tp4` vs `TP4`); el sweep gate de 05-01 lo reutiliza → arreglar antes de 05-01 (junto con WR-01/IN-07). Ver 04-REVIEW.md
+- [Phase 1–3] UAT pendientes (01/02/03-UAT.md, verificación `human_needed`); 03-UAT test 1 (dt* = 5e-5) aceptado implícitamente al lanzar la sesión oficial
 - [Cómputo] dt* se desconoce hasta la Fase 3; el presupuesto de las Fases 4 y 5 cambia ×10 entre dt = 1e-4 y 1e-5. Hay que redimensionar las grillas al congelar dt*
 - [Calendario] 3 semanas hasta el 23/10 13hs. La subida a YouTube/Vimeo y la compilación con MiKTeX son pasos manuales en Windows (Fase 6)
 
@@ -114,6 +118,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T23:01:55.772Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-10-03T06:40:54Z
+Stopped at: Phase 04 complete; Phase 05 ready to execute after CR-01 fix
 Resume file: None
