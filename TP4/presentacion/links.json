@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "videos": {
+    "x0_central": {
+      "title": "Billar con obstáculos, x0 = 0.20 m",
+      "url": null
+    },
+    "x0_r": {
+      "title": "Billar con obstáculos, x0 = 0.0175 m (x0 = r)",
+      "url": null
+    },
+    "x0_Rmr": {
+      "title": "Billar con obstáculos, x0 = 0.4925 m (x0 = R - r)",
+      "url": null
+    },
+    "sin_obstaculos": {
+      "title": "Billar sin obstáculos",
+      "url": null
+    }
+  }
+}

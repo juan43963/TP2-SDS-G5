@@ -1,0 +1,17 @@
+{
+  "figures": {
+    "energy_vs_time.png": {
+      "bytes": 116724,
+      "copied_utc": "2026-10-03T18:06:44Z",
+      "sha256": "0f277932d13edb51c28d5b14c31c830686b62e7d06c3b9f7148e46a3075e0e71",
+      "source": "ejercicio2/data/energy/figures/energy_vs_time.png"
+    },
+    "eps_vs_dt.png": {
+      "bytes": 177953,
+      "copied_utc": "2026-10-03T18:06:44Z",
+      "sha256": "3bb7ad47681abcaa899cb676563a64b78b363780afae2127d32b4070b66f1330",
+      "source": "ejercicio2/data/energy/figures/eps_vs_dt.png"
+    }
+  },
+  "version": 1
+}

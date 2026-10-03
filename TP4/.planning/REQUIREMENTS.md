@@ -55,10 +55,10 @@ Detalle técnico y fuentes de cada ítem: `.planning/research/FEATURES.md` y `.p
 ### Animaciones y entregables (DEL)
 
 - [ ] **DEL-01**: Animador independiente que lee la salida de texto y dibuja círculo, obstáculos negros y partículas a su radio real, azules/rojas según estado, con reloj t
-- [ ] **DEL-02**: Animaciones MP4 (H.264, ffmpeg desde `py` de Windows) del billar con obstáculos (frescas/usadas), de varios x0 típicos (2.2) y sin obstáculos (2.3), cada una con un PNG de fotograma representativo
-- [ ] **DEL-03**: Presentación LaTeX Beamer (MiKTeX) de 13 min con las secciones de `docs/GuiaPresentaciones.pdf`, exactamente una diapositiva del Sistema 1 (solo ECM vs dt), observables definidos matemáticamente, y las diapositivas con animación mostrando fotograma + link explícito a YouTube/Vimeo
+- [x] **DEL-02**: Animaciones MP4 (H.264, ffmpeg desde `py` de Windows) del billar con obstáculos (frescas/usadas), de varios x0 típicos (2.2) y sin obstáculos (2.3), cada una con un PNG de fotograma representativo
+- [x] **DEL-03**: Presentación LaTeX Beamer (MiKTeX) de 13 min con las secciones de `docs/GuiaPresentaciones.pdf`, exactamente una diapositiva del Sistema 1 (solo ECM vs dt), observables definidos matemáticamente, y las diapositivas con animación mostrando fotograma + link explícito a YouTube/Vimeo
 - [ ] **DEL-04**: `SdS_TP4_2026Q2G05CS_Presentación.pdf` sin animaciones embebidas ni placeholders pendientes
-- [ ] **DEL-05**: `SdS_TP4_2026Q2G05CS_Codigo.zip` < 100 KB generado por script con allowlist (solo `src/` del motor + Makefile), verificado descomprimiendo y compilando desde cero sin warnings
+- [x] **DEL-05**: `SdS_TP4_2026Q2G05CS_Codigo.zip` < 100 KB generado por script con allowlist (solo `src/` del motor + Makefile), verificado descomprimiendo y compilando desde cero sin warnings
 
 ### Extras incluidos en v1 (DIF)
 
@@ -143,10 +143,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AN-11 | Phase 5 | Complete |
 | DIF-04 | Phase 5 | Complete |
 | DIF-07 | Phase 5 | Complete |
-| DEL-02 | Phase 6 | Pending |
-| DEL-03 | Phase 6 | Pending |
+| DEL-02 | Phase 6 | Complete |
+| DEL-03 | Phase 6 | Complete |
 | DEL-04 | Phase 6 | Pending |
-| DEL-05 | Phase 6 | Pending |
+| DEL-05 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 49 total (OSC 8, ENG 15, AN 13, DEL 5, DIF 8)

@@ -172,7 +172,18 @@ Plans:
   3. `SdS_TP4_2026Q2G05CS_Presentación.pdf` existe con ese nombre exacto, sin animaciones embebidas ni placeholders pendientes, y todas sus figuras pasan la revisión contra la guía
   4. `SdS_TP4_2026Q2G05CS_Codigo.zip` pesa < 100 KB y lo genera un script con allowlist (solo `src/` del motor + Makefile). Descomprimido en un directorio limpio, compila desde cero sin warnings
 
-**Plans**: TBD
+**Plans**: 3/4 plans executed
+
+Plans:
+**Wave 1**
+- [x] 06-01-PLAN.md — Animaciones (DEL-02): cuatro MP4 H.264 desde el texto del motor congelado con el animador independiente (x0 = 0.0175, 0.20 y 0.4925 m, y sin obstáculos), PNG representativo por video, semilla representativa, registro de links (`links.json`, solo YouTube o Vimeo) y constructor del deck en vivo (`build_pptx.py`)
+- [x] 06-02-PLAN.md — .zip del motor (DEL-05): `package_tp4.py` con allowlist (osc y billiard + Makefile mínimo), zip determinista < 100 KB, hashes contra `engine_freeze.json`, compilación desde cero con `-Werror` y pruebas de mutación
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [x] 06-03-PLAN.md — Presentación Beamer (DEL-03): `presentacion.tex` (27 diapositivas, 12 min 20 s, 3 oradores), linter de la guía y del enunciado, importador de las 14 figuras oficiales, y corrección del README (k90 = 90, φ de N = 650, redacción de kBT)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 06-04-PLAN.md — Entrega (DEL-03, DEL-04, DEL-05): compuerta final `check_deliverables.py`, y pasos humanos: figuras oficiales y links de YouTube o Vimeo, compilación con MiKTeX, revisión contra la guía, ensayo de 13 min y subida a campus antes del 23/10 13hs
 
 ## Notas para la planificación
 
@@ -213,7 +224,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6. La Fase 2 pued
 | 3. Pipeline de análisis y selección de dt (2.1a) | 4/4 | In Progress|  |
 | 4. Tiempos vs TP3 (2.1b) y densidad (2.4a) | 4/4 | Complete    | 2026-10-03 |
 | 5. Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b) | 3/3 | Complete    | 2026-10-03 |
-| 6. Animaciones, presentación y entrega | 0/TBD | Not started | - |
+| 6. Animaciones, presentación y entrega | 3/4 | In Progress|  |
 
 ---
 *Roadmap created: 2026-10-02*

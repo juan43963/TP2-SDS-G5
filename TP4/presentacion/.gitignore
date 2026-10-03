@@ -1,0 +1,25 @@
+# Animaciones: el enunciado prohibe entregar videos; solo van los links (links.json).
+animaciones/*.mp4
+animaciones/*.gif
+animaciones/gif_pptx/
+
+# Version en vivo (.pptx para presentar) y sus intermedios
+_paginas_vivo/
+*.pptx
+presentacion_vivo.pdf
+
+# Subproductos de LaTeX
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Python
+__pycache__/
+*.pyc

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "rule": "t90 mas cercano a la media de las semillas 1 a 10",
+  "cases": {
+    "x0_central": {
+      "seed": 2,
+      "t90": 14.631200000000002,
+      "mean_t90": 14.650445000000001,
+      "n_reached": 10,
+      "n_seeds": 10
+    },
+    "x0_r": {
+      "seed": 4,
+      "t90": 25.3349,
+      "mean_t90": 23.933185,
+      "n_reached": 10,
+      "n_seeds": 10
+    },
+    "x0_Rmr": {
+      "seed": 4,
+      "t90": 34.00565,
+      "mean_t90": 33.75325000000001,
+      "n_reached": 10,
+      "n_seeds": 10
+    },
+    "sin_obstaculos": {
+      "seed": 1,
+      "rule": "fija"
+    }
+  }
+}

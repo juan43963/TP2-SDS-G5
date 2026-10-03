@@ -1,17 +1,17 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 6
+current_phase: 06
 current_phase_name: Animaciones, presentación y entrega
-status: planning
-stopped_at: Phase 05 complete (UAT 8/8, SECURITY verified), ready to plan Phase 6
-last_updated: "2026-10-03T17:12:07.021Z"
+status: executing
+stopped_at: Completed 06-03-PLAN.md
+last_updated: "2026-10-03T18:12:39.195Z"
 last_activity: 2026-10-03
-last_activity_desc: Phase 05 complete, transitioned to Phase 6
+last_activity_desc: Phase 06 execution started
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 16
-  completed_plans: 16
+  total_plans: 20
+  completed_plans: 19
   percent: 33
 ---
 
@@ -22,15 +22,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-03)
 
 **Core value:** Producir las figuras correctas y justificadas para la presentación oral de 13 min: ECM vs dt, energía vs dt con la elección de dt, tiempo vs N contra TP3, Fu(t)/⟨t90⟩ vs x0, f(v) con ajuste MB, ⟨t90⟩/⟨t100⟩ vs densidad y mapa de calor (x0, N). Además, el motor tiene que ser lo bastante rápido para los barridos.
-**Current focus:** Phase 6 — Animaciones, presentación y entrega
+**Current focus:** Phase 06 — Animaciones, presentación y entrega
 **Deadline:** 2026-10-23 13:00 (campus) + presentación oral
 
 ## Current Position
 
-Phase: 6 — Animaciones, presentación y entrega
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-10-03 — Phase 05 complete (UAT 8/8, SECURITY verified), transitioned to Phase 6
+Phase: 06 (Animaciones, presentación y entrega) — EXECUTING
+Plan: 4 of 4
+Status: Ready to execute
+Last activity: 2026-10-03 — Phase 06 execution started
 
 Progress: [████████████████░░░░] 13/16 plans ([███░░░░░░░] 33%)
 
@@ -70,6 +70,9 @@ Progress: [████████████████░░░░] 13/16 p
 | Phase 05 P01 | 15min | 3 tasks | 6 files |
 | Phase 05 P02 | 13min | 3 tasks | 4 files |
 | Phase 05 P03 | 20min | 3 tasks | 4 files |
+| Phase 06 P01 | 30min | 3 tasks | 15 files |
+| Phase 06 P02 | 25min | 2 tasks | 6 files |
+| Phase 06 P03 | 55min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -106,6 +109,9 @@ Recent decisions affecting current work:
 - [Phase 05]: 2.4b: x0 grid refined around the non-distinct interior 2.2 optimum (0.175, 0.225 added); probe accepted n_top=400; no per-N t90 minimum is distinct, minimum at x0 0.20-0.25 m for N>=50, <t90>min grows 11->45 s with N
 - [Phase 05]: 2.4b censoring concentrates at high N and x0 extremes (t100), none at N<=100 - opposite of Pitfall 10
 - [Phase 05 UAT]: "distinct" keeps the sigma rule (WR-04); README must state "no distinto" = within one realization spread. Sweep gate not fixed (CR-01/WR-01/WR-02 accepted, AR-05-01); official data final
+- [Phase 06]: Representative animation seeds: x0_central=2, x0_r=4, x0_Rmr=4, sin_obstaculos=1 (t90 nearest mean of seeds 1-10)
+- [Phase 06]: [06-02] Code zip ships both engines (osc, billiard) with its own minimal Makefile; deterministic archive (fixed date/mode, CRLF to LF), size asserted < 100000 bytes (actual 21609)
+- [Phase 06]: 06-03: deck notation uses bold x for positions, r for radii, calligraphic E for the fit error; sim_obs1 compacted (F_u inline, density in sim_obs2) because the deck cannot be compiled on this machine
 
 ### Pending Todos
 
@@ -131,6 +137,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-03T17:15:00Z
-Stopped at: Phase 05 complete, ready to plan Phase 6
+Last session: 2026-10-03T18:12:39.159Z
+Stopped at: Completed 06-03-PLAN.md
 Resume file: None

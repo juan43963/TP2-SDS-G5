@@ -138,7 +138,7 @@ status: complete
 
 ## Official results (copied from the printed output)
 
-N = 100 (k90 = 91); every cell is `all`, 0/10 without t90, so no censored Fu(tmax):
+N = 100 (k90 = 90); every cell is `all`, 0/10 without t90, so no censored Fu(tmax):
 
 | x0 (m) | <t90> (s) | <t100> (s) |
 |---|---|---|

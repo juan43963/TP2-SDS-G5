@@ -1,0 +1,5 @@
+_verify/
+__pycache__/
+*.pyc
+*.o
+*.d

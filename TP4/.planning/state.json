@@ -31,13 +31,13 @@
     {
       "number": "6",
       "name": "Animaciones, presentación y entrega",
-      "status": "pending"
+      "status": "in_progress"
     }
   ],
   "next": {
     "command": "/gsd:progress --next",
-    "label": "Advance to the next step (plan phase 1)",
-    "reason": "Phase 1 of 6 — needs a plan"
+    "label": "Advance to the next step",
+    "reason": "Phase 06 of 6 · 33% · executing"
   },
-  "updated_at": "2026-10-03T17:12:07.028Z"
+  "updated_at": "2026-10-03T18:12:35.137Z"
 }
