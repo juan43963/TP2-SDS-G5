@@ -607,20 +607,22 @@
 
 % SLIDE concl | S:2 | V:C | T:45
 \begin{frame}{Conclusiones}
-  \small
+  \footnotesize
   \begin{itemize}
+    \item Oscilador: Beeman, Verlet original y Velocity Verlet (ECM $\propto \Delta t^{4}$) dan casi el mismo error; Euler predictor-corrector (ECM $\propto \Delta t^{2}$) es unas $10^{6}$ veces peor en $\Delta t = 10^{-3}$ s.
+    \vspace{0.15em}
     \item El paso $\Delta t^*$ elegido conserva la energía: el error queda por debajo del umbral fijado.
-    \vspace{0.3em}
+    \vspace{0.15em}
     \item El tiempo de ejecución crece con $N$ mucho más lento que en el TP3: el método por paso temporal gana a partir de cierto $N$.
-    \vspace{0.3em}
+    \vspace{0.15em}
     \item Hay una zona intermedia de $x_0$ donde $\langle t_{90} \rangle$ es mínimo; sube cuando los obstáculos están cerca del centro o de la pared.
-    \vspace{0.3em}
+    \vspace{0.15em}
     \item Con menos partículas, la conversión completa llega antes en casi todas las posiciones.
-    \vspace{0.3em}
+    \vspace{0.15em}
     \item $f(v)$ relaja a Maxwell-Boltzmann, con una $k_B T$ ligeramente menor a la inicial $m\,v_0^2/2$.
-    \vspace{0.3em}
-    \item Con el $t_f$ usado no se puede afirmar una densidad óptima; $F_u(t_f)$ disminuye con $\rho$ al aumentar la densidad.
-    \vspace{0.3em}
+    \vspace{0.15em}
+    \item Con el $t_f$ usado no se puede afirmar una densidad óptima; $F_u(t_f)$ disminuye al aumentar $\rho$.
+    \vspace{0.15em}
     \item En el mapa $(x_0, N)$, la posición óptima de los obstáculos es casi independiente de $N$.
   \end{itemize}
 \end{frame}
