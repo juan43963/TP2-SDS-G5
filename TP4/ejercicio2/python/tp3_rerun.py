@@ -332,8 +332,9 @@ def rerun(tp3_dir, out_dir, cxx, ext_n, ext_seeds, smoke, *, smoke_n=SMOKE_N,
           flush=True)
     if official["status"] == "ok" and not smoke:
         for n in ext_n:
+            seeds = ext_seeds[int(n)] if isinstance(ext_seeds, dict) else ext_seeds
             inv = run_benchmark(tp3, binary, out, f"ext_N{int(n)}", n_values=(int(n),),
-                                seeds=tuple(ext_seeds), timeout_s=timeout_s)
+                                seeds=tuple(seeds), timeout_s=timeout_s)
             record["invocations"].append(inv)
             print(f"tp3 {inv['tag']}: {inv['status']} ({inv['elapsed_s']:.1f} s)", flush=True)
             if inv["status"] == "failed":

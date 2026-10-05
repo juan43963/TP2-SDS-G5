@@ -49,7 +49,22 @@ Consultar el dossier completo en [Consultas y Feedback de Parisi](references/con
 - **Caso pedagógico inicial:** Iniciar los resultados con un caso simple de una sola variable continua (ej. radio de un obstáculo central) antes de saltar a geometrías complejas o discretas.
 - **Búsquedas heurísticas como Modelo Nulo:** Las búsquedas aleatorias o genéticas se presentan como baseline / modelo nulo para contrastar el diseño físico. Prohibido trazar ajustes lineales o splines sobre nubes de puntos de búsqueda aleatoria.
 - **Cálculo de Difusión (DCM):** En gráficos log-log de $\text{DCM}(t)$, calcular la pendiente local $\alpha = \frac{d\log \text{DCM}}{d\log t}$. Ajustar el coeficiente $D$ ($\text{DCM} = 2dDt$) **únicamente en el tramo donde $\alpha \approx 1$**, antes de que las paredes del recinto saturen el desplazamiento.
-- **Ajustes de curvas:** Mostrar cómo se halló el mejor parámetro minimizando el error cuadrático $E$ según la Teórica 0.
+- **Ajustes de curvas:** Mostrar cómo se halló el mejor parámetro minimizando el error cuadrático $E$ según la Teórica 0. Aclarar qué se ajustó exactamente (¿$D$ o $4D$?).
+
+### Corrección de la presentación TP3 (nota 6.5) — checklist previo a entregar
+
+Detalle y diapositivas de origen en [consultas_parisi.md §2-bis](references/consultas_parisi.md). Revisar cada punto:
+
+- **Menos es más:** uno o dos escenarios simples + el ganador. No mostrar todo lo probado; los barridos exploratorios descartados no van. Todo escenario mostrado lleva la tríada animación → evolución temporal → observable vs parámetro.
+- **Fundamentos = teoría general**, sin datos del sistema particular (dimensiones, N, objetivos del TP): eso va en Simulaciones.
+- **Matemática en vez de redacción** para definir observables; ninguna definición verbal ambigua.
+- **Toda fórmula con origen:** definir cada símbolo y dar la intuición física (y su límite de validez).
+- **N saturado** cuando el estudio busca el límite de validez de un método; **no animar** la configuración vacía/trivial.
+- **Una realización** en animaciones y curvas temporales; si se promedia, explicar cómo (grilla común de $t$).
+- **Títulos que digan qué se varía** (no "dinámica").
+- **Dibujos laterales una sola vez**; variables del texto marcadas sobre las figuras; leyenda nunca con el mismo símbolo que un dato.
+- **Cifras significativas** revisadas en todo valor.
+- **Conclusiones sin valores numéricos.**
 
 ---
 
@@ -125,3 +140,7 @@ Verifica automáticamente:
 - [x] Presencia de separadores de sección automáticos.
 - [x] Bloque de parámetros al costado (`\params`).
 - [x] Exactamente 1 diapositiva de conclusiones.
+- [x] Conclusiones sin valores numéricos (advertencia).
+- [x] Títulos de diapositiva terminados en "dinámica" (advertencia).
+
+El resto del checklist de la corrección TP3 (escenarios de más, fórmulas sin origen, leyendas vs datos, cifras significativas) requiere revisión manual.

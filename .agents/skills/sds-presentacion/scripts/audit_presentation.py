@@ -93,6 +93,24 @@ def audit_tex(tex_path: Path):
     elif conclusiones_count == 1:
         passes.append("Conclusiones en 1 sola diapositiva (correcto).")
 
+    # 10. Conclusiones sin valores numericos (correccion TP3)
+    concl = re.search(
+        r"\\begin\{frame\}(?:\[[^\]]*\])?\{[^}]*[Cc]onclusi[^}]*\}(.*?)\\end\{frame\}", content, re.DOTALL
+    )
+    if concl:
+        body = "\n".join(l for l in concl.group(1).splitlines() if not l.strip().startswith("%"))
+        body = re.sub(r"\\vspace\{[^}]*\}|\\\\\[[^\]]*\]|[_^]\{[^}]*\}", "", body)
+        if re.search(r"\d+[,.]\d+|\d{2,}|\\times", body):
+            warnings.append("Conclusiones con valores numericos: no citar cifras en las conclusiones (correccion TP3).")
+        else:
+            passes.append("Conclusiones sin valores numericos (correcto).")
+
+    # 11. Titulos poco informativos ("... dinamica")
+    dyn = [i + 1 for i, l in enumerate(lines)
+           if re.search(r"\\begin\{frame\}.*\{[^}]*:\s*din[aá]mica\}", l) and not l.strip().startswith("%")]
+    if dyn:
+        warnings.append(f"Titulos terminados en 'dinamica' (lineas {dyn}): decir que se varia (correccion TP3).")
+
     print("\n" + "=" * 60)
     print(f" REPORTE DE AUDITORIA: {tex_path.name}")
     print("=" * 60)

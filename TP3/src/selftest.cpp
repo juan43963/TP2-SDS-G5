@@ -219,6 +219,45 @@ void testGeneratorSaturation(TestSuite& suite) {
     suite.check(rejected, "una geometria sin area disponible debe fallar con limite de intentos");
 }
 
+void testGeneratorLatticeFallback(TestSuite& suite) {
+    SimulationConfig config;
+    config.particleCount = 650;  // RSA satura cerca de N = 440 en esta mesa
+    config.seed = 7;
+
+    const std::vector<Particle> first = generateParticles(config);
+    const std::vector<Particle> second = generateParticles(config);
+    suite.check(first.size() == 650, "con N alto el respaldo hexagonal debe ubicar las N particulas");
+
+    bool reproducible = first.size() == second.size();
+    bool valid = true;
+    for (std::size_t i = 0; i < first.size(); ++i) {
+        const Particle& particle = first[i];
+        reproducible = reproducible && particle.position.x == second[i].position.x &&
+                       particle.position.y == second[i].position.y;
+        valid = valid && particle.position.x >= particle.radius &&
+                particle.position.x <= config.length - particle.radius &&
+                particle.position.y >= particle.radius &&
+                particle.position.y <= config.width - particle.radius &&
+                std::abs(normSquared(particle.velocity) -
+                         config.initialSpeed * config.initialSpeed) < 1e-12;
+        for (std::size_t j = 0; j < i; ++j) {
+            valid = valid && !circlesOverlap(particle.position, particle.radius, first[j].position,
+                                             first[j].radius);
+        }
+    }
+    suite.check(reproducible, "el respaldo hexagonal debe ser reproducible con la misma semilla");
+    suite.check(valid, "el respaldo hexagonal no debe solapar ni salir de la mesa");
+
+    config.particleCount = 5000;
+    bool rejected = false;
+    try {
+        (void)generateParticles(config);
+    } catch (const std::runtime_error&) {
+        rejected = true;
+    }
+    suite.check(rejected, "mas particulas que sitios de la red debe fallar");
+}
+
 double kineticEnergy(const Particle& particle) {
     return 0.5 * particle.mass * normSquared(particle.velocity);
 }
@@ -794,6 +833,7 @@ int main() {
     testObstacleFile(suite);
     testGenerator(suite);
     testGeneratorSaturation(suite);
+    testGeneratorLatticeFallback(suite);
     testWallPredictionAndResolution(suite);
     testHeadOnParticleCollision(suite);
     testObliqueParticleCollision(suite);

@@ -106,13 +106,13 @@
 % SLIDE intro_real | S:2 | V:A | T:25
 \begin{frame}{Sistema real}
   \begin{itemize}
-    \item Partículas que interactúan sólo por contacto: un gas granular en 2D, como en un billar.
+    \item Partículas que interactúan sólo por contacto: un gas granular.
     \vspace{0.5em}
-    \item Recinto con pared fija; los choques son blandos y la energía se conserva.
+    \item Los choques son blandos y, sin disipación, la energía se conserva.
     \vspace{0.5em}
     \item Dinámica molecular regida por el paso temporal: el estado avanza con un $\Delta t$ fijo.
     \vspace{0.5em}
-    \item A diferencia del TP3, no se calculan eventos: se integran las ecuaciones de movimiento.
+    \item Se integran las ecuaciones de movimiento, sin calcular eventos.
   \end{itemize}
 \end{frame}
 
@@ -262,7 +262,7 @@
 
 % SLIDE sim_obs1 | S:2 | V:A | T:45
 \begin{frame}{Observables (1/2)}
-  \small
+  \footnotesize
   \abovedisplayskip=2pt \belowdisplayskip=2pt
   \abovedisplayshortskip=0pt \belowdisplayshortskip=1pt
   \textbf{Energía} --- cada contacto una vez; la pared, por partícula imagen:
@@ -274,15 +274,21 @@
   \[
     \varepsilon(\Delta t) = \frac{1}{N_t} \sum_{n=1}^{N_t} \frac{|E(t_n) - E(0)|}{E(0)}
   \]
-  \textbf{Fracción de usadas} $F_u(t) = N_u(t)/N$, con $N_u$ las usadas, y \textbf{tiempo al 90 \%}: $F_u(t_{90}) = 0{,}9$, es decir, el instante de la conversión $k_{90} = \lceil 0{,}9\,N \rceil$ (90 si $N = 100$, 18 si $N = 20$).
-
-  \textbf{Promedio y desvío estándar muestral} sobre $n$ realizaciones $s$ (barras de error $= \sigma$):
+  \textbf{Fracción de usadas} ($N_u$ = usadas) y \textbf{tiempo al 90 \%}, en cada realización $s$:
+  \[
+    F_u^{(s)}(t) = \frac{N_u^{(s)}(t)}{N},
+    \qquad
+    t_{90}^{(s)} = \min\big\{\, t : F_u^{(s)}(t) \geq 0{,}9 \,\big\}
+  \]
+  \textbf{Promedio y desvío estándar muestral} sobre $n$ realizaciones (barras de error $= \sigma$); $\langle F_u \rangle$ se promedia en cada instante $t$ de una grilla común:
   \[
     \langle t_{90} \rangle = \frac{1}{n} \sum_{s=1}^{n} t_{90}^{(s)},
     \qquad
-    \sigma = \sqrt{\frac{1}{n - 1} \sum_{s=1}^{n} \big( t_{90}^{(s)} - \langle t_{90} \rangle \big)^2}
+    \sigma = \sqrt{\frac{1}{n - 1} \sum_{s=1}^{n} \big( t_{90}^{(s)} - \langle t_{90} \rangle \big)^2},
+    \qquad
+    \langle F_u \rangle(t) = \frac{1}{n} \sum_{s=1}^{n} F_u^{(s)}(t)
   \]
-  \params{Censura: si una realización no llega a $F_u = 0{,}9$ antes de $t_{\max}$ se informa cuántas y su $F_u(t_{\max})$; nunca se promedia sólo sobre las exitosas.}
+  \params{Censura ($F_u^{(s)}(t_{\max}) < 0{,}9$): se informa cuántas realizaciones; nunca se promedia sólo sobre las exitosas.}
 \end{frame}
 
 % SLIDE sim_obs2 | S:2 | V:A | T:40
@@ -388,9 +394,9 @@
     \end{column}
     \begin{column}{0.32\textwidth}
       \params{\textbf{TP4}: obstáculos en $x_0 = r$, $t_f = 30$ s, 10 realizaciones, red hexagonal\\[4pt]
-              \textbf{TP3}: mesa vacía, $t_{\max} = 30$ s, 100 realizaciones hasta $N = 200$ y 10 en $N = 300$ y 400\\[4pt]
+              \textbf{TP3}: mesa vacía, $t_{\max} = 30$ s, 100 realizaciones hasta $N = 200$, 10 entre $N = 300$ y 550, y 5 en $N = 600$ y 650\\[4pt]
               Misma computadora: AMD Ryzen 7 9800X3D, g++ 13.3 con -O2\\[4pt]
-              Pendientes log-log: 1,14 (TP4) y 3,22 (TP3)\\
+              Pendientes log-log: 1,14 (TP4) y 3,65 (TP3)\\
               Cruce en $N \approx 310$}
     \end{column}
   \end{columns}
@@ -412,7 +418,7 @@
 \end{frame}
 
 % SLIDE res_anim_x0 | S:2 | V:B | T:20
-\begin{frame}{Posición de los obstáculos: dinámica}
+\begin{frame}{Variación de la posición $x_0$ de los obstáculos}
   \vfill
   \begin{columns}[c]
     \begin{column}{0.27\textwidth}
@@ -427,7 +433,6 @@
     \begin{column}{0.17\textwidth}
       \params{$N = 100$\\[4pt]
               Fotograma con 50 usadas\\[4pt]
-              Azul: fresca\\ Rojo: usada\\[4pt]
               Semillas 4, 2 y 4}
     \end{column}
   \end{columns}
@@ -442,6 +447,7 @@
     \end{column}
     \begin{column}{0.28\textwidth}
       \params{$N = 100$, 10 realizaciones\\
+              $\langle F_u \rangle(t)$ promediada en cada instante\\
               $x_0 = 1{,}75\times10^{-2}$, $0{,}20$ y $0{,}4925$ m\\
               Barras $\sigma$ cada 10 s\\
               Punteada: $F_u = 0{,}9$\\
@@ -469,7 +475,7 @@
 \end{frame}
 
 % SLIDE res_anim_sin | S:2 | V:C | T:15
-\begin{frame}{Billar sin obstáculos: dinámica}
+\begin{frame}{Billar sin obstáculos: relajación de las rapideces}
   \vfill
   \begin{columns}[c]
     \begin{column}{0.40\textwidth}
@@ -478,7 +484,6 @@
     \begin{column}{0.40\textwidth}
       \params{$N = 100$, sin obstáculos\\[4pt]
               Todas con $|\vect{v}| = v_0$ al inicio\\[4pt]
-              Azul: fresca, rojo: usada\\[4pt]
               Fotograma en $t = 2$ s}
     \end{column}
   \end{columns}
@@ -604,17 +609,19 @@
 \begin{frame}{Conclusiones}
   \small
   \begin{itemize}
-    \item $\Delta t^* = 5\times10^{-5}$ s conserva la energía: $\varepsilon = (9 \pm 6)\times10^{-5}$, por debajo del umbral $10^{-3}$.
+    \item El paso $\Delta t^*$ elegido conserva la energía: el error queda por debajo del umbral fijado.
     \vspace{0.3em}
-    \item El tiempo de ejecución crece con $N$ con pendiente 1,14 en TP4 contra 3,22 en TP3 (mesa vacía); el cruce está en $N \approx 310$.
+    \item El tiempo de ejecución crece con $N$ mucho más lento que en el TP3: el método por paso temporal gana a partir de cierto $N$.
     \vspace{0.3em}
-    \item Para $N = 100$, $\langle t_{90} \rangle$ es menor con $x_0$ entre 0,15 y 0,35 m, $(14{,}6 \pm 1{,}8)$ s en 0,20 m, y sube a $(24 \pm 2)$ s y $(31 \pm 5)$ s en los extremos; $N = 20$ llega antes que $N = 100$ en 10 de 11 posiciones.
+    \item Hay una zona intermedia de $x_0$ donde $\langle t_{90} \rangle$ es mínimo; sube cuando los obstáculos están cerca del centro o de la pared.
     \vspace{0.3em}
-    \item $f(v)$ relaja a Maxwell-Boltzmann en $t_{\mathrm{relax}} = 0{,}34$ s, con $k_B T = (1{,}24 \pm 0{,}02)\times10^{-2}$ J, 1 \% por debajo de $m\,v_0^2/2$.
+    \item Con menos partículas, la conversión completa llega antes en casi todas las posiciones.
     \vspace{0.3em}
-    \item Con $t_f = 30$ s no se puede afirmar una densidad óptima; $F_u(30\ \mathrm{s})$ disminuye con $\rho$ desde $N = 100$.
+    \item $f(v)$ relaja a Maxwell-Boltzmann, con una $k_B T$ ligeramente menor a la inicial $m\,v_0^2/2$.
     \vspace{0.3em}
-    \item En el mapa $(x_0, N)$, el mínimo de $\langle t_{90} \rangle$ queda en $x_0$ entre 0,20 y 0,25 m para $N \geq 50$.
+    \item Con el $t_f$ usado no se puede afirmar una densidad óptima; $F_u(t_f)$ disminuye con $\rho$ al aumentar la densidad.
+    \vspace{0.3em}
+    \item En el mapa $(x_0, N)$, la posición óptima de los obstáculos es casi independiente de $N$.
   \end{itemize}
 \end{frame}
 

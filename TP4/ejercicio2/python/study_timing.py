@@ -42,6 +42,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.ticker import FuncFormatter  # noqa: E402
 import numpy as np  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -69,8 +70,10 @@ SMOKE_N = (50, 100)
 SMOKE_SEEDS = (1, 2)
 SMOKE_TP3_N = (25, 50)
 SMOKE_TP3_SEEDS = (1, 2)
-TP3_EXT_N = (300, 400)
-TP3_EXT_SEEDS = engine.make_seeds(10)
+# TP3 pasado N = 440 usa la red hexagonal de respaldo del generador; a partir de N = 600 cada
+# corrida tarda minutos (tiempo ~ N^4), asi que alli se promedian 5 realizaciones, no 10.
+TP3_EXT_N = (300, 400, 450, 500, 550, 600, 650)
+TP3_EXT_SEEDS = {n: engine.make_seeds(5 if n >= 600 else 10) for n in TP3_EXT_N}
 BUDGET_NS_PER_PARTICLE_STEP = 18.0
 TP3_OFFICIAL_N = (25, 50, 75, 100, 150, 200)
 TP3_OFFICIAL_RUNS = 100
@@ -567,6 +570,11 @@ def _arr(rows, key) -> np.ndarray:
     return np.array([float(r[key]) for r in rows], dtype=float)
 
 
+def _plain_n_ticks(ax) -> None:
+    """Marcas del eje de N como enteros (100, 1000) en vez de potencias de 10."""
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:.0f}"))
+
+
 def plot_timing(tp4_summary, tp3_summary, stem, slopes=None, dt=None) -> None:
     """Un solo par de ejes log-log: TP4 y TP3, media +- sigma, sin curvas ajustadas."""
     dt = dt_star.require_dt_star() if dt is None else dt
@@ -580,6 +588,7 @@ def plot_timing(tp4_summary, tp3_summary, stem, slopes=None, dt=None) -> None:
     ns = np.concatenate([_arr(tp4_summary, "N"), _arr(tp3_summary, "N")])
     ts = np.concatenate([_arr(tp4_summary, "time_s_mean"), _arr(tp3_summary, "time_s_mean")])
     ax.set_xlim(min(20.0, ns.min() * 0.8), max(1000.0, ns.max() * 1.25))
+    _plain_n_ticks(ax)
     # Lugar arriba para el texto de pendientes y abajo a la derecha para la leyenda.
     ax.set_ylim(ts.min() / 3.0, ts.max() * 10.0)
     ax.set_xlabel(plot_style.axis_label("Número de partículas N"))
@@ -603,6 +612,7 @@ def plot_cost(tp4_summary, stem) -> None:
     plot_style.errorbar(ax, ns, mean, sigma, 0)
     plot_style.set_log_axes(ax, x=True, y=False)
     ax.set_xlim(min(20.0, ns.min() * 0.8), max(1000.0, ns.max() * 1.25))
+    _plain_n_ticks(ax)
     ax.set_ylim(0.0, float(np.max(mean + sigma)) * 1.25)
     plot_style.set_scientific_linear(ax, "y")
     ax.set_xlabel(plot_style.axis_label("Número de partículas N"))

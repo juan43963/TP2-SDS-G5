@@ -57,6 +57,37 @@ Este documento recopila las observaciones, objeciones y correcciones hechas por 
 
 ---
 
+## 2-bis. Corrección de la Presentación TP3 (G5, nota 6.5)
+
+Observaciones de Parisi sobre la entrega, convertidas en reglas generales. Cada una indica la diapositiva original (D#) donde apareció.
+
+### Alcance y estructura
+1. **Menos escenarios, más profundidad (general):** mostrar demasiados escenarios es peor. Basta con uno o dos simples más el que lleva al ganador. El enunciado da ejemplos para inspirar, no para hacerlos todos (D18-D20, D22-D27).
+2. **No mostrar todo lo que se probó:** resumir a la optimización de la configuración ganadora. Los barridos exploratorios descartados no van (D22-D27).
+3. **Si se analiza un escenario, se sigue la estructura completa:** animación → evolución temporal → observable vs parámetro. Escenarios sueltos sin esa tríada no se entienden (D18-D20).
+4. **Escenarios con parámetros ambiguos:** explicar cómo se varía el parámetro y qué se mantiene constante. Ejemplos de preguntas que el oyente no debería tener que hacerse: ¿los obstáculos tienen todos el mismo radio?, ¿se cambia el radio de cada uno para mantener constante el área total de obstáculos?, ¿dónde se generan las partículas iniciales (¿también en zonas desde las que no pueden alcanzar el objetivo?) (D19, D20).
+
+### Contenido por sección
+5. **Fundamentos (2.1) = teoría general:** va la teoría general sin ninguna configuración particular simulable con ella. Dimensiones de la mesa, cantidad de partículas, objetivos del TP, etc. son del sistema particular y van en Simulaciones (D3). Las diapositivas de modelo/ecuaciones generales están bien (D4, D5).
+6. **No redactar, usar matemática:** si un observable se define con una frase, escribirlo como fórmula (p. ej. $t_{90} = \min\{t : F_u(t) \ge 0{,}9\}$). Una definición verbal ambigua ("promedia el instante del k-ésimo gol") no queda clara (D11).
+7. **Fórmulas con origen:** una ecuación que aparece de golpe (¿qué es $\nu$? ¿por qué hay un $\pi$?) debe explicar de dónde sale y definir cada símbolo. Mejor aún, dar la explicación intuitiva (p. ej. al reducir el área aumenta la tasa de eventos, como la presión al reducir el volumen) y su límite de validez (a partir de cierta densidad el $t_{90}$ empeora porque no hay renovación de partículas cerca del objetivo) (D21).
+8. **N representativo del problema:** si el estudio busca el límite de validez de un método (p. ej. event-driven MD), saturar el sistema; un N muy bajo no lo pone a prueba. Es lo que se charló en las clases de TP (D13).
+9. **No animar lo trivial:** la animación de la configuración de referencia vacía (mesa vacía) no hacía falta (D14).
+10. **Una realización en las animaciones y en las curvas temporales:** mostrar una realización. Si se promedian realizaciones de eventos que ocurren en distintos tiempos (curvas de $F_u(t)$, goles, etc.), hay que explicar cómo se promedia (p. ej. promedio en cada instante $t$ de una grilla común) (D16).
+11. **Títulos informativos:** el título debe decir qué se varía, no "dinámica". Si el obstáculo está quieto, "Obstáculo central: dinámica" confunde; usar "Variación del radio del obstáculo central" o similar (D15).
+
+### Figuras
+12. **No repetir dibujos laterales:** si el esquema o el dibujo del costado ya se mostró en una diapositiva anterior, no se repite en las siguientes (D17, D30).
+13. **Indicar sobre las figuras las variables del texto:** marcar en el esquema las variables que se nombran ($h_w$, $h_c$, "largo accesible de cada cámara", etc.) (D23, D28).
+14. **Leyenda ≠ dato:** los símbolos de la leyenda no pueden mezclarse con los símbolos que son datos (marcadores de la leyenda con el mismo estilo que un dato confunden) (D24, D33).
+15. **Cifras significativas:** revisar en cada valor, también en tablas y en los parámetros del costado (D27, D32). Si hay dudas, consultar.
+16. **Ajustes:** aclarar qué se ajustó exactamente (¿$D$ o $4D$?, ¿qué constante?). Mostrar cómo se ajustó está bien (D32).
+
+### Conclusiones
+17. **Sin valores numéricos en las conclusiones:** son afirmaciones cualitativas respaldadas por lo mostrado; los números quedan en los resultados.
+
+---
+
 ## 3. Arquitectura y Código: Separación Motor vs Post-proceso
 
 - En la diapositiva de **Implementación**, describir **únicamente el motor de simulación** (algoritmo de colisiones, cola de eventos por prioridad, verificación de invariantes físicos).
