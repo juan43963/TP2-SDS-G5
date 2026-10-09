@@ -7,9 +7,9 @@
       "source": "ejercicio2/data/timing/figures/cost_per_particle_step.png"
     },
     "ecm_vs_dt.png": {
-      "bytes": 301624,
-      "copied_utc": "2026-10-05T14:36:22Z",
-      "sha256": "1d2deac5464ed7a7c999a2501c7b5123e4d53d0abcd4195734ce609cc1944263",
+      "bytes": 272328,
+      "copied_utc": "2026-10-09T18:38:34Z",
+      "sha256": "9cf63d33f9c611aa4489c64662c59ec498fcf9470523085f375d77b72d22cca7",
       "source": "ejercicio1/data/oscillator/ecm_vs_dt.png"
     },
     "energy_vs_time.png": {

@@ -54,6 +54,7 @@ FIT_WINDOWS = {
 CHUNK_LINES = 200_000
 T_TOLERANCE = 1e-12
 ROUNDOFF_LABEL = "Símbolo vacío: error dominado por redondeo"
+LEGEND_YTOP = 1e12 # margen superior del eje y para alojar la leyenda
 
 for _dt in DT_GRID:
     if _dt >= 1e-2 or round(observables.OSC_PARAMS["tf"] / _dt) * _dt != observables.OSC_PARAMS["tf"]:
@@ -209,7 +210,7 @@ def print_slopes_table(fits) -> None:
 
 def plot_ecm(fits, methods, stem) -> None:
     plot_style.apply_style()
-    fig, ax = plt.subplots(figsize=(11, 7.5))
+    fig, ax = plt.subplots(figsize=(14, 9))
     for index, method in enumerate(methods):
         f = fits[method]
         kw = plot_style.series_kwargs(index)
@@ -236,24 +237,17 @@ def plot_ecm(fits, methods, stem) -> None:
     plot_style.set_log_axes(ax)
     ax.grid(True, which="major", alpha=0.3)
 
-    if "gear5" in fits and fits["gear5"]["mask"].any():
-        g = fits["gear5"]
-        floor_pts = np.flatnonzero(g["mask"])
-        target = floor_pts[np.argmin(g["ecm"][floor_pts])]
-        ax.annotate(
-            "piso de redondeo (precisión doble)",
-            xy=(g["dt"][target], g["ecm"][target]),
-            xytext=(1.2e-6, g["ecm"][target] * 1e4),
-            arrowprops={"arrowstyle": "->", "linewidth": 1.5},
-            fontsize=plot_style.FONT_SIZE,
-        )
-
     handles, labels = ax.get_legend_handles_labels()
     handles.append(
         Line2D([], [], linestyle="", marker="o", markersize=9, markerfacecolor="none", markeredgecolor="gray")
     )
     labels.append(ROUNDOFF_LABEL)
-    ax.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, -0.17), frameon=False)
+    # Leyenda dentro de los ejes: se estira el eje y hacia arriba para que no tape datos
+    bottom, _ = ax.get_ylim()
+    ax.set_ylim(bottom, LEGEND_YTOP)
+    # Marcas solo hasta 10^0: la franja de arriba es lugar para la leyenda, no datos
+    ax.set_yticks([10.0**k for k in range(5 * math.ceil(math.log10(bottom) / 5), 1, 5)])
+    ax.legend(handles, labels, loc="upper left", framealpha=1.0, borderaxespad=0.3)
     plot_style.save_figure(fig, stem)
 
 

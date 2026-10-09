@@ -347,11 +347,16 @@
 
 % SLIDE res_ecm | S:1 | V:B | T:30
 \begin{frame}{Oscilador: ECM contra el paso temporal}
-  \centering
-  \includegraphics[width=\linewidth,height=0.72\textheight,keepaspectratio]{ecm_vs_dt.png}
-
-  \vspace{4pt}
-  {\small $\displaystyle \mathrm{ECM}(\Delta t) = \frac{1}{N_{\mathrm{pasos}}}\sum_{k=1}^{N_{\mathrm{pasos}}}\big[r_{\mathrm{num}}(t_k) - r_{\mathrm{an}}(t_k)\big]^2$}
+  \begin{columns}[c]
+    \begin{column}{0.68\textwidth}
+      \centering\includegraphics[width=\linewidth,height=0.86\textheight,keepaspectratio]{ecm_vs_dt.png}
+    \end{column}
+    \begin{column}{0.30\textwidth}
+      \centering
+      {\footnotesize $\displaystyle \mathrm{ECM}(\Delta t) =$\\[4pt]
+       $\displaystyle \frac{1}{N_{\mathrm{pasos}}}\sum_{k=1}^{N_{\mathrm{pasos}}}\big[r_{\mathrm{num}}(t_k) - r_{\mathrm{an}}(t_k)\big]^2$}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % SLIDE res_energia_t | S:2 | V:B | T:20
