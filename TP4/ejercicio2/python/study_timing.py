@@ -59,7 +59,7 @@ BUILD_STAMP = EJ2_DIR / "build" / "cxxflags.stamp"
 
 STUDY = "timing"
 SMOKE_STUDY = "timing_smoke"
-N_GRID = tuple(range(50, 651, 50))
+N_GRID = (25,) + tuple(range(50, 651, 50))
 SEEDS = engine.make_seeds(10)
 TF = 30.0
 X0 = 0.0175

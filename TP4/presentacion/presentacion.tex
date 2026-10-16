@@ -302,9 +302,11 @@
     \qquad
     \sum_j f_j\,\Delta v = 1
   \]
-  \textbf{Relajación} --- vale 1 si todas tienen $|\vect{v}| = v_0$ y 2 para Maxwell-Boltzmann en 2D:
+  \textbf{Relajación} --- cociente de momentos de la rapidez:
   \[
     \frac{\langle v^4 \rangle}{\langle v^2 \rangle^2}
+    = \begin{cases} 1 & |\vect{v}| = v_0 \text{ para todas (condición inicial)} \\
+      2 & \text{Maxwell-Boltzmann 2D: } v^2 \sim \text{exponencial} \Rightarrow \langle v^4 \rangle = 2\,\langle v^2 \rangle^2 \end{cases}
   \]
   \textbf{Modelo} (un solo parámetro) y \textbf{error del ajuste}, sobre los centros de bin $v_j$:
   \[
@@ -338,7 +340,7 @@
   \raggedright
   \params{2.1a: 10 valores de $\Delta t$ entre $5\times10^{-6}$ y $5\times10^{-3}$ s.\\[3pt]
   $\Delta t = 5\times10^{-5}$ s en 2.1b a 2.4b.\\[3pt]
-  Todas las corridas: AMD Ryzen 7 9800X3D, g++ 13.3 con -O2.}
+  Todas las corridas: g++ 13.3 con -O2.}
 \end{frame}
 
 % =====================================================================
@@ -354,7 +356,11 @@
     \begin{column}{0.30\textwidth}
       \centering
       {\footnotesize $\displaystyle \mathrm{ECM}(\Delta t) =$\\[4pt]
-       $\displaystyle \frac{1}{N_{\mathrm{pasos}}}\sum_{k=1}^{N_{\mathrm{pasos}}}\big[r_{\mathrm{num}}(t_k) - r_{\mathrm{an}}(t_k)\big]^2$}
+       $\displaystyle \frac{1}{N_{\mathrm{pasos}}}\sum_{k=1}^{N_{\mathrm{pasos}}}\big[r_{\mathrm{num}}(t_k) - r_{\mathrm{an}}(t_k)\big]^2$}\\[10pt]
+      \params{\textbf{Método elegido: Verlet original}\\[3pt]
+              Beeman, Verlet original y Velocity Verlet tienen el mismo orden (ECM $\propto \Delta t^{4}$)\\[3pt]
+              Verlet evalúa la fuerza una sola vez por paso\\[3pt]
+              Euler predictor-corrector: ECM $\propto \Delta t^{2}$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -381,12 +387,10 @@
       \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{eps_vs_dt.png}
     \end{column}
     \begin{column}{0.28\textwidth}
-      \params{5 realizaciones, barras $\sigma$\\
-              Umbral $\varepsilon = 10^{-3}$\\
-              $t_c = 3{,}51\times10^{-3}$ s\\[6pt]
-              $\Delta t^* = 5\times10^{-5}$ s $= t_c/70$\\
-              $\varepsilon(\Delta t^*) = (9 \pm 6)\times10^{-5}$\\[6pt]
-              $\Delta t = 5\times10^{-3}$ s diverge (5 de 5)}
+      \params{$t_c = 3{,}51\times10^{-3}$ s: duración de un contacto\\[6pt]
+              \textbf{Criterio}: el mayor $\Delta t$ con al menos 50 pasos por contacto ($t_c/\Delta t \geq 50$, práctica en dinámica molecular)\\[6pt]
+              $\Delta t^* = 5\times10^{-5}$ s: 70 pasos por contacto\\
+              $\Delta t = 10^{-4}$ s: sólo 35}
     \end{column}
   \end{columns}
 \end{frame}
@@ -398,26 +402,9 @@
       \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{timing_vs_N.png}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \params{\textbf{TP4}: obstáculos en $x_0 = r$, $t_f = 30$ s, 10 realizaciones, red hexagonal\\[4pt]
-              \textbf{TP3}: mesa vacía, $t_{\max} = 30$ s, 100 realizaciones hasta $N = 200$, 10 entre $N = 300$ y 550, y 5 en $N = 600$ y 650\\[4pt]
-              Misma computadora: AMD Ryzen 7 9800X3D, g++ 13.3 con -O2\\[4pt]
-              Pendientes log-log: 1,14 (TP4) y 3,65 (TP3)\\
+      \params{Misma computadora para TP3 y TP4\\[4pt]
+              Pendientes log-log: 1,01 (TP4) y 3,62 (TP3)\\
               Cruce en $N \approx 310$}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% SLIDE res_costo | S:2 | V:B | T:20
-\begin{frame}{Costo por partícula y por paso}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{cost_per_particle_step.png}
-    \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Tiempo de ejecución dividido por $N$ y por el número de pasos\\[4pt]
-              $6\times10^{5}$ pasos ($t_f = 30$ s, $\Delta t = 5\times10^{-5}$ s)\\[4pt]
-              Mínimo: 12,4 ns en $N = 150$\\
-              En $N = 650$: 20,2 ns}
     \end{column}
   \end{columns}
 \end{frame}
@@ -426,19 +413,15 @@
 \begin{frame}{Variación de la posición $x_0$ de los obstáculos}
   \vfill
   \begin{columns}[c]
-    \begin{column}{0.27\textwidth}
+    \begin{column}{0.36\textwidth}
       \animacion{x0_r}{$x_0 = 1{,}75\times10^{-2}$ m ($= r$)}
     \end{column}
-    \begin{column}{0.27\textwidth}
+    \begin{column}{0.36\textwidth}
       \animacion{x0_central}{$x_0 = 0{,}20$ m}
     \end{column}
-    \begin{column}{0.27\textwidth}
-      \animacion{x0_Rmr}{$x_0 = 0{,}4925$ m ($= R - r$)}
-    \end{column}
-    \begin{column}{0.17\textwidth}
+    \begin{column}{0.22\textwidth}
       \params{$N = 100$\\[4pt]
-              Fotograma con 50 usadas\\[4pt]
-              Semillas 4, 2 y 4}
+              Fotograma con 50 usadas}
     \end{column}
   \end{columns}
   \vfill
@@ -451,12 +434,8 @@
       \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{fu_vs_t_N100.png}
     \end{column}
     \begin{column}{0.28\textwidth}
-      \params{$N = 100$, 10 realizaciones\\
-              $\langle F_u \rangle(t)$ promediada en cada instante\\
-              $x_0 = 1{,}75\times10^{-2}$, $0{,}20$ y $0{,}4925$ m\\
-              Barras $\sigma$ cada 10 s\\
-              Punteada: $F_u = 0{,}9$\\
-              Ninguna realización censurada hasta $t_{\max} = 100$ s\\[6pt]
+      \params{Barras $\sigma$ cada 10 s\\
+              Punteada: $F_u = 0{,}9$\\[6pt]
               Escalar: $t_{90}$, el cruce con $F_u = 0{,}9$}
     \end{column}
   \end{columns}
@@ -477,9 +456,8 @@
 
 % SLIDE res_anim_sin | S:2 | V:C | T:15
 \begin{frame}{Billar sin obstáculos: relajación de las rapideces}
-  \vfill
-  \begin{columns}[c]
-    \begin{column}{0.40\textwidth}
+  \begin{columns}[T]
+    \begin{column}{0.28\textwidth}
       \animacion{sin_obstaculos}{Sin obstáculos}
     \end{column}
     \begin{column}{0.40\textwidth}
@@ -488,7 +466,6 @@
               Fotograma en $t = 2$ s}
     \end{column}
   \end{columns}
-  \vfill
 \end{frame}
 
 % SLIDE res_ratio | S:2 | V:C | T:20
@@ -498,9 +475,7 @@
       \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{ratio_vs_t.png}
     \end{column}
     \begin{column}{0.28\textwidth}
-      \params{$N = 100$, sin obstáculos, 10 realizaciones, $t_f = 10$ s\\[5pt]
-              $t_{\mathrm{relax}} = 0{,}34$ s: el cociente alcanza $2 - 3 \cdot 2/\sqrt{n}$, con $n = 10^{3}$ rapideces\\[5pt]
-              Ventana estacionaria $[1{,}02;\, 10]$ s $= [3\,t_{\mathrm{relax}},\, t_f]$\\
+      \params{Eje vertical: $\langle v^4 \rangle / \langle v^2 \rangle^2$ (Observables 2/2)\\[5pt]
               En la ventana: $1{,}99 \pm 0{,}03$}
     \end{column}
   \end{columns}
@@ -513,25 +488,7 @@
       \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{fv_evolution.png}
     \end{column}
     \begin{column}{0.28\textwidth}
-      \params{$t = 0{,}1$; $0{,}2$; $0{,}5$ y $1$ s, y estacionaria\\
-              Barras $\sigma$ entre 10 realizaciones\\
-              $\Delta v = 0{,}05$ m/s\\[5pt]
-              En $t = 0$: $\delta(v - v_0)$, flecha en $v_0$}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% SLIDE res_fv_fit | S:2 | V:C | T:25
-\begin{frame}{Distribución estacionaria y ajuste}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{fv_stationary_fit.png}
-    \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Ventana $[1{,}02;\, 10]$ s, 10 realizaciones\\
-              $\Delta v = 0{,}05$ m/s\\[5pt]
-              Línea llena: $f_{\mathrm{MB}}$ con $k_B T = (1{,}24 \pm 0{,}02)\times10^{-2}$ J\\
-              Trazos: $f_{\mathrm{MB}}$ con $m\,v_0^2/2 = 1{,}25\times10^{-2}$ J}
+      \params{En $t = 0$: $\delta(v - v_0)$, flecha en $v_0$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -543,10 +500,21 @@
       \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{fit_error_kbt.png}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \params{Barrido de $10^{-3}$ a $5\times10^{-2}$ J, paso $10^{-5}$ J\\[4pt]
-              Mínimo (estrella): $k_B T = (1{,}24 \pm 0{,}02)\times10^{-2}$ J, $\sigma$ entre 10 realizaciones\\[4pt]
-              Error estándar: $6\times10^{-5}$ J; la diferencia con $m\,v_0^2/2 = 1{,}25\times10^{-2}$ J (trazos) es de unos 2 errores estándar\\[4pt]
-              Control: $m \langle v^2 \rangle/2 = 1{,}23\times10^{-2}$ J en la ventana}
+      \params{Mínimo (estrella): $k_B T = (1{,}24 \pm 0{,}02)\times10^{-2}$ J\\[4pt]
+              Trazos: $m\,v_0^2/2 = 1{,}25\times10^{-2}$ J}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% SLIDE res_fv_fit | S:2 | V:C | T:25
+\begin{frame}{Distribución estacionaria y ajuste}
+  \begin{columns}[c]
+    \begin{column}{0.70\textwidth}
+      \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{fv_stationary_fit.png}
+    \end{column}
+    \begin{column}{0.28\textwidth}
+      \params{Línea llena: $f_{\mathrm{MB}}$ con $k_B T = (1{,}24 \pm 0{,}02)\times10^{-2}$ J\\
+              Trazos: $f_{\mathrm{MB}}$ con $m\,v_0^2/2 = 1{,}25\times10^{-2}$ J}
     \end{column}
   \end{columns}
 \end{frame}
@@ -558,11 +526,8 @@
       \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{t90_t100_vs_density.png}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \params{Mismas corridas que el tiempo de ejecución: $x_0 = r$, $t_f = 30$ s, 10 realizaciones, red hexagonal\\[4pt]
-              $\rho = N/(\pi R^2)$\\[4pt]
-              Marcador hueco: cota inferior, no todas llegan a $t_{90}$\\
-              $t_{100}$ no se alcanza en ninguna corrida\\[4pt]
-              El mínimo de $\langle t_{90} \rangle$ está en el borde ($N = 50$), con un solo punto completo: no se puede afirmar una densidad óptima}
+      \params{$N$ de 10 a 150 en pasos de 10\\[4pt]
+              Mínimo (estrella): $(17 \pm 4)$ s en $N = 30$, indistinguible de $N = 20$ y $40$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -574,13 +539,8 @@
       \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{success_fu_vs_density.png}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \params{Mismas corridas: $x_0 = r$, $t_f = 30$ s, 10 realizaciones\\[4pt]
-              $F_u(30\ \mathrm{s})$:\\
-              $0{,}93 \pm 0{,}03$ en $N = 50$\\
-              $0{,}94 \pm 0{,}02$ en $N = 100$\\
-              $0{,}018 \pm 0{,}005$ en $N = 650$\\[4pt]
-              Disminuye con $\rho$ desde $N = 100$\\[4pt]
-              Inicio en red hexagonal ordenada, sin pre-corrida de fusión}
+      \params{Mismas corridas que la diapositiva anterior\\[4pt]
+              $F_u$ disminuye al aumentar $\rho$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -592,12 +552,11 @@
       \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{heatmap_t90.png}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \params{$N$ entre 20 y 400 (8 valores), 13 valores de $x_0$\\
+      \params{$N$ de 20 a 400, 13 valores de $x_0$\\
               10 realizaciones, $t_{\max} = 100$ s\\[4pt]
               Celda rayada: censurada\\
-              Estrella hueca: mínimo de cada $N$, ninguno distinguible de sus vecinos\\[4pt]
-              Mínimo en $x_0$ entre 0,20 y 0,25 m para $N \geq 50$\\
-              $\langle t_{90} \rangle$ mínimo: $(11 \pm 3)$ s en $N = 20$ y $(45 \pm 3)$ s en $N = 400$}
+              Estrella hueca: mínimo de cada $N$\\[4pt]
+              Mínimo en $x_0 \approx 0{,}20$ a $0{,}25$ m para $N \geq 50$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -610,7 +569,7 @@
 \begin{frame}{Conclusiones}
   \footnotesize
   \begin{itemize}
-    \item Oscilador: Beeman, Verlet original y Velocity Verlet (ECM $\propto \Delta t^{4}$) dan casi el mismo error; Euler predictor-corrector (ECM $\propto \Delta t^{2}$) es unas $10^{6}$ veces peor en $\Delta t = 10^{-3}$ s.
+    \item Oscilador: Beeman, Verlet original y Velocity Verlet (ECM $\propto \Delta t^{4}$) dan casi el mismo error y elegimos Verlet original; Euler predictor-corrector (ECM $\propto \Delta t^{2}$) es unas $10^{6}$ veces peor en $\Delta t = 10^{-3}$ s.
     \vspace{0.15em}
     \item El paso $\Delta t^*$ elegido conserva la energía: el error queda por debajo del umbral fijado.
     \vspace{0.15em}
@@ -622,7 +581,7 @@
     \vspace{0.15em}
     \item $f(v)$ relaja a Maxwell-Boltzmann, con una $k_B T$ ligeramente menor a la inicial $m\,v_0^2/2$.
     \vspace{0.15em}
-    \item Con el $t_f$ usado no se puede afirmar una densidad óptima; $F_u(t_f)$ disminuye al aumentar $\rho$.
+    \item $\langle t_{90} \rangle$ es mínimo para $N \approx 20$ a $40$ (zona, no un punto); $F_u(t_f)$ disminuye al aumentar $\rho$.
     \vspace{0.15em}
     \item En el mapa $(x_0, N)$, la posición óptima de los obstáculos es casi independiente de $N$.
   \end{itemize}

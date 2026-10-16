@@ -448,8 +448,6 @@ def plot_ratio(ratio, fit, stem) -> None:
     t_stat, t_end = fit["window"]
     ax.axvspan(t_stat, t_end, color="C2", alpha=0.12, label="ventana estacionaria")
     ax.axvline(t_stat, color="C2", linestyle="-", linewidth=1.5)
-    ax.annotate(rf"$t_{{est}}$ = {t_stat:g} s", (t_stat, 0.9), textcoords="offset points",
-                xytext=(8, 0), color="C2")
     kw = plot_style.series_kwargs(0)
     ax.plot(t, m, color=kw["color"], linewidth=1.0)
     step = max(1, int(round(0.5 / DT2)))
@@ -460,14 +458,12 @@ def plot_ratio(ratio, fit, stem) -> None:
     ax.axhline(1.0, color="0.35", linestyle="--", linewidth=1.0,
                label="1: delta inicial; 2: Maxwell-Boltzmann 2D")
     ax.axhline(2.0, color="0.35", linestyle="--", linewidth=1.0)
-    ax.axhline(fit["threshold"], color="C3", linestyle=":", linewidth=1.5,
-               label=f"umbral = {fit['threshold']:.3f}")
     xmax = float(t[-1])
     ax.set_xlim(0.0, xmax)
     ax.set_ylim(0.8, 2.6)
     ax.set_xlabel(T_LABEL)
     ax.set_ylabel(RATIO_LABEL)
-    # Franja libre entre la referencia 1 y el umbral: la leyenda no tapa datos.
+    # Franja libre entre la referencia 1 y los datos: la leyenda no tapa nada.
     ax.legend(loc="lower right", bbox_to_anchor=(1.0, 0.12), frameon=False)
     plot_style.save_figure(fig, stem)
 

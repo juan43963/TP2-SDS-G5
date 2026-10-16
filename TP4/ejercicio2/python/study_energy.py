@@ -477,8 +477,6 @@ def plot_eps_vs_dt(summary_rows, selection, stem) -> None:
                 markerfacecolor="none", markeredgecolor="C3", markeredgewidth=2.0,
                 transform=ax.get_xaxis_transform(), clip_on=False,
                 label="Diverge (posición no finita)")
-    ax.axhline(dt_star.EPS_THRESHOLD, color="0.4", linestyle="--", linewidth=1.5,
-               label="Umbral declarado")
     ax.axvline(dt_star.TC_PAIR, color="0.4", linestyle=":", linewidth=2.0,
                label="Tiempo de contacto")
     if selection is not None:

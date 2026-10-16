@@ -30,7 +30,7 @@ import observables  # noqa: E402
 import plot_style  # noqa: E402
 
 TP4_DIR = Path(__file__).resolve().parents[1]
-METHODS = ("eulerpc", "verlet", "vverlet", "beeman", "gear5")
+METHODS = ("eulerpc", "verlet", "vverlet", "beeman")
 LABELS = {
     "eulerpc": "Euler predictor-corrector",
     "verlet": "Verlet original",
@@ -219,29 +219,13 @@ def plot_ecm(fits, methods, stem) -> None:
         slope = f["slope"]
         suffix = f"pendiente {slope:.2f}" if not math.isnan(slope) else "pendiente n/d"
         keep = [i for i, hollow in enumerate(f["mask"]) if not hollow]
-        ax.plot(f["dt"], f["ecm"], label=f"{LABELS[method]} ({suffix})", markevery=keep, **kw)
-        hollow = f["mask"]
-        if hollow.any():
-            ax.plot(
-                f["dt"][hollow],
-                f["ecm"][hollow],
-                linestyle="",
-                marker=kw["marker"],
-                markersize=kw["markersize"],
-                markerfacecolor="none",
-                markeredgecolor=kw["color"],
-                markeredgewidth=1.8,
-            )
+        ax.plot(f["dt"], f["ecm"], label=f"{LABELS[method]} ({suffix})", **kw)
     ax.set_xlabel(plot_style.axis_label("Paso temporal", "s"))
     ax.set_ylabel(plot_style.axis_label("Error cuadrático medio", "m$^2$"))
     plot_style.set_log_axes(ax)
     ax.grid(True, which="major", alpha=0.3)
 
     handles, labels = ax.get_legend_handles_labels()
-    handles.append(
-        Line2D([], [], linestyle="", marker="o", markersize=9, markerfacecolor="none", markeredgecolor="gray")
-    )
-    labels.append(ROUNDOFF_LABEL)
     # Leyenda dentro de los ejes: se estira el eje y hacia arriba para que no tape datos
     bottom, _ = ax.get_ylim()
     ax.set_ylim(bottom, LEGEND_YTOP)

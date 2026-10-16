@@ -460,23 +460,16 @@ def plot_times(summary_rows, opt, tf: float, stem) -> None:
     """<t90> y <t100> +- sigma contra rho; cotas inferiores huecas sin barra; tf punteado."""
     plot_style.apply_style()
     fig, ax = plt.subplots(figsize=FIGSIZE)
-    lower_labelled = False
+    top = 0.0
     for i, key in enumerate(KEYS):
         complete = [r for r in summary_rows if r[f"{key}_status"] == "all"]
-        censored = [r for r in summary_rows if r[f"{key}_status"] == "partial"]
         if complete:
             plot_style.errorbar(ax, _col(complete, "rho"), _col(complete, f"{key}_mean"),
                                 np.nan_to_num(_col(complete, f"{key}_sigma"), nan=0.0), i,
                                 label=TIME_LABELS[key])
-        if censored:
-            kw = plot_style.series_kwargs(i)
-            ax.plot(_col(censored, "rho"), _col(censored, f"{key}_lower"),
-                    marker=kw["marker"], markersize=kw["markersize"], color=kw["color"],
-                    markerfacecolor="none", markeredgewidth=1.5, linestyle="none",
-                    label=None if lower_labelled else "cota inferior (censurado)")
-            lower_labelled = True
-    ax.axhline(tf, color="0.35", linestyle="--", linewidth=1.0,
-               label=rf"$t_f$ = {tf:g} s")
+        # Los censurados (cota inferior) no se dibujan: estiraban el eje hasta ~tf.
+        top = max(top, float(np.max(_col(complete, f"{key}_mean") + np.nan_to_num(
+            _col(complete, f"{key}_sigma"), nan=0.0)))) if complete else top
     best = (opt or {}).get("t90", {})
     if "N" in best:
         ax.plot([best["rho"]], [best["mean"]], marker="*", markersize=24, color="C3",
@@ -487,11 +480,12 @@ def plot_times(summary_rows, opt, tf: float, stem) -> None:
                     xytext=(12, -28))
     ax.set_xlabel(_density_label())
     ax.set_ylabel(plot_style.axis_label("Tiempo", "s"))
-    ax.set_ylim(0.0, 1.45 * tf)
+    ax.set_ylim(0.0, 1.25 * top if top > 0 else 1.45 * tf)
     if summary_rows:
         rho = _col(summary_rows, "rho")
         pad = 0.06 * (rho.max() - rho.min()) if rho.size > 1 else 0.1 * rho.max()
-        ax.set_xlim(rho.min() - pad, rho.max() + pad)
+        # Eje desde N = 0 hasta N = 140 (rho = N / area).
+        ax.set_xlim(0.0, 140.0 / _area(summary_rows))
     _top_axis_n(ax, summary_rows)
     handles, labels = ax.get_legend_handles_labels()
     order = sorted(range(len(labels)), key=lambda j: labels[j].startswith("$t_f$"))

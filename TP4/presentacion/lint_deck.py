@@ -38,9 +38,9 @@ DEFAULT_TEX = PRES_DIR / "presentacion.tex"
 SLIDE_IDS = (
     "title", "intro_real", "intro_modelo", "impl_verlet", "impl_arquitectura",
     "sim_sistema", "sim_obs1", "sim_obs2", "sim_realizaciones",
-    "res_ecm", "res_energia_t", "res_eps", "res_timing", "res_costo", "res_anim_x0",
-    "res_fu", "res_t90_x0", "res_anim_sin", "res_ratio", "res_fv_evol", "res_fv_fit",
-    "res_fit_error", "res_dens_t90", "res_dens_fu", "res_heatmap", "concl", "gracias",
+    "res_ecm", "res_energia_t", "res_eps", "res_timing", "res_anim_x0",
+    "res_fu", "res_t90_x0", "res_anim_sin", "res_ratio", "res_fv_evol", "res_fit_error",
+    "res_fv_fit", "res_dens_t90", "res_dens_fu", "res_heatmap", "concl", "gracias",
 )
 SYSTEM_OF = {sid: "2" for sid in SLIDE_IDS}
 SYSTEM_OF.update({"title": "-", "gracias": "-", "res_ecm": "1"})
@@ -53,7 +53,6 @@ FIGURE_OF = {
     "res_energia_t": "energy_vs_time.png",
     "res_eps": "eps_vs_dt.png",
     "res_timing": "timing_vs_N.png",
-    "res_costo": "cost_per_particle_step.png",
     "res_fu": "fu_vs_t_N100.png",
     "res_t90_x0": "t90_vs_x0_compare.png",
     "res_ratio": "ratio_vs_t.png",
@@ -66,7 +65,7 @@ FIGURE_OF = {
 }
 # Animaciones de cada diapositiva, de izquierda a derecha.
 ANIMATIONS_OF = {
-    "res_anim_x0": ("x0_r", "x0_central", "x0_Rmr"),
+    "res_anim_x0": ("x0_r", "x0_central"),
     "res_anim_sin": ("sin_obstaculos",),
 }
 

@@ -40,7 +40,7 @@ import tp4io  # noqa: E402
 
 COLOR_FRESH = "#1f77b4"
 COLOR_USED = "#d62728"
-COLOR_OBSTACLE = "black"
+COLOR_OBSTACLE = "#2ca02c"
 COLOR_WALL = "black"
 
 
