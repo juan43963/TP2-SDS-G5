@@ -22,9 +22,9 @@ El trabajo arranca por el Sistema 1 (oscilador amortiguado), que no depende de n
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Sistema 1 — Oscilador amortiguado y andamiaje** - Binario `osc` con 4 integradores + Gear-5, self-test de pendientes, figura ECM vs dt con estilo de la guía
-- [ ] **Phase 2: Motor del billar circular** - Binario `billiard` validado: generador RSA/red, CIM, resortes con pared por imagen, Verlet, conversiones, salidas y self-test
-- [ ] **Phase 3: Pipeline de análisis y selección de dt (2.1a)** - Capa Python validada contra el motor (animador, validación cruzada, runner) y dt* elegido por energía y congelado (GATE)
+- [x] **Phase 1: Sistema 1 — Oscilador amortiguado y andamiaje** - Binario `osc` con 4 integradores + Gear-5, self-test de pendientes, figura ECM vs dt con estilo de la guía
+- [x] **Phase 2: Motor del billar circular** - Binario `billiard` validado: generador RSA/red, CIM, resortes con pared por imagen, Verlet, conversiones, salidas y self-test
+- [x] **Phase 3: Pipeline de análisis y selección de dt (2.1a)** - Capa Python validada contra el motor (animador, validación cruzada, runner) y dt* elegido por energía y congelado (GATE)
 - [x] **Phase 4: Tiempos vs TP3 (2.1b) y densidad (2.4a)** - Motor congelado, barrido serial de tiempos vs N superpuesto a TP3 re-corrido, y t90/t100 vs densidad desde los mismos logs (completed 2026-10-03)
 - [x] **Phase 5: Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b)** - Fu(t) y ⟨t90⟩ vs x0 (N = 100 y 20), f(v) + ajuste de kBT, y mapa de calor (x0, N) (completed 2026-10-03)
 - [ ] **Phase 6: Animaciones, presentación y entrega** - MP4 con link, Beamer de 13 min, PDF y .zip con los nombres exactos del enunciado
@@ -172,7 +172,7 @@ Plans:
   3. `SdS_TP4_2026Q2G05CS_Presentación.pdf` existe con ese nombre exacto, sin animaciones embebidas ni placeholders pendientes, y todas sus figuras pasan la revisión contra la guía
   4. `SdS_TP4_2026Q2G05CS_Codigo.zip` pesa < 100 KB y lo genera un script con allowlist (solo `src/` del motor + Makefile). Descomprimido en un directorio limpio, compila desde cero sin warnings
 
-**Plans**: 3/4 plans executed
+**Plans**: 3/4 plans executed (06-04 solo pasos humanos; links de video aún `null` en `links.json`, a 2026-10-17)
 
 Plans:
 **Wave 1**
@@ -219,12 +219,12 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6. La Fase 2 pued
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Sistema 1 — Oscilador amortiguado y andamiaje | 2/2 | In Progress|  |
-| 2. Motor del billar circular | 3/3 | In Progress|  |
-| 3. Pipeline de análisis y selección de dt (2.1a) | 4/4 | In Progress|  |
+| 1. Sistema 1 — Oscilador amortiguado y andamiaje | 2/2 | Complete | 2026-10-02 |
+| 2. Motor del billar circular | 3/3 | Complete | 2026-10-02 |
+| 3. Pipeline de análisis y selección de dt (2.1a) | 4/4 | Complete | 2026-10-03 |
 | 4. Tiempos vs TP3 (2.1b) y densidad (2.4a) | 4/4 | Complete    | 2026-10-03 |
 | 5. Conversión vs x0, termalización y mapa de calor (2.2, 2.3, 2.4b) | 3/3 | Complete    | 2026-10-03 |
-| 6. Animaciones, presentación y entrega | 3/4 | In Progress|  |
+| 6. Animaciones, presentación y entrega | 3/4 | In Progress (06-04 = pasos humanos; deck refrescado 2026-10-17) |  |
 
 ---
 *Roadmap created: 2026-10-02*

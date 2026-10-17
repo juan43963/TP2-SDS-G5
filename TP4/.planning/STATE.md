@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 06
 current_phase_name: Animaciones, presentación y entrega
 status: executing
-stopped_at: Completed 06-03-PLAN.md
-last_updated: "2026-10-03T18:12:39.195Z"
-last_activity: 2026-10-03
-last_activity_desc: Phase 06 execution started
+stopped_at: 06-03 completo; 06-04 pendiente de pasos humanos (links de video, ensayo, subida a campus)
+last_updated: "2026-10-17T00:00:00.000Z"
+last_activity: 2026-10-17
+last_activity_desc: Deck y resultados refrescados, guiones de oradores y guia de estudio agregados
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 5
   total_plans: 20
   completed_plans: 19
-  percent: 33
+  percent: 95
 ---
 
 # Project State
@@ -28,11 +28,13 @@ See: .planning/PROJECT.md (updated 2026-10-03)
 ## Current Position
 
 Phase: 06 (Animaciones, presentación y entrega) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute
-Last activity: 2026-10-03 — Phase 06 execution started
+Plan: 4 of 4 (06-04, solo pasos humanos)
+Status: Esperando pasos manuales de entrega
+Last activity: 2026-10-17 — refresh de resultados/deck (b0895e9, 6f28161), guiones A/B/C y guia de estudio en `consulta/`
 
-Progress: [████████████████░░░░] 13/16 plans ([███░░░░░░░] 33%)
+Progress: [███████████████████░] 19/20 plans (95%)
+
+Quedan para 06-04 (entrega 2026-10-23 13:00): (1) subir los 4 MP4 a YouTube/Vimeo y pegar las URLs en `presentacion/links.json` (hoy todas `null`) y recompilar; (2) correr `entrega/check_deliverables.py`; (3) revisar el deck contra `docs/GuiaPresentaciones.pdf` y ensayar los 13 min; (4) renombrar y subir `SdS_TP4_2026Q2G05CS_Presentación.pdf` y `..._Codigo.zip` a campus. Regenerar el zip si cambia `src/` (el actual es del 2026-10-03, 21609 B).
 
 ## Performance Metrics
 
@@ -111,6 +113,7 @@ Recent decisions affecting current work:
 - [Phase 05 UAT]: "distinct" keeps the sigma rule (WR-04); README must state "no distinto" = within one realization spread. Sweep gate not fixed (CR-01/WR-01/WR-02 accepted, AR-05-01); official data final
 - [Phase 06]: Representative animation seeds: x0_central=2, x0_r=4, x0_Rmr=4, sin_obstaculos=1 (t90 nearest mean of seeds 1-10)
 - [Phase 06]: [06-02] Code zip ships both engines (osc, billiard) with its own minimal Makefile; deterministic archive (fixed date/mode, CRLF to LF), size asserted < 100000 bytes (actual 21609)
+- [Phase 06]: Post 06-03 (2026-10-16/17): figuras, animaciones y deck regenerados; diapo 21 con `esquema_x0.png`; agregadas `t90_t100_vs_density_x0_0p20.png`, guiones por orador y `Guia_Estudio_TP4.pdf` en `consulta/`
 - [Phase 06]: 06-03: deck notation uses bold x for positions, r for radii, calligraphic E for the fit error; sim_obs1 compacted (F_u inline, density in sim_obs2) because the deck cannot be compiled on this machine
 
 ### Pending Todos
@@ -125,7 +128,7 @@ None yet.
 - [Phase 5] Riesgo aceptado AR-05-01 (05-SECURITY.md): huecos del sweep gate CR-01/WR-01/WR-02 sin arreglar; datos oficiales definitivos (binario 96bf9ec0 verificado). No tocar `src/`; correr siempre vía `make`. Si el motor cambia, borrar a mano data/conversion, data/thermal, data/heatmap antes de re-correr
 - [Phase 1–3] UAT pendientes (01/02/03-UAT.md, verificación `human_needed`); 03-UAT test 1 (dt* = 5e-5) aceptado implícitamente al lanzar la sesión oficial
 - [Cómputo] dt* se desconoce hasta la Fase 3; el presupuesto de las Fases 4 y 5 cambia ×10 entre dt = 1e-4 y 1e-5. Hay que redimensionar las grillas al congelar dt*
-- [Calendario] 3 semanas hasta el 23/10 13hs. La subida a YouTube/Vimeo y la compilación con MiKTeX son pasos manuales en Windows (Fase 6)
+- [Calendario] Quedan 6 días (hoy 2026-10-17) hasta el 23/10 13hs. La subida a YouTube/Vimeo y la compilación con MiKTeX son pasos manuales en Windows (Fase 6)
 
 ## Deferred Items
 
@@ -137,6 +140,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-03T18:12:39.159Z
-Stopped at: Completed 06-03-PLAN.md
+Last session: 2026-10-17
+Stopped at: 06-03 completo; 06-04 pendiente de pasos humanos
 Resume file: None
