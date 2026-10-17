@@ -56,6 +56,7 @@ RUN_DIR_RE = re.compile(r"N(\d+)_.+_seed(\d+)")
 DATA_ROOT = Path(__file__).resolve().parents[1] / "data"
 FIGSIZE = (11.0, 7.5)
 KEYS = ("t90", "t100")
+HEATMAP_X0 = 0.2  # columna de 2.4b para la figura complementaria
 STATUSES = ("all", "partial", "none")
 
 RUNS_COLUMNS = ("N", "seed", "rho", "phi", "used", "fu30", "t90", "t100", "final_time")
@@ -467,8 +468,13 @@ def plot_times(summary_rows, opt, tf: float, stem) -> None:
             plot_style.errorbar(ax, _col(complete, "rho"), _col(complete, f"{key}_mean"),
                                 np.nan_to_num(_col(complete, f"{key}_sigma"), nan=0.0), i,
                                 label=TIME_LABELS[key])
-        # Los censurados (cota inferior) no se dibujan: estiraban el eje hasta ~tf.
-        top = max(top, float(np.max(_col(complete, f"{key}_mean") + np.nan_to_num(
+        # Cotas inferiores (partial): marcador hueco y sin barra; no cuentan para el eje y.
+        partial = [r for r in summary_rows if r[f"{key}_status"] == "partial"]
+        if partial:
+            ax.plot(_col(partial, "rho"), _col(partial, f"{key}_lower"), linestyle="none",
+                    marker=plot_style.series_kwargs(i).get("marker", "o"), markersize=10,
+                    markerfacecolor="none", color=f"C{i}")
+        top =max(top, float(np.max(_col(complete, f"{key}_mean") + np.nan_to_num(
             _col(complete, f"{key}_sigma"), nan=0.0)))) if complete else top
     best = (opt or {}).get("t90", {})
     if "N" in best:
@@ -518,6 +524,47 @@ def plot_success(summary_rows, stem) -> None:
     order = sorted(range(len(labels)), key=lambda j: not labels[j].startswith("$F_u$"))
     ax.legend([handles[j] for j in order], [labels[j] for j in order], loc="best",
               frameon=False)
+    plot_style.save_figure(fig, stem)
+
+
+def read_heatmap_column(cells_path, x0: float) -> list[dict]:
+    """Filas de cells.csv (2.4b) con x0 dado, ordenadas por N; no corre nada."""
+    with open(cells_path, "r", newline="", encoding="utf-8") as fh:
+        rows = [r for r in csv.DictReader(fh) if abs(float(r["x0"]) - x0) < 1e-9]
+    out = []
+    for r in rows:
+        out.append({"N": int(r["N"]),
+                    **{c: (r[c] if c.endswith("_status") else float(r[c]))
+                       for c in ("t90_mean", "t90_sigma", "t90_lower", "t100_mean",
+                                 "t100_sigma", "t100_lower")},
+                    "t90_status": r["t90_status"], "t100_status": r["t100_status"]})
+    return sorted(out, key=lambda r: r["N"])
+
+
+def plot_times_x0(column, area: float, x0: float, stem) -> None:
+    """Complemento de 2.4a: <t90> y <t100> contra rho a x0 fijo, de las corridas de 2.4b
+    (init rsa, tmax = 100 s). Mismas reglas de censura: cota inferior hueca sin barra."""
+    plot_style.apply_style()
+    fig, ax = plt.subplots(figsize=FIGSIZE)
+    for i, key in enumerate(KEYS):
+        full = [r for r in column if r[f"{key}_status"] == "all"]
+        part = [r for r in column if r[f"{key}_status"] == "partial"]
+        if full:
+            plot_style.errorbar(ax, np.array([r["N"] / area for r in full]),
+                                _col(full, f"{key}_mean"),
+                                np.nan_to_num(_col(full, f"{key}_sigma"), nan=0.0), i,
+                                label=TIME_LABELS[key])
+        if part:
+            ax.plot([r["N"] / area for r in part], _col(part, f"{key}_lower"),
+                    linestyle="none", marker="o", markersize=10, markerfacecolor="none",
+                    color=f"C{i}")
+    ax.set_xlabel(_density_label())
+    ax.set_ylabel(plot_style.axis_label("Tiempo", "s"))
+    ax.set_ylim(bottom=0.0)
+    ax.set_xlim(left=0.0)
+    ax.secondary_xaxis("top", functions=(lambda rho: rho * area, lambda n: n / area)
+                       ).set_xlabel("Número de partículas N")
+    ax.legend(loc="upper left", frameon=False)
     plot_style.save_figure(fig, stem)
 
 
@@ -572,6 +619,12 @@ def report_and_plot(out_dir) -> int:
     figures = out_dir / "figures"
     plot_times(summary_rows, opt, TF_EXPECTED, figures / "t90_t100_vs_density")
     plot_success(summary_rows, figures / "success_fu_vs_density")
+    cells = out_dir.parent / "heatmap" / "cells.csv"
+    if cells.is_file():
+        column = read_heatmap_column(cells, HEATMAP_X0)
+        if column:
+            plot_times_x0(column, _area(summary_rows), HEATMAP_X0,
+                          figures / "t90_t100_vs_density_x0_0p20")
     print(f"figures: {figures}")
     return 0
 
