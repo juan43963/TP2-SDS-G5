@@ -1,4 +1,4 @@
-"""Importa las 14 figuras oficiales a presentacion/figuras (DEL-03).
+"""Importa las 15 figuras oficiales a presentacion/figuras (DEL-03).
 
 Los datos oficiales (`ejercicio1/data`, `ejercicio2/data`) no se versionan, asi que
 las figuras de los estudios 2.1a a 2.4b y la del oscilador viven en la maquina que
@@ -10,7 +10,7 @@ tamano y hora UTC; nunca rutas absolutas ni nombres de usuario).
     python3 presentacion/sync_figuras.py
     python3 presentacion/sync_figuras.py --strict --ej2-data /ruta/a/ejercicio2/data
 
-Solo se leen las 14 rutas de la tabla FIGURES. Cada archivo se resuelve (symlinks
+Solo se leen las 15 rutas de la tabla FIGURES. Cada archivo se resuelve (symlinks
 incluidos) y se rechaza si cae fuera de su raiz, si no es un PNG de al menos
 600 x 400 px o si pesa mas de 20 MB.
 """
@@ -40,6 +40,7 @@ FIGURES = (
     (2, "timing/figures/cost_per_particle_step.png"),
     (2, "density_lown/figures/t90_t100_vs_density.png"),
     (2, "density_lown/figures/success_fu_vs_density.png"),
+    (2, "density/figures/t90_t100_vs_density_x0_0p20.png"),
     (2, "conversion/figures/fu_vs_t_N100.png"),
     (2, "conversion/figures/t90_vs_x0_compare.png"),
     (2, "thermal/figures/ratio_vs_t.png"),

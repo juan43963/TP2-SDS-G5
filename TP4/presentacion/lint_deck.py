@@ -40,7 +40,7 @@ SLIDE_IDS = (
     "sim_sistema", "sim_obs1", "sim_obs2", "sim_realizaciones",
     "res_ecm", "res_energia_t", "res_eps", "res_timing", "res_anim_x0",
     "res_fu", "res_t90_x0", "res_anim_sin", "res_ratio", "res_fv_evol", "res_fit_error",
-    "res_fv_fit", "res_dens_t90", "res_dens_fu", "res_heatmap", "concl", "gracias",
+    "res_fv_fit", "res_dens_t90", "res_dens_t100", "res_dens_fu", "res_heatmap", "concl", "gracias",
 )
 SYSTEM_OF = {sid: "2" for sid in SLIDE_IDS}
 SYSTEM_OF.update({"title": "-", "gracias": "-", "res_ecm": "1"})
@@ -60,6 +60,7 @@ FIGURE_OF = {
     "res_fv_fit": "fv_stationary_fit.png",
     "res_fit_error": "fit_error_kbt.png",
     "res_dens_t90": "t90_t100_vs_density.png",
+    "res_dens_t100": "t90_t100_vs_density_x0_0p20.png",
     "res_dens_fu": "success_fu_vs_density.png",
     "res_heatmap": "heatmap_t90.png",
 }

@@ -55,8 +55,8 @@ class SyncCase(unittest.TestCase):
 class CopyTests(SyncCase):
     def test_table_has_14_unique_names(self):
         names = [sf.figure_name(rel) for _, rel in sf.FIGURES]
-        self.assertEqual(len(sf.FIGURES), 14)
-        self.assertEqual(len(set(names)), 14)
+        self.assertEqual(len(sf.FIGURES), 15)
+        self.assertEqual(len(set(names)), 15)
         self.assertEqual(names[0], "ecm_vs_dt.png")
 
     def test_copy_with_precedence_between_roots(self):
@@ -75,14 +75,14 @@ class CopyTests(SyncCase):
         make_png(self.tmp / "e2/energy/figures/eps_vs_dt.png")
         code, out = run_main(self.args("--ej2-data", str(self.tmp / "e2")))
         self.assertEqual(code, 0)
-        self.assertIn("SYNC INCOMPLETE missing=13:", out)
+        self.assertIn("SYNC INCOMPLETE missing=14:", out)
         self.assertIn("figure=ecm_vs_dt.png status=missing", out)
         self.assertNotIn("SYNC OK", out)
 
     def test_strict_exit_code(self):
         code, out = run_main(self.args("--strict"))
         self.assertEqual(code, 1)
-        self.assertIn("SYNC INCOMPLETE missing=14", out)
+        self.assertIn("SYNC INCOMPLETE missing=15", out)
 
     def test_all_present_prints_sync_ok(self):
         e1, e2 = self.tmp / "e1", self.tmp / "e2"
@@ -90,7 +90,7 @@ class CopyTests(SyncCase):
             make_png((e1 if exercise == 1 else e2) / rel)
         code, out = run_main(self.args("--strict", "--ej1-data", str(e1), "--ej2-data", str(e2)))
         self.assertEqual(code, 0)
-        self.assertIn("SYNC OK figures=14", out)
+        self.assertIn("SYNC OK figures=15", out)
 
     def test_list_does_not_copy(self):
         make_png(self.tmp / "e2/energy/figures/eps_vs_dt.png")

@@ -331,7 +331,7 @@
     2.1b & 50, 100, \dots, 650 & $r$ & 10 & $t_f = 30$ s \\
     2.2 & 100 y 20 & 11 valores en $[r,\, R - r]$ & 10 & $t_{\max} = 100$ s \\
     2.3 & 100 & sin obstáculos & 10 & $t_f = 10$ s \\
-    2.4a & las de 2.1b & $r$ & 10 & $t_f = 30$ s \\
+    2.4a & 10 a 150 y las de 2.1b & $r$ & 10 & $t_f = 30$ s \\
     2.4b & 20 a 400 (8 valores) & 13 valores en $[r,\, R - r]$ & 10 & $t_{\max} = 100$ s \\
     \bottomrule
   \end{tabular}
@@ -527,7 +527,24 @@
     \end{column}
     \begin{column}{0.32\textwidth}
       \params{$N$ de 10 a 150 en pasos de 10\\[4pt]
-              Mínimo (estrella): $(17 \pm 4)$ s en $N = 30$, indistinguible de $N = 20$ y $40$}
+              $x_0 = r$, $t_f = 30$ s\\
+              Mínimo (estrella): $(17 \pm 4)$ s en $N = 30$, indistinguible de $N = 20$ y $40$\\[4pt]
+              $\langle t_{100} \rangle$ censurado en todos los $N$: ninguno tiene las 10 realizaciones con $t_{100} \leq t_f$}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% SLIDE res_dens_t100 | S:2 | V:C | T:25
+\begin{frame}{$\langle t_{90} \rangle$ y $\langle t_{100} \rangle$ contra la densidad}
+  \begin{columns}[c]
+    \begin{column}{0.66\textwidth}
+      \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{t90_t100_vs_density_x0_0p20.png}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \params{$x_0 = 0{,}20$ m, $t_{\max} = 100$ s\\
+              $N$ de 20 a 400, 10 realizaciones\\[4pt]
+              Círculo hueco: cota inferior (censurada)\\[4pt]
+              Ambos tiempos crecen con $\rho$: sin óptimo distinguible, solo una zona plana a $N$ bajo}
     \end{column}
   \end{columns}
 \end{frame}
@@ -539,7 +556,7 @@
       \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{success_fu_vs_density.png}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \params{Mismas corridas que la diapositiva anterior\\[4pt]
+      \params{$x_0 = r$, $t_f = 30$ s: mismas corridas que $\langle t_{90} \rangle$ a $x_0 = r$\\[4pt]
               $F_u$ disminuye al aumentar $\rho$}
     \end{column}
   \end{columns}
@@ -581,7 +598,7 @@
     \vspace{0.15em}
     \item $f(v)$ relaja a Maxwell-Boltzmann, con una $k_B T$ ligeramente menor a la inicial $m\,v_0^2/2$.
     \vspace{0.15em}
-    \item $\langle t_{90} \rangle$ es mínimo para $N \approx 20$ a $40$ (zona, no un punto); $F_u(t_f)$ disminuye al aumentar $\rho$.
+    \item $\langle t_{90} \rangle$ es mínimo para $N \approx 20$ a $40$ (zona, no un punto) y crece con $\rho$ junto con $\langle t_{100} \rangle$: no hay una densidad óptima distinguible; $F_u(t_f)$ disminuye al aumentar $\rho$.
     \vspace{0.15em}
     \item En el mapa $(x_0, N)$, la posición óptima de los obstáculos es casi independiente de $N$.
   \end{itemize}

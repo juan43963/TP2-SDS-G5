@@ -22,6 +22,7 @@ PLAN = {
     "res_anim_x0": ("B", 20), "res_fu": ("B", 25), "res_t90_x0": ("B", 40),
     "res_anim_sin": ("C", 15), "res_ratio": ("C", 20), "res_fv_evol": ("C", 25),
     "res_fv_fit": ("C", 25), "res_fit_error": ("C", 25), "res_dens_t90": ("C", 30),
+    "res_dens_t100": ("C", 25),
     "res_dens_fu": ("C", 20), "res_heatmap": ("C", 40), "concl": ("C", 45),
     "gracias": ("C", 0),
 }
