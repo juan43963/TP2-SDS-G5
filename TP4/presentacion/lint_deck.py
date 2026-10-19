@@ -38,7 +38,7 @@ DEFAULT_TEX = PRES_DIR / "presentacion.tex"
 SLIDE_IDS = (
     "title", "intro_real", "intro_modelo", "impl_verlet", "impl_arquitectura",
     "sim_sistema", "sim_obs1", "sim_obs2", "sim_realizaciones",
-    "res_ecm", "res_energia_t", "res_eps", "res_timing", "res_anim_x0",
+    "res_ecm", "res_energia_t", "res_eps", "res_timing", "res_timing_dens", "res_anim_x0",
     "res_fu", "res_t90_x0", "res_anim_sin", "res_ratio", "res_fv_evol", "res_fit_error",
     "res_fv_fit", "res_dens_t90", "res_dens_t100", "res_dens_fu", "res_heatmap", "concl", "gracias",
 )
@@ -53,6 +53,7 @@ FIGURE_OF = {
     "res_energia_t": "energy_vs_time.png",
     "res_eps": "eps_vs_dt.png",
     "res_timing": "timing_vs_N.png",
+    "res_timing_dens": "timing_vs_density.png",
     "res_fu": "fu_vs_t_N100.png",
     "res_t90_x0": "t90_vs_x0_compare.png",
     "res_ratio": "ratio_vs_t.png",

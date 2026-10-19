@@ -603,6 +603,24 @@ def plot_timing(tp4_summary, tp3_summary, stem, slopes=None, dt=None) -> None:
     plot_style.save_figure(fig, stem)
 
 
+def plot_timing_density(tp4_summary, tp3_summary, stem, dt=None) -> None:
+    """Igual que plot_timing, con la densidad rho = N / (pi R^2) en el eje x."""
+    dt = dt_star.require_dt_star() if dt is None else dt
+    area = math.pi * 0.51**2
+    plot_style.apply_style()
+    fig, ax = plt.subplots(figsize=FIGSIZE)
+    for summary, index, label in ((tp4_summary, 0, tp4_label(dt)), (tp3_summary, 1, TP3_LABEL)):
+        plot_style.errorbar(ax, _arr(summary, "N") / area, _arr(summary, "time_s_mean"),
+                            _arr(summary, "time_s_sigma"), index, label=label)
+    plot_style.set_log_axes(ax)
+    ts = np.concatenate([_arr(tp4_summary, "time_s_mean"), _arr(tp3_summary, "time_s_mean")])
+    ax.set_ylim(ts.min() / 3.0, ts.max() * 3.0)
+    ax.set_xlabel(plot_style.axis_label(r"Densidad $\rho = N / (\pi R^2)$", "m$^{-2}$"))
+    ax.set_ylabel(plot_style.axis_label("Tiempo de ejecución", "s"))
+    ax.legend(loc="lower right", frameon=False)
+    plot_style.save_figure(fig, stem)
+
+
 def plot_cost(tp4_summary, stem) -> None:
     """Costo de TP4 por particula y por paso vs N: plano = costo por paso proporcional a N."""
     plot_style.apply_style()
@@ -716,6 +734,7 @@ def report_and_plot(out_dir) -> int:
     figures = out_dir / "figures"
     slopes = {k: v["slope"] for k, v in sc["slopes"].items()}
     plot_timing(tp4_summary, tp3_summary, figures / "timing_vs_N", slopes=slopes)
+    plot_timing_density(tp4_summary, tp3_summary, figures / "timing_vs_density")
     plot_cost(tp4_summary, figures / "cost_per_particle_step")
     print(f"figures: {_rel(figures)}")
     return 0

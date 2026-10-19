@@ -402,10 +402,6 @@ def plot_heatmap(cells, key, opt_by_n, x0_values, n_values, tmax, stem) -> None:
             ax.add_patch(Rectangle((x_edges[j], n_edges[i]), x_edges[j + 1] - x_edges[j],
                                    n_edges[i + 1] - n_edges[i], fill=False, hatch=hatch,
                                    edgecolor=colour, linewidth=0.0))
-    for n in n_values:
-        opt = (opt_by_n or {}).get(str(n)) or {}
-        if "x0" in opt:
-            ax.plot([opt["x0"]], [n], zorder=5, **_star_style(opt))
     ax.set_xlim(x_edges[0], x_edges[-1])
     ax.set_ylim(n_edges[0], n_edges[-1])
     ax.set_yticks(n_values)
@@ -417,8 +413,6 @@ def plot_heatmap(cells, key, opt_by_n, x0_values, n_values, tmax, stem) -> None:
               label=f"cota inferior (algunas sin ${short}$)"),
         Patch(facecolor=EMPTY_GREY, edgecolor="0.35", hatch="xx",
               label=f"ninguna alcanzó ${short}$"),
-        Line2D([], [], **_star_style({"edge": False, "distinct": True}), label="$x_0$ óptimo"),
-        Line2D([], [], **_star_style({"edge": True}), label="mínimo en el borde o no distinto"),
     ]
     ax.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.16), ncol=2,
               frameon=False)

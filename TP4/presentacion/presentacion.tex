@@ -356,11 +356,7 @@
     \begin{column}{0.30\textwidth}
       \centering
       {\footnotesize $\displaystyle \mathrm{ECM}(\Delta t) =$\\[4pt]
-       $\displaystyle \frac{1}{N_{\mathrm{pasos}}}\sum_{k=1}^{N_{\mathrm{pasos}}}\big[r_{\mathrm{num}}(t_k) - r_{\mathrm{an}}(t_k)\big]^2$}\\[10pt]
-      \params{\textbf{Método elegido: Verlet original}\\[3pt]
-              Beeman, Verlet original y Velocity Verlet tienen el mismo orden (ECM $\propto \Delta t^{4}$)\\[3pt]
-              Verlet evalúa la fuerza una sola vez por paso\\[3pt]
-              Euler predictor-corrector: ECM $\propto \Delta t^{2}$}
+       $\displaystyle \frac{1}{N_{\mathrm{pasos}}}\sum_{k=1}^{N_{\mathrm{pasos}}}\big[r_{\mathrm{num}}(t_k) - r_{\mathrm{an}}(t_k)\big]^2$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -374,8 +370,7 @@
     \begin{column}{0.28\textwidth}
       \params{$N = 300$, sin obstáculos\\
               $t_f = 5$ s, \ $\Delta t_2 = 10^{-2}$ s\\
-              $E(0) = N\,m\,v_0^2/2 = 3{,}75$ J\\[6pt]
-              Escalar que caracteriza el proceso: el desvío relativo medio $\varepsilon(\Delta t)$}
+              $E(0) = N\,m\,v_0^2/2 = 3{,}75$ J}
     \end{column}
   \end{columns}
 \end{frame}
@@ -387,10 +382,7 @@
       \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{eps_vs_dt.png}
     \end{column}
     \begin{column}{0.28\textwidth}
-      \params{$t_c = 3{,}51\times10^{-3}$ s: duración de un contacto\\[6pt]
-              \textbf{Criterio}: el mayor $\Delta t$ con al menos 50 pasos por contacto ($t_c/\Delta t \geq 50$, práctica en dinámica molecular)\\[6pt]
-              $\Delta t^* = 5\times10^{-5}$ s: 70 pasos por contacto\\
-              $\Delta t = 10^{-4}$ s: sólo 35}
+      \params{$t_c = 3{,}51\times10^{-3}$ s: duración de un contacto}
     \end{column}
   \end{columns}
 \end{frame}
@@ -405,6 +397,19 @@
       \params{Misma computadora para TP3 y TP4\\[4pt]
               Pendientes log-log: 1,01 (TP4) y 3,62 (TP3)\\
               Cruce en $N \approx 310$}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% SLIDE res_timing_dens | S:2 | V:B | T:25
+\begin{frame}{Tiempo de ejecución en función de la densidad}
+  \begin{columns}[c]
+    \begin{column}{0.66\textwidth}
+      \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{timing_vs_density.png}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \params{$\rho = N / (\pi R^2)$\\[4pt]
+              Misma computadora para TP3 y TP4}
     \end{column}
   \end{columns}
 \end{frame}
@@ -429,16 +434,7 @@
 
 % SLIDE res_fu | S:2 | V:B | T:25
 \begin{frame}{Fracción de usadas en función del tiempo}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{fu_vs_t_N100.png}
-    \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Barras $\sigma$ cada 10 s\\
-              Punteada: $F_u = 0{,}9$\\[6pt]
-              Escalar: $t_{90}$, el cruce con $F_u = 0{,}9$}
-    \end{column}
-  \end{columns}
+  \centering\includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{fu_vs_t_N100.png}
 \end{frame}
 
 % SLIDE res_t90_x0 | S:2 | V:B | T:40
@@ -470,53 +466,22 @@
 
 % SLIDE res_ratio | S:2 | V:C | T:20
 \begin{frame}{Relajación hacia Maxwell-Boltzmann}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{ratio_vs_t.png}
-    \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Eje vertical: $\langle v^4 \rangle / \langle v^2 \rangle^2$ (Observables 2/2)\\[5pt]
-              En la ventana: $1{,}99 \pm 0{,}03$}
-    \end{column}
-  \end{columns}
+  \centering\includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{ratio_vs_t.png}
 \end{frame}
 
 % SLIDE res_fv_evol | S:2 | V:C | T:25
 \begin{frame}{Distribución de rapideces: evolución}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{fv_evolution.png}
-    \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{En $t = 0$: $\delta(v - v_0)$, flecha en $v_0$}
-    \end{column}
-  \end{columns}
+  \centering\includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{fv_evolution.png}
 \end{frame}
 
 % SLIDE res_fit_error | S:2 | V:C | T:25
 \begin{frame}{Búsqueda del mejor ajuste}
-  \begin{columns}[c]
-    \begin{column}{0.66\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{fit_error_kbt.png}
-    \end{column}
-    \begin{column}{0.32\textwidth}
-      \params{Mínimo (estrella): $k_B T = (1{,}24 \pm 0{,}02)\times10^{-2}$ J\\[4pt]
-              Trazos: $m\,v_0^2/2 = 1{,}25\times10^{-2}$ J}
-    \end{column}
-  \end{columns}
+  \centering\includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{fit_error_kbt.png}
 \end{frame}
 
 % SLIDE res_fv_fit | S:2 | V:C | T:25
 \begin{frame}{Distribución estacionaria y ajuste}
-  \begin{columns}[c]
-    \begin{column}{0.70\textwidth}
-      \centering\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{fv_stationary_fit.png}
-    \end{column}
-    \begin{column}{0.28\textwidth}
-      \params{Línea llena: $f_{\mathrm{MB}}$ con $k_B T = (1{,}24 \pm 0{,}02)\times10^{-2}$ J\\
-              Trazos: $f_{\mathrm{MB}}$ con $m\,v_0^2/2 = 1{,}25\times10^{-2}$ J}
-    \end{column}
-  \end{columns}
+  \centering\includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{fv_stationary_fit.png}
 \end{frame}
 
 % SLIDE res_dens_t90 | S:2 | V:C | T:30
@@ -542,9 +507,7 @@
     \end{column}
     \begin{column}{0.32\textwidth}
       \params{$x_0 = 0{,}20$ m, $t_{\max} = 100$ s\\
-              $N$ de 20 a 400, 10 realizaciones\\[4pt]
-              Círculo hueco: cota inferior (censurada)\\[4pt]
-              Ambos tiempos crecen con $\rho$: sin óptimo distinguible, solo una zona plana a $N$ bajo}
+              $N$ de 20 a 400, 10 realizaciones}
     \end{column}
   \end{columns}
 \end{frame}
@@ -571,8 +534,6 @@
     \begin{column}{0.32\textwidth}
       \params{$N$ de 20 a 400, 13 valores de $x_0$\\
               10 realizaciones, $t_{\max} = 100$ s\\[4pt]
-              Celda rayada: censurada\\
-              Estrella hueca: mínimo de cada $N$\\[4pt]
               Mínimo en $x_0 \approx 0{,}20$ a $0{,}25$ m para $N \geq 50$}
     \end{column}
   \end{columns}

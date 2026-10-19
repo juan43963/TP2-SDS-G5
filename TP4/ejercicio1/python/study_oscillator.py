@@ -214,8 +214,13 @@ def plot_ecm(fits, methods, stem) -> None:
     for index, method in enumerate(methods):
         f = fits[method]
         kw = plot_style.series_kwargs(index)
+        # Verlet, Velocity Verlet y Beeman coinciden: tamanos decrecientes y Velocity Verlet hueco
         if method == "verlet":
-            kw["markersize"] = 15  # Verlet y Velocity Verlet coinciden: este queda detras y mas grande
+            kw["markersize"] = 20
+        elif method == "vverlet":
+            kw.update(markersize=13, markerfacecolor="none", markeredgewidth=2.0)
+        elif method == "beeman":
+            kw["markersize"] = 6
         slope = f["slope"]
         suffix = f"pendiente {slope:.2f}" if not math.isnan(slope) else "pendiente n/d"
         keep = [i for i, hollow in enumerate(f["mask"]) if not hollow]
