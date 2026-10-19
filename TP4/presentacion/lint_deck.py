@@ -39,7 +39,7 @@ SLIDE_IDS = (
     "title", "intro_real", "intro_modelo", "impl_verlet", "impl_arquitectura",
     "sim_sistema", "sim_obs1", "sim_obs2", "sim_realizaciones",
     "res_ecm", "res_energia_t", "res_eps", "res_timing", "res_timing_dens", "res_anim_x0",
-    "res_fu", "res_t90_x0", "res_anim_sin", "res_ratio", "res_fv_evol", "res_fit_error",
+    "res_fu", "res_t90_x0", "res_anim_sin", "res_kbt_t", "res_fv_evol", "res_fit_error",
     "res_fv_fit", "res_dens_t90", "res_dens_t100", "res_dens_fu", "res_heatmap", "concl", "gracias",
 )
 SYSTEM_OF = {sid: "2" for sid in SLIDE_IDS}
@@ -56,7 +56,7 @@ FIGURE_OF = {
     "res_timing_dens": "timing_vs_density.png",
     "res_fu": "fu_vs_t_N100.png",
     "res_t90_x0": "t90_vs_x0_compare.png",
-    "res_ratio": "ratio_vs_t.png",
+    "res_kbt_t": "kbt_vs_t.png",
     "res_fv_evol": "fv_evolution.png",
     "res_fv_fit": "fv_stationary_fit.png",
     "res_fit_error": "fit_error_kbt.png",

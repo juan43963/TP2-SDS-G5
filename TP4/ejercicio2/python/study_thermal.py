@@ -94,6 +94,8 @@ MIN_WINDOW_S = 2.0
 KBT_MIN = 1e-3
 KBT_MAX = 5e-2
 KBT_STEP = 1e-5
+BLOCK_S = 0.1
+KBT_T_SIGMAS = 3.0
 
 MODES = ("official", "smoke")
 FRAME_BYTES_PER_PARTICLE = 92
@@ -105,6 +107,7 @@ RATIO_COLUMNS = ("t", "ratio_mean", "ratio_sigma", "n_seeds")
 SNAP_COLUMNS = ("t", "v", "f_mean", "f_sigma")
 STAT_COLUMNS = ("v", "f_mean", "f_sigma")
 SCAN_COLUMNS = ("kbt", "error")
+KBT_T_COLUMNS = ("t", "kbt", "n_samples")
 CACHE_FILES = ("ratio.csv", "fv_snapshots.csv", "fv_stationary.csv", "fit_scan.csv",
                "fit.json")
 
@@ -307,6 +310,41 @@ def fit_kbt(f, centers) -> dict:
     return {"kbt": float(k[i]), "error_min": float(err[i]), "index": i, "bracketed": True}
 
 
+def kbt_vs_t(t, speeds_all, edges, centers):
+    """Segundo criterio de estacionario: kBT ajustado por bloques de BLOCK_S s.
+
+    Cada bloque junta las rapideces de todos sus snapshots y de todas las realizaciones en un
+    solo histograma y lo ajusta con el mismo barrido de E(kBT). kBT = nan si el minimo cae en el
+    borde de la grilla (p. ej. la delta de t = 0). Devuelve filas t (centro del bloque), kbt, n.
+    """
+    per_block = max(1, round(BLOCK_S / DT2))
+    rows = []
+    for k0 in range(0, len(t) - per_block + 1, per_block):
+        sl = slice(k0, k0 + per_block)
+        pooled = np.concatenate([s[sl].ravel() for s in speeds_all])
+        try:
+            kbt = fit_kbt(histogram_density(pooled, edges), centers)["kbt"]
+        except ValueError:
+            kbt = math.nan
+        rows.append({"t": float(0.5 * (t[k0] + t[k0 + per_block - 1])), "kbt": float(kbt),
+                     "n_samples": int(pooled.size)})
+    return rows
+
+
+def kbt_stable_time(rows, t_stat, t_end):
+    """(t_kbt, media, sigma): primer bloque desde el que todos los siguientes quedan dentro de
+    KBT_T_SIGMAS sigma de la media de los bloques de la ventana [t_stat, t_end]."""
+    t = np.array([r["t"] for r in rows])
+    k = np.array([r["kbt"] for r in rows])
+    win = (t >= t_stat) & (t <= t_end) & np.isfinite(k)
+    mean, sigma = float(k[win].mean()), float(k[win].std(ddof=1))
+    inside = np.isfinite(k) & (np.abs(k - mean) <= KBT_T_SIGMAS * sigma)
+    outside = np.flatnonzero(~inside)
+    first = 0 if outside.size == 0 else int(outside[-1]) + 1
+    t_kbt = float(t[first]) if first < t.size else math.nan
+    return t_kbt, mean, sigma
+
+
 # --------------------------------------------------------------------------- analisis
 
 def _mean_sigma(arr, axis=0):
@@ -379,6 +417,9 @@ def analyze(specs, data_root, out_dir, tf) -> dict:
     study_conversion._write_csv(out_dir / "fit_scan.csv", SCAN_COLUMNS,
                                 [{"kbt": float(k), "error": float(e)}
                                  for k, e in zip(kbt_grid(), scan)])
+    kbt_rows = kbt_vs_t(t, speeds_all, edges, centers)
+    study_conversion._write_csv(out_dir / "kbt_vs_t.csv", KBT_T_COLUMNS, kbt_rows)
+    t_kbt, kbt_blocks_mean, kbt_blocks_sigma = kbt_stable_time(kbt_rows, t_stat, t_end)
     per_seed = [fit_kbt(h, centers)["kbt"] for h in stat_hists]
     kbt_sigma = float(np.std(per_seed, ddof=1)) if n_seeds > 1 else math.nan
     kbt_kinetic = MASS * float(np.mean(np.concatenate(
@@ -395,8 +436,11 @@ def analyze(specs, data_root, out_dir, tf) -> dict:
         "rel_diff": (fit["kbt"] - KBT_EXPECTED) / KBT_EXPECTED, "kbt_kinetic": kbt_kinetic,
         "ratio_window_mean": float(rw_mean), "ratio_window_sigma": float(rw_sigma),
         "bracketed": fit["bracketed"], "snap_times": list(SNAP_TIMES),
+        "t_kbt_stable": t_kbt, "kbt_blocks_mean": kbt_blocks_mean,
+        "kbt_blocks_sigma": kbt_blocks_sigma,
         "constants": {"RELAX_SIGMAS": RELAX_SIGMAS, "T_STAT_FACTOR": T_STAT_FACTOR,
-                      "MIN_WINDOW_S": MIN_WINDOW_S, "DV": DV, "V_MAX": V_MAX,
+                      "MIN_WINDOW_S": MIN_WINDOW_S, "BLOCK_S": BLOCK_S,
+                      "KBT_T_SIGMAS": KBT_T_SIGMAS, "DV": DV, "V_MAX": V_MAX,
                       "KBT_MIN": KBT_MIN, "KBT_MAX": KBT_MAX, "KBT_STEP": KBT_STEP,
                       "DT2": DT2, "TF": float(tf), "dt": dt_star.DT_STAR,
                       "MASS": MASS, "V0": V0},
@@ -465,6 +509,30 @@ def plot_ratio(ratio, fit, stem) -> None:
     ax.set_ylabel(RATIO_LABEL)
     # Franja libre entre la referencia 1 y los datos: la leyenda no tapa nada.
     ax.legend(loc="lower right", bbox_to_anchor=(1.0, 0.12), frameon=False)
+    plot_style.save_figure(fig, stem)
+
+
+def plot_kbt_vs_t(kbt_t, fit, stem) -> None:
+    """kBT ajustado por bloques vs t, con m v0^2/2, el kBT estacionario y la ventana del cociente."""
+    plot_style.apply_style()
+    fig, ax = plt.subplots(figsize=FIGSIZE)
+    t_stat, t_end = fit["window"]
+    ax.axvspan(t_stat, t_end, color="C2", alpha=0.12, label="ventana estacionaria (cociente)")
+    ax.axvline(t_stat, color="C2", linestyle="-", linewidth=1.5)
+    kw = plot_style.series_kwargs(0)
+    ok = np.isfinite(kbt_t["kbt"])
+    ax.plot(kbt_t["t"][ok], kbt_t["kbt"][ok], color=kw["color"], marker=kw["marker"],
+            markersize=kw["markersize"], linewidth=1.0,
+            label=rf"ajuste por bloques de {BLOCK_S:g} s")
+    ax.axhline(fit["kbt_expected"], color="0.25", linestyle="--", linewidth=2.0,
+               label=f"$m v_0^2/2$ = {fit['kbt_expected']:g} J")
+    ax.axhline(fit["kbt_fit"], color="C1", linestyle="-", linewidth=1.5,
+               label=f"$k_BT$ estacionario = {fit['kbt_fit']:.5f} J")
+    ax.set_xlim(0.0, float(kbt_t["t"][-1]))
+    plot_style.set_scientific_linear(ax, "y")
+    ax.set_xlabel(T_LABEL)
+    ax.set_ylabel(KBT_LABEL)
+    ax.legend(loc="upper right", frameon=False)
     plot_style.save_figure(fig, stem)
 
 
@@ -566,7 +634,7 @@ def summary_lines(fit) -> list[str]:
     sig = fit["kbt_sigma"]
     rws = f"{fit['ratio_window_sigma']:.4f}" if math.isfinite(fit["ratio_window_sigma"]) \
         else "nan"
-    return [
+    lines = [
         f"stationary: t_relax={fit['t_relax']:g} t_stat={fit['t_stat']:g} "
         f"window=[{fit['window'][0]:g}, {fit['window'][1]:g}] s "
         f"threshold={fit['threshold']:.4f} n_samples={fit['n_samples']}",
@@ -574,6 +642,11 @@ def summary_lines(fit) -> list[str]:
         f"fit: kBT={fit['kbt_fit']:.5f} J sigma={sig:.2g} J expected={fit['kbt_expected']:g} J "
         f"rel_diff={100.0 * fit['rel_diff']:+.2f}% kBT_kinetic={fit['kbt_kinetic']:.5f} J",
     ]
+    if "t_kbt_stable" in fit:
+        lines.append(f"kbt_vs_t: t_stable={fit['t_kbt_stable']:g} s blocks_mean="
+                     f"{fit['kbt_blocks_mean']:.5f} J blocks_sigma={fit['kbt_blocks_sigma']:.2g} J "
+                     f"(block={BLOCK_S:g} s, {KBT_T_SIGMAS:g} sigma)")
+    return lines
 
 
 def report_and_plot(out_dir) -> int:
@@ -591,6 +664,9 @@ def report_and_plot(out_dir) -> int:
     plot_fv_evolution(snaps, stat, fit, figures / "fv_evolution")
     plot_fv_stationary(stat, fit, figures / "fv_stationary_fit")
     plot_fit_error(scan, fit, figures / "fit_error_kbt")
+    kbt_path = out_dir / "kbt_vs_t.csv"
+    if kbt_path.is_file():
+        plot_kbt_vs_t(_read_float_csv(kbt_path, KBT_T_COLUMNS), fit, figures / "kbt_vs_t")
     print(f"figures: {figures}")
     return 0
 

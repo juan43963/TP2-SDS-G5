@@ -10,7 +10,7 @@ tamano y hora UTC; nunca rutas absolutas ni nombres de usuario).
     python3 presentacion/sync_figuras.py
     python3 presentacion/sync_figuras.py --strict --ej2-data /ruta/a/ejercicio2/data
 
-Solo se leen las 15 rutas de la tabla FIGURES. Cada archivo se resuelve (symlinks
+Solo se leen las 16 rutas de la tabla FIGURES. Cada archivo se resuelve (symlinks
 incluidos) y se rechaza si cae fuera de su raiz, si no es un PNG de al menos
 600 x 400 px o si pesa mas de 20 MB.
 """
@@ -44,6 +44,7 @@ FIGURES = (
     (2, "conversion/figures/fu_vs_t_N100.png"),
     (2, "conversion/figures/t90_vs_x0_compare.png"),
     (2, "thermal/figures/ratio_vs_t.png"),
+    (2, "thermal/figures/kbt_vs_t.png"),
     (2, "thermal/figures/fv_evolution.png"),
     (2, "thermal/figures/fv_stationary_fit.png"),
     (2, "thermal/figures/fit_error_kbt.png"),

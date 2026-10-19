@@ -473,7 +473,8 @@ def plot_times(summary_rows, opt, tf: float, stem) -> None:
         if partial:
             ax.plot(_col(partial, "rho"), _col(partial, f"{key}_lower"), linestyle="none",
                     marker=plot_style.series_kwargs(i).get("marker", "o"), markersize=10,
-                    markerfacecolor="none", color=f"C{i}")
+                    markerfacecolor="none", color=f"C{i}",
+                    label=f"{TIME_LABELS[key]} (cota inf.)")
         top =max(top, float(np.max(_col(complete, f"{key}_mean") + np.nan_to_num(
             _col(complete, f"{key}_sigma"), nan=0.0)))) if complete else top
     best = (opt or {}).get("t90", {})
@@ -486,12 +487,13 @@ def plot_times(summary_rows, opt, tf: float, stem) -> None:
                     xytext=(12, -28))
     ax.set_xlabel(_density_label())
     ax.set_ylabel(plot_style.axis_label("Tiempo", "s"))
-    ax.set_ylim(0.0, 1.25 * top if top > 0 else 1.45 * tf)
+    # Margen para la leyenda sobre las cotas inferiores (cerca de tf).
+    ax.set_ylim(0.0, max(1.25 * top, 1.45 * tf))
     if summary_rows:
         rho = _col(summary_rows, "rho")
         pad = 0.06 * (rho.max() - rho.min()) if rho.size > 1 else 0.1 * rho.max()
-        # Eje desde N = 0 hasta N = 140 (rho = N / area).
-        ax.set_xlim(0.0, 140.0 / _area(summary_rows))
+        # Eje desde N = 0 hasta N = 155 (rho = N / area), para que entre N = 150.
+        ax.set_xlim(0.0, 155.0 / _area(summary_rows))
     _top_axis_n(ax, summary_rows)
     handles, labels = ax.get_legend_handles_labels()
     order = sorted(range(len(labels)), key=lambda j: labels[j].startswith("$t_f$"))

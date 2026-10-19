@@ -2,91 +2,97 @@
   "figures": {
     "cost_per_particle_step.png": {
       "bytes": 104393,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "a89748b19e0dba24392890b7e4b607161da5c56dd87ff00b97dfb987f213b943",
       "source": "ejercicio2/data/timing/figures/cost_per_particle_step.png"
     },
     "ecm_vs_dt.png": {
       "bytes": 209748,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:58Z",
       "sha256": "397b63974df9b5b7049dc772383339c697c9839c3253ede45fde6c78a1bdc593",
       "source": "ejercicio1/data/oscillator/ecm_vs_dt.png"
     },
     "energy_vs_time.png": {
       "bytes": 107722,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "0169fea4954f5b55c4a455f72fb142812eb45e136abc48451e608e0257bc659e",
       "source": "ejercicio2/data/energy/figures/energy_vs_time.png"
     },
     "eps_vs_dt.png": {
       "bytes": 153645,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "38d8468fc416f1dd3a25d576278ac79a32990454ba8ac64c795fc55d4472c866",
       "source": "ejercicio2/data/energy/figures/eps_vs_dt.png"
     },
     "fit_error_kbt.png": {
       "bytes": 156112,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "df9dab1eaf0457d6f1907d3300d2928e1b02f4f310b02212bf07a6191a515504",
       "source": "ejercicio2/data/thermal/figures/fit_error_kbt.png"
     },
     "fu_vs_t_N100.png": {
       "bytes": 177569,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "d78e1f3ac07dfc69cf344513eefaa191d13e238dd5b6bd3ac88e6774e2593f8b",
       "source": "ejercicio2/data/conversion/figures/fu_vs_t_N100.png"
     },
     "fv_evolution.png": {
       "bytes": 201813,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "ad0aa5a0c81340b27762988056093bfd2bfccc0ef734fde73b5e4a817db25090",
       "source": "ejercicio2/data/thermal/figures/fv_evolution.png"
     },
     "fv_stationary_fit.png": {
       "bytes": 178076,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "17491e7c5e4211e5aff30af0336aa9117aa1c685092d978493866a0835ae75ed",
       "source": "ejercicio2/data/thermal/figures/fv_stationary_fit.png"
     },
     "heatmap_t90.png": {
       "bytes": 166516,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "f9231526d160d6bf1c935bee4688b7d2cb409587226c2e4483e55744b4778905",
       "source": "ejercicio2/data/heatmap/figures/heatmap_t90.png"
     },
+    "kbt_vs_t.png": {
+      "bytes": 186054,
+      "copied_utc": "2026-10-19T19:43:59Z",
+      "sha256": "3918289e68de9186eb0c1925b285e13fd71359b7c972b521f8734347716d479c",
+      "source": "ejercicio2/data/thermal/figures/kbt_vs_t.png"
+    },
     "ratio_vs_t.png": {
       "bytes": 179769,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "141f489cc76ca3e087187a0000fafbc876136cfebc2e804407f715f9c7241007",
       "source": "ejercicio2/data/thermal/figures/ratio_vs_t.png"
     },
     "success_fu_vs_density.png": {
       "bytes": 169578,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "63b0bb0705f615d78d98206d13f4b848b1360c1c4321fd893127116c7ddfe2b9",
       "source": "ejercicio2/data/density_lown/figures/success_fu_vs_density.png"
     },
     "t90_t100_vs_density.png": {
-      "bytes": 118550,
-      "copied_utc": "2026-10-19T19:18:28Z",
-      "sha256": "63ffcc28caf131e2c13a3e321af36849bb277e02cb18ceed7976f1a07d3163ec",
+      "bytes": 135999,
+      "copied_utc": "2026-10-19T19:43:59Z",
+      "sha256": "d4d332cda55d4d868faffe82bd8cf95589848cf1becc03e5bee344ca200f0649",
       "source": "ejercicio2/data/density_lown/figures/t90_t100_vs_density.png"
     },
     "t90_t100_vs_density_x0_0p20.png": {
       "bytes": 157157,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "aeb809d6cc61dfb8d63f325414230a33debd459f96a0c2e5283450570cf0b967",
       "source": "ejercicio2/data/density/figures/t90_t100_vs_density_x0_0p20.png"
     },
     "t90_vs_x0_compare.png": {
       "bytes": 132058,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "67fc995253520be927ff25a3d135cf6822431f9c9f7f765fcdcd471432cdb3a4",
       "source": "ejercicio2/data/conversion/figures/t90_vs_x0_compare.png"
     },
     "timing_vs_N.png": {
       "bytes": 152914,
-      "copied_utc": "2026-10-19T19:18:28Z",
+      "copied_utc": "2026-10-19T19:43:59Z",
       "sha256": "ee6ef412e1adb07ed87702e7dfd9b8550fb4fc919a7cd3e99a687b43516bd56e",
       "source": "ejercicio2/data/timing/figures/timing_vs_N.png"
     }
