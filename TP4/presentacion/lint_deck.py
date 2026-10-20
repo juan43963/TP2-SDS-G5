@@ -499,6 +499,8 @@ def lint(text: str, partial: bool = False, allow_missing_figures: bool = False,
          base: Path = PRES_DIR) -> Result:
     base = Path(base)
     raw = text.replace("\r\n", "\n")
+    # El apendice (descargo de IA) queda fuera del presupuesto y de las reglas del cuerpo.
+    raw = re.sub(r"^\\appendix\b.*?(?=^\\end\{document\})", "", raw, flags=re.S | re.M)
     clean = strip_comments(raw)
     frames = parse_frames(raw, clean)
     res = Result()

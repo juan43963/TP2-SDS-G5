@@ -570,4 +570,37 @@
   \vfill
 \end{frame}
 
+% =====================================================================
+%  Apendice: descargo de uso de IA (T:0, fuera del presupuesto de tiempo)
+% =====================================================================
+\appendix
+
+% SLIDE anexo_ia | S:- | V:C | T:0
+\begin{frame}{Descargo de responsabilidad: uso de IA}
+  \begin{itemize}
+    \item Herramienta: Claude Code (agente de IA).
+    \vspace{0.5em}
+    \item El agente escribió el motor de simulación en C\texttt{++}20 a partir de las instrucciones del anexo.
+    \vspace{0.5em}
+    \item También generó los \emph{scripts} de Python de análisis, figuras y animaciones.
+    \vspace{0.5em}
+    \item Anexo: las instrucciones (\emph{prompt}) por módulo con que se encargó el motor al agente.
+  \end{itemize}
+\end{frame}
+
+% SLIDE anexo_prompt1 | S:- | V:C | T:0
+\begin{frame}{Anexo: instrucciones al agente para el motor del billar}
+  \footnotesize
+  Tareas del plan de la fase del motor, una por módulo:
+  \begin{enumerate}
+    \item \textbf{Fuerzas:} Cell Index Method no periódico, reconstruido en cada paso con semivecindad; fuerza de resorte de par, contra obstáculos y contra la pared por partícula imagen.
+    \item \textbf{Generador:} posiciones iniciales sin solape por rechazo con grilla aceleradora; $|\vect{v}| = v_0$ con ángulo uniforme; verificación $O(N^2)$ del estado inicial.
+    \item \textbf{Integrador:} Verlet original con el arranque de la teórica y velocidad centrada con un paso de retraso; registrar la conversión fresca $\to$ usada; cronometrar sólo el \emph{loop} con \texttt{steady\_clock}.
+    \item \textbf{Línea de comandos:} lector propio de \texttt{--clave valor}; validar parámetros y fallar con mensaje claro; escribir trayectoria, log de conversiones y resumen en texto plano.
+    \item \textbf{Criterio de cierre:} compilar con \texttt{-Wall -Wextra -Wpedantic -Wconversion -Werror} y correr con los valores del enunciado.
+  \end{enumerate}
+  \vspace{0.3em}
+  Restricciones: motor en C\texttt{++}20 sin dependencias; el motor sólo escribe estados, los observables se calculan en Python.
+\end{frame}
+
 \end{document}
