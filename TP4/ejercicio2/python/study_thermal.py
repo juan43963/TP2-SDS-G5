@@ -517,7 +517,7 @@ def plot_kbt_vs_t(kbt_t, fit, stem) -> None:
     plot_style.apply_style()
     fig, ax = plt.subplots(figsize=FIGSIZE)
     t_stat, t_end = fit["window"]
-    ax.axvspan(t_stat, t_end, color="C2", alpha=0.12, label="ventana estacionaria (cociente)")
+    ax.axvspan(t_stat, t_end, color="C2", alpha=0.12, label="ventana estacionaria")
     ax.axvline(t_stat, color="C2", linestyle="-", linewidth=1.5)
     kw = plot_style.series_kwargs(0)
     ok = np.isfinite(kbt_t["kbt"])
