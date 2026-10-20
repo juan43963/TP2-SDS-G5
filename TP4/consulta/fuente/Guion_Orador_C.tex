@@ -1,0 +1,30 @@
+\documentclass[10.5pt,a4paper]{article}
+\def\yo{C}
+\input{guion_comun}
+\cfoot{Guion Orador C \textbullet{} TP4 Grupo 5 \textbullet{} \thepage}
+\begin{document}
+\cabecera{C}{4:10}{9}
+\tablaorden
+
+\section{Tu guion}
+
+\interv{6}{Integración: Verlet original}{0:55}{25}{B (Modelo matemático)}{Integramos con Verlet original, como pide el enunciado. La posición nueva sale de dos veces la actual, menos la anterior, más $\Delta t$ cuadrado sobre $m$ por la fuerza. La velocidad se obtiene por diferencia centrada, con un paso de atraso. Para arrancar estimamos la posición en menos $\Delta t$ con Taylor. El $\Delta t$ es fijo y guardamos el estado cada $n$ pasos.}{$x(t+\Delta t)=2x(t)-x(t-\Delta t)+\Delta t^2F/m$; $v(t)=[x(t+\Delta t)-x(t-\Delta t)]/2\Delta t$}{Pasás a A (Arquitectura del motor).}
+
+\interv{10}{Observables (1/2)}{2:10}{30}{B (Sistema simulado)}{Todos los observables se calculan después, en Python; el motor sólo escribe estados. La energía suma la cinética más el potencial de cada contacto, incluida la pared. El error de energía $\varepsilon$ es el desvío relativo medio respecto de la energía inicial. La fracción de usadas es $N_u$ sobre $N$, y $t_{90}$ es el primer instante en que llega a 0,9. Promediamos sobre realizaciones, con el desvío estándar muestral como barra de error, y si alguna realización no llega al 90 por ciento lo informamos: nunca promediamos sólo las exitosas.}{barras $=\sigma$ muestral ($n-1$)}{Pasás a A (Observables 2/2).}
+
+\interv{14}{Oscilador: ECM contra $\Delta t$}{3:30}{30}{B (Corridas realizadas)}{Antes del billar validamos los integradores con el oscilador amortiguado, que tiene solución exacta. Es el error cuadrático medio contra $\Delta t$, en log-log. Euler predictor-corrector tiene pendiente 2: orden 1. Beeman, Verlet original y Velocity Verlet tienen pendiente 4, es decir orden 2, y casi el mismo error. Elegimos Verlet original porque evalúa la fuerza una sola vez por paso y es el que pide el enunciado para el billar.}{pendientes 1,95 / 4,00; ECM($10^{-3}$ s): Euler PC $3\times10^{-4}$ m$^2$, Verlet $3{,}8\times10^{-10}$ m$^2$}{\textbf{Ojo:} «Método elegido: Verlet original» y sus razones ya no están escritas en la diapositiva; decilas. Pasás a A (Energía total en función del tiempo).}
+
+\interv{17}{Tiempo de ejecución en función de $N$}{5:00}{40}{B (Error de energía contra $\Delta t$)}{Comparamos el tiempo de ejecución contra el del TP3, dirigido por eventos, en la misma computadora y con $t_f$ igual a 30 segundos. En log-log, TP4 tiene pendiente 1,01: crece lineal con $N$ gracias a la grilla de celdas, porque la cantidad de pasos es fija. TP3 tiene pendiente 3,62: en cada evento actualiza todas las partículas y los eventos crecen con la densidad. Con pocas partículas gana TP3; el cruce está en $N$ cercano a 310. En $N$ igual 650, TP4 tarda unos 8 segundos y TP3 unos 140.}{pendientes 1,01 (TP4) y 3,62 (TP3); cruce $N\approx310$; $N=650$: 7,9 s vs 145 s}{Pasás a B (Tiempo de ejecución en función de la densidad).}
+
+\interv{21}{Tiempo al 90\,\pc contra $x_0$ (parte 1)}{6:45}{30}{B (Fracción de usadas en función del tiempo)}{Este es el resultado principal: $t_{90}$ contra $x_0$, para $N$ igual 100 y $N$ igual 20, con 10 realizaciones. Con $N$ igual 100 hay una zona favorable entre 0,15 y 0,35 metros, con $t_{90}$ de unos 15 segundos, y los extremos son peores: unos 24 segundos con los obstáculos tocándose y unos 31 pegados a la pared.}{$N=100$: $(14{,}6\pm1{,}8)$ s en 0,20 m; $(24\pm2)$ s en $x_0=r$; $(31\pm5)$ s en $R-r$}{Pasás a A (parte 2, misma lámina).}
+
+\interv{24}{Distribución de rapideces: evolución}{8:15}{25}{B (Estacionario: $k_BT$ ajustado en el tiempo)}{Esta es $f$ de $v$ en el tiempo. En $t$ igual 0 es una delta en $v_0$, la flecha. En menos de medio segundo el pico se ensancha hasta la forma de equilibrio: aparecen partículas lentas y rápidas, algunas más rápidas que $v_0$, porque los choques intercambian energía y sólo se conserva el total.}{}{Pasás a A (Búsqueda del mejor ajuste).}
+
+\interv{27}{Tiempos de conversión contra la densidad}{9:35}{30}{B (Distribución estacionaria y ajuste)}{Pasamos al efecto de la densidad con las corridas de $x_0$ igual a $r$ y $t_f$ igual 30 segundos, $N$ de 10 a 150. $t_{90}$ es mínimo para $N$ entre 20 y 40: $17\pm4$ segundos en $N$ igual 30, indistinguible de sus vecinos; es una zona, no un punto. Para $N$ más alto algunas realizaciones no llegan al 90 por ciento: graficamos una cota inferior, con símbolo hueco. Y $t_{100}$ queda censurado en todos los $N$: ninguno tiene las 10 realizaciones antes de $t_f$.}{$N=30$: $(17\pm4)$ s; $N=20$: $(19\pm4)$ s; $N=40$: $(20\pm3)$ s; $N=10$: 7 de 10 llegan}{Pasás a A (diapositiva 28, $\langle t_{90}\rangle$ y $\langle t_{100}\rangle$).}
+
+\interv{30}{Mapa de $t_{90}$ en $(x_0,N)$ --- parte 2}{11:10}{20}{B (misma diapositiva)}{Para $N$ de 50 o más, el mínimo cae siempre en $x_0$ entre 0,20 y 0,25 metros: la posición favorable es casi independiente de la densidad. Lo que cambia es el valor: el $t_{90}$ mínimo sube de unos 11 segundos con $N$ igual 20 a unos 45 con $N$ igual 400, y los extremos se penalizan más cuanto más denso: con $N$ igual 400, $x_0$ igual a $r$ tarda el doble que 0,20.}{mínimo 0,20--0,25 m; $t_{90}$ mín: 11, 14, 15, 17, 20, 24, 29, 45 s ($N=20,\dots,400$); $N=400$: $(89\pm5)$ s en $x_0=r$ vs $(45\pm3)$ s en 0,20}{Pasás a A (Conclusiones 1 a 3).}
+
+\interv{32}{Conclusiones (7 y 8) y cierre}{12:10}{20}{B (Conclusiones 4 a 6)}{Séptimo: $t_{90}$ es mínimo para $N$ entre 20 y 40 y crece con la densidad, junto con $t_{100}$: no hay una densidad óptima distinguible; la fracción de usadas baja al aumentar la densidad. Octavo: en el mapa, la posición óptima de los obstáculos es casi independiente de $N$. Muchas gracias; quedamos atentos a sus preguntas.}{}{Fin de la presentación: abrir preguntas.}
+
+\antes
+\end{document}

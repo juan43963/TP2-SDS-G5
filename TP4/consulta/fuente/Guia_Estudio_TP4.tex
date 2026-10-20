@@ -1,0 +1,376 @@
+\documentclass[10.5pt,a4paper]{article}
+\input{preambulo}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\cfoot{Guía de estudio TP4 \textbullet{} Grupo 5 \textbullet{} \thepage}
+\begin{document}
+
+{\LARGE\bfseries Guía de estudio TP4 --- defensa oral}\par
+{\large Dinámica molecular regida por el paso temporal: billar circular \textbar{} Grupo 5, Comisión S}\par
+\vspace{4pt}
+
+\textbf{Cómo usar esta guía.} Después de la clase de consultas, el profe va a preguntar cómo está implementado el trabajo de punta a punta y por qué elegimos cada cosa y no otra. La guía está ordenada para estudiar en ese orden: Parte 1 el trabajo en una página. Parte 2 métodos numéricos. Parte 3 implementación paso a paso. Parte 4 decisiones y trade-offs (por qué $\dt=\tn{5}{-5}$ s, por qué 10 realizaciones, etc.). Parte 5 preguntas sobre el sistema y el modelo. Parte 6 preguntas por diapositiva. Parte 7 puntos débiles y cómo responder con honestidad. Parte 8 números para memorizar y plan de ensayo.
+
+Lo marcado como \colorbox{hipo}{hipótesis nuestra} son explicaciones físicas que no medimos: hay que decirlas como hipótesis, nunca como resultado. Lo marcado como \colorbox{nuevo}{nuevo en la presentación} es lo que cambió respecto de la versión anterior de la guía.
+
+\textbf{Fuentes.} Los números salen de la presentación vigente (33 páginas: 28 diapositivas más 5 separadores de sección; la numeración «n / 33» del pie es la que se usa acá), del código del motor (\texttt{ejercicio2/src/billiard/}) y de los README/CSV de \texttt{ejercicio1/} y \texttt{ejercicio2/}.
+
+\textbf{Qué cambió en la presentación y en esta guía.} (1) Se sacó de las diapositivas el texto que justificaba el método (por qué Verlet, la regla de $\dts$, el criterio de pasos por contacto): ahora esas razones se dicen de viva voz, así que hay que saberlas (Partes 2 y 4). (2) Diapositiva nueva 18: tiempo de ejecución contra la densidad $\rho$. (3) La diapositiva del cociente \vv{} se reemplazó por la 23: $\kbt$ ajustado en el tiempo (segundo criterio de estacionario, propuesto por el docente en la consulta). (4) Diapositiva nueva 28: $\langle t_{90}\rangle$ y $\langle t_{100}\rangle$ contra la densidad. (5) La 27 ahora muestra $N$ de 10 a 150 y aclara que $\langle t_{100}\rangle$ queda censurado en todos los $N$. (6) Se renumeraron las diapositivas desde la 18. (7) La conclusión 7 ahora dice que $\langle t_{90}\rangle$ crece con $\rho$ junto con $\langle t_{100}\rangle$ y que no hay una densidad óptima distinguible. La guía de consulta anterior (\texttt{consulta/guia\_resultados.pdf}) está desactualizada: usar siempre los valores de esta guía.
+
+%--------------------------------------------------------------------------------------------
+\section{El trabajo en una página}
+
+\textbf{Qué hicimos.} Un motor C++20 de dinámica molecular a paso fijo ($\dt$ constante) que integra con Verlet original un gas de $N$ discos blandos en un billar circular ($R=0{,}51$ m) con dos obstáculos fijos en $(\pm x_0,0)$. Las partículas nacen frescas y se vuelven usadas al tocar por primera vez un obstáculo. El motor sólo escribe texto (estados y registro de conversiones); todo observable (energía, $F_u(t)$, $t_{90}$, $f(v)$) se calcula después en Python.
+
+\textbf{Flujo de decisiones (la historia que cuentan los resultados).}
+\begin{enumerate}
+\item Validar los integradores en un problema con solución exacta (oscilador amortiguado): Verlet, Velocity Verlet y Beeman son de orden 2; Euler predictor-corrector es de orden 1.
+\item Elegir $\dt$ para el billar con conservación de energía: $\dts=\tn{5}{-5}$ s (70 pasos por contacto).
+\item Costo: tiempo de ejecución contra $N$ (y contra $\rho$) comparado con TP3 (eventos): el paso temporal es lineal en $N$, TP3 $\sim N^{3{,}62}$; cruce en $N\approx310$.
+\item Dónde poner los obstáculos: $t_{90}$ contra $x_0$: zona favorable 0,15--0,35 m, extremos peores.
+\item Sin obstáculos: $f(v)$ relaja a Maxwell-Boltzmann 2D; $\kbt$ ajustado ligeramente menor a $mv_0^2/2$; el $\kbt$ ajustado en el tiempo se estabiliza a los 0,345 s, igual que el cociente \vv.
+\item Densidad: $\langle t_{90}\rangle$ mínimo (zona plana) para $N\approx20$--40 y creciente con $\rho$ después; $\langle t_{100}\rangle$ censurado (2.1b) o creciente (2.4b, $x_0=0{,}20$ m); $F_u(30\text{ s})$ baja con la densidad; no hay una densidad óptima distinguible. Mapa $(x_0,N)$: la posición favorable casi no depende de $N$.
+\end{enumerate}
+
+\textbf{Parámetros fijos.} $R=0{,}51$ m; $r=\tn{1{,}75}{-2}$ m; $m=\tn{2{,}5}{-2}$ kg; $k=10^4$ N/m; $v_0=1$ m/s; $\dt=\tn{5}{-5}$ s; $\pi R^2=0{,}817$ m$^2$; $\rho=N/\pi R^2$; fracción de empaquetamiento $\varphi=Nr^2/R^2\approx\tn{1{,}18}{-3}\,N$.
+
+%--------------------------------------------------------------------------------------------
+\section{Métodos numéricos: lo que hay que saber}
+
+\subsection{Integración paso a paso: idea común}
+Queremos resolver $m\ddot{\mathbf x}=\mathbf F(\mathbf x,\dot{\mathbf x})$. Se discretiza el tiempo en pasos fijos $\dt$ ($t_k=k\,\dt$, el contador es entero, nunca se acumula \texttt{t += dt} para no acumular error de redondeo). Cada esquema es un desarrollo de Taylor truncado. Orden $p$ del método: el error global escala como $\dt^{p}$ (el local es $\dt^{p+1}$). El ECM que graficamos es el cuadrado del error, por eso un método de orden $p$ da pendiente $2p$ en log-log: orden 2 $\Rightarrow$ pendiente 4; orden 1 $\Rightarrow$ pendiente 2 (medimos 4,00 y 1,95).
+
+\subsection{Los esquemas del oscilador}
+\begin{center}\small
+\begin{tabular}{@{}p{2.6cm}p{5.6cm}p{2.9cm}p{4.6cm}@{}}
+\toprule
+Esquema & Idea & Orden (pos.) & Comentario \\ \midrule
+Euler predictor-corrector & Predice con Taylor corto y corrige con la aceleración nueva & 1 (pendiente 1,95) & el peor; barato de implementar \\
+Verlet original & Suma Taylor en $+\dt$ y $-\dt$: $x(t+\dt)=2x(t)-x(t-\dt)+\dt^2F/m$ & 2 (pendiente 4,00) & una fuerza por paso; $v$ por diferencia centrada \\
+Velocity Verlet & Posición con $\dt^2/(2m)$, velocidad con el promedio de $F(t)$ y $F(t+\dt)$ & 2 & misma trayectoria que Verlet; $v$ en el mismo instante que $x$ \\
+Beeman & Posición como Verlet pero con aceleraciones de tres instantes; velocidad predictor-corrector & 2 (constante $\approx13\,\pc$ menor) & mejor energía en general; más memoria \\
+Gear 5 & Predictor-corrector de 5 derivadas & 5 & extra; no está en la diapositiva \\ \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Verlet original en detalle (el que usamos)}
+Sumando los desarrollos de Taylor $x(t\pm\dt)=x\pm v\,\dt+\tfrac12a\,\dt^2\pm\tfrac16\dot a\,\dt^3+O(\dt^4)$ se cancelan los términos impares:
+$x(t+\dt)=2x(t)-x(t-\dt)+\tfrac{F(t)}{m}\dt^2+O(\dt^4)$. Error local $O(\dt^4)$ en la posición, global $O(\dt^2)$. Restando los desarrollos: $v(t)=[x(t+\dt)-x(t-\dt)]/(2\dt)+O(\dt^2)$.
+
+\textbf{Arranque.} Hace falta $x(-\dt)$: $x(-\dt)=x_0-v_0\dt+\tfrac{\dt^2}{2m}F(x_0)$. Sin el término cuadrático el método cae a orden 1.
+
+\textbf{Propiedades.} Reversible en el tiempo y simpléctico: si la fuerza es suave, el error de energía no crece sin cota (oscila). Una evaluación de fuerza por paso (el costo dominante). Guarda dos posiciones ($x(t)$ y $x(t-\dt)$), no necesita $v$ para avanzar.
+
+\textbf{Debilidad.} La velocidad sale de restar dos posiciones casi iguales y va un paso atrasada; con $\dt$ muy chico el redondeo domina (por eso en la figura del oscilador Verlet sube para $\dt<10^{-5}$ s: $\dt^2F/m\sim10^{-10}$ m se suma a números de orden 1 m con 16 cifras). Verlet toca su mínimo cerca de $10^{-5}$ s ($\sim10^{-17}$ m$^2$).
+
+\textbf{Fuerza que depende de $v$ (oscilador).} Se usa la velocidad centrada y, como la fuerza es lineal en $v$, $x(t+\dt)$ se despeja en forma cerrada.
+
+\subsection{Estabilidad y por qué $\dt$ importa en el billar}
+Para un resorte de frecuencia $\omega$, Verlet es estable sólo si $\omega\,\dt<2$. Acá el resorte sólo existe durante el contacto. Dos partículas: masa reducida $\mu=m/2$, $\omega=\sqrt{k/\mu}=\sqrt{10^4/0{,}0125}\approx894$ rad/s $\Rightarrow\dt<\tn{2{,}2}{-3}$ s. Partícula-pared u obstáculo: $\omega=\sqrt{k/m}\approx632$ rad/s $\Rightarrow\dt<\tn{3{,}2}{-3}$ s. Con $\tn{5}{-3}$ s se superan los dos límites y explota (en nuestros datos: no finito cerca de $t\approx0{,}9$ s). Pero estabilidad no es precisión: con $\dt=\tn{2}{-3}$ s no explota y el error es enorme.
+
+Duración de un contacto (medio período del resorte): $t_c=\pi\sqrt{\mu/k}=\pi\sqrt{m/(2k)}=\tn{3{,}51}{-3}$ s para dos partículas (contra pared u obstáculo $\pi\sqrt{m/k}\approx\tn{5{,}0}{-3}$ s). Pasos por contacto $=t_c/\dt$. Con $\dt=\tn{5}{-5}$ s da 70; con $10^{-4}$ s da 35; con $10^{-3}$ s da 3,5 (el contacto se resuelve en tres o cuatro pasos).
+
+Solapamiento máximo en un choque frontal a $v_{rel}=2$ m/s: $\xi_{max}=v_{rel}\sqrt{\mu/k}=2{,}2$ mm, un 6\,\pc del diámetro. Los choques son blandos pero la aproximación de disco rígido es razonable.
+
+\subsection{Cell Index Method (CIM) y por qué el costo es lineal}
+Dividimos el cuadrado $[-R,R]^2$ en $M\times M$ celdas con lado $\ge$ alcance de contacto $2r$: $M=\lfloor2R/(2r)\rfloor=29$, lado $=0{,}0352$ m $\ge2r=0{,}035$ m. Una partícula sólo puede tocar a otras de su celda o de las 8 vecinas. Usamos media vecindad (la propia, más 4 vecinas: $(+1,0)$, $(+1,+1)$, $(0,+1)$, $(-1,+1)$) y aplicamos Newton 3 (misma fuerza con signo opuesto a $i$ y a $j$): cada par se evalúa una sola vez. La grilla es no periódica (hay pared). Se reconstruye en cada paso con listas enlazadas \texttt{head/next}; rehacerla cuesta $O(N)$. El costo por paso es $O(N)$ si la densidad es constante; aumentar $N$ a área fija sube la densidad y el costo por partícula (de 12,4 ns en $N=150$ a 20,2 ns en $N=650$).
+
+\subsection{Pared por partícula imagen}
+La pared es un círculo; la normal es radial: $\hat n=\mathbf r_i/|\mathbf r_i|$. Hay contacto si $|\mathbf r_i|>R-r$. Se trata como choque contra una partícula virtual fija de radio $r$ centrada en $\mathbf r_{img}=(R+r)\hat n$ (recalculada en cada paso, porque $\hat n$ cambia). El solapamiento es $\xi=|\mathbf r_i|+r-R$ y la fuerza es $-k\xi\hat n$: puramente normal, sin fricción. En el código se escribe en forma cerrada, para que siga siendo restituyente aun pasado $R+r$.
+
+\subsection{Maxwell-Boltzmann 2D y el ajuste}
+En 2D la distribución de rapidez es $f_{MB}(v)=\frac{mv}{\kbt}\exp\!\big(-\frac{mv^2}{2\kbt}\big)$ y $v^2$ es exponencial; para una exponencial $\langle u^2\rangle=2\langle u\rangle^2$, de ahí $\langle v^4\rangle/\langle v^2\rangle^2=2$. Equipartición en 2D: $\tfrac12m\langle v^2\rangle=\kbt$; al inicio toda la energía es cinética, $\kbt=\tfrac12mv_0^2=\tn{1{,}25}{-2}$ J. El ajuste es el método de la Teórica 0: error $\mathcal E(\kbt)=\sum_j[f_j-f_{MB}(v_j;\kbt)]^2$ sobre los centros de los 100 bines, barrido de $10^{-3}$ a $\tn{5}{-2}$ J con paso $10^{-5}$ J, y se toma el mínimo (único parámetro libre, sin amplitud ni segundo parámetro).
+
+%--------------------------------------------------------------------------------------------
+\section{Implementación: qué hace el motor, paso a paso}
+Archivos (\texttt{ejercicio2/src/billiard/}): \texttt{generator.cpp} (estado inicial), \texttt{forces.cpp} (CIM + fuerzas + obstáculos + pared), \texttt{simulation.cpp} (bucle de Verlet, conversiones, salida), \texttt{billiard\_cli.cpp} (argumentos y escritura de archivos). Sistema 1: \texttt{ejercicio1/src/oscillator/}.
+
+\subsection{Estado inicial}
+$N$ posiciones sin solapamiento (entre sí, con obstáculos y con la pared), módulo de velocidad $v_0=1$ m/s y ángulo uniforme en $[0,2\pi)$. Dos modos: RSA (rechazo secuencial al azar) y red hexagonal con perturbación (se eligen $N$ sitios al azar de una red de paso $2r+1$ mm y se corre cada uno menos de 0,5 mm). RSA satura en $\varphi\approx0{,}547$ ($N\approx440$ acá), así que se usa red para 2.1b y 2.4a ($N$ hasta 650); RSA para 2.2, 2.3 y 2.4b (hasta $N=400$).
+
+\subsection{Un paso de simulación (orden real del código)}
+\begin{enumerate}
+\item Arranque ($k=0$): se calculan las fuerzas en $x_0$ y $x(-\dt)=x_0-v_0\dt+\frac{\dt^2}{2m}F$.
+\item Fuerzas en $x(t_k)$: se vacía la grilla y se inserta cada partícula en su celda; fuerzas por pares (media vecindad); luego obstáculos (cada partícula contra los dos centros $(\pm x_0,0)$); luego pared.
+\item Conversión: toda partícula con $\xi>0$ contra un obstáculo y todavía fresca pasa a usada; se anota $(k,t_k,\text{id})$. Es irreversible. El contacto con otra partícula o con la pared no convierte.
+\item Paso de Verlet: $x_{k+1}=2x_k-x_{k-1}+(\dt^2/m)F_k$ (se aborta si aparece una posición no finita: señal de $\dt$ demasiado grande).
+\item Salida cada $n$ pasos ($\Delta t_2=n\,\dt$): posición $x_k$, velocidad centrada $(x_{k+1}-x_{k-1})/2\dt$ y color. Opciones \texttt{stop-at-t90} (corta en la conversión $\lceil0{,}9N\rceil=(9N+9)/10$ en enteros) y \texttt{stop-when-all-used}.
+\item Se intercambian los buffers y se repite hasta $t_f$.
+\end{enumerate}
+
+\subsection{Qué se calcula en Python}
+$E(t)=\sum\tfrac12mv^2+\sum_{pares}\tfrac12k\xi^2+\sum_{pared}\tfrac12k\xi^2+\sum_{obst}\tfrac12k\xi^2$ (cada contacto una vez); $\varepsilon(\dt)=\frac1{N_t}\sum_n|E(t_n)-E(0)|/E(0)$; $F_u(t)=N_u/N$ en una grilla común de 0,1 s y luego promedio entre realizaciones; $t_{90}$ por realización y luego media $\pm\sigma$ (con $n-1$); $f_j=c_j/(n\,\Delta v)$ con $\Delta v=0{,}05$ m/s en $[0,5]$ m/s, de modo que $\sum f_j\Delta v=1$; cociente \vv; ajuste de $\kbt$.
+
+\nuevo{$\kbt(t)$: se parte el tiempo en bloques de 0,1 s (10 snapshots $\times$ 10 realizaciones $\times$ 100 rapideces = 10\,000 rapideces por bloque), se arma un histograma por bloque y se ajusta $\kbt$ con el mismo barrido de $\mathcal E(\kbt)$. El instante de estabilización es el primer bloque desde el cual todos los siguientes quedan dentro de $\pm3\sigma$ de la media de los bloques de la ventana estacionaria (la media y la $\sigma$ son entre bloques). Se calcula en \texttt{analyze} (necesita las rapideces crudas), no en \texttt{--replot}.}
+
+\subsection{Cosas que se verificaron}
+\texttt{src/} congelado con un hash antes de los barridos; TP3 y TP4 compilados con el mismo compilador (g++ 13.3), mismas flags (\texttt{-O2}) y misma computadora; tiempo medido dentro del motor con \texttt{steady\_clock} alrededor del bucle (se excluyen generación, arranque y escritura de frames); self-test que compara el CIM contra fuerza bruta; $E(0)=Nmv_0^2/2=3{,}75$ J para $N=300$.
+
+%--------------------------------------------------------------------------------------------
+\section{Decisiones y trade-offs: por qué elegimos cada cosa}
+
+\subsection{El paso temporal $\dt$}
+\textbf{Qué compensa.} Achicar $\dt$ mejora la conservación de la energía ($\varepsilon\propto\dt^2$ entre $\tn{5}{-6}$ y $10^{-4}$ s) pero el costo es proporcional a $1/\dt$: $t_f/\dt=\tn{6}{5}$ pasos con $\dts$ y $t_f=30$ s. Un $\dt$ demasiado grande hace que el contacto se resuelva en pocos pasos, la fuerza se prende y apaga entre pasos, y la energía crece (con $10^{-3}$ s sube de 3,75 J a decenas de joules en 5 s) o directamente diverge. Un $\dt$ demasiado chico además amplifica el redondeo (en Verlet) y no aporta precisión útil.
+
+\begin{center}\small
+\begin{tabular}{@{}rrrl@{}}
+\toprule
+$\dt$ (s) & pasos/contacto & $\varepsilon$ & lectura \\ \midrule
+$\tn{5}{-3}$ & 0,7 & diverge (5 de 5) & supera los dos límites de estabilidad \\
+$\tn{2}{-3}$ & 1,8 & $\tn{2{,}8}{5}$ & no explota pero el error es enorme \\
+$10^{-3}$ & 3,5 & $\tn{1{,}4}{-2}$ & energía $>10\times$ la inicial \\
+$\tn{5}{-4}$ & 7 & $\tn{2{,}4}{-3}$ & recién acá es razonable \\
+$\tn{2}{-4}$ & 18 & $\tn{5{,}0}{-4}$ & todavía sobre el umbral $10^{-3}$ \\
+$10^{-4}$ & 35 & $(9\pm6)\times10^{-5}$ & bajo el umbral pero con $<50$ pasos \\
+$\tn{5}{-5}$ & 70 & $\tn{3{,}3}{-6}$ & \textbf{elegido} \\
+$10^{-5}$ & 351 & $\tn{1{,}3}{-6}$ & $\sim5\times$ más caro, sin ganancia útil \\
+$\tn{5}{-6}$ & 702 & --- & 10$\times$ más caro \\ \bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Regla (declarada antes de mirar los datos):} $\dts$ = el mayor $\dt$ tal que todos los menores son estables, con $\varepsilon<10^{-3}$ y al menos 50 pasos por contacto. Manda el criterio de pasos por contacto. Con umbral $10^{-4}$ se obtiene el mismo $\dt$ (queda 6\,\pc abajo): la elección es robusta al umbral.
+
+\nuevo{la diapositiva 22 ya no escribe la regla ni los 70/35 pasos por contacto: sólo muestra $t_c=\tn{3{,}51}{-3}$ s. La regla se dice de viva voz (guion de B, diap. 16).}
+
+\pr{¿Por qué $\tn{5}{-5}$ s y no $10^{-4}$ s, si $10^{-4}$ ya cumple $\varepsilon<10^{-3}$?}
+\rp{Porque con $10^{-4}$ s hay 35 pasos por contacto, menos que los 50 de la regla; con $\tn{5}{-5}$ s hay 70. Cuesta el doble que $10^{-4}$ s (una corrida de $N=650$, $t_f=30$ s, tarda unos 8 s) y una quinta parte que $10^{-5}$ s. Es un trade-off: más resolución del contacto (que es lo que afecta cómo se reparte la energía y los tiempos de conversión) a un costo que sigue siendo chico.}
+\debil{el umbral de 50 pasos por contacto es práctica habitual de dinámica molecular, no está en la teórica; es una decisión nuestra y conservadora. Si preguntan, reconocer que con $10^{-4}$ s también habría conservación de energía al 0,05\,\pc y que lo elegimos porque queremos que cada choque quede resuelto con holgura.}
+
+\pr{¿Por qué $\varepsilon$ y no la deriva máxima o la energía final?}
+\rp{El enunciado pide un observable escalar que caracterice la evolución de $E(t)$. Elegimos el desvío relativo medio sobre 500 instantes porque no depende de un único instante ruidoso (la máxima sí) y porque se mide en las mismas unidades para todo $\dt$ (todos con el mismo $\Delta t_2=0{,}01$ s). Es un observable de Teórica 0 (observable que evoluciona $\to$ escalar que lo resume).}
+
+\pr{¿Por qué la energía crece con $\dt$ grande en vez de oscilar alrededor de $E(0)$?}
+\rp{Los datos muestran que crece. Interpretación: el contacto empieza y termina entre dos pasos; con $\sim3$ pasos por choque la partícula entra al solapamiento durante parte de un paso sin sentir la fuerza y al salir recibe la fuerza un paso de más; esos errores no se cancelan entre entrada y salida y cada choque suma energía.}
+\hipotesis{la fuerza $F=-k\xi$ es continua en $\xi=0$ pero su derivada no: el contacto es no suave, y la garantía de Verlet (energía acotada, orden 2) vale para fuerzas suaves. Por eso se necesitan muchos pasos por contacto.}
+
+\pr{¿Por qué un único $\dt$ para todo el trabajo?}
+\rp{Para que todas las figuras salgan del mismo motor congelado y los resultados sean comparables; además $\dts$ resuelve bien el contacto más duro (partícula-partícula, el de menor $t_c$) a la velocidad inicial. Con velocidades mayores en la cola de Maxwell-Boltzmann ($v$ hasta $\sim3$ m/s) el solapamiento máximo crece, pero la duración del contacto del resorte lineal no depende de la velocidad: $t_c=\pi\sqrt{\mu/k}$ es constante.}
+
+\subsection{Por qué Verlet original (y no Velocity Verlet o Beeman) en el billar}
+El enunciado dice utilizar el esquema de Verlet. Verlet original, Velocity Verlet y Beeman tienen el mismo orden; Velocity Verlet da la misma trayectoria de posiciones que Verlet. Una evaluación de fuerza por paso y sólo dos posiciones en memoria: lo más barato para el costo por paso (que es el costo de calcular fuerzas). Las fuerzas en el billar no dependen de $v$ (resorte lineal sin disipación), así que no hace falta el truco implícito del oscilador.
+
+\textbf{Trade-off:} la velocidad es centrada y va un paso atrasada, y sufre cancelación numérica; para energía cinética y $f(v)$ alcanza (error $O(\dt^2)$ relativo, despreciable con 70 pasos por contacto). Beeman tiene mejor constante de error en el oscilador (13\,\pc menor) pero necesita guardar aceleraciones de tres instantes; la ganancia no justifica el cambio.
+
+\nuevo{la diapositiva 14 ya no dice «Método elegido: Verlet original» ni sus razones; la elección sólo queda escrita en las conclusiones. La razón hay que darla de viva voz.}
+
+\pr{En la diapositiva del oscilador, ¿por qué dicen que Verlet es el mejor si Beeman tiene menor error?}
+\rp{Tres esquemas tienen el mismo orden y casi el mismo error; la diferencia (13\,\pc) es chica comparada con la separación de $10^6$ con Euler. Elegimos Verlet por criterio de ingeniería: una sola fuerza por paso, es el que pide el enunciado para el billar, y a $\dt$ razonables ($\gtrsim10^{-5}$ s) no se degrada por redondeo.}
+
+\subsection{Cell Index Method y tamaño de celda}
+\pr{¿Por qué $M=29$?}
+\rp{Es el mayor $M$ tal que el lado de celda $2R/M\ge2r$ (alcance máximo de contacto): $2R/M=0{,}0352$ m. Con celdas más grandes habría más pares por revisar; con celdas más chicas que $2r$ se perderían contactos.}
+\pr{¿Por qué no lista de Verlet con skin?}
+\rp{Con $\sim0{,}9$ partículas por celda, reconstruir la grilla cada paso ya es $O(N)$ y rápido (12--20 ns por partícula-paso). La lista con skin ahorraría poco y agrega seguimiento de desplazamientos.}
+\pr{¿Y fuerza bruta?}
+\rp{Es $O(N^2)$: a $N=600$ costaba $\approx9\times$ más por partícula y paso en un prototipo. La usamos como oráculo del self-test para validar el CIM.}
+\pr{¿Por qué el CIM no es periódico?}
+\rp{Porque hay pared. La caja cuadrada $[-R,R]^2$ es sólo la grilla de búsqueda; el billar es el círculo inscrito.}
+
+\subsection{Paso fijo contra eventos (la comparación con TP3)}
+\textbf{Eventos (TP3).} Salta de choque en choque; el costo depende de la cantidad de eventos, que crece con la frecuencia de choques ($\sim$ densidad). En nuestro TP3, cada evento avanza todas las partículas y recalcula predicciones de las involucradas contra todas: costo por evento $O(N)$; eventos $\sim N^2$ en $t_f$ fijo $\Rightarrow\sim N^3$ (medimos 3,62; la pendiente local supera 3 a densidad alta porque la frecuencia de choques crece más que lineal por volumen excluido).
+
+\textbf{Paso temporal (TP4).} Cantidad de pasos fija ($\tn{6}{5}$), cada uno $O(N)$: pendiente 1,01. \textbf{Cuándo conviene cuál.} Eventos: choques instantáneos, densidad baja-media, $N$ chico. Paso fijo: densidad alta, contactos duraderos o fuerzas continuas, $N$ grande. Cruce medido: $N\approx310$ (TP3 más rápido hasta 300: 2,2 s contra 2,4 s; TP4 más rápido desde 400: 3,6 s contra 7,6 s).
+
+\textbf{Equivalencia de la comparación.} Misma área ($1{,}2\times0{,}68\approx\pi R^2=0{,}817$ m$^2$): mismo $N$ es misma densidad. Diferencia declarada: TP3 con mesa vacía, TP4 con obstáculos en $x_0=r$. TP3 promedia 100 realizaciones hasta $N=200$, 10 hasta 550 y 5 en 600 y 650.
+
+\nuevo{diapositiva 18 = la misma curva de la 17 con la densidad $\rho=N/(\pi R^2)$ en el eje horizontal (los datos son los mismos, no hay corridas nuevas). Como área = 0,817 m$^2$, la conversión es $\rho=N/0{,}817$: $N=100\to122$ m$^{-2}$; el cruce $N\approx310\to\rho\approx380$ m$^{-2}$; $N=650\to795$ m$^{-2}$. Se agregó porque el docente habla de densidad al elegir método (eventos si es baja, paso temporal si es alta) y porque el resto de los estudios usa $\rho$.}
+
+\pr{¿Para qué dos veces el mismo gráfico (17 y 18)?}
+\rp{Es el mismo dato en dos ejes. En $N$ se ve la pendiente de la ley de potencias (1,01 contra 3,62); en $\rho$ se lee el criterio de elección de método como función de la densidad, que es como lo plantea el docente, y se conecta con los estudios de densidad. Como el área es la misma, el cruce en $N\approx310$ es el cruce en $\rho\approx380$ m$^{-2}$.}
+
+\subsection{Inicialización: red hexagonal o RSA}
+\pr{¿Por qué la red hexagonal en 2.1b/2.4a y RSA en 2.2/2.3/2.4b?}
+\rp{RSA satura cerca de $N\approx440$ ($\varphi\approx0{,}52$--$0{,}547$) y 2.1b pide $N>600$. Para no mezclar métodos dentro de un mismo estudio, 2.1b y 2.4a usan red para todo $N$ y 2.2/2.3/2.4b usan RSA (el $N$ máximo ahí es 400).}
+\debil{el enunciado dice «ubicadas aleatoriamente». La red elige sitios al azar pero no es uniforme; y a densidad alta la caída de $F_u(30\text{ s})$ incluye el enjaulamiento del estado inicial ordenado (no hubo pre-corrida de fusión). Está declarado en la diapositiva, y es una pregunta abierta para el profe.}
+
+\subsection{Realizaciones y barras de error}
+10 realizaciones: el enunciado pide $\ge10$ en 2.1b y $\ge5$ en 2.2; usamos 10 en todo (5 en 2.1a, donde sólo importa el orden de magnitud de $\varepsilon$). El profe pidió 100 en TP3 para curvas definitivas: abierto. Costo estimado con 100 semillas: 2.2 $\sim$56 min, 2.4b $\sim$1,5--2 h. Barras $=\sigma$ muestral con $n-1$, la dispersión entre realizaciones (Teórica 0: se reporta $\langle x\rangle\pm\sigma$). El error del promedio sería $\sigma/\sqrt n\approx\sigma/3$. \textbf{Distinguible:} dos medias se consideran distintas si la diferencia supera $\sqrt{\sigma_1^2+\sigma_2^2}$. Por eso hablamos de zona favorable y no de $x_0$ óptimo. Cifras significativas: el valor se redondea a la primera cifra significativa de $\sigma$ (por ejemplo $(24\pm2)$ s).
+
+\subsection{Por qué $t_{90}$ y no $t_{100}$; la censura}
+$t_{100}$ lo fija la última partícula: es muy ruidoso (con $N=100$, $x_0=r$: $(60\pm10)$ s contra $(24\pm2)$ s). Además el enunciado define $t_{90}$. \textbf{Censura:} si una realización no llega a $F_u=0{,}9$ antes del tiempo máximo, no se promedia sólo sobre las que llegaron (sesga el tiempo hacia abajo). Se informa cuántas no llegaron y se grafica una cota inferior $\langle\min(t_i,t_{max})\rangle$ con símbolo hueco y sin barra. En 2.2 ninguna realización queda censurada (la más lenta llega a 90,3 s $<100$ s).
+
+\nuevo{la diapositiva 28 sí muestra $\langle t_{100}\rangle$ (con $x_0=0{,}20$ m, 2.4b, $t_{max}=100$ s): ahí $t_{100}$ se alcanza en las 10 realizaciones hasta $N=250$, en 9 de 10 con $N=300$ (se grafica la cota inferior, 79 s) y en ninguna con $N=400$. En 2.1b ($t_f=30$ s, diapositiva 27) $\langle t_{100}\rangle$ está censurado en todos los $N$: ninguno tiene las 10 realizaciones con $t_{100}\le t_f$ (para $N=10$ a 40 algunas lo alcanzan, fracción de 0,2 a 0,5).}
+
+\subsection{Estacionariedad en 2.3 y bines}
+\textbf{Criterio 1: cociente (fijado antes de la corrida oficial).} $\langle v^4\rangle/\langle v^2\rangle^2\ge2-3\sqrt2/\sqrt n$ (con $n=1000$ rapideces: umbral 1,810); $t_{relax}=0{,}34$ s; ventana estacionaria desde $3\,t_{relax}=1{,}02$ s hasta 10 s. Valor en la ventana: $1{,}99\pm0{,}03$ (para $N=100$ a energía fija se espera $\approx2N/(N+1)\approx1{,}98$).
+
+\nuevo{\textbf{Criterio 2: $\kbt(t)$ (diapositiva 23).} Es el criterio que propuso el docente en la consulta: ajustar $f(v)$ en cada instante y ver cuándo $\kbt$ se estabiliza. Bloques de 0,1 s; $\kbt$ baja desde $\approx\tn{1{,}53}{-2}$ J en el primer bloque (el pico en $v_0$ todavía no se ensanchó, el ajuste sobreestima) y desde $t=0{,}345$ s queda dentro de $\pm3\sigma$ de la media de la ventana: $\kbt=(\tn{1{,}237}{-2}\pm\tn{0{,}027}{-2})$ J ($\sigma$ entre bloques, 0,00027 J). Coincide con $t_{relax}=0{,}34$ s: los dos criterios dan el mismo estacionario. El valor de la ventana ($1{,}237\times10^{-2}$ J) coincide con el ajuste global ($(1{,}24\pm0{,}02)\times10^{-2}$ J, que usa las 899 snapshots de la ventana).}
+
+$\Delta v=0{,}05$ m/s: compromiso entre resolución (100 bines en $[0,5]$) y ruido (1000 rapideces por instante). Por qué relaja tan rápido: sólo los choques entre partículas cambian las rapideces; con $N=100$ el tiempo entre choques es $\sim0{,}1$ s (estimación nuestra), así que 0,34 s son $\sim3$ choques por partícula.
+
+\pr{¿Por qué tomar la ventana desde $3\,t_{relax}$ y no desde $t_{relax}$?}
+\rp{Es un margen de seguridad fijado antes de mirar los datos: $t_{relax}$ es cuando el cociente recién cruza el umbral; con el factor 3 la ventana empieza en 1,02 s, bien dentro de lo estacionario (el $\kbt(t)$ ya está estable desde 0,345 s). Usar más snapshots reduce el ruido del ajuste porque son 899 snapshots $\times$ 10 realizaciones, todas del mismo estado estacionario.}
+
+\subsection{Rango de $x_0$ y de $N$ en 2.2, 2.4a y 2.4b}
+$x_0$ va de $r$ (obstáculos tocándose) a $R-r$ (tangentes a la pared), como pide el enunciado: 11 valores en 2.2, más 0,175 y 0,225 m en 2.4b, agregados alrededor del mínimo. $N=20$ para comparar densidad baja (enunciado). El mapa llega a $N=400$ porque RSA no ubica más de $\sim440$ partículas. 2.4a: se reusan las salidas de 2.1b ($N=50$ a 650) y se agregó un barrido fino a $N$ bajo ($N=10$ a 150 en pasos de 10) con las mismas condiciones, para ver si había un mínimo de $\langle t_{90}\rangle$ que 2.1b (con $N\ge50$) no podía ver.
+
+\subsection{Elección del tiempo máximo $t_f$}
+2.1b: $t_f=30$ s fijo (enunciado). 2.2 y 2.4b: $t_{max}=100$ s (enunciado en 2.2). 2.4a: reutiliza las salidas de 2.1b (por eso $t_f=30$ s, y por eso casi nada llega a $t_{90}$ con $N$ alto: es lo que obliga a la censura). Re-correr con $t_f$ mayor ya no sería tomar los outputs de 2.1b.
+
+%--------------------------------------------------------------------------------------------
+\section{Preguntas sobre el sistema y el modelo}
+
+\pr{¿Por qué un resorte lineal sin fricción ni disipación?}
+\rp{Lo fija el enunciado. Consecuencia útil: la energía total se conserva, lo que permite validar el $\dt$ con $E(t)$. Sin fricción tangencial la fuerza es normal y el momento angular respecto del centro se conserva entre choques sólo si la fuerza es central: sin obstáculos, el momento angular total se conserva (fuerzas entre partículas centrales, pared radial); con obstáculos no.}
+\pr{¿Qué se conserva y qué no?}
+\rp{La energía total siempre (con error $\lesssim10^{-4}$ con $\dts$). El momento lineal no, porque pared y obstáculos son fijos. El momento angular total sólo sin obstáculos.}
+\pr{¿Cómo se define el contacto, y por qué $\xi>0$?}
+\rp{$\xi_{ij}=r_i+r_j-|\mathbf x_j-\mathbf x_i|>0$ significa que los discos se solapan; entonces actúa $\mathbf F=-k\xi\hat{\mathbf e}_{ij}$. Sin solapamiento no hay fuerza. Es una interacción de contacto pura (gas granular).}
+\pr{¿Cuándo una partícula pasa a usada?}
+\rp{En el primer paso con $\xi>0$ contra cualquiera de los dos obstáculos. Es irreversible, y la partícula usada sigue interactuando normalmente: $N$ y la densidad quedan constantes.}
+\pr{¿Por qué los obstáculos tienen radio $r$ y masa infinita?}
+\rp{Lo define el enunciado: son partículas fijas del mismo radio. Masa infinita significa que sólo se calcula la fuerza sobre la partícula móvil (no se integra el obstáculo).}
+\pr{¿Por qué $\rho=N/\pi R^2$ y no la fracción de área $\varphi$?}
+\rp{El enunciado habla de densidad y la compara con TP3 (misma área $\to$ mismo $N$, misma densidad). Reportamos $\rho$ en m$^{-2}$ y dejamos $\varphi=Nr^2/R^2$ en los CSV ($\varphi=0{,}77$ en $N=650$, por encima de $\sim0{,}70$--0,72 donde los discos duros se ordenan).}
+\pr{¿El motor calcula observables?}
+\rp{No: sólo escribe estados y el registro $(t,\text{id})$ de cada conversión. Los observables se calculan en Python (corrección recibida en TP2). Además el módulo de animación es independiente y lee los archivos de texto (requisito del enunciado).}
+\pr{¿Por qué $v$ se calcula con la diferencia centrada?}
+\rp{Es el Verlet original: $v(t)=[x(t+\dt)-x(t-\dt)]/2\dt$. La salida de velocidad en $t_k$ usa $x_{k+1}$ y $x_{k-1}$, por lo que está centrada en $t_k$ (no atrasada respecto de la posición escrita).}
+\pr{¿Qué pasa con partículas que ven la pared y un obstáculo a la vez, o tres cuerpos?}
+\rp{Las fuerzas se suman (superposición de contactos): cada contacto aporta su fuerza normal. Con $\dts$ el solapamiento es siempre $\ll r$ y el modelo de suma de pares es consistente.}
+
+%--------------------------------------------------------------------------------------------
+\section{Preguntas por diapositiva}
+(Numeración del pie «n / 33» de la presentación vigente.)
+
+\subsection*{Introducción (3--4)}
+\pr{¿Qué es dinámica molecular regida por el paso temporal?}
+\rp{Integrar las ecuaciones de Newton con $\dt$ fijo; en cada paso se calculan las fuerzas y se avanza el estado. Contraste con eventos: ahí se calcula el tiempo del próximo choque y se salta.}
+\pr{¿Por qué la energía total es cinética más $\tfrac12k\xi^2$?}
+\rp{El resorte lineal tiene potencial $\tfrac12k\xi^2$ (se cuenta cada contacto una vez; la pared por la partícula imagen). Es el observable de la verificación (Teórica 4).}
+
+\subsection*{Implementación (6--7)}
+\pr{¿Por qué se guarda cada $n$ pasos?}
+\rp{Para no llenar el disco: $\Delta t_2=n\,\dt$ (el enunciado lo pide). 501 instantes ($\Delta t_2=0{,}01$ s) en 2.1a; los observables se calculan sobre lo guardado.}
+\pr{¿Qué cambiaría si el $\Delta t_2$ fuera distinto?}
+\rp{Cambiaría la resolución temporal de $E(t)$, $F_u(t)$ y $f(v)$ y el tamaño de los archivos, no la dinámica: la integración corre con $\dt$.}
+
+\subsection*{Simulaciones (9--12)}
+\pr{¿Por qué barras de error con $\sigma$ y no con $\sigma/\sqrt n$?}
+\rp{Es lo que dice la Teórica 0 (diapositiva 61) y es la dispersión entre realizaciones, la que describe cuánto varía una corrida individual. Aclararlo una vez (diap. 10). Pregunta abierta para el profe.}
+\pr{¿Por qué normalizar $f(v)$ como densidad de probabilidad?}
+\rp{Teórica 0: $y_i=N_i/(\Delta x_iN)$, integral 1; puede valer más que 1. Permite comparar con $f_{MB}$ directamente.}
+\pr{(Diap. 11) ¿Por qué el cociente vale 2 en MB?}
+\rp{En 2D $u=v^2$ es exponencial y para una exponencial $\langle u^2\rangle=2\langle u\rangle^2$. Con $f_{MB}$: $\langle v^2\rangle=2\kbt/m$, $\langle v^4\rangle=8(\kbt/m)^2$.}
+\pr{(Diap. 12) ¿Qué es 2.4a ahora?}
+\rp{Los $N$ de 2.1b (50 a 650) más un barrido fino a $N$ bajo (10 a 150 en pasos de 10), todos con $x_0=r$, $t_f=30$ s, 10 realizaciones y red inicial.}
+
+\subsection*{Resultados}
+\pr{(Diap. 14) ¿Por qué pendiente 4 si Verlet es de orden 2?}
+\rp{El ECM es el cuadrado del error: error $\propto\dt^2\Rightarrow$ ECM $\propto\dt^4$.}
+\pr{(Diap. 14) ¿Por qué Verlet empeora al achicar $\dt$?}
+\rp{Por redondeo: la velocidad sale de restar dos posiciones casi iguales y el término $\dt^2F/m$ ($\sim10^{-10}$ m) se suma a números de orden 1 m con 16 cifras, a lo largo de $\tn{5}{6}$ pasos.}
+\pr{(Diap. 14) ¿Por qué Verlet y no los otros? \emph{(ya no está escrito en la diapositiva)}}
+\rp{Mismo orden y casi el mismo error que Velocity Verlet y Beeman; Verlet evalúa la fuerza una sola vez por paso y es el que pide el enunciado para el billar. Ver 4.2.}
+\pr{(Diap. 15) ¿Por qué eje vertical logarítmico?}
+\rp{La curva de $10^{-3}$ s sube un orden de magnitud; en lineal las otras serían una única recta plana.}
+\pr{(Diap. 16) ¿Qué es $\varepsilon$ y por qué cae como $\dt^2$?}
+\rp{Es el desvío relativo medio de $E(t)$. Entre $\tn{5}{-6}$ y $10^{-4}$ s crece $\sim\dt^2$ (cuenta nuestra con la tabla): consistente con un integrador de orden 2.}
+\pr{(Diap. 16) ¿Cómo eligieron $\dts$? \emph{(ya no está escrito en la diapositiva)}}
+\rp{Regla fijada antes de mirar los datos: el mayor $\dt$ con $\varepsilon<10^{-3}$ y al menos 50 pasos por contacto ($t_c/\dt\ge50$, práctica de dinámica molecular). $t_c=3{,}51$ ms $\Rightarrow\dts=\tn{5}{-5}$ s (70 pasos). Con $10^{-4}$ s sólo 35 pasos. Ver 4.1.}
+\pr{(Diap. 17) ¿Por qué TP4 escala $\sim N$ y TP3 $\sim N^{3{,}62}$?}
+\rp{TP4: pasos fijos, cada uno $O(N)$ por CIM. TP3: eventos $\sim N^2$ y cada evento cuesta $O(N)$; a alta densidad la frecuencia de choques crece aún más.}
+\pr{(Diap. 17) ¿Es justa la comparación?}
+\rp{Misma máquina, compilador, flags y definición de tiempo; misma área. Diferencias declaradas: mesa vacía contra obstáculos, y distinta cantidad de realizaciones.}
+\pr{(Diap. 18) ¿Qué agrega este gráfico sobre el anterior?}
+\rp{Nada nuevo en los datos: es la misma curva con $\rho=N/(\pi R^2)$ en el eje. Sirve para leer el cruce en densidad ($\rho\approx380$ m$^{-2}$) y relacionarlo con el criterio «eventos si la densidad es baja, paso temporal si es alta». Misma computadora para TP3 y TP4.}
+\pr{(Diap. 18) ¿Por qué a densidad baja gana TP3?}
+\rp{Con pocos choques, el método por eventos casi no hace trabajo: salta de choque en choque sin recorrer pasos intermedios. El paso temporal siempre paga sus $\tn{6}{5}$ pasos. A $N=50$ ($\rho\approx61$ m$^{-2}$) TP3 es más rápido.}
+\pr{(Diap. 19) ¿Cómo eligieron las semillas de las animaciones?}
+\rp{Con una regla fija: para cada $x_0$, la semilla cuyo $t_{90}$ está más cerca de la media de las 10: una realización típica.}
+\pr{(Diap. 20) ¿Qué muestra la fracción de usadas en el tiempo?}
+\rp{Las curvas suben hacia 1 (con $t_{max}=100$ s no hay censura de $t_{90}$ en 2.2). El escalar que las resume es $t_{90}$, el cruce con la línea punteada $F_u=0{,}9$; las barras $\sigma$ se dibujan cada 10 s.}
+\pr{(Diap. 21) ¿Existe una posición que minimice $t_{90}$?}
+\rp{Existe una zona favorable (0,15--0,35 m para $N=100$) lejos de los extremos; con 10 realizaciones no se distingue el mínimo dentro de la zona (0,20 m: $(14{,}6\pm1{,}8)$ s; vecinos 0,15 y 0,25 m dentro de $\sigma$).}
+\pr{(Diap. 21) ¿Por qué los extremos son peores?}
+\rp{Interpretación geométrica nuestra: una partícula toca un obstáculo cuando su centro está a $2r$ del de él. Con $x_0=r$ cada obstáculo pierde el arco que da al otro ($\sim120^\circ$, un tercio); con $x_0=R-r$ pierde el que da a la pared ($\sim184^\circ$, algo más de la mitad). Con $t_{90}\propto1/\text{arco}$ da $\approx22$ s y $\approx30$ s (medido 24 y 31 s). Explica los extremos pero no la subida gradual cerca de ellos.}
+\pr{(Diap. 21) ¿Depende la respuesta de la frecuencia de choques ($N=20$ contra 100)?}
+\rp{En el valor de $t_{90}$ sí (con menos choques tarda menos: $\sim11$ s contra $\sim15$ s en el mínimo); la zona favorable cambia poco (con $N=20$ la fila es plana entre 0,20 y 0,40 m). Camino libre medio estimado: $\approx0{,}4$ m con $N=20$ (del orden de $R$: casi balístico) y $\approx0{,}08$ m con $N=100$ (difusivo).}
+\hipotesis{con pocas colisiones el momento angular de cada partícula se conserva entre choques y sus cuerdas no pasan a menos de $b=|L|/(mv)$ del centro: obstáculos muy cerca del centro podrían ser inaccesibles para algunas órbitas, y el mínimo se correría a $x_0$ mayor. Con $N=20$ y $x_0=r$ no hay censura ($(21\pm7)$ s), así que si el efecto existe es moderado.}
+\pr{(Diap. 22) ¿Qué muestra la animación sin obstáculos?}
+\rp{Es la animación del inciso 2.3 ($N=100$, todas con $|\mathbf v|=v_0$ al inicio, fotograma en $t=2$ s). Los colores no muestran la rapidez; sólo informa la configuración. Sin obstáculos, sólo los choques entre partículas pueden repartir la energía, porque la pared conserva el módulo de la velocidad.}
+\pr{(Diap. 23) ¿Cómo se determina cuándo es estacionario con $\kbt(t)$?}
+\rp{Se ajusta $f(v)$ por bloques de 0,1 s (10\,000 rapideces por bloque: 10 snapshots, 10 realizaciones, 100 rapideces) con el mismo barrido de $\mathcal E(\kbt)$ y se busca el primer bloque desde el cual todos los siguientes quedan dentro de $\pm3\sigma$ de la media de la ventana. Resultado: 0,345 s, coincide con el $t_{relax}=0{,}34$ s del cociente. Es el criterio que propuso el docente en la consulta.}
+\pr{(Diap. 23) ¿Por qué el primer bloque da $\kbt\approx0{,}0153$ J, más que $mv_0^2/2$?}
+\rp{En el primer bloque la distribución todavía no relajó (casi todas con $|\mathbf v|\approx v_0$, un pico en $v_0$); ajustar un modelo de MB de un solo parámetro a un pico angosto no tiene sentido físico y el barrido devuelve un $\kbt$ mayor. Es un artefacto del ajuste, no una temperatura (explicación nuestra, no la verificamos aparte).}
+\pr{(Diap. 23) ¿Por qué se pasan de 0,345 s a una ventana de 1,02 s?}
+\rp{La ventana sale de la regla del cociente fijada antes de la corrida ($3\,t_{relax}$). El $\kbt(t)$ es una verificación independiente: confirma que desde 0,345 s ya es estacionario, así que la ventana desde 1,02 s es conservadora.}
+\pr{(Diap. 24) ¿Por qué termaliza sin baño térmico?}
+\rp{Los choques elásticos redistribuyen la energía entre partículas con la energía total fija; la distribución más probable compatible es MB (caos molecular / teorema H).}
+\pr{(Diap. 25) ¿Por qué no usaron \texttt{curve\_fit}?}
+\rp{Porque el método de la cátedra (Teórica 0) es barrer el parámetro de un modelo teórico, calcular $\mathcal E(c)=\sum[y_j-f(x_j,c)]^2$ y tomar el mínimo; así se muestra la curva del error y se ve que el mínimo es único y está encerrado (no en un borde). Sólo un parámetro: no hay amplitud libre.}
+\pr{(Diap. 26) ¿Por qué $\kbt$ da $\approx1\,\pc$ menos que $mv_0^2/2$?}
+\rp{Las partículas son blandas: en cada instante una pequeña parte de la energía total (conservada) está como energía elástica de solapamientos, y la cinética media queda un poco abajo. El control $m\langle v^2\rangle/2=\tn{1{,}233}{-2}$ J (sin ajuste) da lo mismo y $E$ se conserva a $10^{-4}$. Orden de magnitud: contacto $\sim4\,\pc$ del tiempo $\times$ fracción potencial $\sim1/3$ da $\sim1\,\pc$.}
+\pr{(Diap. 26) ¿Por qué se compara con $mv_0^2/2$?}
+\rp{Equipartición en 2D: $\tfrac12m\langle v^2\rangle=\kbt$; si toda la energía fuera cinética, $\kbt=\tfrac12mv_0^2$.}
+\pr{(Diap. 27) ¿Hay una densidad óptima?}
+\rp{Hay una zona de $\langle t_{90}\rangle$ mínimo y plano ($N\approx20$--40; $N=30$: $(17\pm4)$ s, indistinguible de $N=20$: $(19\pm4)$ s y $N=40$: $(20\pm3)$ s). Con $N=10$ sólo 7 de 10 realizaciones alcanzan el 90\,\pc. A $N\ge100$ hay censura a $t_f=30$ s. $\langle t_{100}\rangle$ queda censurado en todos los $N$. No se puede afirmar una densidad óptima distinta de «densidad baja, sin penalización».}
+\hipotesis{a baja densidad hay pocos choques y las órbitas son regulares: algunas partículas pueden tardar mucho en llegar a un obstáculo; a alta densidad el movimiento es difusivo y el sistema, si arranca de la red, está enjaulado. El mínimo intermedio sería el compromiso. Es una explicación, no una medición.}
+\pr{(Diap. 28) ¿De dónde sale esta diapositiva y por qué es otra condición que la 27?}
+\rp{De la columna $x_0=0{,}20$ m del mapa 2.4b (sin corridas nuevas): RSA, $N=20$ a 400, 10 semillas, $t_{max}=100$ s. La 27 usa 2.1b/2.4a: red, $x_0=r$, $t_f=30$ s. No se mezclan porque son condiciones distintas; la 28 existe porque con $t_{max}=100$ s sí se llega a $t_{90}$ y, hasta $N=250$, a $t_{100}$.}
+\pr{(Diap. 28) ¿Qué dicen los números?}
+\rp{$\langle t_{90}\rangle$ crece con $\rho$ en todo el rango: $12\pm5$, $14\pm2$, $15\pm2$, $17\pm1$, $20\pm2$, $25\pm1$, $31\pm2$, $45\pm3$ s para $N=20$, 50, 100, 150, 200, 250, 300, 400. $\langle t_{100}\rangle$: $21\pm8$, $28\pm8$, $35\pm10$, $42\pm14$, $58\pm10$, $63\pm12$ s hasta $N=250$; $N=300$ es parcial (9 de 10; cota inferior 79 s) y en $N=400$ ninguna alcanza $t_{100}\le100$ s. $t_{100}$ es de 1,7 a 2,3 veces $t_{90}$ y la cola de las últimas partículas pesa más al subir $N$.}
+\pr{(Diap. 28) Entonces, ¿existe una densidad óptima?}
+\rp{No distinguible: $\langle t_{90}\rangle$ es mínimo y plano a densidad baja y crece después; $\langle t_{100}\rangle$ también crece. La conclusión 7 lo dice así: «no hay una densidad óptima distinguible».}
+\pr{(Diap. 29) ¿Por qué $F_u(30\text{ s})$ cae casi linealmente con $\rho$?}
+\rp{Porque baja la tasa con que cada partícula llega a un obstáculo (movimiento difusivo, más tránsito alrededor de los obstáculos). De 0,93 ($N=50$) a 0,018 ($N=650$). Son las mismas corridas que $\langle t_{90}\rangle$ de la diapositiva 27 ($x_0=r$, $t_f=30$ s).}
+\pr{(Diap. 30) ¿Depende el $x_0$ óptimo de $N$?}
+\rp{Para $N\ge50$ el mínimo cae siempre entre 0,20 y 0,25 m: casi no depende. Cambia el valor de $t_{90}$ (11 a 45 s) y cuánto se penalizan los extremos. Con $N=20$ el mínimo está en 0,40 m pero la fila es plana entre 0,20 y 0,40 m.}
+\pr{(Diap. 30) ¿Por qué celdas sin interpolar? ¿Qué significan la celda rayada y la estrella hueca?}
+\rp{Para no inventar valores entre puntos medidos: cada celda es una medición. La celda rayada está censurada y la estrella hueca marca el mínimo de cada $N$. \emph{(Estas dos aclaraciones ya no están escritas en la diapositiva: decirlas de viva voz.)}}
+
+%--------------------------------------------------------------------------------------------
+\section{Puntos débiles: cómo responder con honestidad}
+
+\begin{center}\small
+\begin{tabular}{@{}p{3.3cm}p{5.4cm}p{7.2cm}@{}}
+\toprule
+Punto débil & Qué reconocer & Cómo defenderlo \\ \midrule
+Pocas realizaciones (10) & No se resuelve el mínimo dentro de la zona favorable; el profe pidió 100 en TP3 & Los extremos sí son claramente peores; por eso decimos zona. Costo de 100 semillas en 2.2: $\sim$5 min, y se puede re-correr \\
+Umbral de 50 pasos/contacto & No está en la teórica; ya no está escrito en la diapositiva & Práctica de DEM, declarada antes de mirar los datos; con otro umbral ($10^{-4}$) sale el mismo $\dt$ \\
+$t_f=30$ s en 2.4a & Casi no hay puntos completos a $N\ge100$; $\langle t_{100}\rangle$ censurado en todo $N$ & Reusa las salidas de 2.1b como pide el enunciado; usamos $F_u(30\text{ s})$ y la fracción de realizaciones, y el mapa 2.4b con $t_{max}=100$ s \\
+Dos condiciones para la densidad (diap. 27--29) & 27 y 29: red, $x_0=r$, $t_f=30$ s; 28: RSA, $x_0=0{,}20$ m, $t_{max}=100$ s & Está aclarado en cada diapositiva; no se mezclan. La conclusión 7 sólo afirma lo que ambas comparten: $\langle t_{90}\rangle$ no tiene un mínimo distinguible y crece con $\rho$ \\
+Red hexagonal en 2.1b/2.4a & No es posición uniforme; sin pre-corrida de fusión & RSA no ubica $N>440$; declarado en la diapositiva \\
+$\sigma$ contra $\sigma/\sqrt n$ & Pregunta abierta para el profe & $\sigma$ es lo que dice la Teórica 0; $\sigma/\sqrt n$ sólo para comparar con $mv_0^2/2$ \\
+Comparación con TP3 & Mesa vacía contra obstáculos; 100/10/5 realizaciones según $N$ & Mismo área, máquina, flags y definición de tiempo; la diferencia está declarada \\
+Animación sin obstáculos & Los colores no muestran la rapidez & Es la animación pedida para el inciso 2.3; sólo informa la configuración \\
+$\kbt(t)$ (diap. 23) & Bloques de 0,1 s y $\pm3\sigma$ son decisiones nuestras; el primer bloque es un artefacto de ajuste & Es una verificación independiente del cociente y da el mismo instante (0,345 s contra 0,34 s) \\
+Interpretaciones físicas & Arcos accesibles, momento angular, camino libre medio no se midieron & Decirlas como hipótesis; el momento angular se podría verificar comparando el $b$ inicial con el tiempo de conversión \\ \bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Antes de entregar (pendientes que detecta la guía de consulta):} los cuatro videos tienen \texttt{url: null} en \texttt{presentacion/links.json} y las diapositivas 19 y 22 muestran «PENDIENTE subir video». Hay que subirlos a YouTube o Vimeo, completar \texttt{links.json}, regenerar \texttt{links.tex} (\texttt{links.py}) y recompilar. El enunciado exige el link explícito en el PDF. Verificar también que la diapositiva de conclusiones no tenga números si el profe lo pidió (en TP3 pidió conclusiones sin números; hoy las conclusiones 1--8 no tienen cifras).
+
+%--------------------------------------------------------------------------------------------
+\section{Números para memorizar y plan de ensayo}
+
+\begin{center}\small
+\begin{longtable}{@{}p{3.6cm}p{12.4cm}@{}}
+\toprule
+Qué & Valor \\ \midrule
+\endhead
+Pendientes del ECM & Euler PC 1,95; Verlet, Velocity Verlet y Beeman 4,00 \\
+ECM en $\dt=10^{-3}$ s & Euler PC $\tn{3}{-4}$ m$^2$; Verlet y VV $\tn{3{,}8}{-10}$; Beeman $\tn{3{,}3}{-10}$ \\
+Contacto y pasos & $t_c=\tn{3{,}51}{-3}$ s; $\dts=\tn{5}{-5}$ s $=t_c/70$ \\
+Energía inicial ($N=300$) & $E(0)=3{,}75$ J \\
+Tiempo de ejecución, pendientes & TP4 1,01; TP3 3,62; cruce $N\approx310$ ($\rho\approx380$ m$^{-2}$); $N=650$: TP4 7,9 s, TP3 $\approx145$ s \\
+Densidad $\leftrightarrow N$ & $\rho=N/0{,}817$: $N=100\to122$; $N=310\to380$; $N=650\to795$ m$^{-2}$ \\
+Costo por partícula-paso & $\sim12$--20 ns (mínimo 12,4 ns en $N=150$; 20,2 ns en $N=650$) \\
+$t_{90}$ con $N=100$ & $(14{,}6\pm1{,}8)$ s en 0,20 m; $(24\pm2)$ s en $x_0=r$; $(31\pm5)$ s en $R-r$; zona 0,15--0,35 m \\
+$t_{90}$ con $N=20$ & mínimo $(11\pm3)$ s en 0,40 m; menor que con $N=100$ en 10 de 11 posiciones \\
+Relajación (cociente) & $t_{relax}=0{,}34$ s; ventana $[1{,}02;10]$ s; cociente $1{,}99\pm0{,}03$ \\
+$\kbt(t)$ (diap. 23) & primer bloque $\approx\tn{1{,}53}{-2}$ J; estable desde 0,345 s; media de la ventana $(\tn{1{,}237}{-2}\pm\tn{0{,}027}{-2})$ J (bloques de 0,1 s, $\pm3\sigma$) \\
+Ajuste & $\kbt=(\tn{1{,}24}{-2}\pm\tn{0{,}02}{-2})$ J; $mv_0^2/2=\tn{1{,}25}{-2}$ J ($-0{,}96\,\pc$); control sin ajuste $\tn{1{,}233}{-2}$ J \\
+Densidad (2.4a, $x_0=r$, $t_f=30$ s) & $N=30$: $(17\pm4)$ s mínimo, indistinguible de 20 $(19\pm4)$ y 40 $(20\pm3)$; $N=10$: 7 de 10 llegan; $F_u(30\text{ s})$: 0,93 ($N=50$), 0,55 (400), 0,018 (650); $\langle t_{100}\rangle$ censurado en todo $N$ \\
+Densidad (2.4b, $x_0=0{,}20$ m, $t_{max}=100$ s) & $\langle t_{90}\rangle$: 12, 14, 15, 17, 20, 25, 31, 45 s para $N=20$, 50, 100, 150, 200, 250, 300, 400; $\langle t_{100}\rangle$: 21, 28, 35, 42, 58, 63 s hasta $N=250$; $N=300$ parcial (cota 79 s); $N=400$ ninguna \\
+Mapa $(x_0,N)$ & mínimo en 0,20--0,25 m para $N\ge50$; $t_{90}$ mín 11, 14, 15, 17, 20, 24, 29, 45 s para $N=20$, 50, 100, 150, 200, 250, 300, 400 \\
+Estabilidad & $\dt<2/\omega$: $\tn{2{,}2}{-3}$ s (par), $\tn{3{,}2}{-3}$ s (pared/obstáculo) \\ \bottomrule
+\end{longtable}
+\end{center}
+
+\textbf{Plan de ensayo sugerido.} (1) Cada uno lee su guion con cronómetro, solo. (2) Ensayo completo de 12,5 min con pases (la versión actual de los guiones suma 12:30; el límite es 13:00). (3) Sesión de preguntas cruzadas: A le pregunta a B de la Parte 4, B a C de la Parte 2, C a A de la Parte 3, y rotan. (4) Repasar la Parte 7: saber decir «eso no lo medimos» sin dudar. (5) El día anterior, releer sólo la tabla de números y las respuestas marcadas como hipótesis. (6) Practicar especialmente lo que ya no está en las diapositivas y hay que decir de viva voz: la regla de $\dts$ (diap. 16), la razón de elegir Verlet (diap. 14) y las aclaraciones del mapa (diap. 30).
+
+\textbf{Nota sobre SM.} Interpretamos SM del pedido como el sistema/modelo del trabajo (Sistema 1: oscilador y Sistema 2: billar). Si en la consulta se refirieron a otra cosa (por ejemplo, un método o un inciso concreto), avisar y se amplía esa parte.
+
+\end{document}

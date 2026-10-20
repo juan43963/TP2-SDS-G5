@@ -263,8 +263,8 @@
 % SLIDE sim_obs1 | S:2 | V:A | T:45
 \begin{frame}{Observables (1/2)}
   \footnotesize
-  \abovedisplayskip=2pt \belowdisplayskip=2pt
-  \abovedisplayshortskip=0pt \belowdisplayshortskip=1pt
+  \abovedisplayskip=0pt \belowdisplayskip=0pt
+  \abovedisplayshortskip=0pt \belowdisplayshortskip=0pt
   \textbf{Energía} --- cada contacto una vez; la pared, por partícula imagen:
   \[
     E(t) = \sum_i \tfrac{1}{2}\,m\,|\vect{v}_i|^2 + \sum_{\text{pares}} \tfrac{1}{2}\,k\,\xi_{ij}^2
@@ -274,11 +274,13 @@
   \[
     \varepsilon(\Delta t) = \frac{1}{N_t} \sum_{n=1}^{N_t} \frac{|E(t_n) - E(0)|}{E(0)}
   \]
-  \textbf{Fracción de usadas} ($N_u$ = usadas) y \textbf{tiempo al 90 \%}, en cada realización $s$:
+  \textbf{Fracción de usadas} ($N_u$ = usadas) \textbf{tiempo al 90 \%} y \textbf{al 100 \%}, en cada realización $s$:
   \[
     F_u^{(s)}(t) = \frac{N_u^{(s)}(t)}{N},
-    \qquad
-    t_{90}^{(s)} = \min\big\{\, t : F_u^{(s)}(t) \geq 0{,}9 \,\big\}
+    \quad
+    t_{90}^{(s)} = \min\big\{\, t : F_u^{(s)}(t) \geq 0{,}9 \,\big\},
+    \quad
+    t_{100}^{(s)} = \min\big\{\, t : F_u^{(s)}(t) = 1 \,\big\}
   \]
   \textbf{Promedio y desvío estándar muestral} sobre $n$ realizaciones (barras de error $= \sigma$); $\langle F_u \rangle$ se promedia en cada instante $t$ de una grilla común:
   \[
@@ -288,7 +290,7 @@
     \qquad
     \langle F_u \rangle(t) = \frac{1}{n} \sum_{s=1}^{n} F_u^{(s)}(t)
   \]
-  \params{Censura ($F_u^{(s)}(t_{\max}) < 0{,}9$): se informa cuántas realizaciones; nunca se promedia sólo sobre las exitosas.}
+  \params{Censura ($F_u^{(s)}(t_{\max}) < 0{,}9$ en $t_{90}$, $<1$ en $t_{100}$): se informa cuántas realizaciones; no se promedia sólo sobre las exitosas.}
 \end{frame}
 
 % SLIDE sim_obs2 | S:2 | V:A | T:40
@@ -302,12 +304,6 @@
     \qquad
     \sum_j f_j\,\Delta v = 1
   \]
-  \textbf{Relajación} --- cociente de momentos de la rapidez:
-  \[
-    \frac{\langle v^4 \rangle}{\langle v^2 \rangle^2}
-    = \begin{cases} 1 & |\vect{v}| = v_0 \text{ para todas (condición inicial)} \\
-      2 & \text{Maxwell-Boltzmann 2D: } v^2 \sim \text{exponencial} \Rightarrow \langle v^4 \rangle = 2\,\langle v^2 \rangle^2 \end{cases}
-  \]
   \textbf{Modelo} (un solo parámetro) y \textbf{error del ajuste}, sobre los centros de bin $v_j$:
   \[
     f_{\mathrm{MB}}(v) = \frac{m\,v}{k_B T}\,\exp\!\left( -\frac{m\,v^2}{2\,k_B T} \right),
@@ -315,7 +311,8 @@
     \mathcal{E}(k_B T) = \sum_j \big[ f_j - f_{\mathrm{MB}}(v_j;\, k_B T) \big]^2
   \]
   \params{$k_B T$ es el mínimo de $\mathcal{E}$ en una grilla de $10^{-3}$ a $5\times10^{-2}$ J con paso $10^{-5}$ J.\\
-  Densidad: $\rho = N / (\pi R^2)$.}
+  $k_B T(t)$: mismo ajuste en bloques de $0{,}1$ s. $F_u(t_f)$: usadas al final de la corrida.\\
+  $\rho = N / (\pi R^2)$. Tiempo de ejecución: de la simulación, promedio entre realizaciones.}
 \end{frame}
 
 % SLIDE sim_realizaciones | S:2 | V:B | T:25

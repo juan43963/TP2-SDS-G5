@@ -1,0 +1,69 @@
+% Macros y tabla de orden compartidas por los tres guiones. \yo = A, B o C.
+\input{preambulo}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\newcommand{\mi}[1]{\cellcolor{azulfila}\textbf{#1}}
+\newcommand{\Fmi}[5]{\mi{#1} & \mi{#2} & \mi{#3} & \mi{#4} & \mi{#5} \\}
+\newcommand{\Fno}[5]{#1 & #2 & #3 & #4 & #5 \\}
+\newcommand{\F}[5]{\ifnum\pdfstrcmp{#3}{\yo}=0 \expandafter\Fmi\else\expandafter\Fno\fi{#1}{#2}{#3}{#4}{#5}}
+\newcommand{\interv}[8]{%
+  \par\vspace{6pt}\noindent{\large\bfseries Diapositiva #1 \textemdash{} #2}\hfill{\small reloj #3 \textbullet{} #4 s}\par\nobreak
+  {\small\textit{Entrás después de:} #5}\par\nobreak
+  #6\par
+  \ifx\relax#7\relax\else\colorbox{hipo}{\parbox{\dimexpr\linewidth-2\fboxsep}{\small\textbf{Números a mano:} #7}}\par\fi
+  {\small\textit{#8}}\par}
+\newcommand{\nota}[1]{\colorbox{nuevo}{\parbox{\dimexpr\linewidth-2\fboxsep}{\small #1}}\par}
+\newcommand{\cabecera}[3]{%
+  {\LARGE\bfseries Guion Orador #1}\par
+  {\large TP4 \textemdash{} Dinámica molecular regida por el paso temporal \textemdash{} Presentación de 13 minutos}\par\vspace{2pt}
+  \textbf{Tu tiempo hablando:} #2 en #3 intervenciones. \textbf{Tiempo total planeado de la presentación:} 12:30 (límite 13:00, quedan 30 s de margen para pausas y pases).
+
+  Los textos están pensados a unas 140--150 palabras por minuto. Si te quedás corto o largo, respetá los segundos de la tabla: el reloj de cada diapositiva es acumulado. Los números de diapositiva son los del pie «n / 33» de la presentación vigente.}
+\newcommand{\tablaorden}{%
+\section{Orden completo (tus filas en azul)}
+{\small
+\begin{longtable}{@{}rp{8.6cm}crr@{}}
+\toprule Diap. & Contenido & Voz & Seg. & Reloj \\ \midrule \endhead
+\F{1}{Título}{A}{10}{0:00}
+\F{3}{Sistema real}{A}{20}{0:10}
+\F{4}{Modelo matemático}{B}{25}{0:30}
+\F{6}{Integración: Verlet original}{C}{25}{0:55}
+\F{7}{Arquitectura del motor}{A}{25}{1:20}
+\F{9}{Sistema simulado}{B}{25}{1:45}
+\F{10}{Observables (1/2)}{C}{30}{2:10}
+\F{11}{Observables (2/2)}{A}{30}{2:40}
+\F{12}{Corridas realizadas}{B}{20}{3:10}
+\F{14}{Oscilador: ECM contra $\Delta t$}{C}{30}{3:30}
+\F{15}{Energía total en función del tiempo}{A}{20}{4:00}
+\F{16}{Error de energía contra $\Delta t$}{B}{40}{4:20}
+\F{17}{Tiempo de ejecución en función de $N$}{C}{40}{5:00}
+\F{18}{Tiempo de ejecución en función de la densidad (nueva)}{B}{20}{5:40}
+\F{19}{Variación de $x_0$ (animaciones)}{A}{20}{6:00}
+\F{20}{Fracción de usadas en función del tiempo}{B}{25}{6:20}
+\F{21}{Tiempo al 90\,\pc contra $x_0$ (parte 1)}{C}{30}{6:45}
+\F{21}{Tiempo al 90\,\pc contra $x_0$ (parte 2)}{A}{20}{7:15}
+\F{22}{Billar sin obstáculos (animación)}{A}{15}{7:35}
+\F{23}{Estacionario: $k_BT$ ajustado en el tiempo (nueva)}{B}{25}{7:50}
+\F{24}{Distribución de rapideces: evolución}{C}{25}{8:15}
+\F{25}{Búsqueda del mejor ajuste}{A}{25}{8:40}
+\F{26}{Distribución estacionaria y ajuste}{B}{30}{9:05}
+\F{27}{Tiempos de conversión contra la densidad}{C}{30}{9:35}
+\F{28}{$\langle t_{90}\rangle$ y $\langle t_{100}\rangle$ contra la densidad (nueva)}{A}{20}{10:05}
+\F{29}{Fracción de usadas a $t_f$ contra la densidad}{A}{20}{10:25}
+\F{30}{Mapa de $t_{90}$ en $(x_0,N)$ --- parte 1}{B}{25}{10:45}
+\F{30}{Mapa de $t_{90}$ en $(x_0,N)$ --- parte 2}{C}{20}{11:10}
+\F{32}{Conclusiones (1 a 3)}{A}{20}{11:30}
+\F{32}{Conclusiones (4 a 6)}{B}{20}{11:50}
+\F{32}{Conclusiones (7 y 8) y cierre}{C}{20}{12:10}
+\bottomrule
+\end{longtable}}
+
+\textbf{Reparto.} Las diapositivas de resultados (la parte más importante) las hablamos los tres, intercaladas: A, B y C se turnan. En las diapositivas de tiempo al 90\,\pc contra $x_0$ (C y A) y del mapa de calor (B y C) hablan dos voces seguidas en la misma diapositiva; el pase se hace sin cambiar de lámina. Las diapositivas 14 a 18 no se detienen en «por qué»: las razones del método (Verlet, regla de $\Delta t^*$) ya no están escritas, se dicen de viva voz.
+
+\textbf{Cambios respecto del guion anterior.} Las tres diapositivas nuevas son la 18, la 23 y la 28 (marcadas «nueva»); la antigua «Relajación hacia Maxwell-Boltzmann» (cociente) ya no tiene diapositiva propia: ahora su idea se dice en la 11 (definición) y en la 23 ($k_BT(t)$). Desde la 18 la numeración se corrió.}
+\newcommand{\antes}{%
+\section{Antes de subir}
+Leé tu guion en voz alta con cronómetro: cada intervención debe entrar en sus segundos. Los pases son frases cortas (``sigue B'', ``te paso a C'') sin cambiar de tema.
+
+Para las preguntas, mirá la \textbf{Guía de estudio TP4}: cada uno defiende sus diapositivas, pero cualquiera puede ser interrogado sobre cualquier parte.}

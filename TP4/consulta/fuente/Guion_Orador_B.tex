@@ -1,0 +1,34 @@
+\documentclass[10.5pt,a4paper]{article}
+\def\yo{B}
+\input{guion_comun}
+\cfoot{Guion Orador B \textbullet{} TP4 Grupo 5 \textbullet{} \thepage}
+\begin{document}
+\cabecera{B}{4:15}{10}
+\tablaorden
+
+\section{Tu guion}
+
+\interv{4}{Modelo matemático}{0:30}{25}{A (Sistema real)}{El modelo es la segunda ley de Newton para cada partícula: masa por aceleración igual a la fuerza. La fuerza es un resorte lineal en la dirección normal, y sólo actúa si hay solapamiento, $\xi$ mayor que cero: menos $k$ por $\xi$ por el versor que une los centros. La energía total es la cinética más la elástica de los contactos, y se conserva porque no hay fricción.}{$k=10^4$ N/m; $\xi=r_i+r_j-|x_j-x_i|$}{Pasás a C (Integración: Verlet original).}
+
+\interv{9}{Sistema simulado}{1:45}{25}{A (Arquitectura del motor)}{El sistema es un billar circular de radio 0,51 metros con dos obstáculos fijos en más y menos $x_0$. Las $N$ partículas arrancan con rapidez 1 metro por segundo y dirección uniforme. Nacen frescas, azules, y pasan a usadas, rojas, al tocar por primera vez un obstáculo. Usamos $\Delta t$ de $5\times10^{-5}$ segundos. La pregunta es dónde ubicar los obstáculos para que las partículas los toquen antes.}{$R=0{,}51$ m; $r=1{,}75\times10^{-2}$ m; $m=2{,}5\times10^{-2}$ kg; $k=10^4$ N/m; $\Delta t=5\times10^{-5}$ s}{Pasás a C (Observables 1/2).}
+
+\interv{12}{Corridas realizadas}{3:10}{20}{A (Observables 2/2)}{Diez realizaciones por punto, salvo cinco en el estudio de energía. En 2.1b barrimos $N$ de 50 a 650; en 2.2, once valores de $x_0$; en 2.4a, $N$ de 10 a 150 más las corridas de 2.1b; y en 2.4b un mapa de 8 valores de $N$ por 13 de $x_0$. Todo con $\Delta t$ de $5\times10^{-5}$ y g++ con O2.}{2.1a: 10 valores de $\Delta t$ entre $5\times10^{-6}$ y $5\times10^{-3}$ s}{Pasás a C (Oscilador: ECM contra $\Delta t$).}
+
+\interv{16}{Error de energía contra $\Delta t$}{4:20}{40}{A (Energía total en función del tiempo)}{Este es el escalar $\varepsilon$ contra $\Delta t$. La regla la fijamos antes de mirar los datos: el mayor $\Delta t$ con $\varepsilon$ menor a $10^{-3}$ y al menos 50 pasos por contacto. El contacto dura $t_c$, $\pi$ por raíz de masa reducida sobre $k$: 3,5 milisegundos. Con $5\times10^{-5}$ tenemos 70 pasos por choque. Con $10^{-4}$ el error también es chico, pero hay sólo 35 pasos por choque, y con $5\times10^{-3}$ el Verlet diverge. Achicar $\Delta t$ tiene un costo: el tiempo de cómputo crece como uno sobre $\Delta t$.}{$t_c=3{,}51\times10^{-3}$ s; $\Delta t^*=5\times10^{-5}$ s $\to$ 70 pasos/contacto; $10^{-4}$ s $\to$ 35}{\textbf{Ojo:} la regla y los 70/35 pasos ya no están escritos en la diapositiva (sólo $t_c$); hay que decirlos. Pasás a C (Tiempo de ejecución en función de $N$).}
+
+\interv{18}{Tiempo de ejecución en función de la densidad (nueva)}{5:40}{20}{C (Tiempo de ejecución en función de $N$)}{Es la misma comparación, con la densidad $\rho$ igual $N$ sobre $\pi R$ cuadrado en el eje horizontal. El cruce, $N$ cercano a 310, es una densidad de unos 380 por metro cuadrado: por debajo conviene el método por eventos, por encima el paso temporal. Misma computadora para TP3 y TP4.}{$\rho=N/0{,}817$: $N=100\to122$; $N=310\to380$; $N=650\to795$ m$^{-2}$}{Pasás a A (Variación de $x_0$, animaciones).}
+
+\interv{20}{Fracción de usadas en función del tiempo}{6:20}{25}{A (Variación de $x_0$)}{Esta es la fracción de usadas en función del tiempo, promediada entre las 10 realizaciones, con barras de desvío cada 10 segundos. Todas las curvas suben hacia 1. El escalar que las resume es $t_{90}$: el cruce con la línea punteada en 0,9. Con los obstáculos en 0,20 se llega antes que en los extremos.}{cruce con 0,9: $\approx15$ s (0,20 m), $\approx24$ s ($x_0=r$), $\approx31$ s ($R-r$)}{Pasás a C (Tiempo al 90\,\pc contra $x_0$).}
+
+\interv{23}{Estacionario: $k_BT$ ajustado en el tiempo (nueva)}{7:50}{25}{A (Billar sin obstáculos)}{Segundo criterio de estacionario, el que se propuso en la consulta: ajustamos $k_BT$ en bloques de 0,1 segundos. Arranca cerca de $1{,}5\times10^{-2}$ y desde 0,345 segundos queda dentro de tres sigmas de su valor estacionario, $1{,}24\times10^{-2}$ joules. Coincide con el cociente de momentos, que da 0,34 segundos. La banda verde es la ventana que usamos.}{primer bloque $\approx1{,}53\times10^{-2}$ J; estable desde 0,345 s; media de la ventana $(1{,}237\pm0{,}027)\times10^{-2}$ J; cociente $1{,}99\pm0{,}03$ en $[1{,}02;\,10]$ s}{Pasás a C (Distribución de rapideces: evolución).}
+
+\nota{El cociente $\langle v^4\rangle/\langle v^2\rangle^2$ ya no tiene diapositiva propia. Si querés mencionarlo: vale 1 al inicio y 2 en Maxwell-Boltzmann 2D; llega al umbral en $t_{relax}=0{,}34$ s.}
+
+\interv{26}{Distribución estacionaria y ajuste}{9:05}{30}{A (Búsqueda del mejor ajuste)}{Así queda el ajuste sobre la distribución estacionaria: la línea llena es Maxwell-Boltzmann con el $k_BT$ ajustado, casi superpuesta con la teórica de $mv_0^2/2$, en trazos. El valor ajustado es apenas menor, cerca del 1 por ciento. Lo interpretamos así: las partículas son blandas, y una pequeña parte de la energía total, que sí se conserva, queda guardada como energía elástica en los solapamientos; por eso la cinética es un poco menor. El control con la energía cinética media da lo mismo, sin ajuste.}{control sin ajuste: $m\langle v^2\rangle/2=1{,}233\times10^{-2}$ J; ajuste $(1{,}24\pm0{,}02)\times10^{-2}$ J. La explicación de la energía elástica es una interpretación nuestra.}{Pasás a C (Tiempos de conversión contra la densidad).}
+
+\interv{30}{Mapa de $t_{90}$ en $(x_0,N)$ --- parte 1}{10:45}{25}{A (Fracción de usadas a $t_f$)}{Juntamos las dos preguntas en un mapa de $t_{90}$ en el plano $x_0$--$N$: 8 valores de $N$, de 20 a 400, por 13 de $x_0$, con 10 realizaciones y $t_{max}$ de 100 segundos. Cada celda es una medición, sin interpolar; la rayada está censurada. La estrella hueca marca el mínimo de cada $N$.}{}{\textbf{Ojo:} «celda rayada» y «estrella hueca» ya no están escritas en la diapositiva; decilo. Pasás a C (parte 2, misma lámina).}
+
+\interv{32}{Conclusiones (4 a 6)}{11:50}{20}{A (Conclusiones 1 a 3)}{Cuarto: hay una zona intermedia de $x_0$ donde $t_{90}$ es mínimo, y sube cuando los obstáculos están cerca del centro o de la pared. Quinto: con menos partículas la conversión completa llega antes en casi todas las posiciones. Sexto: $f(v)$ relaja a Maxwell-Boltzmann con un $k_BT$ apenas menor al inicial.}{}{Pasás a C (Conclusiones 7 y 8 y cierre).}
+
+\antes
+\end{document}

@@ -1,0 +1,38 @@
+\documentclass[10.5pt,a4paper]{article}
+\def\yo{A}
+\input{guion_comun}
+\cfoot{Guion Orador A \textbullet{} TP4 Grupo 5 \textbullet{} \thepage}
+\begin{document}
+\cabecera{A}{4:05}{12}
+\tablaorden
+
+\section{Tu guion}
+
+\interv{1}{Título}{0:00}{10}{---}{Arrancás vos. Buenos días. Somos el Grupo 5 y les vamos a presentar el TP4: dinámica molecular regida por el paso temporal, aplicada a un billar circular.}{}{Seguís vos en la diapositiva 3 (sin cambiar de lámina de voz).}
+
+\interv{3}{Sistema real}{0:10}{20}{vos mismo (título)}{Nuestro sistema real es un gas granular: partículas que sólo interactúan cuando se tocan. Los choques son blandos y, como no hay disipación, la energía se conserva. Lo simulamos con dinámica molecular regida por el paso temporal: el estado avanza con un $\Delta t$ fijo, integrando las ecuaciones de movimiento, sin calcular eventos.}{}{Pasás a B (Modelo matemático).}
+
+\interv{7}{Arquitectura del motor}{1:20}{25}{C (Integración: Verlet original)}{El motor es C++20, sin dependencias y de un solo hilo. En cada paso armamos una grilla de celdas con el Cell Index Method, calculamos las fuerzas entre pares vecinos, contra los obstáculos y contra la pared con la partícula imagen, damos el paso de Verlet, marcamos las conversiones de fresca a usada y escribimos el estado cada $n$ pasos. El costo por paso es lineal en $N$.}{$M=29$ celdas por lado ($\ge2r$); pared: $x_{img}=(R+r)\hat n$}{Pasás a B (Sistema simulado).}
+
+\interv{11}{Observables (2/2)}{2:40}{30}{C (Observables 1/2)}{Para la distribución de rapideces usamos bines de 0,05 metros por segundo, normalizados como densidad de probabilidad. Para saber cuándo relaja usamos el cociente $\langle v^4\rangle$ sobre $\langle v^2\rangle$ al cuadrado: vale 1 si todas tienen la misma rapidez y 2 en Maxwell-Boltzmann 2D. Ajustamos $k_BT$ con el método de la Teórica 0: barremos el parámetro, calculamos el error cuadrático contra el modelo y nos quedamos con el mínimo. La densidad es $N$ sobre $\pi R$ cuadrado.}{barrido $k_BT$: $10^{-3}$ a $5\times10^{-2}$ J, paso $10^{-5}$ J}{Pasás a B (Corridas realizadas).}
+
+\interv{15}{Energía total en función del tiempo}{4:00}{20}{C (Oscilador: ECM contra $\Delta t$)}{Ahora elegimos $\Delta t$ para el billar: $N$ igual 300, sin obstáculos. Con $\Delta t$ de $10^{-3}$ la energía se multiplica por más de diez. Con $\Delta t$ chicos queda plana. Para decidir, resumimos cada curva en un escalar: el desvío relativo medio de la energía.}{$E(0)=Nmv_0^2/2=3{,}75$ J}{Pasás a B (Error de energía contra $\Delta t$).}
+
+\interv{19}{Variación de $x_0$ (animaciones)}{6:00}{20}{B (Tiempo de ejecución contra la densidad)}{Entramos al estudio central: dónde poner los obstáculos. Mostramos dos animaciones con $N$ igual 100: $x_0$ igual a $r$, con los obstáculos tocándose, y $x_0$ igual a 0,20 metros. Cada fotograma es el instante en que hay 50 usadas. Los links a las animaciones están en la diapositiva.}{50 usadas: 4,5 s ($x_0=0{,}20$ m) vs 7,8 s ($x_0=r$)}{Pasás a B (Fracción de usadas en función del tiempo).}
+
+\interv{21}{Tiempo al 90\,\pc contra $x_0$ (parte 2)}{7:15}{20}{C (misma diapositiva)}{Los mínimos vecinos no se distinguen dentro del desvío, por eso hablamos de zona favorable y no de un $x_0$ óptimo. En los extremos el blanco efectivo es menor: con los obstáculos juntos se tapan entre sí, y contra la pared queda inaccesible más de la mitad de su contorno; es una interpretación nuestra. Con $N$ igual 20 todo es más rápido, porque hay menos choques entre partículas que las desvíen.}{$N=20$: mínimo $(11\pm3)$ s en 0,40 m, fila plana entre 0,20 y 0,40}{Seguís vos en la diapositiva 22 (cambiás de lámina).}
+
+\interv{22}{Billar sin obstáculos (animación)}{7:35}{15}{vos mismo (Tiempo al 90\,\pc)}{Pasamos al inciso 2.3: billar sin obstáculos, $N$ igual 100, todas con rapidez $v_0$. El fotograma es de $t$ igual 2 segundos. Sólo los choques entre partículas pueden repartir la energía, porque la pared conserva el módulo de la velocidad.}{}{Pasás a B (Estacionario: $k_BT$ ajustado en el tiempo).}
+
+\interv{25}{Búsqueda del mejor ajuste}{8:40}{25}{C (Distribución de rapideces: evolución)}{Para ajustar usamos el método de la Teórica 0, con un único parámetro, $k_BT$. Calculamos el error cuadrático entre la $f$ medida y la de Maxwell-Boltzmann para cada $k_BT$, y nos quedamos con el mínimo. La curva tiene un único mínimo bien definido: $1{,}24\times10^{-2}$ joules, contra $mv_0^2/2$, que es $1{,}25\times10^{-2}$.}{$k_BT=(1{,}24\pm0{,}02)\times10^{-2}$ J; $mv_0^2/2=1{,}25\times10^{-2}$ J ($-1\,\pc$); estrella = mínimo, trazos = $mv_0^2/2$}{Pasás a B (Distribución estacionaria y ajuste).}
+
+\interv{28}{$\langle t_{90}\rangle$ y $\langle t_{100}\rangle$ contra la densidad}{10:05}{20}{C (Tiempos de conversión contra la densidad)}{Mismo estudio, ahora con $x_0$ igual 0,20 y $t_{max}$ de 100 segundos. El $t_{90}$ crece con la densidad, de 12 segundos con $N$ igual 20 a 45 con $N$ igual 400. El $t_{100}$ también crece, y con $N$ igual 400 ninguna realización lo alcanza. No hay una densidad óptima distinguible.}{$\langle t_{90}\rangle$: 12, 14, 15, 17, 20, 25, 31, 45 s ($N=20,\dots,400$); $\langle t_{100}\rangle$: 21, 28, 35, 42, 58, 63 s hasta $N=250$; $N=300$ parcial (9 de 10, cota 79 s)}{Seguís vos en la diapositiva 29.}
+
+\nota{La diapositiva 28 es otra condición que la 27 (RSA, $x_0=0{,}20$ m, $t_{max}=100$ s, mapa 2.4b; la 27 es red, $x_0=r$, $t_f=30$ s). Si te preguntan, está explicado en la Guía, Parte 6.}
+
+\interv{29}{Fracción de usadas a $t_f$ contra la densidad}{10:25}{20}{vos mismo (diapositiva 28)}{Como $t_{90}$ no siempre se alcanza en 30 segundos, miramos la fracción de usadas a $t_f$: disminuye al aumentar la densidad. Son las mismas corridas de $x_0$ igual a $r$ de la diapositiva 27. Con más partículas el movimiento es más difusivo y cada una tarda más en llegar a un obstáculo. A $N$ igual 650 casi nada se convirtió, y eso incluye que arrancamos de una red ordenada.}{$F_u(30\text{ s})$: 0,93 ($N=50$); 0,018 ($N=650$)}{Pasás a B (Mapa de $t_{90}$ en $(x_0,N)$, parte 1).}
+
+\interv{32}{Conclusiones (1 a 3)}{11:30}{20}{C (Mapa, parte 2)}{Resumimos. Primero: en el oscilador, Beeman, Verlet original y Velocity Verlet dan casi el mismo error, de orden 2, y elegimos Verlet; Euler predictor-corrector es mucho peor. Segundo: el $\Delta t$ elegido conserva la energía por debajo del umbral. Tercero: el costo del paso temporal crece casi lineal con $N$ y supera al método por eventos a partir de cierto $N$.}{}{Pasás a B (Conclusiones 4 a 6).}
+
+\antes
+\end{document}
