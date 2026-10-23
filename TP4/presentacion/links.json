@@ -3,19 +3,19 @@
   "videos": {
     "x0_central": {
       "title": "Billar con obstáculos, x0 = 0.20 m",
-      "url": null
+      "url": "https://www.youtube.com/watch?v=zH4g0ZavInQ"
     },
     "x0_r": {
       "title": "Billar con obstáculos, x0 = 0.0175 m (x0 = r)",
-      "url": null
+      "url": "https://www.youtube.com/watch?v=qjlmhZvMpJg"
     },
     "x0_Rmr": {
       "title": "Billar con obstáculos, x0 = 0.4925 m (x0 = R - r)",
-      "url": null
+      "url": "https://www.youtube.com/watch?v=NVfYUVDCJQU"
     },
     "sin_obstaculos": {
       "title": "Billar sin obstáculos",
-      "url": null
+      "url": "https://www.youtube.com/watch?v=f-WHOSFML0g"
     }
   }
 }
