@@ -1,71 +1,61 @@
 ---
-gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: Awaiting next milestone
-stopped_at: Completed 05-04-PLAN.md (phase 05 complete, milestone complete)
-last_updated: "2026-08-24T16:45:00.000Z"
-last_activity: 2026-08-24
-last_activity_desc: Completed quick task 260824-i0l (5 plans, informe+presentacion pendientes cerrados)
+gsd_state_version: "1.0"
+milestone: v1.1
+milestone_name: TP5 Evacuación híbrida EDMD + TSDMD
+current_phase: 8
+current_phase_name: Esquema híbrido EDMD+TSDMD
+status: planning
+stopped_at: Phase 8 context gathered
+last_updated: "2026-10-31T22:43:24.448Z"
+last_activity: 2026-10-31
+last_activity_desc: Phase 7 complete, transitioned to Phase 8
+state_head: 1584e7ce174d862b9bbdf85b136d7cbbf5dcf6e4
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 14
-  completed_plans: 14
-current_phase: 05
-current_phase_name: Benchmark y Entregables
+  total_phases: 6
+  completed_phases: 7
+  total_plans: 8
+  completed_plans: 8
+  percent: 100
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-18)
+See: .planning/PROJECT.md (updated 2026-10-30)
 
-**Core value:** Producir las curvas y gráficos correctos (va, S, comparación estándar vs votante) que sustenten el informe y la presentación — resultados/gráficos importan más que la elegancia del motor, aunque el motor debe ser rápido para el barrido.
-**Current focus:** Milestone v1.0 shipped — awaiting human final steps (video upload, informe/presentación review) before campus submission
+**Core value:** Producir las curvas y gráficos correctos que sustenten el informe y la presentación; el motor debe ser rápido porque hay que correr barridos grandes (≥10 realizaciones × 3 esquemas × barridos de parámetro y de N).
+**Current focus:** Phase 07 — EDMD puro
 
 ## Current Position
 
-Phase: Milestone v1.0 complete
-Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-08-19 — Milestone v1.0 completed and archived
+Phase: 8 — Esquema híbrido EDMD+TSDMD
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-10-31 — Phase 7 complete, transitioned to Phase 8
+
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 14
-- Average duration: - min
-- Total execution time: 0 hours
-
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 01 | 2 | - | - |
-| 02 | 2 | - | - |
-| 03 | 2 | - | - |
-| 04 | 4 | - | - |
-| 05 | 4 | - | - |
-
-**Recent Trend:**
-
-- Last 5 plans: none yet
-- Trend: N/A
+- v1.1: 0 plans completed
+- v1.0 (referencia): 14 plans en 5 fases, ~1 día corrido
 
 *Updated after each plan completion*
 **Per-Plan Metrics:**
 
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
-| Phase 01 P02 | 35min | 2 tasks | 5 files |
-| Phase 02 P01 | 4min | 2 tasks | 4 files |
-| Phase 02 P02 | 6min | 2 tasks | 8 files |
-| Phase 05 P02 | ~40min | 3 tasks | 2 files |
-| Phase 05 P03 | ~35min | 3 tasks | 4 files |
-| Phase 05 P04 | ~10min | 2 tasks | 3 files |
+| Phase 06 P01 | 35 min | 2 tasks | 18 files |
+| Phase 06 P02 | 20min | 2 tasks | 4 files |
+| Phase 06 P03 | 30min | 2 tasks | 7 files |
+| Phase 06 P04 | 30 min | 3 tasks | 3 files |
+| Phase 07 P01 | 70 min | 2 tasks | 8 files |
+| Phase 07 P02 | 240 min | 2 tasks | 10 files |
+| Phase 07 P03 | ~1h | 2 tasks | 3 files |
+| Phase 07 P04 | 9h | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -74,18 +64,19 @@ Last activity: 2026-08-19 — Milestone v1.0 completed and archived
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Roadmap: Binario nuevo en `TP2/` reusa el CIM de TP1 en vez de extender TP1 in-place o extraer una lib compartida — TP1 queda intacto.
-- Roadmap: Estructura de fases horizontal (motor completo y ambos modelos validados antes de escalar al barrido paramétrico), no vertical-slice — reduce riesgo de escalar cómputo sobre un motor incorrecto dado el plazo ajustado.
-- [Phase ?]: Self-inclusive circular mean (Vicsek 1995 convention) applied consistently for the heading update
-- [Phase ?]: CORE_SRC Makefile edit for engine/simulation.cpp pulled forward into Task 1 since Task 1's own self-test required it to link
-- [Phase ?]: Voter's zero-external-neighbor case self-includes (candidate pool = {i} union neighbors[i]), analogous to Vicsek's Phase-1-established self-inclusion convention
-- [Phase ?]: Noise convention frozen as Uniform(-eta/2, eta/2), added identically after either rule's raw heading via one shared addAngularNoise call
-- [Phase ?]: writeTrajectoryFrame takes an already-open ofstream& (never a path) -- structurally eliminates TP1's per-call truncation bug
-- [Phase ?]: Clustering/polarization observables stay in the C++ engine reusing Grid::neighbors() directly, no second neighbor search or Python-side recompute
-- [Phase ?]: Encabezados de seccion del informe sin tildes (Introduccion, Implementacion) para satisfacer el grep ASCII del <verify> fijo del plan 05-02
-- [Phase ?]: Verify de Task 3 (05-02) corrido con el launcher 'py' en vez de 'python3', que en este entorno Windows es un stub roto de Microsoft Store
-- [Phase ?]: Presentacion Beamer: frames de animacion extraidos con PIL en indices documentados (vicsek t~700 con bandas confirmadas, per 04-02-SUMMARY.md); 21 diapositivas iniciales consolidadas a 17 (columnas de 2 imagenes) para acercarse al objetivo de ~12 sin eliminar contenido requerido
-- [Phase ?]: Wrote check_size()/verify_contents() in the same initial pass as collect_files()/build_zip() since Task 2's spec was unambiguous; each task's own <verify> was still run and passed independently before/after the single commit.
+- Roadmap v1.1: orden TSDMD → EDMD → híbrido → estudios → entregables; el híbrido necesita ambos esquemas puros ya validados como referencia.
+- Roadmap v1.1: SCEN-06 (recuperación de v_d) vive en la fase EDMD porque en TSDMD la recupera la propia dinámica; el híbrido reutiliza ese mismo mecanismo.
+- Roadmap v1.1: STUDY-01 (fracción por esquema vs tiempo) se valida en la fase del híbrido, no en la de estudios, para detectar temprano si los criterios de pasaje realmente conmutan.
+- Roadmap v1.1: CPM (Phase 11) es stretch opcional, no bloquea la entrega; no es prerrequisito de Phase 10.
+- Código nuevo en `TP5/`; TP1-TP4 intactos (TP3 EDMD y TP4 como bases reutilizables, se copian/adaptan).
+- [Phase 06]: Oraculo de superposicion: violacion = profundidad > 0.5*menor radio; independiente del motor (sin headers de src/include)
+- [Phase 06]: Plan 06-03: validacion de rangos unica en validateConfig; la CLI solo parsea
+- [Phase 06]: Plan 06-04: reference full run uses FULL_SEED=3 (seed 1 jams in a stable arch at the door; seeds 1,4,5,7,8 do not finish before tmax=3000 s; only seed 3 completes and meets overlap thresholds <0.09 m)
+- [Phase 07]: Plan 07-01: firstBallApproach certifica con la tangente de la convexa |D+Vh| menos (a/2)h^2; dentro de banda y separandose paso D.V/(a*Dmax)
+- [Phase 07]: Plan 07-01: DoorCross usa offset=-kContactTolerance para cruzar exactamente y=0; wallContactTime tiene a lo sumo una llegada (s' monotona)
+- [Phase 07]: Plan 07-02: piso de tiempo anti colapso inelastico por contacto (par/pared/esquina), no por agente; defaults restitution=0.5 y event-gap=5e-3; edmd-scale usa semilla 5 (la 3 forma un arco estable)
+- [Phase 07]: Plan 07-03: tolerancia del comparador cola vs fuerza bruta 1e-5 s (diferencia medida max 6.4e-7 s); piso event-gap verificado por contacto (par/pared/esquina)
+- [Phase 07]: overlap-cap-0.07-projects-chained-overlaps-only-above-cap
 
 ### Pending Todos
 
@@ -93,7 +84,11 @@ None yet.
 
 ### Blockers/Concerns
 
-- Deadline duro: entrega 04/09/2026 13:00 (campus) — quedan pasos manuales fuera de alcance del pipeline: (1) subir `animation_vicsek_rho2.gif`/`animation_voter_rho2.gif` a YouTube/Drive y pegar el link real donde `presentacion.tex`/`informe.tex` dejan un TODO(usuario) explícito, recompilando después; (2) completar los dos legajos marcados `[LEGAJO]` (Juan Francisco Palermo, Gonzalo Sharif Curi Martinez) en la carátula de informe y presentación; (3) conseguir/agregar el logo ITBA si se consigue el archivo (hay un TODO en el preámbulo del informe); (4) regenerar `TP2/data/plots/benchmark_tp1_vs_tp2.png` con una corrida fresca del pipeline real antes de la entrega — la versión actual es recuperada de un PDF previamente comprometido, no una corrida nueva; (5) revisión final humana de `informe.pdf`/`presentacion.pdf` antes de la entrega real.
+- Deadline duro: entrega 16/11/2026 13hs (campus): presentación PDF + código .zip; oral el mismo día.
+- Comisión para el nombre de archivo (DEL-03) a confirmar con el grupo: "S" o "S2" (TP3 usó `G05CS`).
+- Los links de video de la presentación deben ser youtube/vimeo (no Google Drive); subirlos es un paso humano fuera del pipeline.
+- Riesgo técnico principal: sincronización eventos/dt y no perder contactos en el pasaje de esquema (Phase 8).
+- Presupuesto de cómputo: ≥10 realizaciones × 3 esquemas × barrido del parámetro del híbrido × escalado en N hasta 1000 en dos variantes; el wall-clock debe medirse a un solo hilo sin cargas concurrentes que lo contaminen.
 
 ### Quick Tasks Completed
 
@@ -110,19 +105,19 @@ None yet.
 
 ## Deferred Items
 
-Items acknowledged and carried forward — v2 requirements, solo si sobra tiempo antes del 04/09:
+Items acknowledged and carried forward (v2, fuera del alcance de v1.1):
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| Diferencial opcional | DIFF-01: Distribución de tamaño de clusters P(s) | Deferred to v2 | Roadmap creation (2026-08-18) |
-| Diferencial opcional | DIFF-02: Chequeo de histéresis (barrido η creciente/decreciente) | Deferred to v2 | Roadmap creation (2026-08-18) |
+| Diferencial opcional (TP2) | DIFF-01: Distribución de tamaño de clusters P(s) | Deferred to v2 | Roadmap creation (2026-08-18) |
+| Diferencial opcional (TP2) | DIFF-02: Chequeo de histéresis (barrido η creciente/decreciente) | Deferred to v2 | Roadmap creation (2026-08-18) |
 
 ## Session Continuity
 
-Last session: 2026-08-19T19:17:35.566Z
-Stopped at: Completed 05-04-PLAN.md (phase 05 complete, milestone complete)
-Resume file: None
+Last session: 2026-10-31T22:43:24.387Z
+Stopped at: Phase 8 context gathered
+Resume file: .planning/phases/08-esquema-h-brido-edmd-tsdmd/08-CONTEXT.md
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Run /gsd-discuss-phase 6 (o /gsd-plan-phase 6) para empezar la Phase 6
