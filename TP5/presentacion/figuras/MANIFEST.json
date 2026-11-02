@@ -1,0 +1,95 @@
+{
+  "figures": [
+    {
+      "bytes": 109389,
+      "generator": "TP5/presentacion/make_pres_figures.py",
+      "height": 1040,
+      "name": "frame_edmd.png",
+      "sha256": "f6bdf5b19ee4cbfc9d3b7abdba725464fd9fecd74dfff9a1a88d37ca8c372136",
+      "source": "studies/anim/edmd_N500_s18.txt",
+      "width": 1000
+    },
+    {
+      "bytes": 111350,
+      "generator": "TP5/presentacion/make_pres_figures.py",
+      "height": 1040,
+      "name": "frame_hybrid.png",
+      "sha256": "0c762c14315e55dc419ea1f09ca37c92eedfb9dbcd65e54d74172bdc529ef3a3",
+      "source": "studies/anim/hybrid_N500_s18.txt",
+      "width": 1000
+    },
+    {
+      "bytes": 110775,
+      "generator": "TP5/presentacion/make_pres_figures.py",
+      "height": 1040,
+      "name": "frame_tsdmd.png",
+      "sha256": "e3ad4e6dd22d7935f12dee7158f8b6af7f4abc5970f2d51f5f054e3077d2fcd4",
+      "source": "studies/anim/tsdmd_N500_s18.txt",
+      "width": 1000
+    },
+    {
+      "bytes": 75319,
+      "generator": "TP5/presentacion/make_pres_figures.py",
+      "height": 720,
+      "name": "pres_fraction.png",
+      "sha256": "2bf67215400f01376137f65bc4b76f867929d1bf50ea6e143db884fd6b745469",
+      "source": "studies/anim/hybrid_N500_s18.txt",
+      "width": 1240
+    },
+    {
+      "bytes": 99677,
+      "generator": "TP5/presentacion/make_pres_figures.py",
+      "height": 800,
+      "name": "pres_population.png",
+      "sha256": "3306e28f3242a1c29ec1c3ea5b2117161f62a9ee5fcc5eaf24c94b95603bb55c",
+      "source": "studies/runs",
+      "width": 1000
+    },
+    {
+      "bytes": 93325,
+      "generator": "TP5/presentacion/make_pres_figures.py",
+      "height": 880,
+      "name": "pres_scale_a.png",
+      "sha256": "b5e91b94ecffc6e8ae2a400102506a1fc830c95b03c6ef1f1eea8489906d5cf8",
+      "source": "studies/runs",
+      "width": 1000
+    },
+    {
+      "bytes": 93203,
+      "generator": "TP5/presentacion/make_pres_figures.py",
+      "height": 880,
+      "name": "pres_scale_b.png",
+      "sha256": "ef09be1110d1ca5a59cd3cbfb2b98e77698aaf2724dd4595ab71d7006d62fbf5",
+      "source": "studies/runs",
+      "width": 1000
+    },
+    {
+      "bytes": 91780,
+      "generator": "TP5/presentacion/make_pres_figures.py",
+      "height": 1200,
+      "name": "pres_sweep_T.png",
+      "sha256": "40dcf0c5b79abc549254049e8d4f8c36d9a3061a7f8226b560a069f427a70eb6",
+      "source": "studies/runs",
+      "width": 1000
+    },
+    {
+      "bytes": 55995,
+      "generator": "TP5/presentacion/make_pres_figures.py",
+      "height": 840,
+      "name": "pres_tevac.png",
+      "sha256": "e81585c21e21262cc922c78307da7b8a0afa4fbd10c1a20c0e23210a32a5c1ed",
+      "source": "studies/runs",
+      "width": 1000
+    },
+    {
+      "bytes": 43372,
+      "generator": "TP5/presentacion/make_pres_figures.py",
+      "height": 840,
+      "name": "pres_walltime.png",
+      "sha256": "c18e6f203fec910a7cfd915ad61247182de06b2b33fee200308e145e97bb7466",
+      "source": "studies/runs",
+      "width": 1000
+    }
+  ],
+  "frame_t": 13.5
+}

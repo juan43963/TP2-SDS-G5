@@ -1,0 +1,7 @@
+build/
+tp5
+tp5_test
+tp5_check
+data/
+__pycache__/
+.venv/

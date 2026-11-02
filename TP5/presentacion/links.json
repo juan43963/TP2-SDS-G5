@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "videos": {
+    "tsdmd_n500": {
+      "title": "Evacuación N = 500, TSDMD, semilla 18",
+      "mp4": "data/studies/anim/tsdmd_N500_s18.mp4",
+      "url": null
+    },
+    "edmd_n500": {
+      "title": "Evacuación N = 500, EDMD, semilla 18",
+      "mp4": "data/studies/anim/edmd_N500_s18.mp4",
+      "url": null
+    },
+    "hybrid_n500": {
+      "title": "Evacuación N = 500, híbrido EDMD + TSDMD, semilla 18",
+      "mp4": "data/studies/anim/hybrid_N500_s18.mp4",
+      "url": null
+    }
+  }
+}

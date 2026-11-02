@@ -8,6 +8,17 @@ Simulador de un autómata celular off-lattice de bandadas de agentes autopropuls
 
 Producir las curvas y gráficos correctos (polarización va, fracción del cluster gigante S, comparación estándar vs votante) que sustenten el informe y la presentación oral — la parte de resultados/gráficos importa más que la elegancia del motor, aunque el motor debe ser rápido porque hay que correr un barrido paramétrico grande.
 
+## Current Milestone: v1.1 TP5 — Evacuación híbrida EDMD + TSDMD
+
+**Goal:** Simular la evacuación de N=500 agentes (sala 50×50 m, puerta d=0.8 m, v_d=1.5 m/s) con TSDMD puro, EDMD puro y un esquema híbrido, y comparar población, tiempo de evacuación, costo computacional y escalado. Solo Problema 2 del TP5; el Problema 1 no se hace.
+
+**Target features:**
+- Motor SFM sin fuerza social (r ∈ [0.18, 0.25] m, paredes rígidas) con los tres esquemas
+- Esquema híbrido con criterios de pasaje EDMD↔TSDMD, sincronización eventos/dt y sin pérdida de contactos
+- Estudios a–d del enunciado (animaciones, curvas de población, wall-clock, escalado en N)
+- Presentación (13 min, PDF) y zip de código, entrega 16/11/2026 13hs (el enunciado no pide informe)
+- CPM como fase stretch opcional
+
 ## Requirements
 
 ### Validated
@@ -43,7 +54,7 @@ Producir las curvas y gráficos correctos (polarización va, fracción del clust
 
 ### Active
 
-Ninguno — todos los requirements v1 (31/31) están validados. Quedan dos pasos manuales fuera del alcance de este pipeline automático (ver Contexto): subir las animaciones a YouTube/Drive y pegar los links reales en `presentacion.tex`/`.pdf`, y la revisión final humana de informe/presentación antes de la entrega real al campus el 04/09/2026.
+Definidos en `.planning/REQUIREMENTS.md` (milestone v1.1, TP5 Problema 2).
 
 ### Out of Scope
 
@@ -53,6 +64,8 @@ Ninguno — todos los requirements v1 (31/31) están validados. Quedan dos pasos
 - Extraer una librería compartida entre TP1 y TP2 — se descartó a favor de un binario nuevo independiente
 
 ## Context
+
+- **Milestone v1.1 (TP5)**: enunciado `TP5/docs/TP5_Enunciado.pdf` (publicado 30/10/2026), teóricas y papers en `TP5/docs/` (SFM 2000/2010, CPM, Teórica 5-7). Entrega 16/11/2026 13hs; código nuevo en `TP5/`, TP1–TP4 intactos. TP3 (EDMD) y TP4 ya existen en el repo como base reutilizable.
 
 - Curso: Simulación de Sistemas — TP2 "Autómatas Celulares", Grupo 5 (comisión S/S2)
 - Enunciado publicado en CAMPUS el 13/08/2026: `docs/TP2_Enunciado.md`
@@ -101,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-19 after v1.0 milestone completion — todas las 5 fases completas, 31/31 requirements validados, audit de milestone pasado (31/31, 0 gaps). Quedan pendientes solo los dos pasos manuales fuera de alcance: subir animaciones a YouTube/Drive + pegar links reales en la presentación, y la revisión final humana de informe/presentación antes de la entrega al campus (04/09/2026 13hs).*
+*Last updated: 2026-10-30 after starting milestone v1.1 (TP5 Problema 2)*

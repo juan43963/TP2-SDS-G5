@@ -1,0 +1,120 @@
+% =====================================================================
+%  TP5 - Simulacion de Sistemas - Grupo 5 (Comision \comision, ver mas abajo)
+%  Presentacion oral (13 min): evacuacion de una sala, esquema hibrido EDMD + TSDMD
+%
+%  Formato segun docs/GuiaPresentaciones.md (misma plantilla que TP2, TP3 y TP4):
+%   - 1.2  diapositivas numeradas
+%   - 1.6  poco texto, sin parrafos
+%   - 1.7  las figuras NO llevan titulo ni caption; los parametros de la
+%          corrida van AL COSTADO de la figura (macro \params)
+%   - 1.9  notacion cientifica con potencias de 10 (supraindice), punto decimal
+%   - 1.12 outertheme miniframes
+%   - 1.13 secciones separadas por una diapositiva con solo el titulo
+%
+%  Cada diapositiva lleva, justo antes de \begin{frame}, un marcador
+%      % SLIDE <id> | V:<A|B|C> | T:<segundos>
+%  (V = voz que presenta, T = segundos planeados).
+%
+%  Insumos GENERADOS (no se editan a mano):
+%      figuras/*.png   py/python3 TP5/presentacion/make_pres_figures.py
+%      tablas.tex      python3 TP5/presentacion/pres_format.py
+%      links.tex       python3 TP5/presentacion/links.py --emit-tex
+%      frame_t.tex     build_deck.py (instante comun de los fotogramas, de MANIFEST.json)
+%
+%  El cuerpo vive en secciones/*.tex (una por seccion de la Guia); compilar con
+%  build_deck.py, que corre el lint antes de pdflatex.
+%
+%  Compilar (MiKTeX en Windows; el TeX Live de WSL no tiene babel-spanish):
+%      cd TP5/presentacion && pdflatex -interaction=nonstopmode -halt-on-error presentacion.tex
+%  (dos pasadas: la segunda resuelve el indice de los miniframes)
+% =====================================================================
+\pdfsuppressptexinfo=-1 % el PDF no guarda rutas ni version del compilador (T-10-06)
+\documentclass[aspectratio=169]{beamer}
+
+\usetheme{Boadilla}
+\useoutertheme{miniframes}
+\usecolortheme{whale}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noquoting]{babel}
+\usepackage{amsmath,amssymb,graphicx,booktabs,url}
+% Punto decimal tambien en modo matematico (D-09): babel-spanish usa coma por defecto.
+\decimalpoint
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc,decorations.pathreplacing}
+
+% Comision: unico lugar donde aparece en el texto (D-03). Valores: S o S2.
+\newcommand{\comision}{S}
+
+\graphicspath{{figuras/}{./}}
+\input{links.tex}
+\input{tablas.tex}
+\input{frame_t.tex}
+
+% Unidades sin cursiva (Guia 1.9): $L = 50\un{m}$.
+\newcommand{\un}[1]{\,\mathrm{#1}}
+
+% Guia 3.5: vectores en negrita sin italica, escalares en italica sin negrita.
+\newcommand{\vect}[1]{\mathbf{#1}}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+\AtBeginSection[]{%
+  \begin{frame}[plain]
+    \vfill
+    \begin{beamercolorbox}[sep=8pt,center]{title}
+      \usebeamerfont{title}\insertsection
+    \end{beamercolorbox}
+    \vfill
+  \end{frame}
+}
+
+% Parametros de la corrida al costado de cada figura (Guia 1.7).
+\newcommand{\params}[1]{{\footnotesize #1}}
+
+% Link explicito al video (Guia 2.4.8): lo define links.tex desde links.json.
+\newcommand{\videolink}[1]{{\scriptsize\color{blue}\csname linkurl@#1\endcsname}}
+
+% Colores de los esquemas: los mismos que study_common.STUDY_COLORS.
+\definecolor{tsdmdc}{HTML}{1F4E79}
+\definecolor{edmdc}{HTML}{C0392B}
+\definecolor{hybc}{HTML}{2E7D32}
+
+\title[Evacuación híbrida]{Evacuación de una sala: esquema híbrido EDMD + TSDMD}
+\author[Grupo 5]{Lucas Di Candia \and Juan Francisco Palermo \and Gonzalo Sharif Curi Martinez}
+\institute[ITBA]{Grupo 5 --- Comisión \comision, Instituto Tecnológico de Buenos Aires}
+\date{72.25 Simulación de Sistemas --- Trabajo Práctico N\textdegree{}5 --- 2026}
+
+\hypersetup{pdftitle={TP5 - Evacuación de una sala: esquema híbrido EDMD + TSDMD},
+            pdfauthor={Grupo 5}}
+
+\begin{document}
+
+% SLIDE title | V:A | T:12
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+% =====================================================================
+\section{Introducción}
+\input{secciones/01_intro}
+
+% =====================================================================
+\section{Implementación}
+\input{secciones/02_impl}
+
+% =====================================================================
+\section{Simulaciones}
+\input{secciones/03_sim}
+
+% =====================================================================
+\section{Resultados}
+\input{secciones/04_resultados}
+
+% =====================================================================
+\section{Conclusiones}
+\input{secciones/05_concl}
+
+\end{document}

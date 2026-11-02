@@ -1,0 +1,68 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": "v1.1 — TP5 Evacuación híbrida EDMD + TSDMD",
+  "phases": [
+    {
+      "number": "1",
+      "name": "Motor y Grid Persistente",
+      "status": "complete"
+    },
+    {
+      "number": "2",
+      "name": "Modelos Vicsek y Votante",
+      "status": "complete"
+    },
+    {
+      "number": "3",
+      "name": "Barrido Paramétrico y Estadística",
+      "status": "complete"
+    },
+    {
+      "number": "4",
+      "name": "Análisis, Gráficos y Animación",
+      "status": "complete"
+    },
+    {
+      "number": "5",
+      "name": "Benchmark y Entregables",
+      "status": "complete"
+    },
+    {
+      "number": "6",
+      "name": "Escenario SFM y TSDMD puro",
+      "status": "complete"
+    },
+    {
+      "number": "7",
+      "name": "EDMD puro",
+      "status": "complete"
+    },
+    {
+      "number": "8",
+      "name": "Esquema híbrido EDMD+TSDMD",
+      "status": "complete"
+    },
+    {
+      "number": "9",
+      "name": "Estudios b-d y animaciones",
+      "status": "in_progress"
+    },
+    {
+      "number": "10",
+      "name": "Presentación y código final",
+      "status": "pending"
+    },
+    {
+      "number": "11",
+      "name": "Variante CPM (STRETCH)",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 09 of 6 · 89% · executing"
+  },
+  "updated_at": "2026-11-01T13:31:00.465Z"
+}

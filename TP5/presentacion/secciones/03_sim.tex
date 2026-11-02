@@ -1,0 +1,88 @@
+% =====================================================================
+%  Simulaciones (3 diapositivas, Guia 2.3: sistema, observables, realizaciones)
+% =====================================================================
+
+% SLIDE sim_sistema | V:B | T:25
+\begin{frame}{Sistema simulado}
+  \small
+  \begin{columns}[c]
+    \begin{column}{0.44\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.85]
+        \draw[thick] (-2,-2) -- (-0.4,-2);
+        \draw[thick] (0.4,-2) -- (2,-2);
+        \draw[thick] (-2,-2) -- (-2,2) -- (2,2) -- (2,-2);
+        \foreach \x/\y in {-1.3/1.2, 0.2/1.5, 1.2/0.9, -0.7/0.2, 0.9/-0.2, -1.4/-0.9, 0.1/-1.0}
+          \fill[gray!60] (\x,\y) circle (0.15);
+        \fill[tsdmdc] (0,-2) circle (0.06);
+        \fill[hybc] (0,-2.6) circle (0.06);
+        \draw[dashed,gray] (0,-2) -- (0,-2.6);
+        \node[font=\scriptsize,right] at (0.1,-2.0) {1};
+        \node[font=\scriptsize,right] at (0.1,-2.6) {2};
+        \draw[<->] (-2,2.3) -- (2,2.3) node[midway,above,font=\scriptsize] {$L$};
+        \draw[<->] (-0.4,-2.95) -- (0.4,-2.95) node[midway,below,font=\scriptsize] {$d$};
+      \end{tikzpicture}
+
+      {\scriptsize 1: centro de la puerta. 2: a $1\un{m}$ hacia afuera (retiro).}
+    \end{column}
+    \begin{column}{0.54\textwidth}
+      \params{%
+        $N = 500$, $L = 50\un{m}$, $d = 0.8\un{m}$\\
+        $r\in[0.18,\,0.25]\un{m}$, $v_d = 1.5\un{m/s}$\\
+        $m = 80\un{kg}$, $\tau = 0.5\un{s}$\\
+        $k = 1.2\times10^{5}\un{kg/s^2}$\\
+        $\kappa = 2.4\times10^{5}\un{kg/(m\,s)}$\\
+        $dt = 10^{-4}\un{s}$, $dt_2 = 0.25\un{s}$\\
+        $\varepsilon = 0.5$, $T = 0.5\un{s}$, $\alpha = 2$}
+
+      \vspace{4pt}
+      Condición inicial: agentes al azar sin superposición, con velocidad $v_d$ hacia la puerta.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% SLIDE sim_observables | V:B | T:40
+\begin{frame}{Observables}
+  \small
+  \begin{itemize}
+    \item $N_{in}(t)$: filas del frame con $y \ge 0$. $t_{evac}$: instante del último cruce.
+    \item $f_{TSDMD}(t) = \#\{i \mid \mathrm{scheme}_i=0\}\,/\,N_{in}(t)$, \quad
+      $f_{EDMD} = 1 - f_{TSDMD}$.
+    \item Promedio y error sobre $n$ corridas: $\langle X\rangle=\frac1n\sum_m X_m$,
+      \quad $\mathrm{SEM}=s/\sqrt n$, \quad $s^2=\frac1{n-1}\sum_m(X_m-\langle X\rangle)^2$,
+      \textbf{solo sobre corridas completas}; tasa de éxito $=$ completas / intentadas.
+    \item Población media $\langle N_{in}\rangle(t)$, con $N_{in}=0$ tras evacuar.
+    \item Tiempo de ejecución $W$ de la simulación completa.
+    \item Distancia contra el TSDMD:
+      $z=\dfrac{\langle t\rangle-\langle t\rangle_{TSDMD}}{\sqrt{\mathrm{SEM}^2+\mathrm{SEM}_{TSDMD}^2}}$.
+    \item Pendiente log-log: ajuste lineal de $\log W$ contra $\log N$ sobre las medias.
+  \end{itemize}
+\end{frame}
+
+% SLIDE sim_realizaciones | V:B | T:25
+\begin{frame}{Realizaciones y tiempos}
+  \footnotesize
+  Semillas consecutivas desde 1, hasta al menos 10 completas por esquema ($N = 500$, $L = 50\un{m}$):
+
+  \medskip
+  {\centering
+  \begin{tabular}{lrrr}
+    \toprule
+    Esquema & Intentadas & Completas & $t_{max}$ (s) \\
+    \midrule
+    TSDMD & 32 & 15 & 3000 \\
+    EDMD & 24 & 12 & 600 \\
+    Híbrido & 24 & 11 & 3000 \\
+    \bottomrule
+  \end{tabular}\par}
+
+  \medskip
+  \begin{itemize}
+    \item Tiempo de ejecución: primeras 10 semillas completas de cada esquema, en serie,
+      un hilo, una misma computadora (AMD Ryzen 7 9800X3D, WSL2, GCC 13.3, \texttt{-O2}).
+    \item Barrido de $T$: $N = 200$, $L = 31.6\un{m}$, $T\in\{0,\,0.1,\,0.25,\,0.5,\,1,\,2,\,3\}\un{s}$,
+      5 semillas, $t_{max} = 600\un{s}$.
+    \item Escalado: $N\in\{100,\,200,\,400,\,700,\,1000\}$, 3 semillas, $t_{max}\propto N$;
+      a: $L = 50\sqrt{N/500}\un{m}$; b: $L = 50\un{m}$.
+  \end{itemize}
+\end{frame}

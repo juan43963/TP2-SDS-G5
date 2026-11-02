@@ -2,19 +2,20 @@
 gsd_state_version: "1.0"
 milestone: v1.1
 milestone_name: TP5 Evacuación híbrida EDMD + TSDMD
-current_phase: 8
-current_phase_name: Esquema híbrido EDMD+TSDMD
-status: planning
-stopped_at: Phase 8 context gathered
-last_updated: "2026-10-31T22:43:24.448Z"
-last_activity: 2026-10-31
-last_activity_desc: Phase 7 complete, transitioned to Phase 8
-state_head: 1584e7ce174d862b9bbdf85b136d7cbbf5dcf6e4
+current_phase: 10
+current_phase_name: Presentación y código final
+current_plan: 4
+status: executing
+stopped_at: Completed 10-04-PLAN.md (pasos humanos pendientes: videos, comision, ensayo, subida a campus)
+last_updated: "2026-11-02T07:00:00.000Z"
+last_activity: 2026-11-02
+last_activity_desc: Completed 10-04-PLAN.md (compuerta check_deliverables.py draft OK, entrega/ ensamblada con los dos archivos, etapa final falla solo por los 3 videos sin subir)
+state_head: c31cb9556d924ab04d838e071dd019fb99a78861
 progress:
   total_phases: 6
-  completed_phases: 7
-  total_plans: 8
-  completed_plans: 8
+  completed_phases: 9
+  total_plans: 19
+  completed_plans: 19
   percent: 100
 ---
 
@@ -25,14 +26,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-30)
 
 **Core value:** Producir las curvas y gráficos correctos que sustenten el informe y la presentación; el motor debe ser rápido porque hay que correr barridos grandes (≥10 realizaciones × 3 esquemas × barridos de parámetro y de N).
-**Current focus:** Phase 07 — EDMD puro
+**Current focus:** Phase 10 — Presentación y código final
 
 ## Current Position
 
-Phase: 8 — Esquema híbrido EDMD+TSDMD
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-10-31 — Phase 7 complete, transitioned to Phase 8
+Phase: 10 (Presentación y código final) — los 4 planes completos; quedan pasos humanos (videos, comisión, ensayo, subida a campus)
+Current Plan: 4 (completo)
+Total Plans in Phase: 4
+Status: 10-04 completo; next: pasos humanos de 10-04-SUMMARY.md y verificación de la fase (DEL-01 a DEL-03 siguen pendientes)
+Last activity: 2026-11-02 — Completed 10-04-PLAN.md
 
 Progress: [██████████] 100%
 
@@ -56,6 +58,21 @@ Progress: [██████████] 100%
 | Phase 07 P02 | 240 min | 2 tasks | 10 files |
 | Phase 07 P03 | ~1h | 2 tasks | 3 files |
 | Phase 07 P04 | 9h | 2 tasks | 15 files |
+| Phase 08 P01 | 95min | 2 tasks | 15 files |
+| Phase 08 P03 | 25min | 2 tasks | 6 files |
+| Phase 08 P02 | 170min | 3 tasks | 8 files |
+| Phase 08 P04 | 90min | 2 tasks | 4 files |
+| Phase 08 P05 | 480min | 2 tasks | 4 files |
+| Phase 09 P01 | 25min | 2 tasks | 5 files |
+| Phase 09 P02 | 35min | 2 tasks | 2 files |
+| Phase 09 P03 | 45min | 2 tasks | 4 files |
+| Phase 09 P04 | 50min | 3 tasks | 4 files |
+| Phase 09 P05 | ~2h 45min (1h 22min bc-stat) | 3 tasks | 2 files |
+| Phase 09 P06 | ~13h 10min (13h de mediciones en serie) | 3 tasks | 2 files |
+| Phase 10 P01 | ~40min | 2 tasks | 5 files |
+| Phase 10 P02 | ~75min | 3 tasks | 22 files |
+| Phase 10 P03 | ~90min | 3 tasks | 11 files |
+| Phase 10 P04 | ~45min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -77,8 +94,29 @@ Recent decisions affecting current work:
 - [Phase 07]: Plan 07-02: piso de tiempo anti colapso inelastico por contacto (par/pared/esquina), no por agente; defaults restitution=0.5 y event-gap=5e-3; edmd-scale usa semilla 5 (la 3 forma un arco estable)
 - [Phase 07]: Plan 07-03: tolerancia del comparador cola vs fuerza bruta 1e-5 s (diferencia medida max 6.4e-7 s); piso event-gap verificado por contacto (par/pared/esquina)
 - [Phase 07]: overlap-cap-0.07-projects-chained-overlaps-only-above-cap
+- [Phase 08]: Hybrid contacts resolved by Promote events (EdmdEngine lead mode) then SFM spring in TSDMD (D-24, D-25)
+- [Phase 08]: 08-03: lector en streaming compartido (trajectory_stream.py) para fraccion por esquema y animacion; GIF via PillowWriter sin dependencias nuevas
+- [Phase 08]: Plan 08-02: retornos TSDMD->EDMD uno por vez en orden de id con fuerzas reconstruidas tras cada retorno (evita ping-pong de cientos de promociones por vecinos que se separan juntos)
+- [Phase 08]: Plan 08-02: escaneo de pares mixtos con filtro solido y contactTimeWithBody (vecino TSDMD a velocidad constante); defaults T=0.5 s y alpha=2 confirmados con tabla medida N=60/200 (quick/returns 0.50/0.48)
+- [Phase 08]: 08-04: el retorno TSDMD->EDMD ve al vecino TSDMD con dos modelos (velocidad constante y relajacion) y exige contacto > alpha*T en ambos; elimina la oscilacion de un limite medida por el auditor (consecutive_flips 10 -> 0)
+- [Phase 08]: 08-04: auditoria por fuerza bruta con todos los contadores de falla en 0 en N=60 y N=200 (0 solapes de residente, 0 contactos perdidos, 0 violaciones del oraculo); hybrid-audit (N=200) gobernada por TP5_HEAVY=1
+- [Phase 08]: 08-05: hibrido N=500 completa con defaults T=0.5, alpha=2 en 2 de 10 semillas (8, 10); semilla de aceptacion 10 (solape 0.075/0.084 m, collisions=0); finalizacion es loteria por semilla
+- [Phase 08]: 08-05: pico de scheme_fraction.py se elige entre frames con TSDMD y EDMD ambos > 0 (peak_mixed); hybrid-anim usa --snapshot t_peak
+- [Phase 08]: Fase 9: barrido de T restringido a T<=3 (oscilacion de esquema con T>=5, N=60 semilla 5); N=500 acepta semilla 10 como corrida de aceptacion — Decision del usuario 2026-11-01 tras verificacion de fase 8
+- [Phase 09]: frac_tsdmd = filas con scheme 0 / filas presentes (el promedio de la columna scheme es la fraccion EDMD)
+- [Phase 09]: Reanudacion de estudios: se salta CSV valido ok/timeout; status error se reintenta
+- [Phase 09]: 09-03: el .result es la marca de archivo completo en make_animations; ffmpeg.exe desde WSL requiere wslpath -w para la ruta de salida
+- [Phase 09]: 09-04: bc_n_ok = mayor N con K completas en los tres esquemas; table_scale promedia todas las corridas con status ok (D-38); sin --require los estudios ausentes van a skipped
+- [Phase 09]: 09-05: N=500 sin complemento: completas TSDMD 15/32, EDMD 12/24, hibrido 11/24; t_evac 968.6, 212.4, 958.5 s; hibrido vs TSDMD z=-0.3714 (no distinguible); animaciones con semilla comun 18, GIF y MP4
+- [Phase 09]: 09-06: wall-clock N=500 (10 semillas, serie, 1 hilo): TSDMD 156.8 s < hibrido 210.7 s (x1.344) < EDMD 304.7 s (x1.943), mismatches=0; barrido de T (N=200, tmax 600 sin repetir): T=0 reproduce EDMD, ningun T>0 cambia t_evac mas de 2 errores combinados respecto de TSDMD, menor wall en T=0.1; escalado a y b completo (90 corridas, 10 h 18 min) con 38 de 90 no completas; pendientes log-log en 09-RESULTS.md
+- [Phase 10]: 10-01: zip del motor de 21 archivos, 48471 bytes (<100 KB, no "pocos kB" literal: confirmar), sha256 2929469e..., determinista; comision unica variable (S o S2); verify_zip compara los tres esquemas contra TP5/tp5 (identical=1)
+- [Phase 10]: 10-02: esqueleto Beamer compila con MiKTeX (4 paginas, figura real, PENDIENTE subir video visible); 10 PNG deterministas con frame_t = 13.5 s comun a los tres fotogramas; tablas.tex generadas desde los CSV con error a una cifra (dos si la primera es 1); \decimalpoint para punto decimal en modo matematico; links.json con tres videos (url null) y --require-final bloqueado hasta subirlos
+- [Phase 10]: 10-03: presentacion de 23 diapositivas (28 paginas con divisores), 760 s planeados, voces A 245/B 240/C 265 s y hibrido 150 s (20 %); lint_deck.py (38 pruebas) y build_deck.py (BUILD OK pages=28 overfull=0) como compuerta; secciones en secciones/*.tex y frame_t.tex generado desde MANIFEST.json; tres placeholders PENDIENTE subir video hasta que se suban los videos (DEL-01 sin marcar)
+- [Phase 10]: 10-04: check_deliverables.py compara el contenido logico del zip (miembros, fechas, atributos, sha256 de cada archivo) y no el sha256 del archivo, porque Python 3.14/Windows y 3.12/WSL comprimen distinto; --assemble conserva el zip existente si su contenido es fresco (sha256 2929469e... intacto). Etapa final falla solo por video-links mientras haya videos sin subir
 
 ### Pending Todos
+
+- Pasos humanos de Phase 10 (ver 10-04-SUMMARY.md): ver y subir los 3 MP4 a YouTube/Vimeo + `links.py --set`, confirmar comisión (S/S2), integrantes y voces, ensayar 13 min, `check_deliverables.py --assemble --stage final`, subir a campus antes del 16/11/2026 13 hs.
 
 None yet.
 
@@ -114,9 +152,9 @@ Items acknowledged and carried forward (v2, fuera del alcance de v1.1):
 
 ## Session Continuity
 
-Last session: 2026-10-31T22:43:24.387Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-esquema-h-brido-edmd-tsdmd/08-CONTEXT.md
+Last session: 2026-11-02T06:30:00.000Z
+Stopped at: Completed 10-04-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
