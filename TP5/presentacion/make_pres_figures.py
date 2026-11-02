@@ -84,8 +84,7 @@ def apply_style():
         "axes.formatter.use_mathtext": True,
         "axes.formatter.useoffset": False,
         "lines.linewidth": 2.0,
-        "axes.grid": True,
-        "grid.alpha": 0.3,
+        "axes.grid": False,
     })
 
 
@@ -270,7 +269,6 @@ def build_scale(rows, variant):
     ax.set_yscale("log")
     ax.set_xlabel("N (agentes)")
     ax.set_ylabel("Tiempo de ejecución (s)")
-    ax.grid(which="both")
     # Espacio libre arriba para que la leyenda no tape ningun punto (el eje y es logaritmico).
     tops = [r["wall_s_mean"] + (0.0 if _is_nan(r["wall_s_sem"]) else r["wall_s_sem"])
             for r in table if not _is_nan(r["wall_s_mean"])]

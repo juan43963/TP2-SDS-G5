@@ -1,0 +1,72 @@
+--- TP5/src/include/sfm.h	2026-10-31 20:42:09.590026700 -0300
++++ /c/Users/LUCASD~1/AppData/Local/Temp/claude/C--Users-Lucas-Di-Candia-Desktop-SDS-TP2-SDS-G5/9a8e0d9a-bca7-493b-8724-b0b10bb8ffde/scratchpad/x5/src/include/sfm.h	2026-11-02 10:11:39.158403500 -0300
+@@ -71,6 +71,8 @@
+     // Parametros del hibrido (D-26, D-28); solo --scheme hybrid.
+     double hybridT = 0.5;      // [s] umbral T: TSDMD si tau_c < T (0 = EDMD puro, >= tmax = TSDMD puro)
+     double hybridAlpha = 2.0;  // histeresis (D-28): vuelve a EDMD solo si tau_c > alpha*T
++    int hybridRetEvery = 1;    // [explor.] evaluar retornos TSDMD->EDMD cada k pasos de grilla
++    double hybridZone = 0.0;   // [explor.] radio [m] alrededor de la puerta donde se anticipa (TSDMD); 0 = en toda la sala
+ };
+ 
+ struct EvacuationResult {
+--- TP5/src/utils/options.cpp	2026-10-31 20:45:55.993894500 -0300
++++ /c/Users/LUCASD~1/AppData/Local/Temp/claude/C--Users-Lucas-Di-Candia-Desktop-SDS-TP2-SDS-G5/9a8e0d9a-bca7-493b-8724-b0b10bb8ffde/scratchpad/x5/src/utils/options.cpp	2026-11-02 10:11:48.515665800 -0300
+@@ -127,7 +127,7 @@
+     enum LongOnly {
+         kDoor = 1000, kRmin, kRmax, kVd, kK, kKappa, kMass, kTau, kExitDistance,
+         kMaxPlacement, kScheme, kDt, kDt2, kNoOutput, kCsv,
+-        kRestitution, kEventGap, kSteerDt, kMaxEvents, kOverlapCap, kHybridT, kHybridAlpha
++        kRestitution, kEventGap, kSteerDt, kMaxEvents, kOverlapCap, kHybridT, kHybridAlpha, kHybridRetEvery, kHybridZone
+     };
+     static option longOptions[] = {
+         {"N", required_argument, nullptr, 'N'},
+@@ -154,6 +154,8 @@
+         {"overlap-cap", required_argument, nullptr, kOverlapCap},
+         {"hybrid-T", required_argument, nullptr, kHybridT},
+         {"hybrid-alpha", required_argument, nullptr, kHybridAlpha},
++        {"hybrid-ret-every", required_argument, nullptr, kHybridRetEvery},
++        {"hybrid-zone", required_argument, nullptr, kHybridZone},
+         {"out", required_argument, nullptr, 'o'},
+         {"no-output", no_argument, nullptr, kNoOutput},
+         {"csv", no_argument, nullptr, kCsv},
+@@ -193,6 +195,8 @@
+             case kMaxEvents: c.maxEvents = parseLongLong(optarg, "--max-events"); break;
+             case kHybridT: c.hybridT = parseDouble(optarg, "--hybrid-T"); break;
+             case kHybridAlpha: c.hybridAlpha = parseDouble(optarg, "--hybrid-alpha"); break;
++            case kHybridRetEvery: c.hybridRetEvery = static_cast<int>(parseDouble(optarg, "--hybrid-ret-every")); break;
++            case kHybridZone: c.hybridZone = parseDouble(optarg, "--hybrid-zone"); break;
+             case 'o': options.outputPath = optarg; break;
+             case kNoOutput: options.writeOutput = false; break;
+             case kCsv: options.csv = true; break;
+--- TP5/src/engine/hybrid.cpp	2026-10-31 21:35:15.306836400 -0300
++++ /c/Users/LUCASD~1/AppData/Local/Temp/claude/C--Users-Lucas-Di-Candia-Desktop-SDS-TP2-SDS-G5/9a8e0d9a-bca7-493b-8724-b0b10bb8ffde/scratchpad/x5/src/engine/hybrid.cpp	2026-11-02 10:12:12.007771000 -0300
+@@ -235,7 +235,9 @@
+     // reprogramaba un aviso Promote inmediato y los dos agentes oscilaban entre esquemas en cada paso.
+     std::vector<int> candidates;
+     candidates.reserve(s_.size());
++    const bool checkReturns = k % std::max(1, config_.hybridRetEvery) == 0;
+     for (const Agent& a : s_) {
++        if (!checkReturns) break;
+         if (!std::binary_search(promotedNow.begin(), promotedNow.end(), a.id)) candidates.push_back(a.id);
+     }
+     for (const int id : candidates) {
+--- TP5/src/engine/edmd.cpp	2026-10-31 21:06:17.329443900 -0300
++++ /c/Users/LUCASD~1/AppData/Local/Temp/claude/C--Users-Lucas-Di-Candia-Desktop-SDS-TP2-SDS-G5/9a8e0d9a-bca7-493b-8724-b0b10bb8ffde/scratchpad/x5/src/engine/edmd.cpp	2026-11-02 10:12:10.322421300 -0300
+@@ -317,7 +317,16 @@
+ // Modo con anticipacion (D-25): el contacto no se resuelve aca; se avisa leadTime antes (o ya, si
+ // falta menos) para que el hibrido pase al agente a TSDMD y lo resuelva el resorte SFM (D-24).
+ void EdmdEngine::pushContact(EventType type, double time, int a, int b) {
+-    if (leadTime_ > 0.0) {
++    bool anticipate = leadTime_ > 0.0;
++    if (anticipate && config_.hybridZone > 0.0) {
++        // [explor.] criterio por distancia a la puerta: fuera de la zona el contacto es una colision dura.
++        double d = norm(records_[static_cast<std::size_t>(a)].motion.x0 - room_.doorCenter);
++        if (type == EventType::PairContact && b >= 0) {
++            d = std::min(d, norm(records_[static_cast<std::size_t>(b)].motion.x0 - room_.doorCenter));
++        }
++        anticipate = d <= config_.hybridZone;
++    }
++    if (anticipate) {
+         push(makeEvent(EventType::Promote, std::max(now_, time - leadTime_), a,
+                        type == EventType::PairContact ? b : -1));
+     } else {

@@ -50,6 +50,7 @@
 \graphicspath{{figuras/}{./}}
 \input{links.tex}
 \input{tablas.tex}
+\input{tabla_explorar.tex}
 \input{frame_t.tex}
 
 % Unidades sin cursiva (Guia 1.9): $L = 50\un{m}$.
@@ -73,6 +74,21 @@
 
 % Parametros de la corrida al costado de cada figura (Guia 1.7).
 \newcommand{\params}[1]{{\footnotesize #1}}
+
+% --- Modo de compilacion: entrega (default) vs. vivo -----------------
+% `vivo` lo usa build_pptx.py: cada \animacion deja un rectangulo magenta del tamano
+% exacto del fotograma, y el script pone el GIF encima en el .pptx.
+\providecommand{\modo}{entrega}
+\def\modovivo{vivo}
+\definecolor{huecoanim}{RGB}{255,0,255}
+\newcommand{\soloentrega}[1]{\ifx\modo\modovivo\else#1\fi}
+% #1 id del video (links.json), #2 fotograma fijo (\includegraphics).
+\newcommand{\animacion}[2]{%
+  \ifx\modo\modovivo
+    \sbox0{#2}\textcolor{huecoanim}{\rule{\wd0}{\ht0}}%
+  \else
+    #2%
+  \fi}
 
 % Link explicito al video (Guia 2.4.8): lo define links.tex desde links.json.
 \newcommand{\videolink}[1]{{\scriptsize\color{blue}\csname linkurl@#1\endcsname}}

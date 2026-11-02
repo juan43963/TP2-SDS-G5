@@ -11,24 +11,24 @@
   \begin{columns}[T]
     \begin{column}{0.325\textwidth}
       \centering
-      \includegraphics[width=0.74\linewidth]{frame_tsdmd.png}
+      \animacion{tsdmd_n500}{\includegraphics[width=0.74\linewidth]{frame_tsdmd.png}}
 
       {\footnotesize\color{tsdmdc}\textbf{TSDMD}}\\
-      \videolink{tsdmd_n500}
+      \soloentrega{\videolink{tsdmd_n500}}
     \end{column}
     \begin{column}{0.325\textwidth}
       \centering
-      \includegraphics[width=0.74\linewidth]{frame_edmd.png}
+      \animacion{edmd_n500}{\includegraphics[width=0.74\linewidth]{frame_edmd.png}}
 
       {\footnotesize\color{edmdc}\textbf{EDMD}}\\
-      \videolink{edmd_n500}
+      \soloentrega{\videolink{edmd_n500}}
     \end{column}
     \begin{column}{0.325\textwidth}
       \centering
-      \includegraphics[width=0.74\linewidth]{frame_hybrid.png}
+      \animacion{hybrid_n500}{\includegraphics[width=0.74\linewidth]{frame_hybrid.png}}
 
       {\footnotesize\color{hybc}\textbf{Híbrido}}\\
-      \videolink{hybrid_n500}
+      \soloentrega{\videolink{hybrid_n500}}
     \end{column}
   \end{columns}
   \vfill
@@ -138,7 +138,30 @@
   \end{columns}
 \end{frame}
 
-% SLIDE res_scale_a | V:C | T:30
+% SLIDE res_explora | V:C | T:25
+\begin{frame}{Otros criterios de pasaje (exploratorio)}
+  \begin{columns}[c]
+    \begin{column}{0.54\textwidth}
+      \includegraphics[width=\linewidth,height=0.84\textheight,keepaspectratio]{pres_explora.png}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \params{$N = 200$, $L = 31.6\un{m}$, $T = 0.5\un{s}$, $\alpha = 2$, $t_{max} = 600\un{s}$,
+      semillas $1$ a $6$; barra: error estándar de las completas; número: completas sobre
+      intentadas. Corridas en paralelo, no son los tiempos de la sección anterior; el código
+      no está en la entrega.}
+
+      \vspace{4pt}
+      \small
+      \begin{itemize}
+        \item Retorno a EDMD cada $10$ pasos: de $42$ a $35\un{s}$.
+        \item Zona alrededor de la puerta ($4$ a $12\un{m}$): sin cambio, $34$ a $36\un{s}$.
+        \item Ninguna variante baja del TSDMD puro.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% SLIDE res_scale_a | V:C | T:25
 \begin{frame}{Escalado en $N$: densidad inicial constante}
   \begin{columns}[c]
     \begin{column}{0.46\textwidth}
@@ -157,7 +180,7 @@
   \end{columns}
 \end{frame}
 
-% SLIDE res_scale_b | V:C | T:30
+% SLIDE res_scale_b | V:C | T:25
 \begin{frame}{Escalado en $N$: sala fija}
   \begin{columns}[c]
     \begin{column}{0.46\textwidth}

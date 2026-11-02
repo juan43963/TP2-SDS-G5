@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import lint_deck as ld  # noqa: E402
 
-# id -> (voz, segundos): tabla de D-10 (A 245, B 240, C 265; total 750 + 10 de divisores)
+# id -> (voz, segundos): tabla de D-10 (A 245, B 240, C 280 con res_explora; total 765 + 10 de divisores)
 PLAN = {
     "title": ("A", 12), "intro_real": ("A", 25), "intro_sfm": ("A", 40),
     "impl_arquitectura": ("A", 25), "impl_tsdmd": ("A", 30), "impl_edmd": ("A", 35),
@@ -18,7 +18,7 @@ PLAN = {
     "hyb_contactos": ("B", 45), "sim_sistema": ("B", 25), "sim_observables": ("B", 40),
     "sim_realizaciones": ("B", 25), "res_anim": ("C", 35), "res_fraccion": ("C", 30),
     "res_poblacion": ("C", 30), "res_tevac": ("C", 40), "res_walltime": ("C", 30),
-    "res_sweep": ("C", 40), "res_scale_a": ("C", 30), "res_scale_b": ("C", 30),
+    "res_sweep": ("C", 40), "res_explora": ("C", 25), "res_scale_a": ("C", 25), "res_scale_b": ("C", 25),
     "concl": ("A", 40), "gracias": ("A", 3),
 }
 SECTION_BEFORE = {
@@ -112,15 +112,15 @@ class LintTest(unittest.TestCase):
     def test_valid_deck_has_no_problems(self):
         res = self.lint(build_deck())
         self.assertEqual([(p.rule, p.detail) for p in res.problems], [])
-        self.assertEqual(res.stats["frames"], 23)
-        self.assertEqual(res.stats["time"], 760)
-        self.assertEqual((res.stats["A"], res.stats["B"], res.stats["C"]), (245, 240, 265))
+        self.assertEqual(res.stats["frames"], 24)
+        self.assertEqual(res.stats["time"], 775)
+        self.assertEqual((res.stats["A"], res.stats["B"], res.stats["C"]), (245, 240, 280))
         self.assertEqual(res.stats["hyb"], 150)
 
     def test_format_reports_hyb_and_voices(self):
         res = self.lint(build_deck())
         line = ld.format_result(res, False)[-1]
-        self.assertTrue(line.startswith("LINT OK frames=23 time=760s A=245 B=240 C=265 hyb=150s"))
+        self.assertTrue(line.startswith("LINT OK frames=24 time=775s A=245 B=240 C=280 hyb=150s"))
 
     # --- forma ---------------------------------------------------------------------
     def test_unclosed_frame(self):

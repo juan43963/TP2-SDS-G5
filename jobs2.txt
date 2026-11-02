@@ -1,0 +1,18 @@
+tsdmd_dt1e-3_1 --scheme tsdmd --seed 1 --dt 1e-3
+hyb_dt1e-3_r10_1 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 10 --seed 1 --dt 1e-3
+hyb_dt1e-3_r1_1 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 1 --seed 1 --dt 1e-3
+tsdmd_dt1e-3_2 --scheme tsdmd --seed 2 --dt 1e-3
+hyb_dt1e-3_r10_2 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 10 --seed 2 --dt 1e-3
+hyb_dt1e-3_r1_2 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 1 --seed 2 --dt 1e-3
+tsdmd_dt1e-3_3 --scheme tsdmd --seed 3 --dt 1e-3
+hyb_dt1e-3_r10_3 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 10 --seed 3 --dt 1e-3
+hyb_dt1e-3_r1_3 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 1 --seed 3 --dt 1e-3
+tsdmd_dt1e-3_4 --scheme tsdmd --seed 4 --dt 1e-3
+hyb_dt1e-3_r10_4 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 10 --seed 4 --dt 1e-3
+hyb_dt1e-3_r1_4 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 1 --seed 4 --dt 1e-3
+tsdmd_dt1e-3_5 --scheme tsdmd --seed 5 --dt 1e-3
+hyb_dt1e-3_r10_5 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 10 --seed 5 --dt 1e-3
+hyb_dt1e-3_r1_5 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 1 --seed 5 --dt 1e-3
+tsdmd_dt1e-3_6 --scheme tsdmd --seed 6 --dt 1e-3
+hyb_dt1e-3_r10_6 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 10 --seed 6 --dt 1e-3
+hyb_dt1e-3_r1_6 --scheme hybrid --hybrid-T 0.5 --hybrid-ret-every 1 --seed 6 --dt 1e-3

@@ -38,7 +38,7 @@ SLIDE_IDS = (
     "impl_arquitectura", "impl_tsdmd", "impl_edmd", "impl_colision",
     "hyb_criterio", "hyb_sync", "hyb_contactos",
     "sim_sistema", "sim_observables", "sim_realizaciones",
-    "res_anim", "res_fraccion", "res_poblacion", "res_tevac", "res_walltime", "res_sweep",
+    "res_anim", "res_fraccion", "res_poblacion", "res_tevac", "res_walltime", "res_sweep", "res_explora",
     "res_scale_a", "res_scale_b",
     "concl", "gracias",
 )
@@ -52,7 +52,7 @@ SECTION_OF = {
     "sim_sistema": "Simulaciones", "sim_observables": "Simulaciones",
     "sim_realizaciones": "Simulaciones",
     "res_anim": "Resultados", "res_fraccion": "Resultados", "res_poblacion": "Resultados",
-    "res_tevac": "Resultados", "res_walltime": "Resultados", "res_sweep": "Resultados",
+    "res_tevac": "Resultados", "res_walltime": "Resultados", "res_sweep": "Resultados", "res_explora": "Resultados",
     "res_scale_a": "Resultados", "res_scale_b": "Resultados",
     "concl": "Conclusiones", "gracias": "Conclusiones",
 }
@@ -63,6 +63,7 @@ FIGURE_OF = {
     "res_tevac": "pres_tevac",
     "res_walltime": "pres_walltime",
     "res_sweep": "pres_sweep_T",
+    "res_explora": "pres_explora",
     "res_scale_a": "pres_scale_a",
     "res_scale_b": "pres_scale_b",
     "res_anim": ("frame_tsdmd", "frame_edmd", "frame_hybrid"),
