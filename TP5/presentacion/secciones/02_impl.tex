@@ -35,7 +35,38 @@
   \end{tikzpicture}
   \vspace{2pt}
 
-  {\small Un hilo, C++20, mismo \texttt{-O2} en los tres esquemas.}
+  {\small \texttt{main} elige el esquema; cada \texttt{run*} es un módulo independiente que usa
+  los módulos de abajo y escribe el mismo formato de salida, que consume la animación aparte.}
+\end{frame}
+
+% SLIDE impl_uml | V:A | T:0
+\begin{frame}{Diagrama de clases (UML)}
+  \centering
+  \begin{tikzpicture}[scale=1.05,
+      cls/.style={draw,font=\tiny,align=left,inner sep=2pt,rectangle split,
+                  rectangle split parts=2,rectangle split part fill={gray!15,white}},
+      comp/.style={-{Diamond[open,length=2.5mm]},thick},
+      use/.style={-{Latex[length=2mm]},dashed,gray!70!black}]
+    \node[cls] (cfg) at (-4.6,1.6) {\textbf{EvacuationConfig}\nodepart{second}N, L, d, dt, dt$_2$, $\varepsilon$, T, $\alpha$\\sfm: SfmParams};
+    \node[cls] (room) at (-4.6,-0.4) {\textbf{Room}\nodepart{second}doorCenter, exitTarget\\walls: WallSet};
+    \node[cls] (ag) at (-4.6,-2.2) {\textbf{Agent}\nodepart{second}id, x, v, a, radio\\status, scheme};
+    \node[cls] (ed) at (0,1.2) {\textbf{EdmdEngine}\nodepart{second}step(), nextEventTime()\\snapshot(t), contactTimeWithBody()};
+    \node[cls] (hy) at (0,-1.4) {\textbf{HybridEngine}\nodepart{second}step(), nextTime()\\criterio $\tau_c$, $T$, $\alpha T$};
+    \node[cls] (rx) at (4.4,1.6) {\textbf{Relaxation}\nodepart{second}x$_0$, v$_0$, w, t$_0$\\relaxedPosition(t)};
+    \node[cls] (fw) at (4.4,-0.2) {\textbf{ForceWorkspace}\nodepart{second}Cell Index Method\\fuerzas SFM (Verlet)};
+    \node[cls] (tw) at (4.4,-2.0) {\textbf{TrajectoryWriter}\nodepart{second}writeFrame(t, agentes)\\finish()};
+    \draw[comp] (hy) -- node[right,font=\tiny] {edmd\_} (ed);
+    \draw[comp] (hy.east) -- ++(0.5,0) |- (fw.west);
+    \draw[use] (ed.east) -- (rx.west);
+    \draw[use] (hy.south east) -- ++(0.3,-0.5) -| (tw.south);
+    \draw[use] (ed.west) -- ++(-0.4,0) |- (cfg.east);
+    \draw[use] (hy.west) -- (room.east);
+    \draw[use] (hy.south west) -- (ag.east);
+    \draw[use] (cfg) -- (room);
+  \end{tikzpicture}
+
+  {\scriptsize Rombo: composición. Línea punteada: usa. \texttt{runEvacuation} (TSDMD) usa
+  \texttt{ForceWorkspace} sin clase propia.}
 \end{frame}
 
 % SLIDE impl_tsdmd | V:A | T:30

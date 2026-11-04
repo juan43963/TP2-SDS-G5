@@ -47,10 +47,6 @@
         $N = 500$, $L = 50\un{m}$\\
         $T = 0.5\un{s}$, $\alpha = 2$\\
         semilla 18}
-
-      \vspace{6pt}
-      {\small Al inicio los agentes dispersos están en EDMD; hacia los $30\un{s}$ casi todos
-      pasan a TSDMD (cuello de botella). Fracción TSDMD media de la corrida: $0.98$.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -69,10 +65,6 @@
         TSDMD $n = 15$\\
         EDMD $n = 12$\\
         Híbrido $n = 11$}
-
-      \vspace{6pt}
-      {\small Las curvas del TSDMD y del híbrido casi se superponen; la del EDMD llega a $0$
-      hacia los $300\un{s}$.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -89,10 +81,6 @@
       \vspace{4pt}
       \params{$N = 500$, $L = 50\un{m}$, $T = 0.5\un{s}$, $\alpha = 2$;
       $t_{max}$ 3000, 600 y $3000\un{s}$. Promedios solo sobre corridas completas.}
-
-      \vspace{4pt}
-      {\small EDMD: razón $0.22$ contra el TSDMD, $z = -44$. Híbrido: razón $0.99$ y
-      $z = -0.4$, no distinguible del TSDMD con $n = 11$ y $15$.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -108,10 +96,6 @@
 
       \vspace{4pt}
       \params{$N = 500$, $L = 50\un{m}$, un hilo; 10 corridas completas por esquema.}
-
-      \vspace{4pt}
-      {\small Orden de costo: TSDMD, híbrido ($\times1.34$) y EDMD ($\times1.94$), inverso
-      al orden de $t_{evac}$.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -130,9 +114,9 @@
       \small
       \begin{itemize}
         \item $T = 0$ reproduce al EDMD (trayectorias idénticas).
-        \item Para $T > 0$ el $t_{evac}$ queda del lado del TSDMD: ningún $T$ evaluable difiere
-          en más de $2$ errores combinados; $T = 0.5\un{s}$ tiene una sola completa y no se evalúa.
-        \item Tiempo de ejecución mínimo en $T = 0.1\un{s}$ ($n = 2$); crece con $T$.
+        \item Para $T > 0$ el $t_{evac}$ queda del lado del TSDMD: ningún $T$ evaluable
+          tiene $|z|\ge 2$ contra el TSDMD; $T = 0.5\un{s}$ tiene una sola completa y no se evalúa.
+        \item El tiempo de ejecución crece con $T$.
       \end{itemize}
     \end{column}
   \end{columns}
@@ -171,11 +155,6 @@
       \params{$N\in\{100,\,200,\,400,\,700,\,1000\}$, $L = 50\sqrt{N/500}\un{m}$,
       3 semillas por punto, $t_{max}\propto N$. Marcador hueco: alguna corrida llegó a $t_{max}$
       sin evacuar ($18$ de $45$).}
-
-      \vspace{6pt}
-      {\small Pendiente de la media observada: TSDMD $2.3$, EDMD $1.6$, híbrido $1.9$.
-      \textbf{No son exponentes de costo.} Para $N\ge700$ los esquemas no se separan dentro
-      del error con $3$ realizaciones por punto.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -190,11 +169,6 @@
       \params{$N\in\{100,\,200,\,400,\,700,\,1000\}$, $L = 50\un{m}$,
       3 semillas por punto, $t_{max}\propto N$. Marcador hueco: alguna corrida llegó a $t_{max}$
       sin evacuar ($20$ de $45$).}
-
-      \vspace{6pt}
-      {\small Pendiente de la media observada: TSDMD $1.7$, EDMD $2.3$, híbrido $1.8$.
-      \textbf{No son exponentes de costo.} Para $N\ge700$ los esquemas no se separan dentro
-      del error con $3$ realizaciones por punto.}
     \end{column}
   \end{columns}
 \end{frame}

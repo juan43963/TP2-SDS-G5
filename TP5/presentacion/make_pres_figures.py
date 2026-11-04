@@ -134,7 +134,7 @@ def build_population(rows_n, runs_dir):
                 label=f"{LABELS[scheme]} (n={count})")
         if count >= 2:
             ax.fill_between(grid, mean - err, mean + err, color=color, alpha=0.18, lw=0)
-            idx = np.unique(np.linspace(0, len(grid) - 1, 21).astype(int))
+            idx = np.unique(np.linspace(0, len(grid) - 1, 9).astype(int))
             ax.errorbar(grid[idx], mean[idx], yerr=_yerr(err[idx]), fmt="none", ecolor=color,
                         capsize=3, lw=1.0)
     ax.set_xlabel("Tiempo (s)")

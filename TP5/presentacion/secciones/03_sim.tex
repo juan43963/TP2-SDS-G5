@@ -32,8 +32,8 @@
         $m = 80\un{kg}$, $\tau = 0.5\un{s}$\\
         $k = 1.2\times10^{5}\un{kg/s^2}$\\
         $\kappa = 2.4\times10^{5}\un{kg/(m\,s)}$\\
-        $dt = 10^{-4}\un{s}$, $dt_2 = 0.25\un{s}$\\
-        $\varepsilon = 0.5$, $T = 0.5\un{s}$, $\alpha = 2$}
+        $dt = 10^{-4}\un{s}$ (bajo la cota $0.1\sqrt{m/k}$), $dt_2 = 0.25\un{s}$\\
+        $\varepsilon = 0.5$, $\alpha = 2$, $T = 0.5\un{s}$ (se barre más adelante)}
 
       \vspace{4pt}
       Condición inicial: agentes al azar sin superposición, con velocidad $v_d$ hacia la puerta.
@@ -41,48 +41,32 @@
   \end{columns}
 \end{frame}
 
-% SLIDE sim_observables | V:B | T:40
+% SLIDE sim_observables | V:B | T:30
 \begin{frame}{Observables}
   \small
   \begin{itemize}
-    \item $N_{in}(t)$: filas del frame con $y \ge 0$. $t_{evac}$: instante del último cruce.
-    \item $f_{TSDMD}(t) = \#\{i \mid \mathrm{scheme}_i=0\}\,/\,N_{in}(t)$, \quad
-      $f_{EDMD} = 1 - f_{TSDMD}$.
-    \item Promedio y error sobre $n$ corridas: $\langle X\rangle=\frac1n\sum_m X_m$,
-      \quad $\mathrm{SEM}=s/\sqrt n$, \quad $s^2=\frac1{n-1}\sum_m(X_m-\langle X\rangle)^2$,
-      \textbf{solo sobre corridas completas}; tasa de éxito $=$ completas / intentadas.
-    \item Población media $\langle N_{in}\rangle(t)$, con $N_{in}=0$ tras evacuar.
-    \item Tiempo de ejecución $W$ de la simulación completa.
+    \item $N_{in}(t)$: filas del frame con $y \ge 0$; $t_{evac}$: instante del último cruce, leído
+      de los frames.
+    \item $f_{TSDMD}(t) = \#\{i \mid \mathrm{scheme}_i=0\}\,/\,N_{in}(t)$.
+    \item Promedio y error: $\langle X\rangle=\frac1n\sum_m X_m$, \quad
+      $\mathrm{SEM}=s/\sqrt n$, solo sobre corridas completas.
     \item Distancia contra el TSDMD:
-      $z=\dfrac{\langle t\rangle-\langle t\rangle_{TSDMD}}{\sqrt{\mathrm{SEM}^2+\mathrm{SEM}_{TSDMD}^2}}$.
-    \item Pendiente log-log: ajuste lineal de $\log W$ contra $\log N$ sobre las medias.
+      $z=\dfrac{\langle t\rangle-\langle t\rangle_{TSDMD}}{\sqrt{\mathrm{SEM}^2+\mathrm{SEM}_{TSDMD}^2}}$;
+      $|z|<2$: no se distingue.
+    \item Tiempo de ejecución $W$ y pendiente log-log de $W$ contra $N$ (sobre las medias).
   \end{itemize}
 \end{frame}
 
-% SLIDE sim_realizaciones | V:B | T:25
-\begin{frame}{Realizaciones y tiempos}
-  \footnotesize
-  Semillas consecutivas desde 1, hasta al menos 10 completas por esquema ($N = 500$, $L = 50\un{m}$):
-
-  \medskip
-  {\centering
-  \begin{tabular}{lrrr}
-    \toprule
-    Esquema & Intentadas & Completas & $t_{max}$ (s) \\
-    \midrule
-    TSDMD & 32 & 15 & 3000 \\
-    EDMD & 24 & 12 & 600 \\
-    Híbrido & 24 & 11 & 3000 \\
-    \bottomrule
-  \end{tabular}\par}
-
-  \medskip
+% SLIDE sim_realizaciones | V:B | T:20
+\begin{frame}{Rangos de los estudios}
+  \small
   \begin{itemize}
-    \item Tiempo de ejecución: primeras 10 semillas completas de cada esquema, en serie,
-      un hilo, una misma computadora (AMD Ryzen 7 9800X3D, WSL2, GCC 13.3, \texttt{-O2}).
-    \item Barrido de $T$: $N = 200$, $L = 31.6\un{m}$, $T\in\{0,\,0.1,\,0.25,\,0.5,\,1,\,2,\,3\}\un{s}$,
-      5 semillas, $t_{max} = 600\un{s}$.
-    \item Escalado: $N\in\{100,\,200,\,400,\,700,\,1000\}$, 3 semillas, $t_{max}\propto N$;
+    \item Comparación a $N = 500$, $L = 50\un{m}$: al menos 10 corridas completas por esquema
+      (las que forman un arco y no evacúan antes de $t_{max}$ se descartan; la tasa de éxito
+      se informa aparte).
+    \item Barrido de $T$: $N = 200$, $L = 31.6\un{m}$,
+      $T\in\{0,\,0.1,\,0.25,\,0.5,\,1,\,2,\,3\}\un{s}$, 5 semillas.
+    \item Escalado: $N\in\{100,\,200,\,400,\,700,\,1000\}$, 3 semillas;
       a: $L = 50\sqrt{N/500}\un{m}$; b: $L = 50\un{m}$.
   \end{itemize}
 \end{frame}

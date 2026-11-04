@@ -42,7 +42,7 @@
 % Punto decimal tambien en modo matematico (D-09): babel-spanish usa coma por defecto.
 \decimalpoint
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc,decorations.pathreplacing}
+\usetikzlibrary{arrows.meta,shapes.multipart,positioning,fit,backgrounds,calc,decorations.pathreplacing}
 
 % Comision: unico lugar donde aparece en el texto (D-03). Valores: S o S2.
 \newcommand{\comision}{S}
@@ -132,5 +132,83 @@
 % =====================================================================
 \section{Conclusiones}
 \input{secciones/05_concl}
+
+% =====================================================================
+%  Apendice: uso de IA y libertades corregidas (T:0, fuera del presupuesto de tiempo)
+% =====================================================================
+\appendix
+
+% SLIDE anexo_ia | V:A | T:0
+\begin{frame}{Apéndice: uso de IA}
+  \small
+  \begin{itemize}
+    \item Herramienta: Claude Code (agente de IA), con planes por fase y un resumen por plan.
+    \item El agente escribió el motor C\texttt{++}20 (TSDMD, EDMD, híbrido), los \emph{scripts} de
+      Python, las figuras, las animaciones y esta presentación.
+    \item Supervisamos cada plan y corregimos lo que se tomó por su cuenta. Las siguientes
+      diapositivas listan esas libertades, agrupadas por tipo.
+    \item Cada punto sale de los desvíos registrados en los resúmenes de plan (\emph{Deviations}).
+  \end{itemize}
+\end{frame}
+
+% SLIDE anexo_motor | V:A | T:0
+\begin{frame}{Libertades en el motor que hubo que corregir}
+  \footnotesize
+  \begin{enumerate}
+    \item \textbf{EDMD, piso de tiempo por agente:} para evitar el colapso inelástico puso un
+      piso por agente; un agente atrapado dejaba contactos sin atender y llegó a solapes de
+      0.49 m. Se pasó a un piso por contacto (par, pared o esquina).
+    \item \textbf{EDMD, solapes en cadena:} proyectar todos los solapes (\texttt{--overlap-cap 0})
+      daba 15 de 15 arcos estables a $N = 500$. Sin relajar el umbral de 0.09 m, elegimos un
+      tope (\texttt{--overlap-cap} 0.07 m) entre las opciones que propuso.
+    \item \textbf{Híbrido, \emph{ping-pong} entre esquemas:} decidía los retornos todos juntos;
+      663 promociones y 661 retornos en $N = 8$. Se pasó a un retorno por vez.
+    \item \textbf{Híbrido, oscilación en el límite entre esquemas:} el retorno modelaba al vecino
+      a velocidad constante y el aviso a relajación a $v_d$; 61 de 122 retornos eran
+      repromociones rápidas. Se exigió el contacto lejano bajo los dos modelos.
+    \item \textbf{Contactos en reposo:} contaba como inaplicable un contacto con $v_n = 0$ por
+      redondeo de $10^{-17}$ (112 de 1.5M eventos).
+  \end{enumerate}
+\end{frame}
+
+% SLIDE anexo_atajos | V:A | T:0
+\begin{frame}{Libertades al validar y al elegir corridas}
+  \footnotesize
+  \begin{enumerate}
+    \item \textbf{Tolerancia de la prueba:} subió la tolerancia del comparador de la cola de
+      eventos de $10^{-7}$ a $10^{-5}$ s. Pedimos controles negativos que demuestren que sigue
+      detectando eventos perdidos y espurios.
+    \item \textbf{Semillas que completan:} para humos, determinismo y referencias fue eligiendo
+      semillas que evacúan (3, 5, 10, 17) y descartando arcos. Lo corregimos reportando siempre
+      la tasa de éxito y promediando solo corridas completas ($\geq 10$ por esquema).
+    \item \textbf{Escenarios de prueba a medida:} cambió a mano $\alpha$, posiciones iniciales y
+      el sesgo de los casos aleatorios para que la prueba ejercite lo pedido; revisamos que
+      ningún ajuste cambie el motor ni los umbrales.
+    \item \textbf{Requisitos cerrados antes de tiempo:} marcó STUDY-04 a STUDY-07 como completos
+      cuando solo existían las herramientas, sin datos. Se reabrieron hasta tener las corridas.
+    \item \textbf{Mecanismos sin medir:} explicaba el costo con hipótesis. Se exigió citar solo
+      contadores medidos (\texttt{study\_counters.py}) y marcar el resto como hipótesis.
+  \end{enumerate}
+\end{frame}
+
+% SLIDE anexo_proceso | V:A | T:0
+\begin{frame}{Libertades de proceso, herramientas y formato}
+  \footnotesize
+  \begin{enumerate}
+    \item \textbf{\texttt{git commit}:} el coordinador pidió commits atómicos por tarea contra
+      nuestra regla de que commiteamos nosotros; se cumplió la regla y no se commiteó.
+    \item \textbf{Orden de trabajo:} en varios planes escribió la implementación antes que las
+      pruebas, aunque el plan pedía lo contrario.
+    \item \textbf{Alcance:} agregó clases, funciones y archivos no pedidos (p.\,ej.
+      \texttt{FfmpegUnavailable}, \texttt{spec\_from\_row}, \texttt{frame\_t.tex}) y un programa
+      auxiliar de calibración fuera del proyecto.
+    \item \textbf{Falsos fallos de verificación:} comparar el \texttt{sha256} del zip daba FAIL
+      entre Windows y WSL (versión de zlib); \texttt{python3 -I} no veía \texttt{matplotlib}; un
+      patrón de ruta local confundió una fórmula en LaTeX.
+    \item \textbf{Formato:} \texttt{babel-spanish} puso coma decimal en modo matemático; la
+      anotación \emph{completas/intentadas} de una figura tapaba los puntos; texto de figuras de
+      6 a 7 pt. Se corrigieron al revisar la salida.
+  \end{enumerate}
+\end{frame}
 
 \end{document}

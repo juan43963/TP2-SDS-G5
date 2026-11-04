@@ -35,7 +35,7 @@ DEFAULT_TEX = PRES_DIR / "presentacion.tex"
 SLIDE_IDS = (
     "title",
     "intro_real", "intro_sfm",
-    "impl_arquitectura", "impl_tsdmd", "impl_edmd", "impl_colision",
+    "impl_arquitectura", "impl_uml", "impl_tsdmd", "impl_edmd", "impl_colision",
     "hyb_criterio", "hyb_sync", "hyb_contactos",
     "sim_sistema", "sim_observables", "sim_realizaciones",
     "res_anim", "res_fraccion", "res_poblacion", "res_tevac", "res_walltime", "res_sweep", "res_explora",
@@ -45,7 +45,7 @@ SLIDE_IDS = (
 SECTIONS = ("Introducción", "Implementación", "Simulaciones", "Resultados", "Conclusiones")
 SECTION_OF = {
     "intro_real": "Introducción", "intro_sfm": "Introducción",
-    "impl_arquitectura": "Implementación", "impl_tsdmd": "Implementación",
+    "impl_arquitectura": "Implementación", "impl_uml": "Implementación", "impl_tsdmd": "Implementación",
     "impl_edmd": "Implementación", "impl_colision": "Implementación",
     "hyb_criterio": "Implementación", "hyb_sync": "Implementación",
     "hyb_contactos": "Implementación",
@@ -580,6 +580,8 @@ def lint(text: str, partial: bool = False, allow_missing_figures: bool = False,
     res = Result()
     raw = text.replace("\r\n", "\n")
     raw = expand_inputs(raw, base, res.problems)
+    # El apendice (uso de IA) queda fuera del presupuesto y de las reglas del cuerpo.
+    raw = re.sub(r"^\\appendix\b.*?(?=^\\end\{document\})", "", raw, flags=re.S | re.M)
     clean = strip_comments(raw)
     frames = parse_frames(raw, clean)
     res.problems += rule_balance(clean)
