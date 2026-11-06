@@ -1,0 +1,39 @@
+{
+  "study_fingerprint": "d69972e3e6d93836f91b5e785111ae53d6379e9ed68fc3171571f141d0310f73",
+  "seed": 1,
+  "script_sha256": "f25d12fb1edcc515a7bfc922df4e82e605d787d8214a46ca94ed94b76dc4a66b",
+  "reader_sha256": "95c345daf30c758e0ca674fd4475b8e86ca5827d75b5156b401cc6fc65bb0b9f",
+  "same_playback_scale": "10 segundos fisicos por cuadro (mas cuadro final), 6 fps",
+  "models": {
+    "sfm": {
+      "reference": "evacuation_sfm_s01",
+      "all_non_clock_fields_equal": true,
+      "trajectory_sha256": "a9f0cfc9b269badc167eb3f21880dd2539a4acdf5c4e2b6130cbc1871f57b119",
+      "render": {
+        "frames": 105,
+        "sample_interval_seconds": 10,
+        "fps": 6,
+        "final_time_seconds": 1036.6894,
+        "snapshot_time_seconds": 60.0,
+        "matplotlib_version": "3.8.4",
+        "numpy_version": "1.26.4",
+        "pillow_version": "10.3.0"
+      }
+    },
+    "cpm": {
+      "reference": "evacuation_cpm_s01",
+      "all_non_clock_fields_equal": true,
+      "trajectory_sha256": "781736771db82efb0d7c65eab7fb56b3f4f58a71ec690805b205e1b3ac5a9872",
+      "render": {
+        "frames": 25,
+        "sample_interval_seconds": 10,
+        "fps": 6,
+        "final_time_seconds": 230.16666666666666,
+        "snapshot_time_seconds": 60.0,
+        "matplotlib_version": "3.8.4",
+        "numpy_version": "1.26.4",
+        "pillow_version": "10.3.0"
+      }
+    }
+  }
+}

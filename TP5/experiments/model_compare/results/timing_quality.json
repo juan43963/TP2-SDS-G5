@@ -1,0 +1,479 @@
+{
+  "study_fingerprint": "d69972e3e6d93836f91b5e785111ae53d6379e9ed68fc3171571f141d0310f73",
+  "script_sha256": "18c57c495fdc6ec888beb22c8afcaa292a9494c1c9765d9cc19b14f234a8422c",
+  "criterion": "motor <= proceso externo + max(0.05 s, 1%); replay UTC y activo consistentes",
+  "checks": [
+    {
+      "run": "pilot_sfm_s01",
+      "original_simulation_ms": 29.823209,
+      "original_process_wall_seconds_including_io": 0.03427600000577513,
+      "original_clock_consistent": true,
+      "selected_source": "runs/pilot_sfm_s01/run.json",
+      "validated_simulation_ms": 29.823209
+    },
+    {
+      "run": "pilot_cpm_s01",
+      "original_simulation_ms": 0.146998,
+      "original_process_wall_seconds_including_io": 0.003808749999734573,
+      "original_clock_consistent": true,
+      "selected_source": "runs/pilot_cpm_s01/run.json",
+      "validated_simulation_ms": 0.146998
+    },
+    {
+      "run": "fixed60_sfm_s01",
+      "original_simulation_ms": 13105.461955,
+      "original_process_wall_seconds_including_io": 13.114036833998398,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_sfm_s01/run.json",
+      "validated_simulation_ms": 13105.461955
+    },
+    {
+      "run": "fixed60_cpm_s01",
+      "original_simulation_ms": 69.194165,
+      "original_process_wall_seconds_including_io": 0.07683512500079814,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_cpm_s01/run.json",
+      "validated_simulation_ms": 69.194165
+    },
+    {
+      "run": "fixed60_cpm_s02",
+      "original_simulation_ms": 68.263503,
+      "original_process_wall_seconds_including_io": 0.07458729200880043,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_cpm_s02/run.json",
+      "validated_simulation_ms": 68.263503
+    },
+    {
+      "run": "fixed60_sfm_s02",
+      "original_simulation_ms": 13054.128833,
+      "original_process_wall_seconds_including_io": 13.062148583994713,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_sfm_s02/run.json",
+      "validated_simulation_ms": 13054.128833
+    },
+    {
+      "run": "fixed60_sfm_s03",
+      "original_simulation_ms": 12893.667411,
+      "original_process_wall_seconds_including_io": 12.901769458010676,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_sfm_s03/run.json",
+      "validated_simulation_ms": 12893.667411
+    },
+    {
+      "run": "fixed60_cpm_s03",
+      "original_simulation_ms": 67.14358100000001,
+      "original_process_wall_seconds_including_io": 0.07375870799296536,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_cpm_s03/run.json",
+      "validated_simulation_ms": 67.14358100000001
+    },
+    {
+      "run": "fixed60_cpm_s04",
+      "original_simulation_ms": 67.769461,
+      "original_process_wall_seconds_including_io": 0.07364912499906495,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_cpm_s04/run.json",
+      "validated_simulation_ms": 67.769461
+    },
+    {
+      "run": "fixed60_sfm_s04",
+      "original_simulation_ms": 13086.616667999999,
+      "original_process_wall_seconds_including_io": 13.09367404099612,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_sfm_s04/run.json",
+      "validated_simulation_ms": 13086.616667999999
+    },
+    {
+      "run": "fixed60_sfm_s05",
+      "original_simulation_ms": 13067.08888,
+      "original_process_wall_seconds_including_io": 13.07824408300803,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_sfm_s05/run.json",
+      "validated_simulation_ms": 13067.08888
+    },
+    {
+      "run": "fixed60_cpm_s05",
+      "original_simulation_ms": 69.24174699999999,
+      "original_process_wall_seconds_including_io": 0.0769629169953987,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_cpm_s05/run.json",
+      "validated_simulation_ms": 69.24174699999999
+    },
+    {
+      "run": "fixed60_cpm_s06",
+      "original_simulation_ms": 68.32941100000001,
+      "original_process_wall_seconds_including_io": 0.07418129099824,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_cpm_s06/run.json",
+      "validated_simulation_ms": 68.32941100000001
+    },
+    {
+      "run": "fixed60_sfm_s06",
+      "original_simulation_ms": 13062.092203999999,
+      "original_process_wall_seconds_including_io": 13.069016958994325,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_sfm_s06/run.json",
+      "validated_simulation_ms": 13062.092203999999
+    },
+    {
+      "run": "fixed60_sfm_s07",
+      "original_simulation_ms": 12955.609368,
+      "original_process_wall_seconds_including_io": 12.964892000003601,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_sfm_s07/run.json",
+      "validated_simulation_ms": 12955.609368
+    },
+    {
+      "run": "fixed60_cpm_s07",
+      "original_simulation_ms": 68.445873,
+      "original_process_wall_seconds_including_io": 0.07634904199221637,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_cpm_s07/run.json",
+      "validated_simulation_ms": 68.445873
+    },
+    {
+      "run": "fixed60_cpm_s08",
+      "original_simulation_ms": 67.752036,
+      "original_process_wall_seconds_including_io": 0.07367624998732936,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_cpm_s08/run.json",
+      "validated_simulation_ms": 67.752036
+    },
+    {
+      "run": "fixed60_sfm_s08",
+      "original_simulation_ms": 13114.019951,
+      "original_process_wall_seconds_including_io": 13.120722750012646,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_sfm_s08/run.json",
+      "validated_simulation_ms": 13114.019951
+    },
+    {
+      "run": "fixed60_sfm_s09",
+      "original_simulation_ms": 12844.217707,
+      "original_process_wall_seconds_including_io": 12.853709792005247,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_sfm_s09/run.json",
+      "validated_simulation_ms": 12844.217707
+    },
+    {
+      "run": "fixed60_cpm_s09",
+      "original_simulation_ms": 69.472247,
+      "original_process_wall_seconds_including_io": 0.07734137499937788,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_cpm_s09/run.json",
+      "validated_simulation_ms": 69.472247
+    },
+    {
+      "run": "fixed60_cpm_s10",
+      "original_simulation_ms": 67.848534,
+      "original_process_wall_seconds_including_io": 0.07398233401181642,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_cpm_s10/run.json",
+      "validated_simulation_ms": 67.848534
+    },
+    {
+      "run": "fixed60_sfm_s10",
+      "original_simulation_ms": 12993.56312,
+      "original_process_wall_seconds_including_io": 13.000752667008783,
+      "original_clock_consistent": true,
+      "selected_source": "runs/fixed60_sfm_s10/run.json",
+      "validated_simulation_ms": 12993.56312
+    },
+    {
+      "run": "evacuation_sfm_s01",
+      "original_simulation_ms": 156743.89243799998,
+      "original_process_wall_seconds_including_io": 156.78401766699972,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_sfm_s01/run.json",
+      "validated_simulation_ms": 156743.89243799998
+    },
+    {
+      "run": "evacuation_cpm_s01",
+      "original_simulation_ms": 175.713964,
+      "original_process_wall_seconds_including_io": 0.18656341699534096,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_cpm_s01/run.json",
+      "validated_simulation_ms": 175.713964
+    },
+    {
+      "run": "evacuation_cpm_s02",
+      "original_simulation_ms": 177.675295,
+      "original_process_wall_seconds_including_io": 0.18697291699936613,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_cpm_s02/run.json",
+      "validated_simulation_ms": 177.675295
+    },
+    {
+      "run": "evacuation_sfm_s02",
+      "original_simulation_ms": 765086.8817970001,
+      "original_process_wall_seconds_including_io": 297.78346958399925,
+      "original_clock_consistent": false,
+      "selected_source": "timing_replays/evacuation_sfm_s02/attempt01/run.json",
+      "replay_timing_check": {
+        "command": [
+          "/Users/franciscopalermo/Documents/GitHub/TP2-SDS-G5/TP5/build/tp5_model_compare",
+          "--model",
+          "sfm",
+          "--N",
+          "500",
+          "--L",
+          "50",
+          "--door",
+          "0.8",
+          "--seed",
+          "2",
+          "--tmax",
+          "3000",
+          "--out",
+          "/Users/franciscopalermo/Documents/GitHub/TP2-SDS-G5/data/tp5/model_compare/timing_replays/evacuation_sfm_s02/attempt01"
+        ],
+        "started_utc": "2026-11-06T14:35:17.082334+00:00",
+        "active_process_wall_seconds_including_io": 294.7531097500005,
+        "utc_process_wall_seconds_including_io": 294.7455370426178,
+        "child_cpu_seconds": 293.86156600000004,
+        "all_non_clock_fields_equal": true,
+        "internal_simulation_seconds": 294.676612602,
+        "clock_tolerance_seconds": 2.9475310975000046,
+        "clock_consistent": true
+      },
+      "validated_simulation_ms": 294676.61260199995
+    },
+    {
+      "run": "evacuation_sfm_s03",
+      "original_simulation_ms": 128934.126687,
+      "original_process_wall_seconds_including_io": 128.9654451249953,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_sfm_s03/run.json",
+      "validated_simulation_ms": 128934.126687
+    },
+    {
+      "run": "evacuation_cpm_s03",
+      "original_simulation_ms": 174.980922,
+      "original_process_wall_seconds_including_io": 0.1867084160039667,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_cpm_s03/run.json",
+      "validated_simulation_ms": 174.980922
+    },
+    {
+      "run": "evacuation_cpm_s04",
+      "original_simulation_ms": 180.464124,
+      "original_process_wall_seconds_including_io": 0.18959987499692943,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_cpm_s04/run.json",
+      "validated_simulation_ms": 180.464124
+    },
+    {
+      "run": "evacuation_sfm_s04",
+      "original_simulation_ms": 532374.89318,
+      "original_process_wall_seconds_including_io": 329.9906875000015,
+      "original_clock_consistent": false,
+      "selected_source": "timing_replays/evacuation_sfm_s04/attempt01/run.json",
+      "replay_timing_check": {
+        "command": [
+          "/Users/franciscopalermo/Documents/GitHub/TP2-SDS-G5/TP5/build/tp5_model_compare",
+          "--model",
+          "sfm",
+          "--N",
+          "500",
+          "--L",
+          "50",
+          "--door",
+          "0.8",
+          "--seed",
+          "4",
+          "--tmax",
+          "3000",
+          "--out",
+          "/Users/franciscopalermo/Documents/GitHub/TP2-SDS-G5/data/tp5/model_compare/timing_replays/evacuation_sfm_s04/attempt01"
+        ],
+        "started_utc": "2026-11-06T14:40:11.836639+00:00",
+        "active_process_wall_seconds_including_io": 331.6447435,
+        "utc_process_wall_seconds_including_io": 331.6653821468353,
+        "child_cpu_seconds": 330.3955729999999,
+        "all_non_clock_fields_equal": true,
+        "internal_simulation_seconds": 331.572504299,
+        "clock_tolerance_seconds": 3.316447435,
+        "clock_consistent": true
+      },
+      "validated_simulation_ms": 331572.504299
+    },
+    {
+      "run": "evacuation_sfm_s05",
+      "original_simulation_ms": 138976.357786,
+      "original_process_wall_seconds_including_io": 139.00895629200386,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_sfm_s05/run.json",
+      "validated_simulation_ms": 138976.357786
+    },
+    {
+      "run": "evacuation_cpm_s05",
+      "original_simulation_ms": 179.745675,
+      "original_process_wall_seconds_including_io": 0.19060979200003203,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_cpm_s05/run.json",
+      "validated_simulation_ms": 179.745675
+    },
+    {
+      "run": "evacuation_cpm_s06",
+      "original_simulation_ms": 180.39079800000002,
+      "original_process_wall_seconds_including_io": 0.18948033399647102,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_cpm_s06/run.json",
+      "validated_simulation_ms": 180.39079800000002
+    },
+    {
+      "run": "evacuation_sfm_s06",
+      "original_simulation_ms": 327061.12899799994,
+      "original_process_wall_seconds_including_io": 162.57811108301394,
+      "original_clock_consistent": false,
+      "selected_source": "timing_replays/evacuation_sfm_s06/attempt01/run.json",
+      "replay_timing_check": {
+        "command": [
+          "/Users/franciscopalermo/Documents/GitHub/TP2-SDS-G5/TP5/build/tp5_model_compare",
+          "--model",
+          "sfm",
+          "--N",
+          "500",
+          "--L",
+          "50",
+          "--door",
+          "0.8",
+          "--seed",
+          "6",
+          "--tmax",
+          "3000",
+          "--out",
+          "/Users/franciscopalermo/Documents/GitHub/TP2-SDS-G5/data/tp5/model_compare/timing_replays/evacuation_sfm_s06/attempt01"
+        ],
+        "started_utc": "2026-11-06T14:45:43.510634+00:00",
+        "active_process_wall_seconds_including_io": 164.27644458399936,
+        "utc_process_wall_seconds_including_io": 164.27687883377075,
+        "child_cpu_seconds": 162.6836110000001,
+        "all_non_clock_fields_equal": true,
+        "internal_simulation_seconds": 164.15709313,
+        "clock_tolerance_seconds": 1.6427644458399937,
+        "clock_consistent": true
+      },
+      "validated_simulation_ms": 164157.09313
+    },
+    {
+      "run": "evacuation_sfm_s07",
+      "original_simulation_ms": 269898.725873,
+      "original_process_wall_seconds_including_io": 153.38030420801078,
+      "original_clock_consistent": false,
+      "selected_source": "timing_replays/evacuation_sfm_s07/attempt01/run.json",
+      "replay_timing_check": {
+        "command": [
+          "/Users/franciscopalermo/Documents/GitHub/TP2-SDS-G5/TP5/build/tp5_model_compare",
+          "--model",
+          "sfm",
+          "--N",
+          "500",
+          "--L",
+          "50",
+          "--door",
+          "0.8",
+          "--seed",
+          "7",
+          "--tmax",
+          "3000",
+          "--out",
+          "/Users/franciscopalermo/Documents/GitHub/TP2-SDS-G5/data/tp5/model_compare/timing_replays/evacuation_sfm_s07/attempt01"
+        ],
+        "started_utc": "2026-11-06T14:48:27.870231+00:00",
+        "active_process_wall_seconds_including_io": 152.4259092909997,
+        "utc_process_wall_seconds_including_io": 152.42280507087708,
+        "child_cpu_seconds": 152.29685,
+        "all_non_clock_fields_equal": true,
+        "internal_simulation_seconds": 152.347619048,
+        "clock_tolerance_seconds": 1.524259092909997,
+        "clock_consistent": true
+      },
+      "validated_simulation_ms": 152347.61904800002
+    },
+    {
+      "run": "evacuation_cpm_s07",
+      "original_simulation_ms": 179.151283,
+      "original_process_wall_seconds_including_io": 0.18871641599980649,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_cpm_s07/run.json",
+      "validated_simulation_ms": 179.151283
+    },
+    {
+      "run": "evacuation_cpm_s08",
+      "original_simulation_ms": 177.42433599999998,
+      "original_process_wall_seconds_including_io": 0.18638574999931734,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_cpm_s08/run.json",
+      "validated_simulation_ms": 177.42433599999998
+    },
+    {
+      "run": "evacuation_sfm_s08",
+      "original_simulation_ms": 141021.04750699998,
+      "original_process_wall_seconds_including_io": 141.05259737500455,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_sfm_s08/run.json",
+      "validated_simulation_ms": 141021.04750699998
+    },
+    {
+      "run": "evacuation_sfm_s09",
+      "original_simulation_ms": 3962080.5151600004,
+      "original_process_wall_seconds_including_io": 414.2591066670002,
+      "original_clock_consistent": false,
+      "selected_source": "timing_replays/evacuation_sfm_s09/attempt01/run.json",
+      "replay_timing_check": {
+        "command": [
+          "/Users/franciscopalermo/Documents/GitHub/TP2-SDS-G5/TP5/build/tp5_model_compare",
+          "--model",
+          "sfm",
+          "--N",
+          "500",
+          "--L",
+          "50",
+          "--door",
+          "0.8",
+          "--seed",
+          "9",
+          "--tmax",
+          "3000",
+          "--out",
+          "/Users/franciscopalermo/Documents/GitHub/TP2-SDS-G5/data/tp5/model_compare/timing_replays/evacuation_sfm_s09/attempt01"
+        ],
+        "started_utc": "2026-11-06T14:51:00.295641+00:00",
+        "active_process_wall_seconds_including_io": 396.9661634160011,
+        "utc_process_wall_seconds_including_io": 396.9582722187042,
+        "child_cpu_seconds": 395.8847090000001,
+        "all_non_clock_fields_equal": true,
+        "internal_simulation_seconds": 396.886260901,
+        "clock_tolerance_seconds": 3.969661634160011,
+        "clock_consistent": true
+      },
+      "validated_simulation_ms": 396886.260901
+    },
+    {
+      "run": "evacuation_cpm_s09",
+      "original_simulation_ms": 177.813308,
+      "original_process_wall_seconds_including_io": 0.20427049999943847,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_cpm_s09/run.json",
+      "validated_simulation_ms": 177.813308
+    },
+    {
+      "run": "evacuation_cpm_s10",
+      "original_simulation_ms": 177.283831,
+      "original_process_wall_seconds_including_io": 0.18584495800041623,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_cpm_s10/run.json",
+      "validated_simulation_ms": 177.283831
+    },
+    {
+      "run": "evacuation_sfm_s10",
+      "original_simulation_ms": 272869.675385,
+      "original_process_wall_seconds_including_io": 272.93168937500013,
+      "original_clock_consistent": true,
+      "selected_source": "runs/evacuation_sfm_s10/run.json",
+      "validated_simulation_ms": 272869.675385
+    }
+  ],
+  "complete": true
+}

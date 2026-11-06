@@ -54,6 +54,29 @@ $(BUILD)/%.o: $(SRC)/%.cpp
 test: tp5_test
 	./tp5_test
 
+# Auditoria SFM/CPM: ejecutables experimentales, fuera de all y del zip de entrega.
+MODEL_COMPARE_DIR := experiments/model_compare
+MODEL_COMPARE_SRC := $(MODEL_COMPARE_DIR)/model_compare.cpp \
+                     $(SRC)/utils/generator.cpp $(SRC)/engine/forces.cpp $(SRC)/engine/evacuation.cpp
+MODEL_COMPARE_HEADERS := $(wildcard $(SRC)/include/*.h) $(MODEL_COMPARE_DIR)/model_compare.h
+.PHONY: model-compare model-compare-test model-compare-study
+model-compare: $(BUILD)/tp5_model_compare
+
+$(BUILD)/tp5_model_compare: $(MODEL_COMPARE_SRC) $(MODEL_COMPARE_DIR)/main.cpp $(MODEL_COMPARE_HEADERS)
+	@mkdir -p $(BUILD)
+	$(CXX) $(CXXFLAGS) -I$(MODEL_COMPARE_DIR) $(MODEL_COMPARE_SRC) $(MODEL_COMPARE_DIR)/main.cpp -o $@
+
+$(BUILD)/tp5_model_compare_test: $(MODEL_COMPARE_SRC) $(MODEL_COMPARE_DIR)/test_model_compare.cpp $(MODEL_COMPARE_HEADERS)
+	@mkdir -p $(BUILD)
+	$(CXX) $(CXXFLAGS) -I$(MODEL_COMPARE_DIR) $(MODEL_COMPARE_SRC) $(MODEL_COMPARE_DIR)/test_model_compare.cpp -o $@
+
+model-compare-test: $(BUILD)/tp5_model_compare_test $(BUILD)/tp5_model_compare
+	./$(BUILD)/tp5_model_compare_test
+	python3 -m unittest discover -s $(MODEL_COMPARE_DIR) -p 'test_*.py'
+
+model-compare-study:
+	python3 $(MODEL_COMPARE_DIR)/run_comparison.py
+
 # Corrida de humo extremo a extremo: evacuacion de 30 agentes y chequeo del
 # archivo de trayectoria (cabecera, al menos 3 frames, linea END final).
 smoke: tp5

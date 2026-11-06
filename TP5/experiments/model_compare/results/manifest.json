@@ -1,0 +1,452 @@
+{
+  "protocol": [
+    {
+      "study": "pilot",
+      "model": "sfm",
+      "N": 10,
+      "L": 10,
+      "door": 0.8,
+      "seed": 1,
+      "tmax": 60
+    },
+    {
+      "study": "pilot",
+      "model": "cpm",
+      "N": 10,
+      "L": 10,
+      "door": 0.8,
+      "seed": 1,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 1,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 1,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 2,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 2,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 3,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 3,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 4,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 4,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 5,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 5,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 6,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 6,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 7,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 7,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 8,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 8,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 9,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 9,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 10,
+      "tmax": 60
+    },
+    {
+      "study": "fixed60",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 10,
+      "tmax": 60
+    },
+    {
+      "study": "evacuation",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 1,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 1,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 2,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 2,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 3,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 3,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 4,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 4,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 5,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 5,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 6,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 6,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 7,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 7,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 8,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 8,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 9,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 9,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "cpm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 10,
+      "tmax": 3000
+    },
+    {
+      "study": "evacuation",
+      "model": "sfm",
+      "N": 500,
+      "L": 50,
+      "door": 0.8,
+      "seed": 10,
+      "tmax": 3000
+    }
+  ],
+  "flags": "-std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include",
+  "cxx": "c++",
+  "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)\nTarget: arm64-apple-darwin25.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+  "sources_sha256": {
+    "TP5/Makefile": "a7c43904999fef91ead560c27c1d1c1c56ed36e229b13eeeb8e8fd9fa12c9749",
+    "TP5/src/include/edmd.h": "7ba3890c1076525cd954631cc7d416fc459bf2c7e4fb910a617c3505f8e240b7",
+    "TP5/src/include/edmd_kernel.h": "d13893df6cc77a13b667bcada0be44eeffdcde8cd86433b9a3000cad8f8fc5ce",
+    "TP5/src/include/evacuation.h": "7a15864d8e8d1bb206d3f492630fb15a75db4988ce54cc1591c443bad0166a8a",
+    "TP5/src/include/forces.h": "499f5727ed1c29229678a8084a47f71d2a254c23ff410d891998dbd05700e01f",
+    "TP5/src/include/generator.h": "df23fa48e8c758888f97a32f03d653434c7d0d90b3104d3007b17983b195d91d",
+    "TP5/src/include/hybrid.h": "7785477b849dc48194bc704acd253053d38a5c33c676415d01aadc4b5de7b93c",
+    "TP5/src/include/io.h": "d619d9e96771904d27ce186e9b65ec0d4b8c64cfbdbcb2d0e517247699b88deb",
+    "TP5/src/include/options.h": "25deaad79752f1d7fc11e3fe6371f12a6e3c4b90c503da04402b707cbbfaa5d2",
+    "TP5/src/include/relaxation.h": "aab38479cfb208236d3197ea0efed571ce4e07bf829035a1fdc219ee299e9267",
+    "TP5/src/include/sfm.h": "02ae35654d0ed01401eb078449e9088ef8317406341ffbd1c7e8b769a04f9cce",
+    "TP5/src/include/test_support.h": "1ab657795a6152d86366a909195acd27b30a75fea18aacff424bd827faec9fd3",
+    "TP5/src/include/vector2.h": "1b5cb6d6bb77e1760a6eda4285bfb6e4dbb4d7ef23fc76da917cc413e2ec476c",
+    "TP5/src/engine/forces.cpp": "39c9ea435c215bc29bf0286ee76feca8d304eb8e452cd966e21080154a62d015",
+    "TP5/src/engine/evacuation.cpp": "e6852c16927867adb8d6a8d90ea6a43873c050419c236794d42970996d9dc02a",
+    "TP5/src/utils/generator.cpp": "4d09aef864db1d263a113b5d43046dcade26dbf209f0a819a9684f4749ac2a6e",
+    "TP5/experiments/model_compare/main.cpp": "8fca8cc8171745a39a241c1ef82d3d957ab401fc5c14f072afab9d787d66c858",
+    "TP5/experiments/model_compare/model_compare.cpp": "19f6b1a656f275e4b73f7f06c6ec3364ed2e7deb37effb4e6bf81f648d38d5fc",
+    "TP5/experiments/model_compare/test_model_compare.cpp": "e881aa0a210cef3e9210adf0aa9c02d6b0813585b91dfa6434e3b7503292210a",
+    "TP5/experiments/model_compare/model_compare.h": "2e38873f3a1d407d0aa981ed40d246b924b457b29582ebffbe3248d1d5c09c9e",
+    "TP5/experiments/model_compare/run_comparison.py": "a6c676a9cf2cd2a9bdd42dab87b8bf894ad7cb28da059195c4a245ad894054a6"
+  },
+  "binary_sha256": "c0f8e4a6dd0a568e935a80f9e0e4673e39d9d76b2ed9a0cb192897d34beb399b",
+  "system": "macOS-26.0.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "fingerprint": "d69972e3e6d93836f91b5e785111ae53d6379e9ed68fc3171571f141d0310f73",
+  "created_utc": "2026-11-05T02:55:56.364202+00:00",
+  "client_timezone": "America/Argentina/Buenos_Aires",
+  "cpu": "arm",
+  "cpu_metadata_error": "sysctl: sysctl fmt -1 1024 1: Operation not permitted",
+  "logical_cpus": 8,
+  "python": "3.12.0 (v3.12.0:0fb18b02c8, Oct  2 2023, 09:45:56) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "git_commit": "f897409d3feb0b1fceadc525250a0dc32ba40dae",
+  "measurement": "steady_clock del motor menos tiempo del callback; serie, un proceso",
+  "seeds_preselected": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "initial_speed": 0,
+  "initial_positions": "comunes, sin solape a radio maximo 0.25 m",
+  "timeout_per_run_wall_seconds": 3600,
+  "command": [
+    "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3",
+    "TP5/experiments/model_compare/run_comparison.py",
+    "--suite",
+    "full",
+    "--out",
+    "data/tp5/model_compare"
+  ],
+  "build_command": [
+    "make",
+    "-B",
+    "-C",
+    "/Users/franciscopalermo/Documents/GitHub/TP2-SDS-G5/TP5",
+    "model-compare-test",
+    "CXX=c++",
+    "CXXFLAGS=-std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include"
+  ]
+}

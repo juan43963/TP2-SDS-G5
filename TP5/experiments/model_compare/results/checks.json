@@ -1,0 +1,57 @@
+{
+  "created_utc": "2026-11-06T14:58:15.609508+00:00",
+  "passed": true,
+  "commands": [
+    {
+      "command": [
+        "make",
+        "-C",
+        "TP5",
+        "model-compare-test",
+        "CXXFLAGS=-std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include"
+      ],
+      "returncode": 0,
+      "stdout": "./build/tp5_model_compare_test\n29 verificaciones, 0 fallas\nOK\npython3 -m unittest discover -s experiments/model_compare -p 'test_*.py'\n",
+      "stderr": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.312s\n\nOK\n"
+    },
+    {
+      "command": [
+        "make",
+        "-C",
+        "TP5",
+        "tp5_test",
+        "CXXFLAGS=-std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include"
+      ],
+      "returncode": 0,
+      "stdout": "c++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/utils/options.o src/utils/options.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/utils/generator.o src/utils/generator.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/utils/io.o src/utils/io.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/engine/forces.o src/engine/forces.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/engine/evacuation.o src/engine/evacuation.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/engine/edmd_kernel.o src/engine/edmd_kernel.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/engine/edmd.o src/engine/edmd.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/engine/hybrid.o src/engine/hybrid.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/overlap_oracle.o src/tests/overlap_oracle.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/trajectory_reader.o src/tests/trajectory_reader.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_contacts.o src/tests/test_contacts.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_edmd_kernel.o src/tests/test_edmd_kernel.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_edmd_physics.o src/tests/test_edmd_physics.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_edmd_queue.o src/tests/test_edmd_queue.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_generator.o src/tests/test_generator.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_hybrid_brute.o src/tests/test_hybrid_brute.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_hybrid_extremes.o src/tests/test_hybrid_extremes.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_hybrid_lead.o src/tests/test_hybrid_lead.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_hybrid_mixed.o src/tests/test_hybrid_mixed.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_hybrid_tracer.o src/tests/test_hybrid_tracer.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_options.o src/tests/test_options.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_overlap.o src/tests/test_overlap.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_physics.o src/tests/test_physics.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/tests/test_trajectory_io.o src/tests/test_trajectory_io.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -MMD -MP -c -o build/selftest.o src/selftest.cpp\nc++ -std=c++20 -O2 -Wall -Wextra -pedantic -Werror -Isrc/include -o tp5_test build/utils/options.o build/utils/generator.o build/utils/io.o build/engine/forces.o build/engine/evacuation.o build/engine/edmd_kernel.o build/engine/edmd.o build/engine/hybrid.o build/tests/overlap_oracle.o build/tests/trajectory_reader.o build/tests/test_contacts.o build/tests/test_edmd_kernel.o build/tests/test_edmd_physics.o build/tests/test_edmd_queue.o build/tests/test_generator.o build/tests/test_hybrid_brute.o build/tests/test_hybrid_extremes.o build/tests/test_hybrid_lead.o build/tests/test_hybrid_mixed.o build/tests/test_hybrid_tracer.o build/tests/test_options.o build/tests/test_overlap.o build/tests/test_physics.o build/tests/test_trajectory_io.o build/selftest.o\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "TP5/tp5_test",
+        "physics"
+      ],
+      "returncode": 0,
+      "stdout": "== physics ==\n36 verificaciones, 0 fallas\nOK\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "TP5/tp5_test",
+        "contacts"
+      ],
+      "returncode": 0,
+      "stdout": "== contacts ==\n25 verificaciones, 0 fallas\nOK\n",
+      "stderr": ""
+    }
+  ],
+  "timing_checks": 42,
+  "timing_validation_complete": true,
+  "retimed_runs": [
+    "evacuation_sfm_s02",
+    "evacuation_sfm_s04",
+    "evacuation_sfm_s06",
+    "evacuation_sfm_s07",
+    "evacuation_sfm_s09"
+  ]
+}

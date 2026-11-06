@@ -1,0 +1,296 @@
+{
+  "groups": [
+    {
+      "study": "evacuation",
+      "model": "sfm",
+      "attempted": 10,
+      "valid": 10,
+      "completed": 6,
+      "evacuated": 6,
+      "censored": 4,
+      "errors": 0,
+      "simulation_ms_all_valid": {
+        "n": 10,
+        "mean": 217818.5189783,
+        "sem": 30705.318453262862
+      },
+      "simulation_ms_complete_only": {
+        "n": 6,
+        "mean": 147030.022766,
+        "sem": 5305.353873373792
+      },
+      "t_evac_conditional_s": {
+        "n": 6,
+        "mean": 969.7039000000001,
+        "sem": 31.282650112290696
+      },
+      "t_clear_conditional_s": {
+        "n": 6,
+        "mean": 970.6396166666667,
+        "sem": 31.27426910830923
+      },
+      "remaining_at_stop": {
+        "n": 10,
+        "mean": 35.8,
+        "sem": 18.957730759654634
+      }
+    },
+    {
+      "study": "evacuation",
+      "model": "cpm",
+      "attempted": 10,
+      "valid": 10,
+      "completed": 10,
+      "evacuated": 10,
+      "censored": 0,
+      "errors": 0,
+      "simulation_ms_all_valid": {
+        "n": 10,
+        "mean": 178.0643536,
+        "sem": 0.5910875939814538
+      },
+      "simulation_ms_complete_only": {
+        "n": 10,
+        "mean": 178.0643536,
+        "sem": 0.5910875939814538
+      },
+      "t_evac_conditional_s": {
+        "n": 10,
+        "mean": 230.27666666666667,
+        "sem": 0.8351986530900639
+      },
+      "t_clear_conditional_s": {
+        "n": 10,
+        "mean": 232.11666666666665,
+        "sem": 0.7371826582367083
+      },
+      "remaining_at_stop": {
+        "n": 10,
+        "mean": 0,
+        "sem": 0.0
+      }
+    },
+    {
+      "study": "fixed60",
+      "model": "sfm",
+      "attempted": 10,
+      "valid": 10,
+      "completed": 0,
+      "evacuated": 0,
+      "censored": 10,
+      "errors": 0,
+      "simulation_ms_all_valid": {
+        "n": 10,
+        "mean": 13017.6466097,
+        "sem": 29.32276061797079
+      },
+      "simulation_ms_complete_only": {
+        "n": 0,
+        "mean": null,
+        "sem": null
+      },
+      "t_evac_conditional_s": {
+        "n": 0,
+        "mean": null,
+        "sem": null
+      },
+      "t_clear_conditional_s": {
+        "n": 0,
+        "mean": null,
+        "sem": null
+      },
+      "remaining_at_stop": {
+        "n": 10,
+        "mean": 468.9,
+        "sem": 1.6360521589077368
+      }
+    },
+    {
+      "study": "fixed60",
+      "model": "cpm",
+      "attempted": 10,
+      "valid": 10,
+      "completed": 0,
+      "evacuated": 0,
+      "censored": 10,
+      "errors": 0,
+      "simulation_ms_all_valid": {
+        "n": 10,
+        "mean": 68.3460558,
+        "sem": 0.24003955043792097
+      },
+      "simulation_ms_complete_only": {
+        "n": 0,
+        "mean": null,
+        "sem": null
+      },
+      "t_evac_conditional_s": {
+        "n": 0,
+        "mean": null,
+        "sem": null
+      },
+      "t_clear_conditional_s": {
+        "n": 0,
+        "mean": null,
+        "sem": null
+      },
+      "remaining_at_stop": {
+        "n": 10,
+        "mean": 370.8,
+        "sem": 0.6289320754704402
+      }
+    },
+    {
+      "study": "pilot",
+      "model": "sfm",
+      "attempted": 1,
+      "valid": 1,
+      "completed": 1,
+      "evacuated": 1,
+      "censored": 0,
+      "errors": 0,
+      "simulation_ms_all_valid": {
+        "n": 1,
+        "mean": 29.823209,
+        "sem": null
+      },
+      "simulation_ms_complete_only": {
+        "n": 1,
+        "mean": 29.823209,
+        "sem": null
+      },
+      "t_evac_conditional_s": {
+        "n": 1,
+        "mean": 7.611400000000001,
+        "sem": null
+      },
+      "t_clear_conditional_s": {
+        "n": 1,
+        "mean": 8.574,
+        "sem": null
+      },
+      "remaining_at_stop": {
+        "n": 1,
+        "mean": 0,
+        "sem": null
+      }
+    },
+    {
+      "study": "pilot",
+      "model": "cpm",
+      "attempted": 1,
+      "valid": 1,
+      "completed": 1,
+      "evacuated": 1,
+      "censored": 0,
+      "errors": 0,
+      "simulation_ms_all_valid": {
+        "n": 1,
+        "mean": 0.146998,
+        "sem": null
+      },
+      "simulation_ms_complete_only": {
+        "n": 1,
+        "mean": 0.146998,
+        "sem": null
+      },
+      "t_evac_conditional_s": {
+        "n": 1,
+        "mean": 8.766666666666666,
+        "sem": null
+      },
+      "t_clear_conditional_s": {
+        "n": 1,
+        "mean": 9.833333333333334,
+        "sem": null
+      },
+      "remaining_at_stop": {
+        "n": 1,
+        "mean": 0,
+        "sem": null
+      }
+    }
+  ],
+  "paired_speedups": [
+    {
+      "study": "evacuation",
+      "selection": "same_horizon",
+      "seeds": [],
+      "sfm_over_cpm": {
+        "n": 0,
+        "mean": null,
+        "sem": null
+      }
+    },
+    {
+      "study": "evacuation",
+      "selection": "both_complete",
+      "seeds": [
+        1,
+        3,
+        5,
+        6,
+        7,
+        8
+      ],
+      "sfm_over_cpm": {
+        "n": 6,
+        "mean": 826.2145270415085,
+        "sem": 28.120508647248702
+      }
+    },
+    {
+      "study": "fixed60",
+      "selection": "same_horizon",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "sfm_over_cpm": {
+        "n": 10,
+        "mean": 190.48820702462822,
+        "sem": 0.8020923263305135
+      }
+    },
+    {
+      "study": "fixed60",
+      "selection": "both_complete",
+      "seeds": [],
+      "sfm_over_cpm": {
+        "n": 0,
+        "mean": null,
+        "sem": null
+      }
+    },
+    {
+      "study": "pilot",
+      "selection": "same_horizon",
+      "seeds": [],
+      "sfm_over_cpm": {
+        "n": 0,
+        "mean": null,
+        "sem": null
+      }
+    },
+    {
+      "study": "pilot",
+      "selection": "both_complete",
+      "seeds": [
+        1
+      ],
+      "sfm_over_cpm": {
+        "n": 1,
+        "mean": 202.88173308480387,
+        "sem": null
+      }
+    }
+  ]
+}
