@@ -61,7 +61,7 @@
       \params{%
         $N = 500$, $L = 50\un{m}$\\
         $T = 0.5\un{s}$, $\alpha = 2$\\[4pt]
-        Solo corridas completas:\\
+        Media en cada instante de una grilla común de $t$ (paso $dt_2$); solo corridas completas:\\
         TSDMD $n = 15$\\
         EDMD $n = 12$\\
         Híbrido $n = 11$}
@@ -72,10 +72,10 @@
 % SLIDE res_tevac | V:C | T:40
 \begin{frame}{Tiempo de evacuación según el esquema}
   \begin{columns}[c]
-    \begin{column}{0.40\textwidth}
+    \begin{column}{0.46\textwidth}
       \includegraphics[width=\linewidth,height=0.84\textheight,keepaspectratio]{pres_tevac.png}
     \end{column}
-    \begin{column}{0.58\textwidth}
+    \begin{column}{0.52\textwidth}
       \resizebox{\linewidth}{!}{\tablaTevac}
 
       \vspace{4pt}
@@ -88,10 +88,10 @@
 % SLIDE res_walltime | V:C | T:30
 \begin{frame}{Tiempo de ejecución según el esquema}
   \begin{columns}[c]
-    \begin{column}{0.40\textwidth}
+    \begin{column}{0.46\textwidth}
       \includegraphics[width=\linewidth,height=0.84\textheight,keepaspectratio]{pres_walltime.png}
     \end{column}
-    \begin{column}{0.58\textwidth}
+    \begin{column}{0.52\textwidth}
       \resizebox{\linewidth}{!}{\tablaWall}
 
       \vspace{4pt}
@@ -103,10 +103,10 @@
 % SLIDE res_sweep | V:C | T:40
 \begin{frame}{Barrido de $T$ en el híbrido}
   \begin{columns}[c]
-    \begin{column}{0.40\textwidth}
+    \begin{column}{0.54\textwidth}
       \includegraphics[width=\linewidth,height=0.84\textheight,keepaspectratio]{pres_sweep_T.png}
     \end{column}
-    \begin{column}{0.58\textwidth}
+    \begin{column}{0.44\textwidth}
       \params{$N = 200$, $L = 31.6\un{m}$, $\alpha = 2$, 5 semillas por $T$,
       $t_{max} = 600\un{s}$; $n$ completas por $T$ en el eje.}
 
@@ -122,36 +122,13 @@
   \end{columns}
 \end{frame}
 
-% SLIDE res_explora | V:C | T:25
-\begin{frame}{Otros criterios de pasaje (exploratorio)}
-  \begin{columns}[c]
-    \begin{column}{0.54\textwidth}
-      \includegraphics[width=\linewidth,height=0.84\textheight,keepaspectratio]{pres_explora.png}
-    \end{column}
-    \begin{column}{0.44\textwidth}
-      \params{$N = 200$, $L = 31.6\un{m}$, $T = 0.5\un{s}$, $\alpha = 2$, $t_{max} = 600\un{s}$,
-      semillas $1$ a $6$; barra: error estándar de las completas; número: completas sobre
-      intentadas. Corridas en paralelo, no son los tiempos de la sección anterior; el código
-      no está en la entrega.}
-
-      \vspace{4pt}
-      \small
-      \begin{itemize}
-        \item Retorno a EDMD cada $10$ pasos: de $42$ a $35\un{s}$.
-        \item Zona alrededor de la puerta ($4$ a $12\un{m}$): sin cambio, $34$ a $36\un{s}$.
-        \item Ninguna variante baja del TSDMD puro.
-      \end{itemize}
-    \end{column}
-  \end{columns}
-\end{frame}
-
 % SLIDE res_scale_a | V:C | T:25
 \begin{frame}{Escalado en $N$: densidad inicial constante}
   \begin{columns}[c]
-    \begin{column}{0.46\textwidth}
+    \begin{column}{0.58\textwidth}
       \includegraphics[width=\linewidth,height=0.84\textheight,keepaspectratio]{pres_scale_a.png}
     \end{column}
-    \begin{column}{0.52\textwidth}
+    \begin{column}{0.40\textwidth}
       \params{$N\in\{100,\,200,\,400,\,700,\,1000\}$, $L = 50\sqrt{N/500}\un{m}$,
       3 semillas por punto, $t_{max}\propto N$. Marcador hueco: alguna corrida llegó a $t_{max}$
       sin evacuar ($18$ de $45$).}
@@ -162,10 +139,10 @@
 % SLIDE res_scale_b | V:C | T:25
 \begin{frame}{Escalado en $N$: sala fija}
   \begin{columns}[c]
-    \begin{column}{0.46\textwidth}
+    \begin{column}{0.58\textwidth}
       \includegraphics[width=\linewidth,height=0.84\textheight,keepaspectratio]{pres_scale_b.png}
     \end{column}
-    \begin{column}{0.52\textwidth}
+    \begin{column}{0.40\textwidth}
       \params{$N\in\{100,\,200,\,400,\,700,\,1000\}$, $L = 50\un{m}$,
       3 semillas por punto, $t_{max}\propto N$. Marcador hueco: alguna corrida llegó a $t_{max}$
       sin evacuar ($20$ de $45$).}

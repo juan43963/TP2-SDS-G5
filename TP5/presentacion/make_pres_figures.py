@@ -5,7 +5,7 @@ No simula ni modifica nada de TP5/python ni de TP5/data/studies/figures: lee los
 corrida de `<data-dir>/runs` y las trayectorias `<data-dir>/anim/<esquema>_N<N>_s<semilla>.txt`
 y reutiliza las funciones de tablas de la Fase 9 (make_figures) para no duplicar el calculo.
 Estilo de la Guia de presentaciones (1.7 a 1.9): sin titulo ni caption, ejes en palabras con
-unidades entre parentesis, todo texto de al menos 12 pt, potencias de 10 como supraindice,
+unidades entre parentesis, todo texto de 20 pt, potencias de 10 como supraindice,
 barras de error SEM con simbolo en cada punto. Sin numeros aleatorios: dos ejecuciones dan
 PNG identicos byte a byte.
 
@@ -46,7 +46,7 @@ DEFAULT_OUT_DIR = os.path.join(HERE, "figuras")
 GENERATOR = "TP5/presentacion/make_pres_figures.py"
 ANIM_SEED = 18
 FRAME_WINDOW = (5.0, 60.0)
-MIN_FONT = 12.0
+MIN_FONT = 20.0
 
 LABELS = {"tsdmd": "TSDMD", "edmd": "EDMD", "hybrid": "Híbrido"}
 MARKERS = mf.SCHEME_MARKERS
@@ -73,14 +73,14 @@ class MissingSource(Exception):
 # --------------------------------------------------------------------------- estilo
 
 def apply_style():
-    """Estilo comun de la Guia: fuente base 13 pt, ticks y leyenda 12 pt, sin titulos."""
+    """Estilo comun de la Guia: fuente base, ticks y leyenda 20 pt (Guia 1.8), sin titulos."""
     plt.rcParams.update({
-        "font.size": 13,
-        "axes.labelsize": 13,
-        "axes.titlesize": 13,
-        "xtick.labelsize": 12,
-        "ytick.labelsize": 12,
-        "legend.fontsize": 12,
+        "font.size": 20,
+        "axes.labelsize": 20,
+        "axes.titlesize": 20,
+        "xtick.labelsize": 20,
+        "ytick.labelsize": 20,
+        "legend.fontsize": 20,
         "axes.formatter.use_mathtext": True,
         "axes.formatter.useoffset": False,
         "lines.linewidth": 2.0,
@@ -122,7 +122,7 @@ def _curves(rows_scheme, runs_dir):
 def build_population(rows_n, runs_dir):
     """Poblacion media (banda y barras de +- SEM) de las corridas completas, por esquema."""
     apply_style()
-    fig, ax = plt.subplots(figsize=(5.0, 4.0))
+    fig, ax = plt.subplots(figsize=(8.0, 6.0))
     for scheme in sc.SCHEMES:
         rows = [r for r in rows_n if r["scheme"] == scheme]
         curves, dt2 = _curves(rows, runs_dir)
@@ -150,7 +150,7 @@ def build_tevac(rows_n, n):
     """Barras de t_evac medio con SEM, t_evac individuales y completas/intentadas sobre cada barra."""
     apply_style()
     table = mf.tevac_table(rows_n, n)
-    fig, ax = plt.subplots(figsize=(5.0, 4.2))
+    fig, ax = plt.subplots(figsize=(8.0, 6.2))
     for i, rec in enumerate(table):
         scheme = rec["scheme"]
         color = sc.STUDY_COLORS[scheme]
@@ -164,7 +164,7 @@ def build_tevac(rows_n, n):
             ax.plot(i + offsets, values, ls="none", marker="o", ms=3.5, color="black", alpha=0.7)
         top = max([mean + err] + values)
         ax.annotate(f"{rec['n_completed']}/{rec['n_attempted']}", (i, top), ha="center",
-                    va="bottom", xytext=(0, 5), textcoords="offset points", fontsize=12)
+                    va="bottom", xytext=(0, 5), textcoords="offset points", fontsize=20)
     ax.set_xticks(range(len(table)))
     ax.set_xticklabels([LABELS[r["scheme"]] for r in table])
     ax.margins(y=0.14)
@@ -178,14 +178,14 @@ def build_walltime(rows_time_n, n):
     """Barras de wall-clock (un hilo) con SEM por esquema; n sobre cada barra."""
     apply_style()
     table = mf.walltime_table(rows_time_n, n)
-    fig, ax = plt.subplots(figsize=(5.0, 4.2))
+    fig, ax = plt.subplots(figsize=(8.0, 6.2))
     for i, rec in enumerate(table):
         color = sc.STUDY_COLORS[rec["scheme"]]
         mean = 0.0 if _is_nan(rec["wall_s_mean"]) else rec["wall_s_mean"]
         err = 0.0 if _is_nan(rec["wall_s_sem"]) else rec["wall_s_sem"]
         ax.bar(i, mean, width=0.6, color=color, alpha=0.55, yerr=err, capsize=4, edgecolor=color)
         ax.annotate(f"n={rec['n_completed']}", (i, mean + err), ha="center", va="bottom",
-                    xytext=(0, 5), textcoords="offset points", fontsize=12)
+                    xytext=(0, 5), textcoords="offset points", fontsize=20)
     ax.set_xticks(range(len(table)))
     ax.set_xticklabels([LABELS[r["scheme"]] for r in table])
     ax.margins(y=0.14)
@@ -206,7 +206,7 @@ def build_sweep(sweep_rows):
     apply_style()
     table = mf.sweep_table(sweep_rows)
     hybrid = [r for r in table if r["kind"] == "hybrid"]
-    fig, axes = plt.subplots(2, 1, sharex=True, figsize=(5.0, 6.0))
+    fig, axes = plt.subplots(2, 1, sharex=True, figsize=(8.0, 9.0))
     panels = (("wall_s_mean", "wall_s_sem", "Ejecución (s)"),
               ("t_evac_mean", "t_evac_sem", "Evacuación (s)"))
     pos = {r["T"]: i for i, r in enumerate(hybrid)}
@@ -244,7 +244,7 @@ def build_scale(rows, variant):
     apply_style()
     table = mf.scale_table(rows, variant)
     slopes = mf.scale_slopes(table)
-    fig, ax = plt.subplots(figsize=(5.0, 4.4))
+    fig, ax = plt.subplots(figsize=(8.0, 6.4))
     for scheme in sc.SCHEMES:
         pts = [r for r in table if r["scheme"] == scheme and not _is_nan(r["wall_s_mean"])]
         if not pts:
@@ -277,7 +277,7 @@ def build_scale(rows, variant):
         bottom = min(lows) / 1.6
         span = math.log10(max(tops) * 1.2 / bottom) / 0.64
         ax.set_ylim(bottom, bottom * 10.0 ** span)
-    ax.legend(loc="upper left", title="Pendiente log-log", title_fontsize=12)
+    ax.legend(loc="upper left", title="Pendiente log-log", title_fontsize=20)
     fig.tight_layout()
     return fig
 
@@ -292,7 +292,7 @@ def build_fraction(path):
     n = series["n"].astype(float)
     f_ts = series["n_tsdmd"] / n
     f_ed = series["n_edmd"] / n
-    fig, axes = plt.subplots(1, 2, figsize=(6.2, 3.6), sharey=True)
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 6.0), sharey=True)
     for ax, t_max in zip(axes, (None, FRAME_WINDOW[1])):
         sel = np.ones(t.shape, dtype=bool) if t_max is None else t <= t_max
         ax.step(t[sel], f_ts[sel], where="post", color=ts.SCHEME_COLORS[0],
@@ -339,7 +339,7 @@ def build_frame(path, t_frame):
             best = frame
     if best is None or abs(best.t - t_frame) > tol + 1e-9:
         raise ValueError(f"{path}: no hay frame a menos de {tol} s de t={t_frame}")
-    fig, ax = plt.subplots(figsize=(5.0, 5.2))
+    fig, ax = plt.subplots(figsize=(8.0, 7.2))
     animate.draw_frame(ax, best, header, path)
     ax.set_title("")
     ax.get_legend().remove()

@@ -190,7 +190,7 @@ class RealCsvTest(unittest.TestCase):
             tsdmd_row = next(ln for ln in text.splitlines() if ln.startswith("TSDMD") and "15/32" in ln)
             self.assertIn(r"(9.69 \pm 0.14)\times 10^{2}", tsdmd_row)
             self.assertIn("0.47", tsdmd_row)
-            self.assertIn(r"(2.12 \pm 0.09)\times 10^{2}", text)
+            self.assertIn(r"(2.13 \pm 0.09)\times 10^{2}", text)
             self.assertIn(r"(9.6 \pm 0.2)\times 10^{2}", text)
             self.assertIn(r"(1.57 \pm 0.03)\times 10^{2}", text)
             self.assertIn(r"(3.05 \pm 0.14)\times 10^{2}", text)

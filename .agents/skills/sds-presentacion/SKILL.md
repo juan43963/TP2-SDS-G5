@@ -66,6 +66,23 @@ Detalle y diapositivas de origen en [consultas_parisi.md §2-bis](references/con
 - **Cifras significativas** revisadas en todo valor.
 - **Conclusiones sin valores numéricos.**
 
+### Correcciones TP2 (nota 8) y TP5 anterior (nota 5,5) — checklist previo a entregar
+
+Detalle en [consultas_parisi.md §2-ter](references/consultas_parisi.md). **Prioridad máxima: código.**
+
+- **Observables SOLO en post-proceso.** El motor no calcula $v_a$, $S$, $t_{90}$, $t_{evac}$ ni nada derivado, ni corta la simulación por un observable (`--stop-at-t90` fue error grave). Los gráficos salen de las trayectorias / log de eventos; lo que imprima el motor solo sirve de control cruzado. Dos TP penalizados por esto.
+- **Integradores como la teórica:** fuerza con la última velocidad disponible, sin despejar en forma cerrada; sin métodos no pedidos; diapositiva = código.
+- **Barras de error en todo promedio**; decir con qué datos ($n$, ventana, solo completas) se promedia.
+- **Caso límite sin ruido** ($\eta=0$) en todos los modelos.
+- **UML de clases** en Implementación; el diagrama de bloques no lo reemplaza.
+- **Parámetros que son resultado no van como dato antes del estudio** ($\Delta t$); indicar rango de $N$.
+- **Sin tabla de corridas**, sin numerar estudios con ítems del enunciado, sin diapositivas decorativas ni saturadas de texto.
+- **Pendientes ajustadas: indicar el rango.** Umbrales de error dibujados en la figura.
+- **No duplicar figuras** proporcionales; **no declarar óptimos** con barras solapadas; menos instantes en figuras saturadas.
+- **Notación:** vectores en negrita, escalares en itálica; $\arctan$ vs $\arctan2$ coherente con el código.
+- **Conclusiones:** hechos, no métodos; incluir la del sistema/comparación principal; sin números.
+- **Informe:** máx. la mitad de 25 págs., texto propio (se detectó IA), nada fuera del enfoque pedido.
+
 ---
 
 ## 3. Flujo Dual de Compilación: PDF vs PPTX con Animaciones

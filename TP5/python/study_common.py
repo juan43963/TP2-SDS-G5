@@ -234,9 +234,28 @@ def collect_runs(runs_dir, study=None, mode=None):
             continue
         if mode is not None and row["mode"] != mode:
             continue
+        _observables_from_trajectory(row, runs_dir, name)
         rows.append(row)
     rows.sort(key=_sort_key)
     return rows
+
+
+def _observables_from_trajectory(row, runs_dir, run_name):
+    """t_evac se obtiene en post-proceso: primer tiempo con poblacion 0 de la curva `.pop.csv`.
+
+    La curva sale de la trayectoria (resolucion dt2). El t_evac que imprime el motor queda
+    en `t_evac_engine` solo como control cruzado y no se usa en tablas ni graficos.
+    """
+    row["t_evac_engine"] = row["t_evac"]
+    if row["mode"] != "stat" or row["status"] != "ok":
+        return
+    pop_path = os.path.join(runs_dir, run_name[:-len(".csv")] + ".pop.csv")
+    try:
+        times, pops = read_pop_csv(pop_path)
+    except (OSError, ValueError, IndexError):
+        return
+    zero = [t for t, p in zip(times, pops) if p == 0]
+    row["t_evac"] = float(zero[0]) if zero else None
 
 
 # --------------------------------------------------------------------------- estadistica

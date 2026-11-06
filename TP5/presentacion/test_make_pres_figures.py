@@ -149,7 +149,7 @@ class FigureRulesTest(unittest.TestCase):
             for ax in fig.axes:
                 for title in (ax.get_title(), ax.get_title("left"), ax.get_title("right")):
                     self.assertEqual(title, "", name)
-            self.assertLessEqual(fig.get_figwidth(), 6.2 + 1e-9, name)
+            self.assertLessEqual(fig.get_figwidth(), 11.0 + 1e-9, name)
             for text in all_texts(fig):
                 self.assertGreaterEqual(text.get_fontsize(), mp.MIN_FONT,
                                         f"{name}: {text.get_text()!r}")

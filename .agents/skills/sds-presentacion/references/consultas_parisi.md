@@ -102,3 +102,39 @@ Observaciones de Parisi sobre la entrega, convertidas en reglas generales. Cada 
 - **¿Por qué escala el tiempo de CPU con esa potencia?** (En colisiones: $N$ partículas, colisiones $\sim N^2$, costo de re-predicción $O(N)$ $\implies$ tiempo de CPU $\sim N^3$).
 - **¿Por qué no se usó Cell Index Method (CIM)?** (Evaluar si el sistema es suficientemente diluido o si $N \le 100$ hace que el overhead de una grilla supere el beneficio).
 - **¿Qué representa físicamente el error reportado?** (Diferencia clara entre dispersión intrínseca del sistema $\sigma$ y error estándar de la media $\sigma/\sqrt{n}$).
+
+---
+
+## 2-ter. Correcciones TP2 (nota 8) y TP5 anterior (nota 5,5)
+
+Segunda tanda de observaciones de Parisi. Aplican a presentación, informe y código. Las notas de TP2/TP3/TP5 de G5 fueron 8 / 6,5 / 5,5: el objetivo es no repetir ninguna.
+
+### Código: observables en post-proceso (el error más grave, apareció dos veces)
+1. **Ningún observable se calcula online.** Ni la polarización $v_a$, ni $S$, ni $t_{90}$, ni $t_{evac}$, ni la población: el motor solo escribe estados crudos (trayectorias / log de eventos) y los observables se obtienen en Python a partir de ellos. Las trayectorias se usan para calcular observables, no solo para animar (Teórica 0 y 1).
+2. **Prohibido cortar la simulación por un observable** (p. ej. `--stop-at-t90`, contar partículas "usadas" en el loop para frenar). Cortar por `t_max` o por condición física de fin (sala vacía) es aceptable; el valor del observable se lee después.
+3. **Prohibido que el motor imprima un observable derivado** en su resumen (`final_time`, `t90`, `evacuationTime`, `va`). Si existe en el motor, el post-proceso no puede usarlo como dato de los gráficos, solo como control cruzado.
+4. **Integradores como en la teórica** (Verlet original, Velocity Verlet, Beeman, Gear): evaluar la fuerza con la última velocidad disponible. No despejar la ecuación de forma cerrada aprovechando que la fuerza es lineal en $v$ (variante implícita no pedida; deja pendiente 4 en todos los métodos). No implementar métodos no pedidos (Gear de orden 5).
+5. **Coherencia diapositiva-código:** si la diapositiva muestra un esquema (p. ej. Verlet explícito), el código debe ser ese esquema. Si usan $\arctan$ en la diapo y $\arctan2$ en el código, decirlo.
+
+### Presentación
+6. **Notación:** escalares en itálica, vectores en negrita o con símbolo de vector; chequear consistencia entre fórmula y código.
+7. **Promedios y desvío:** mostrar claramente con qué datos se calculan (¿$n$ realizaciones? ¿qué ventana temporal? ¿solo completas?). Cada gráfico con $n$ distinto debe decirlo.
+8. **Barras de error en todos los gráficos de promedios.** Una diapositiva que dice "sólo el promedio" es un error. Si el error es invisible, decirlo.
+9. **Incluir el caso límite sin ruido / sin perturbación** ($\eta=0$ y similares) en *todos* los modelos comparados: muestra si el sistema llega a equilibrio. Que falte en un modelo llama la atención.
+10. **No incluir diapositivas decorativas** de contexto (p. ej. flocking en fenómenos naturales) ni UML ausente: el diagrama de bloques sirve como pseudocódigo pero **no reemplaza la descripción de la arquitectura** (UML de clases).
+11. **Parámetros que son resultado no se presentan como dato:** si $\Delta t$ (u otro) sale de un estudio, no aparece fijo antes del estudio. Indicar además el **rango de $N$**.
+12. **Diapositivas saturadas de texto (observables, censura):** dejar las ecuaciones y explicar el resto oralmente.
+13. **No va la tabla de corridas** (realizaciones por estudio, compilador, flags). Los rangos van en la diapositiva de simulación. Tampoco numerar los estudios con los ítems del enunciado (2.1a, 2.1b...).
+14. **Ajustes de pendiente:** indicar el **rango** donde se ajustó. Si la curva cambia de régimen (p. ej. el ECM sube para $\Delta t$ chico por redondeo) la leyenda "pendiente 4,00" es falsa si se ajustó todo.
+15. **Umbral explícito:** si una conclusión o un valor óptimo ($\Delta t^*$) depende de un umbral de error, el umbral se dibuja en la figura.
+16. **No duplicar figuras:** si dos ejes son proporcionales ($\rho\propto N$), es la misma curva reescalada; dejar una.
+17. **Óptimos con barras de error solapadas no son óptimos:** no declarar "óptimo en X" si las barras no lo distinguen del resto; no contradecirlo en conclusiones.
+18. **Figuras saturadas** (marcadores + líneas + barras de error en muchos instantes): mostrar menos instantes.
+19. **Curvas indistinguibles → informarlo en números**, y discutir por qué difieren (p. ej. $k_BT<mv_0^2/2$ porque parte de la energía queda como potencial en los contactos).
+20. **Conclusiones:** cada una es un hecho respaldado, no una descripción de método ("se integra con Verlet como pide el enunciado" no es conclusión), no menciona umbrales no mostrados, y **debe incluir la conclusión del sistema/comparación principal** (mejor integrador, mejor esquema).
+
+### Informe (si hay)
+21. Máximo la mitad de 25 páginas; sin figuras de más; análisis compactos.
+22. No desviarse a análisis no pedidos (p. ej. escalado del parámetro de orden con $N^{-1/2}$).
+23. Redacción propia: el texto escrito con IA fue detectado. Se puede usar, pero la palabra final es del grupo; releer y reescribir.
+24. No afirmar en el informe cosas sobre el código que el código no hace (p. ej. "los observables no se calculan en la simulación" cuando sí lo hacía).

@@ -7,17 +7,14 @@
   \small
   \begin{enumerate}
     \item El EDMD evacua la sala mucho más rápido que el TSDMD; el híbrido no se distingue del
-      TSDMD en el tiempo de evacuación.
-    \item $T = 0$ reproduce al EDMD y ningún $T > 0$ evaluable cambia el tiempo de evacuación
-      respecto del TSDMD.
+      TSDMD en el tiempo de evacuación, y ningún $T > 0$ evaluable lo cambia. Con $T$ nulo se reproduce
+      el EDMD.
     \item El costo de ejecución ordena TSDMD $<$ híbrido $<$ EDMD, inverso al del tiempo de
-      evacuación.
-    \item El híbrido no tiene colisiones duras; la auditoría no encontró contactos perdidos
-      ni solapes de residentes EDMD.
-    \item El híbrido se parece al TSDMD porque casi todos los agentes están en TSDMD
-      ($\approx 98\%$ con $T=0.5\un{s}$): la cola de la puerta es de contactos continuos.
-    \item El EDMD evacúa más rápido pero cuesta más de ejecutar; el híbrido no mejora al
-      TSDMD con los criterios probados.
+      evacuación: el híbrido no mejora al TSDMD con los criterios probados.
+    \item El híbrido se parece al TSDMD porque casi todos los agentes están en TSDMD: la cola de
+      la puerta es de contactos continuos.
+    \item El híbrido no tiene colisiones duras; la auditoría no encontró contactos perdidos ni
+      solapes de residentes EDMD.
     \item Para $N$ grande el escalado no separa los esquemas dentro del error.
   \end{enumerate}
 \end{frame}

@@ -18,7 +18,7 @@ PLAN = {
     "hyb_contactos": ("B", 45), "sim_sistema": ("B", 25), "sim_observables": ("B", 40),
     "sim_realizaciones": ("B", 25), "res_anim": ("C", 35), "res_fraccion": ("C", 30),
     "res_poblacion": ("C", 30), "res_tevac": ("C", 40), "res_walltime": ("C", 30),
-    "res_sweep": ("C", 40), "res_explora": ("C", 25), "res_scale_a": ("C", 25), "res_scale_b": ("C", 25),
+    "res_sweep": ("C", 40), "res_scale_a": ("C", 25), "res_scale_b": ("C", 25),
     "concl": ("A", 40), "gracias": ("A", 3),
 }
 SECTION_BEFORE = {
@@ -112,15 +112,15 @@ class LintTest(unittest.TestCase):
     def test_valid_deck_has_no_problems(self):
         res = self.lint(build_deck())
         self.assertEqual([(p.rule, p.detail) for p in res.problems], [])
-        self.assertEqual(res.stats["frames"], 25)
-        self.assertEqual(res.stats["time"], 775)
-        self.assertEqual((res.stats["A"], res.stats["B"], res.stats["C"]), (245, 240, 280))
+        self.assertEqual(res.stats["frames"], 24)
+        self.assertEqual(res.stats["time"], 750)
+        self.assertEqual((res.stats["A"], res.stats["B"], res.stats["C"]), (245, 240, 255))
         self.assertEqual(res.stats["hyb"], 150)
 
     def test_format_reports_hyb_and_voices(self):
         res = self.lint(build_deck())
         line = ld.format_result(res, False)[-1]
-        self.assertTrue(line.startswith("LINT OK frames=25 time=775s A=245 B=240 C=280 hyb=150s"))
+        self.assertTrue(line.startswith("LINT OK frames=24 time=750s A=245 B=240 C=255 hyb=150s"))
 
     # --- forma ---------------------------------------------------------------------
     def test_unclosed_frame(self):

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  4 NOV 2026 19:44
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  6 NOV 2026 09:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1306,106 +1306,97 @@ LaTeX Font Warning: Font shape `T1/cmss/b/n' undefined
 ]) [18
 
 ] (secciones/04_resultados.tex
-<figuras/frame_tsdmd.png, id=1317, 361.35pt x 375.804pt>
+<figuras/frame_tsdmd.png, id=1283, 578.16pt x 520.344pt>
 File: figuras/frame_tsdmd.png Graphic file (type png)
 <use figuras/frame_tsdmd.png>
 Package pdftex.def Info: figuras/frame_tsdmd.png  used on input line 37.
-(pdftex.def)             Requested size: 104.21902pt x 108.384pt.
-<figuras/frame_edmd.png, id=1319, 361.35pt x 375.804pt>
+(pdftex.def)             Requested size: 104.21902pt x 93.79285pt.
+<figuras/frame_edmd.png, id=1285, 578.16pt x 520.344pt>
 File: figuras/frame_edmd.png Graphic file (type png)
 <use figuras/frame_edmd.png>
 Package pdftex.def Info: figuras/frame_edmd.png  used on input line 37.
-(pdftex.def)             Requested size: 104.21902pt x 108.384pt.
-<figuras/frame_hybrid.png, id=1320, 361.35pt x 375.804pt>
+(pdftex.def)             Requested size: 104.21902pt x 93.79285pt.
+<figuras/frame_hybrid.png, id=1286, 578.16pt x 520.344pt>
 File: figuras/frame_hybrid.png Graphic file (type png)
 <use figuras/frame_hybrid.png>
 Package pdftex.def Info: figuras/frame_hybrid.png  used on input line 37.
-(pdftex.def)             Requested size: 104.21902pt x 108.384pt.
+(pdftex.def)             Requested size: 104.21902pt x 93.79285pt.
 
 [19
 
  <./figuras/frame_tsdmd.png> <./figuras/frame_edmd.png> <./figuras/frame_hybrid
 .png>]
-<figuras/pres_fraction.png, id=1398, 448.074pt x 260.172pt>
+<figuras/pres_fraction.png, id=1362, 794.97pt x 433.62pt>
 File: figuras/pres_fraction.png Graphic file (type png)
 <use figuras/pres_fraction.png>
 Package pdftex.def Info: figuras/pres_fraction.png  used on input line 52.
-(pdftex.def)             Requested size: 277.34491pt x 161.03897pt.
+(pdftex.def)             Requested size: 277.34602pt x 151.27965pt.
  [20
 
  <./figuras/pres_fraction.png>]
-<figuras/pres_population.png, id=1472, 361.35pt x 289.08pt>
+<figuras/pres_population.png, id=1434, 578.16pt x 433.62pt>
 File: figuras/pres_population.png Graphic file (type png)
 <use figuras/pres_population.png>
 Package pdftex.def Info: figuras/pres_population.png  used on input line 70.
-(pdftex.def)             Requested size: 230.16597pt x 184.13277pt.
+(pdftex.def)             Requested size: 245.51625pt x 184.13719pt.
  [21
 
  <./figuras/pres_population.png>]
-<figuras/pres_tevac.png, id=1546, 361.35pt x 303.534pt>
+<figuras/pres_tevac.png, id=1506, 578.16pt x 448.074pt>
 File: figuras/pres_tevac.png Graphic file (type png)
 <use figuras/pres_tevac.png>
 Package pdftex.def Info: figuras/pres_tevac.png  used on input line 86.
-(pdftex.def)             Requested size: 173.33575pt x 145.60202pt.
+(pdftex.def)             Requested size: 199.3419pt x 154.48997pt.
  [22
 
  <./figuras/pres_tevac.png>]
-<figuras/pres_walltime.png, id=1620, 361.35pt x 303.534pt>
+<figuras/pres_walltime.png, id=1578, 578.16pt x 448.074pt>
 File: figuras/pres_walltime.png Graphic file (type png)
 <use figuras/pres_walltime.png>
 Package pdftex.def Info: figuras/pres_walltime.png  used on input line 101.
-(pdftex.def)             Requested size: 173.33575pt x 145.60202pt.
+(pdftex.def)             Requested size: 199.3419pt x 154.48997pt.
  [23
 
  <./figuras/pres_walltime.png>]
-<figuras/pres_sweep_T.png, id=1694, 361.35pt x 433.62pt>
+<figuras/pres_sweep_T.png, id=1650, 578.16pt x 650.43pt>
 File: figuras/pres_sweep_T.png Graphic file (type png)
 <use figuras/pres_sweep_T.png>
 Package pdftex.def Info: figuras/pres_sweep_T.png  used on input line 123.
-(pdftex.def)             Requested size: 153.44766pt x 184.13719pt.
+(pdftex.def)             Requested size: 163.67456pt x 184.13388pt.
  [24
 
  <./figuras/pres_sweep_T.png>]
-<figuras/pres_explora.png, id=1768, 448.074pt x 317.988pt>
-File: figuras/pres_explora.png Graphic file (type png)
-<use figuras/pres_explora.png>
-Package pdftex.def Info: figuras/pres_explora.png  used on input line 146.
-(pdftex.def)             Requested size: 234.00485pt x 166.06796pt.
- [25
-
- <./figuras/pres_explora.png>]
-<figuras/pres_scale_a.png, id=1843, 361.35pt x 317.988pt>
+<figuras/pres_scale_a.png, id=1722, 578.16pt x 462.528pt>
 File: figuras/pres_scale_a.png Graphic file (type png)
 <use figuras/pres_scale_a.png>
-Package pdftex.def Info: figuras/pres_scale_a.png  used on input line 160.
-(pdftex.def)             Requested size: 199.34412pt x 175.4228pt.
- [26
+Package pdftex.def Info: figuras/pres_scale_a.png  used on input line 137.
+(pdftex.def)             Requested size: 230.16597pt x 184.13277pt.
+ [25
 
  <./figuras/pres_scale_a.png>]
-<figuras/pres_scale_b.png, id=1917, 361.35pt x 317.988pt>
+<figuras/pres_scale_b.png, id=1795, 578.16pt x 462.528pt>
 File: figuras/pres_scale_b.png Graphic file (type png)
 <use figuras/pres_scale_b.png>
-Package pdftex.def Info: figuras/pres_scale_b.png  used on input line 174.
-(pdftex.def)             Requested size: 199.34412pt x 175.4228pt.
- [27
+Package pdftex.def Info: figuras/pres_scale_b.png  used on input line 151.
+(pdftex.def)             Requested size: 230.16597pt x 184.13277pt.
+ [26
 
- <./figuras/pres_scale_b.png>]) [28
+ <./figuras/pres_scale_b.png>]) [27
 
-] (secciones/05_concl.tex
-[29
+] (secciones/05_concl.tex [28
 
-] [30
+] [29
 
-]) [31
+]) [30
+
+] [31
 
 ] [32
-
-] [33
 
 ]
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
 (Font)              Font shape `T1/cmtt/m/n' tried instead on input line 212.
- [34
+ [33
 
 ]
 \tf@nav=\write6
@@ -1417,7 +1408,8 @@ LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
 \tf@snm=\write8
 \openout8 = `presentacion.snm'.
 
- (presentacion.aux
+
+(presentacion.aux
 LaTeX Info: Redefining \. on input line 8.
 LaTeX Info: Redefining \% on input line 8.
 )
@@ -1433,10 +1425,10 @@ Package rerunfilecheck Info: File `presentacion.out' has not changed.
 (rerunfilecheck)             Checksum: 79CA4A8A7EC16C9D42FB8187F9F65D58;605.
  ) 
 Here is how much of TeX's memory you used:
- 28828 strings out of 467871
- 597255 string characters out of 5413500
- 1014204 words of memory out of 5000000
- 57009 multiletter control sequences out of 15000+600000
+ 28815 strings out of 467871
+ 596960 string characters out of 5413500
+ 1012772 words of memory out of 5000000
+ 56998 multiletter control sequences out of 15000+600000
  661443 words of font info for 118 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,19n,123p,389b,1076s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1490,9 +1482,9 @@ amsfonts/cm/cmsy10.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/
 fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/Lucas Di Candia/AppData/Loca
 l/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Lucas Di C
 andia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb>
-Output written on presentacion.pdf (34 pages, 1301456 bytes).
+Output written on presentacion.pdf (33 pages, 1669457 bytes).
 PDF statistics:
- 2950 PDF objects out of 2984 (max. 8388607)
- 75 named destinations out of 1000 (max. 500000)
- 188 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 2817 PDF objects out of 2984 (max. 8388607)
+ 73 named destinations out of 1000 (max. 500000)
+ 183 words of extra memory for PDF output out of 10000 (max. 10000000)
 
