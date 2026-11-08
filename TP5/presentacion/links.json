@@ -15,6 +15,16 @@
       "title": "Evacuación N = 500, híbrido EDMD + TSDMD, semilla 18",
       "mp4": "data/studies/anim/hybrid_N500_s18.mp4",
       "url": null
+    },
+    "kappa_n500": {
+      "title": "Evacuación N = 500, TSDMD con y sin rozamiento tangencial, semilla 2",
+      "mp4": "data/anim_kappa/evac_con_vs_sin_rozamiento.mp4",
+      "url": null
+    },
+    "eventos_edmd": {
+      "title": "Tipos de evento del EDMD (mini-simulación didáctica)",
+      "mp4": "data/anim_eventos/eventos.mp4",
+      "url": null
     }
   }
 }

@@ -32,7 +32,7 @@ PRES_DIR = Path(__file__).resolve().parent
 LINKS_PATH = PRES_DIR / "links.json"
 TEX_PATH = PRES_DIR / "links.tex"
 
-CASE_IDS = ("tsdmd_n500", "edmd_n500", "hybrid_n500")
+CASE_IDS = ("tsdmd_n500", "edmd_n500", "hybrid_n500", "kappa_n500", "eventos_edmd")
 ALLOWED_HOSTS = (
     "youtu.be",
     "youtube.com",
@@ -94,7 +94,7 @@ def check_url(url) -> str | None:
 
 
 def load(path=None) -> dict:
-    """Lee links.json y exige el esquema (version 1, exactamente los tres ids)."""
+    """Lee links.json y exige el esquema (version 1, exactamente los ids de CASE_IDS)."""
     path = Path(LINKS_PATH if path is None else path)
     data = json.loads(path.read_text(encoding="utf-8"))
     if data.get("version") != 1:

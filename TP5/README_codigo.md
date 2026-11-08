@@ -151,7 +151,7 @@ tras un choque frontal las rapideces vuelven a 1.5 m/s con error menor que 5e-3.
 | `--max-placement-attempts` | - | 100000 | intentos por agente del generador |
 | `--vd` | m/s | 1.5 | velocidad deseada |
 | `--k` | kg/s^2 | 1.2e5 | rigidez del contacto |
-| `--kappa` | kg/(m s) | 2.4e5 | friccion tangencial |
+| `--kappa` | kg/(m s) | 2.4e5 | friccion tangencial; `0` la desactiva (SFM solo con contacto normal, opcional del enunciado) |
 | `--mass` | kg | 80 | masa del agente |
 | `--tau` | s | 0.5 | tiempo de relajacion |
 | `--scheme` | - | tsdmd | `tsdmd`, `edmd` (Fase 7) o `hybrid` (Fase 8) |

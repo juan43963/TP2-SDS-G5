@@ -54,7 +54,7 @@ class ValidateTest(unittest.TestCase):
         self.assertEqual(links.validate(_all_null()), [])
 
     def test_final_blocks_nulls(self):
-        self.assertEqual(len(links.validate(_all_null(), require_final=True)), 3)
+        self.assertEqual(len(links.validate(_all_null(), require_final=True)), 5)
 
     def test_final_ok_when_all_set(self):
         data = _all_null()
@@ -78,7 +78,7 @@ class EmitTexTest(unittest.TestCase):
         self.assertIn("\\expandafter\\urldef\\csname linkurl@edmd_n500\\endcsname\\url{"
                       + GOOD_YT + "}", text)
         self.assertIn("PENDIENTE subir video hybrid\\_n500", text)
-        self.assertEqual(len([ln for ln in text.splitlines() if "PENDIENTE" in ln]), 2)
+        self.assertEqual(len([ln for ln in text.splitlines() if "PENDIENTE" in ln]), 4)
         for cid in links.CASE_IDS:
             self.assertIn(f"linkurl@{cid}\\endcsname", text)
 
@@ -111,7 +111,7 @@ class SetRoundTripTest(unittest.TestCase):
             with contextlib.redirect_stdout(out):
                 self.assertEqual(links.main(["--links", str(jpath), "--tex", str(tpath),
                                              "--check"]), 0)
-            self.assertIn("pending=2", out.getvalue())
+            self.assertIn("pending=4", out.getvalue())
 
     def test_set_rejects_bad_url_without_writing(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -141,8 +141,8 @@ class SetRoundTripTest(unittest.TestCase):
 
 
 class RegistryConsistencyTest(unittest.TestCase):
-    def test_committed_json_has_three_ids(self):
-        self.assertEqual(list(links.load()["videos"]), ["tsdmd_n500", "edmd_n500", "hybrid_n500"])
+    def test_committed_json_has_all_ids(self):
+        self.assertEqual(list(links.load()["videos"]), ["tsdmd_n500", "edmd_n500", "hybrid_n500", "kappa_n500", "eventos_edmd"])
 
     def test_committed_tex_is_current(self):
         self.assertEqual(links.TEX_PATH.read_text(encoding="utf-8"), links.emit_tex(links.load()))

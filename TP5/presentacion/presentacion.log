@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  6 NOV 2026 09:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  7 NOV 2026 23:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1058,7 +1058,7 @@ dlayer/tikz/libraries\tikzlibrarydecorations.code.tex
 )
 (C:\Users\Lucas Di Candia\AppData\Local\Programs\MiKTeX\tex/generic/pgf/librari
 es/decorations\pgflibrarydecorations.pathreplacing.code.tex)) (links.tex)
-(tablas.tex) (tabla_explorar.tex) (frame_t.tex)
+(tablas.tex) (tabla_explorar.tex) (tabla_kappa0.tex) (frame_t.tex)
 (C:\Users\Lucas Di Candia\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3b
 ackend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
@@ -1071,24 +1071,24 @@ Package babel Info: 'spanish' activates 'spanish' shorthands.
 )
 \openout1 = `presentacion.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 109.
-LaTeX Font Info:    ... okay on input line 109.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 109.
-LaTeX Font Info:    ... okay on input line 109.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 109.
-LaTeX Font Info:    ... okay on input line 109.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 109.
-LaTeX Font Info:    ... okay on input line 109.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 109.
-LaTeX Font Info:    ... okay on input line 109.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 109.
-LaTeX Font Info:    ... okay on input line 109.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 109.
-LaTeX Font Info:    ... okay on input line 109.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 109.
-LaTeX Font Info:    ... okay on input line 109.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 109.
-LaTeX Font Info:    ... okay on input line 109.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 110.
+LaTeX Font Info:    ... okay on input line 110.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 110.
+LaTeX Font Info:    ... okay on input line 110.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 110.
+LaTeX Font Info:    ... okay on input line 110.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 110.
+LaTeX Font Info:    ... okay on input line 110.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 110.
+LaTeX Font Info:    ... okay on input line 110.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 110.
+LaTeX Font Info:    ... okay on input line 110.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 110.
+LaTeX Font Info:    ... okay on input line 110.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 110.
+LaTeX Font Info:    ... okay on input line 110.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 110.
+LaTeX Font Info:    ... okay on input line 110.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -1150,69 +1150,69 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 opdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 109.
+Package hyperref Info: Link coloring OFF on input line 110.
  (presentacion.out) (presentacion.out)
 \@outlinefile=\write5
 \openout5 = `presentacion.out'.
 
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmr/m/n --> OT1/cmss/m/n on input line 109.
+(Font)                  OT1/cmr/m/n --> OT1/cmss/m/n on input line 110.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 109.
+(Font)                  OT1/cmr/bx/n --> OT1/cmss/b/n on input line 110.
 \symnumbers=\mathgroup6
 \sympureletters=\mathgroup7
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
-(Font)                  OT1/cmss/m/n --> T1/cmr/m/n on input line 109.
-LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 109.
+(Font)                  OT1/cmss/m/n --> T1/cmr/m/n on input line 110.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> T1/cmss/b/n on input line 109.
+(Font)                  OT1/cmr/bx/n --> T1/cmss/b/n on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/cmr/bx/n --> T1/cmss/b/n on input line 109.
-LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 109.
+(Font)                  OT1/cmr/bx/n --> T1/cmss/b/n on input line 110.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> T1/cmss/m/n on input line 109.
+(Font)                  OT1/cmss/m/n --> T1/cmss/m/n on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> T1/cmss/m/n on input line 109.
-LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 109.
+(Font)                  OT1/cmss/bx/n --> T1/cmss/m/n on input line 110.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> T1/cmss/m/it on input line 109.
+(Font)                  OT1/cmr/m/it --> T1/cmss/m/it on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmr/bx/it --> T1/cmss/m/it on input line 109.
-LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 109.
+(Font)                  OT1/cmr/bx/it --> T1/cmss/m/it on input line 110.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> T1/cmtt/m/n on input line 109.
+(Font)                  OT1/cmtt/m/n --> T1/cmtt/m/n on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> T1/cmtt/m/n on input line 109.
+(Font)                  OT1/cmtt/m/n --> T1/cmtt/m/n on input line 110.
 LaTeX Font Info:    Overwriting symbol font `numbers' in version `bold'
-(Font)                  T1/cmss/m/n --> T1/cmss/b/n on input line 109.
+(Font)                  T1/cmss/m/n --> T1/cmss/b/n on input line 110.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  T1/cmss/m/it --> T1/cmss/b/it on input line 109.
+(Font)                  T1/cmss/m/it --> T1/cmss/b/it on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `bold'
-(Font)                  OT1/cmss/b/n --> T1/cmr/b/n on input line 109.
+(Font)                  OT1/cmss/b/n --> T1/cmr/b/n on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  T1/cmss/b/n --> T1/cmss/b/n on input line 109.
+(Font)                  T1/cmss/b/n --> T1/cmss/b/n on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  T1/cmss/m/n --> T1/cmss/b/n on input line 109.
+(Font)                  T1/cmss/m/n --> T1/cmss/b/n on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  T1/cmss/m/it --> T1/cmss/b/it on input line 109.
+(Font)                  T1/cmss/m/it --> T1/cmss/b/it on input line 110.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  T1/cmtt/m/n --> T1/cmtt/b/n on input line 109.
-LaTeX Font Info:    Redeclaring symbol font `pureletters' on input line 109.
+(Font)                  T1/cmtt/m/n --> T1/cmtt/b/n on input line 110.
+LaTeX Font Info:    Redeclaring symbol font `pureletters' on input line 110.
 LaTeX Font Info:    Encoding `T1' has changed to `OT1' for symbol font
-(Font)              `pureletters' in the math version `normal' on input line 10
-9.
+(Font)              `pureletters' in the math version `normal' on input line 11
+0.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `normal'
-(Font)                  T1/cmss/m/it --> OT1/mathkerncmss/m/sl on input line 10
-9.
+(Font)                  T1/cmss/m/it --> OT1/mathkerncmss/m/sl on input line 11
+0.
 LaTeX Font Info:    Encoding `T1' has changed to `OT1' for symbol font
-(Font)              `pureletters' in the math version `bold' on input line 109.
+(Font)              `pureletters' in the math version `bold' on input line 110.
 
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
-(Font)                  T1/cmss/b/it --> OT1/mathkerncmss/m/sl on input line 10
-9.
+(Font)                  T1/cmss/b/it --> OT1/mathkerncmss/m/sl on input line 11
+0.
 LaTeX Font Info:    Overwriting symbol font `pureletters' in version `bold'
 (Font)                  OT1/mathkerncmss/m/sl --> OT1/mathkerncmss/bx/sl on inp
-ut line 109.
+ut line 110.
 
 (C:\Users\Lucas Di Candia\AppData\Local\Programs\MiKTeX\tex/latex/translator\tr
 anslator-basic-dictionary-English.dict
@@ -1238,8 +1238,8 @@ Dictionary: translator-numbers-dictionary, Language: English
 anslator-theorem-dictionary-English.dict
 Dictionary: translator-theorem-dictionary, Language: English 
 )
-LaTeX Info: Redefining \. on input line 109.
-LaTeX Info: Redefining \% on input line 109.
+LaTeX Info: Redefining \. on input line 110.
+LaTeX Info: Redefining \% on input line 110.
  (presentacion.nav) [1
 
 {C:/Users/Lucas Di Candia/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2
@@ -1286,117 +1286,142 @@ LaTeX Font Warning: Font shape `T1/cmss/b/n' undefined
 
 ] [9
 
-] [10
+]
+<figuras/frame_eventos.png, id=756, 1154.3125pt x 642.4pt>
+File: figuras/frame_eventos.png Graphic file (type png)
+<use figuras/frame_eventos.png>
+Package pdftex.def Info: figuras/frame_eventos.png  used on input line 114.
+(pdftex.def)             Requested size: 283.59283pt x 157.82558pt.
+ [10
 
-] [11
+ <./figuras/frame_eventos.png>] [11
 
 ] [12
 
 ] [13
 
-]) [14
+] [14
 
-]
-(secciones/03_sim.tex [15
+]) [15
 
-] [16
+] (secciones/03_sim.tex [16
 
 ] [17
 
-]) [18
+] [18
 
-] (secciones/04_resultados.tex
-<figuras/frame_tsdmd.png, id=1283, 578.16pt x 520.344pt>
+]) [19
+
+]
+(secciones/04_resultados.tex
+<figuras/frame_tsdmd.png, id=1465, 578.16pt x 520.344pt>
 File: figuras/frame_tsdmd.png Graphic file (type png)
 <use figuras/frame_tsdmd.png>
 Package pdftex.def Info: figuras/frame_tsdmd.png  used on input line 37.
 (pdftex.def)             Requested size: 104.21902pt x 93.79285pt.
-<figuras/frame_edmd.png, id=1285, 578.16pt x 520.344pt>
+<figuras/frame_edmd.png, id=1466, 578.16pt x 520.344pt>
 File: figuras/frame_edmd.png Graphic file (type png)
 <use figuras/frame_edmd.png>
 Package pdftex.def Info: figuras/frame_edmd.png  used on input line 37.
 (pdftex.def)             Requested size: 104.21902pt x 93.79285pt.
-<figuras/frame_hybrid.png, id=1286, 578.16pt x 520.344pt>
+<figuras/frame_hybrid.png, id=1467, 578.16pt x 520.344pt>
 File: figuras/frame_hybrid.png Graphic file (type png)
 <use figuras/frame_hybrid.png>
 Package pdftex.def Info: figuras/frame_hybrid.png  used on input line 37.
 (pdftex.def)             Requested size: 104.21902pt x 93.79285pt.
-
-[19
+ [20
 
  <./figuras/frame_tsdmd.png> <./figuras/frame_edmd.png> <./figuras/frame_hybrid
 .png>]
-<figuras/pres_fraction.png, id=1362, 794.97pt x 433.62pt>
+<figuras/pres_fraction.png, id=1548, 794.97pt x 433.62pt>
 File: figuras/pres_fraction.png Graphic file (type png)
 <use figuras/pres_fraction.png>
 Package pdftex.def Info: figuras/pres_fraction.png  used on input line 52.
 (pdftex.def)             Requested size: 277.34602pt x 151.27965pt.
- [20
+ [21
 
  <./figuras/pres_fraction.png>]
-<figuras/pres_population.png, id=1434, 578.16pt x 433.62pt>
+<figuras/pres_population.png, id=1626, 578.16pt x 433.62pt>
 File: figuras/pres_population.png Graphic file (type png)
 <use figuras/pres_population.png>
 Package pdftex.def Info: figuras/pres_population.png  used on input line 70.
 (pdftex.def)             Requested size: 245.51625pt x 184.13719pt.
- [21
+
+[22
 
  <./figuras/pres_population.png>]
-<figuras/pres_tevac.png, id=1506, 578.16pt x 448.074pt>
+<figuras/pres_tevac.png, id=1704, 578.16pt x 448.074pt>
 File: figuras/pres_tevac.png Graphic file (type png)
 <use figuras/pres_tevac.png>
 Package pdftex.def Info: figuras/pres_tevac.png  used on input line 86.
 (pdftex.def)             Requested size: 199.3419pt x 154.48997pt.
- [22
+ [23
 
  <./figuras/pres_tevac.png>]
-<figuras/pres_walltime.png, id=1578, 578.16pt x 448.074pt>
+<figuras/pres_walltime.png, id=1782, 578.16pt x 448.074pt>
 File: figuras/pres_walltime.png Graphic file (type png)
 <use figuras/pres_walltime.png>
 Package pdftex.def Info: figuras/pres_walltime.png  used on input line 101.
 (pdftex.def)             Requested size: 199.3419pt x 154.48997pt.
- [23
+ [24
 
  <./figuras/pres_walltime.png>]
-<figuras/pres_sweep_T.png, id=1650, 578.16pt x 650.43pt>
+<figuras/pres_sweep_T.png, id=1860, 578.16pt x 650.43pt>
 File: figuras/pres_sweep_T.png Graphic file (type png)
 <use figuras/pres_sweep_T.png>
 Package pdftex.def Info: figuras/pres_sweep_T.png  used on input line 123.
 (pdftex.def)             Requested size: 163.67456pt x 184.13388pt.
- [24
+ [25
 
  <./figuras/pres_sweep_T.png>]
-<figuras/pres_scale_a.png, id=1722, 578.16pt x 462.528pt>
+<figuras/pres_scale_a.png, id=1939, 578.16pt x 462.528pt>
 File: figuras/pres_scale_a.png Graphic file (type png)
 <use figuras/pres_scale_a.png>
 Package pdftex.def Info: figuras/pres_scale_a.png  used on input line 137.
 (pdftex.def)             Requested size: 230.16597pt x 184.13277pt.
- [25
+ [26
 
  <./figuras/pres_scale_a.png>]
-<figuras/pres_scale_b.png, id=1795, 578.16pt x 462.528pt>
+<figuras/pres_scale_b.png, id=2017, 578.16pt x 462.528pt>
 File: figuras/pres_scale_b.png Graphic file (type png)
 <use figuras/pres_scale_b.png>
 Package pdftex.def Info: figuras/pres_scale_b.png  used on input line 151.
 (pdftex.def)             Requested size: 230.16597pt x 184.13277pt.
- [26
+ [27
 
- <./figuras/pres_scale_b.png>]) [27
+ <./figuras/pres_scale_b.png>]
+<figuras/pres_kappa0.png, id=2095, 578.16pt x 433.62pt>
+File: figuras/pres_kappa0.png Graphic file (type png)
+<use figuras/pres_kappa0.png>
+Package pdftex.def Info: figuras/pres_kappa0.png  used on input line 174.
+(pdftex.def)             Requested size: 199.3419pt x 149.50642pt.
+ [28
 
-] (secciones/05_concl.tex [28
+ <./figuras/pres_kappa0.png>]
+<figuras/frame_kappa0.png, id=2174, 803.0pt x 471.7625pt>
+File: figuras/frame_kappa0.png Graphic file (type png)
+<use figuras/frame_kappa0.png>
+Package pdftex.def Info: figuras/frame_kappa0.png  used on input line 185.
+(pdftex.def)             Requested size: 268.67117pt x 157.84885pt.
+ [29
 
-] [29
+ <./figuras/frame_kappa0.png>]) [30
 
-]) [30
-
-] [31
+] (secciones/05_concl.tex [31
 
 ] [32
 
+])
+[33
+
+] [34
+
+] [35
+
 ]
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 212.
- [33
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 213.
+ [36
 
 ]
 \tf@nav=\write6
@@ -1408,8 +1433,7 @@ LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <9> not available
 \tf@snm=\write8
 \openout8 = `presentacion.snm'.
 
-
-(presentacion.aux
+ (presentacion.aux
 LaTeX Info: Redefining \. on input line 8.
 LaTeX Info: Redefining \% on input line 8.
 )
@@ -1425,23 +1449,23 @@ Package rerunfilecheck Info: File `presentacion.out' has not changed.
 (rerunfilecheck)             Checksum: 79CA4A8A7EC16C9D42FB8187F9F65D58;605.
  ) 
 Here is how much of TeX's memory you used:
- 28815 strings out of 467871
- 596960 string characters out of 5413500
- 1012772 words of memory out of 5000000
- 56998 multiletter control sequences out of 15000+600000
+ 28863 strings out of 467871
+ 598075 string characters out of 5413500
+ 1016336 words of memory out of 5000000
+ 57037 multiletter control sequences out of 15000+600000
  661443 words of font info for 118 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,19n,123p,389b,1076s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\Lucas Di Candia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/d
 pi600\ecsi0900.pk> <C:\Users\Lucas Di Candia\AppData\Local\MiKTeX\fonts/pk/ljfo
 ur/jknappen/ec/dpi600\ecso0900.pk> <C:\Users\Lucas Di Candia\AppData\Local\MiKT
-eX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt0900.pk> <C:\Users\Lucas Di Candia\Ap
-pData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecsi1000.pk> <C:\Users\Lu
+eX\fonts/pk/ljfour/jknappen/ec/dpi600\ecsi1000.pk> <C:\Users\Lucas Di Candia\Ap
+pData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt0900.pk> <C:\Users\Lu
 cas Di Candia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecsx0900.
 pk> <C:\Users\Lucas Di Candia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/
 dpi600\ecrm0600.pk> <C:\Users\Lucas Di Candia\AppData\Local\MiKTeX\fonts/pk/ljf
-our/jknappen/ec/dpi600\ecrm0900.pk> <C:\Users\Lucas Di Candia\AppData\Local\MiK
-TeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm0800.pk> <C:\Users\Lucas Di Candia\A
+our/jknappen/ec/dpi600\ecrm0800.pk> <C:\Users\Lucas Di Candia\AppData\Local\MiK
+TeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm0900.pk> <C:\Users\Lucas Di Candia\A
 ppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecss0900.pk> <C:\Users\L
 ucas Di Candia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecsx0800
 .pk> <C:\Users\Lucas Di Candia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
@@ -1482,9 +1506,9 @@ amsfonts/cm/cmsy10.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/
 fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/Lucas Di Candia/AppData/Loca
 l/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Lucas Di C
 andia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb>
-Output written on presentacion.pdf (33 pages, 1669457 bytes).
+Output written on presentacion.pdf (36 pages, 1903366 bytes).
 PDF statistics:
- 2817 PDF objects out of 2984 (max. 8388607)
- 73 named destinations out of 1000 (max. 500000)
- 183 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 3219 PDF objects out of 3580 (max. 8388607)
+ 79 named destinations out of 1000 (max. 500000)
+ 198 words of extra memory for PDF output out of 10000 (max. 10000000)
 

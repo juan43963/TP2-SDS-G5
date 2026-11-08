@@ -149,3 +149,37 @@
     \end{column}
   \end{columns}
 \end{frame}
+
+% SLIDE extra_kappa0 | V:C | T:20
+\begin{frame}{Estudio extra: SFM sin rozamiento tangencial}
+  \begin{columns}[c]
+    \begin{column}{0.46\textwidth}
+      \includegraphics[width=\linewidth,height=0.84\textheight,keepaspectratio]{pres_kappa0.png}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \resizebox{\linewidth}{!}{\tablaKappa}
+
+      \vspace{4pt}
+      \params{$N = 500$, $L = 50\un{m}$, $T = 0.5\un{s}$, $\alpha = 2$, \texttt{--kappa 0}.
+      Promedios solo sobre corridas completas.}
+
+      \vspace{4pt}
+      \small
+      \begin{itemize}
+        \item Sin rozamiento, 13 de 14 corridas evacúan, contra 15 de 32 con $\kappa > 0$.
+        \item El $t_{evac}$ del híbrido no se distingue del TSDMD.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% SLIDE extra_kappa0_anim | V:C | T:8
+\begin{frame}{Estudio extra: animación con y sin rozamiento}
+  \centering
+  \animacion{kappa_n500}{\includegraphics[width=0.62\linewidth]{frame_kappa0.png}}
+
+  \soloentrega{\videolink{kappa_n500}}
+  \vfill
+  \params{$N = 500$, $L = 50\un{m}$, semilla 2, TSDMD; $t = 60\un{s}$.
+  Izquierda: $\kappa = 2.4\times 10^{5}$; derecha: $\kappa = 0$.}
+\end{frame}

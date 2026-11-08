@@ -35,18 +35,18 @@ DEFAULT_TEX = PRES_DIR / "presentacion.tex"
 SLIDE_IDS = (
     "title",
     "intro_real", "intro_sfm",
-    "impl_arquitectura", "impl_uml", "impl_tsdmd", "impl_edmd", "impl_colision",
+    "impl_arquitectura", "impl_uml", "impl_tsdmd", "impl_edmd", "impl_eventos", "impl_colision",
     "hyb_criterio", "hyb_sync", "hyb_contactos",
     "sim_sistema", "sim_observables", "sim_realizaciones",
     "res_anim", "res_fraccion", "res_poblacion", "res_tevac", "res_walltime", "res_sweep",
-    "res_scale_a", "res_scale_b",
+    "res_scale_a", "res_scale_b", "extra_kappa0", "extra_kappa0_anim",
     "concl", "gracias",
 )
 SECTIONS = ("Introducción", "Implementación", "Simulaciones", "Resultados", "Conclusiones")
 SECTION_OF = {
     "intro_real": "Introducción", "intro_sfm": "Introducción",
     "impl_arquitectura": "Implementación", "impl_uml": "Implementación", "impl_tsdmd": "Implementación",
-    "impl_edmd": "Implementación", "impl_colision": "Implementación",
+    "impl_edmd": "Implementación", "impl_eventos": "Implementación", "impl_colision": "Implementación",
     "hyb_criterio": "Implementación", "hyb_sync": "Implementación",
     "hyb_contactos": "Implementación",
     "sim_sistema": "Simulaciones", "sim_observables": "Simulaciones",
@@ -54,6 +54,7 @@ SECTION_OF = {
     "res_anim": "Resultados", "res_fraccion": "Resultados", "res_poblacion": "Resultados",
     "res_tevac": "Resultados", "res_walltime": "Resultados", "res_sweep": "Resultados",
     "res_scale_a": "Resultados", "res_scale_b": "Resultados",
+    "extra_kappa0": "Resultados", "extra_kappa0_anim": "Resultados",
     "concl": "Conclusiones", "gracias": "Conclusiones",
 }
 # Figura que cada diapositiva de resultados tiene que mostrar (res_anim: las tres, en orden).
@@ -65,6 +66,9 @@ FIGURE_OF = {
     "res_sweep": "pres_sweep_T",
     "res_scale_a": "pres_scale_a",
     "res_scale_b": "pres_scale_b",
+    "extra_kappa0": "pres_kappa0",
+    "extra_kappa0_anim": "frame_kappa0",
+    "impl_eventos": "frame_eventos",
     "res_anim": ("frame_tsdmd", "frame_edmd", "frame_hybrid"),
 }
 VIDEO_IDS = ("tsdmd_n500", "edmd_n500", "hybrid_n500")

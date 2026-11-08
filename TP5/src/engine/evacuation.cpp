@@ -53,7 +53,7 @@ void validateConfig(const EvacuationConfig& c) {
     if (!(c.radiusMin <= c.radiusMax)) invalid("--rmax", c.radiusMax, "debe ser >= rmin");
     if (!(2.0 * c.radiusMax < c.side)) invalid("--rmax", c.radiusMax, "debe cumplir 2*rmax < L");
     if (!(c.sfm.stiffness > 0.0)) invalid("--k", c.sfm.stiffness, "debe ser > 0");
-    if (!(c.sfm.friction > 0.0)) invalid("--kappa", c.sfm.friction, "debe ser > 0");
+    if (!(c.sfm.friction >= 0.0)) invalid("--kappa", c.sfm.friction, "debe ser >= 0 (0 = sin rozamiento tangencial)");
     if (!(c.sfm.mass > 0.0)) invalid("--mass", c.sfm.mass, "debe ser > 0");
     if (!(c.sfm.tau > 0.0)) invalid("--tau", c.sfm.tau, "debe ser > 0");
     if (!(c.sfm.desiredSpeed > 0.0)) invalid("--vd", c.sfm.desiredSpeed, "debe ser > 0");
