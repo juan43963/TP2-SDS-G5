@@ -1,0 +1,63 @@
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=1 T=na completed=1 status=ok t_evac=77.5411 simulation_ms=7054.567 skipped=0
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=2 T=na completed=1 status=ok t_evac=80.1100 simulation_ms=7320.665 skipped=0
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=3 T=na completed=1 status=ok t_evac=79.0295 simulation_ms=7097.301 skipped=0
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=4 T=na completed=1 status=ok t_evac=82.1968 simulation_ms=7654.350 skipped=0
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=5 T=na completed=1 status=ok t_evac=75.8630 simulation_ms=6621.299 skipped=0
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=6 T=na completed=1 status=ok t_evac=78.4675 simulation_ms=7093.166 skipped=0
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=8 T=na completed=1 status=ok t_evac=81.9896 simulation_ms=7355.032 skipped=0
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=9 T=na completed=1 status=ok t_evac=79.0070 simulation_ms=7120.713 skipped=0
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=10 T=na completed=1 status=ok t_evac=82.5861 simulation_ms=7249.120 skipped=0
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=11 T=na completed=1 status=ok t_evac=79.8254 simulation_ms=7076.755 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=1 T=na completed=1 status=ok t_evac=137.6434 simulation_ms=19236.233 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=2 T=na completed=1 status=ok t_evac=62.1491 simulation_ms=10433.345 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=3 T=na completed=1 status=ok t_evac=88.0485 simulation_ms=34386.345 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=4 T=na completed=1 status=ok t_evac=72.2706 simulation_ms=17470.679 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=5 T=na completed=1 status=ok t_evac=72.7908 simulation_ms=18504.758 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=6 T=na completed=1 status=ok t_evac=310.5864 simulation_ms=13048.790 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=7 T=na completed=1 status=ok t_evac=68.1968 simulation_ms=16345.827 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=8 T=na completed=1 status=ok t_evac=75.5184 simulation_ms=19376.362 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=9 T=na completed=1 status=ok t_evac=65.8983 simulation_ms=15649.079 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=10 T=na completed=1 status=ok t_evac=78.8129 simulation_ms=14949.923 skipped=0
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=1 T=0.5 completed=1 status=ok t_evac=79.8980 simulation_ms=21822.341 skipped=0
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=2 T=0.5 completed=1 status=ok t_evac=85.0688 simulation_ms=21962.516 skipped=0
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=3 T=0.5 completed=1 status=ok t_evac=79.4037 simulation_ms=21556.205 skipped=0
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=4 T=0.5 completed=1 status=ok t_evac=79.3490 simulation_ms=22266.854 skipped=0
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=5 T=0.5 completed=1 status=ok t_evac=88.1476 simulation_ms=22523.197 skipped=0
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=6 T=0.5 completed=1 status=ok t_evac=81.6139 simulation_ms=22636.053 skipped=0
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=7 T=0.5 completed=1 status=ok t_evac=77.2586 simulation_ms=21144.559 skipped=0
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=8 T=0.5 completed=1 status=ok t_evac=80.2195 simulation_ms=21979.929 skipped=0
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=9 T=0.5 completed=1 status=ok t_evac=76.5276 simulation_ms=21106.268 skipped=0
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=11 T=0.5 completed=1 status=ok t_evac=76.4387 simulation_ms=20443.057 skipped=0
+STUDY FAIL bc-time scheme=tsdmd seed=1: t_evac/completed difieren de la corrida estadistica (stat t_evac=77.7500 completed=1, time t_evac=77.5411 completed=1)
+STUDY FAIL bc-time scheme=tsdmd seed=2: t_evac/completed difieren de la corrida estadistica (stat t_evac=80.2500 completed=1, time t_evac=80.1100 completed=1)
+STUDY FAIL bc-time scheme=tsdmd seed=3: t_evac/completed difieren de la corrida estadistica (stat t_evac=79.2500 completed=1, time t_evac=79.0295 completed=1)
+STUDY FAIL bc-time scheme=tsdmd seed=4: t_evac/completed difieren de la corrida estadistica (stat t_evac=82.2500 completed=1, time t_evac=82.1968 completed=1)
+STUDY FAIL bc-time scheme=tsdmd seed=5: t_evac/completed difieren de la corrida estadistica (stat t_evac=76.0000 completed=1, time t_evac=75.8630 completed=1)
+STUDY FAIL bc-time scheme=tsdmd seed=6: t_evac/completed difieren de la corrida estadistica (stat t_evac=78.5000 completed=1, time t_evac=78.4675 completed=1)
+STUDY FAIL bc-time scheme=tsdmd seed=8: t_evac/completed difieren de la corrida estadistica (stat t_evac=82.0000 completed=1, time t_evac=81.9896 completed=1)
+STUDY FAIL bc-time scheme=tsdmd seed=9: t_evac/completed difieren de la corrida estadistica (stat t_evac=79.2500 completed=1, time t_evac=79.0070 completed=1)
+STUDY FAIL bc-time scheme=tsdmd seed=10: t_evac/completed difieren de la corrida estadistica (stat t_evac=82.7500 completed=1, time t_evac=82.5861 completed=1)
+STUDY FAIL bc-time scheme=tsdmd seed=11: t_evac/completed difieren de la corrida estadistica (stat t_evac=80.0000 completed=1, time t_evac=79.8254 completed=1)
+STUDY FAIL bc-time scheme=edmd seed=1: t_evac/completed difieren de la corrida estadistica (stat t_evac=137.7500 completed=1, time t_evac=137.6434 completed=1)
+STUDY FAIL bc-time scheme=edmd seed=2: t_evac/completed difieren de la corrida estadistica (stat t_evac=62.2500 completed=1, time t_evac=62.1491 completed=1)
+STUDY FAIL bc-time scheme=edmd seed=3: t_evac/completed difieren de la corrida estadistica (stat t_evac=88.2500 completed=1, time t_evac=88.0485 completed=1)
+STUDY FAIL bc-time scheme=edmd seed=4: t_evac/completed difieren de la corrida estadistica (stat t_evac=72.5000 completed=1, time t_evac=72.2706 completed=1)
+STUDY FAIL bc-time scheme=edmd seed=5: t_evac/completed difieren de la corrida estadistica (stat t_evac=73.0000 completed=1, time t_evac=72.7908 completed=1)
+STUDY FAIL bc-time scheme=edmd seed=6: t_evac/completed difieren de la corrida estadistica (stat t_evac=310.7500 completed=1, time t_evac=310.5864 completed=1)
+STUDY FAIL bc-time scheme=edmd seed=7: t_evac/completed difieren de la corrida estadistica (stat t_evac=68.2500 completed=1, time t_evac=68.1968 completed=1)
+STUDY FAIL bc-time scheme=edmd seed=8: t_evac/completed difieren de la corrida estadistica (stat t_evac=75.7500 completed=1, time t_evac=75.5184 completed=1)
+STUDY FAIL bc-time scheme=edmd seed=9: t_evac/completed difieren de la corrida estadistica (stat t_evac=66.0000 completed=1, time t_evac=65.8983 completed=1)
+STUDY FAIL bc-time scheme=edmd seed=10: t_evac/completed difieren de la corrida estadistica (stat t_evac=79.0000 completed=1, time t_evac=78.8129 completed=1)
+STUDY FAIL bc-time scheme=hybrid seed=1: t_evac/completed difieren de la corrida estadistica (stat t_evac=80.0000 completed=1, time t_evac=79.8980 completed=1)
+STUDY FAIL bc-time scheme=hybrid seed=2: t_evac/completed difieren de la corrida estadistica (stat t_evac=85.2500 completed=1, time t_evac=85.0688 completed=1)
+STUDY FAIL bc-time scheme=hybrid seed=3: t_evac/completed difieren de la corrida estadistica (stat t_evac=79.5000 completed=1, time t_evac=79.4037 completed=1)
+STUDY FAIL bc-time scheme=hybrid seed=4: t_evac/completed difieren de la corrida estadistica (stat t_evac=79.5000 completed=1, time t_evac=79.3490 completed=1)
+STUDY FAIL bc-time scheme=hybrid seed=5: t_evac/completed difieren de la corrida estadistica (stat t_evac=88.2500 completed=1, time t_evac=88.1476 completed=1)
+STUDY FAIL bc-time scheme=hybrid seed=6: t_evac/completed difieren de la corrida estadistica (stat t_evac=81.7500 completed=1, time t_evac=81.6139 completed=1)
+STUDY FAIL bc-time scheme=hybrid seed=7: t_evac/completed difieren de la corrida estadistica (stat t_evac=77.5000 completed=1, time t_evac=77.2586 completed=1)
+STUDY FAIL bc-time scheme=hybrid seed=8: t_evac/completed difieren de la corrida estadistica (stat t_evac=80.2500 completed=1, time t_evac=80.2195 completed=1)
+STUDY FAIL bc-time scheme=hybrid seed=9: t_evac/completed difieren de la corrida estadistica (stat t_evac=76.7500 completed=1, time t_evac=76.5276 completed=1)
+STUDY FAIL bc-time scheme=hybrid seed=11: t_evac/completed difieren de la corrida estadistica (stat t_evac=76.5000 completed=1, time t_evac=76.4387 completed=1)
+STUDY mode=bc-time N=200 runs=30 executed=30 skipped=0 mismatches=30
+STUDY FAIL bc-time: t_evac/completed difieren de la corrida estadistica (esquema, semilla)
+exit=1

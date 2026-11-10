@@ -1,0 +1,42 @@
+# Makefile del motor de TP5 (evacuacion de una sala con puerta: TSDMD, EDMD e hibrido).
+#
+# Compilar:  make        (deja el ejecutable ./tp5)
+# Correr:    ./tp5 --help
+# Limpiar:   make clean
+#
+# -O2 es obligatorio: las comparaciones de tiempo de ejecucion entre esquemas solo
+# valen con flags identicos. No se agregan optimizaciones de punto flotante
+# inseguras ni ajustes de CPU del equipo que compila, para que el resultado no
+# dependa de la maquina.
+
+CXX      ?= c++
+CXXFLAGS ?= -std=c++20 -O2 -Wall -Wextra -pedantic -Isrc/include
+
+BUILD := build
+SRC   := src
+
+# Unidades de traduccion del motor, listadas explicitamente.
+CORE_SRC := $(SRC)/utils/options.cpp \
+            $(SRC)/utils/generator.cpp \
+            $(SRC)/utils/io.cpp \
+            $(SRC)/engine/forces.cpp \
+            $(SRC)/engine/evacuation.cpp \
+            $(SRC)/engine/edmd_kernel.cpp \
+            $(SRC)/engine/edmd.cpp \
+            $(SRC)/engine/hybrid.cpp
+MAIN_SRC := $(SRC)/main.cpp
+OBJ      := $(CORE_SRC:$(SRC)/%.cpp=$(BUILD)/%.o) $(MAIN_SRC:$(SRC)/%.cpp=$(BUILD)/%.o)
+
+.PHONY: all clean
+
+all: tp5
+
+tp5: $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+$(BUILD)/%.o: $(SRC)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+clean:
+	rm -rf $(BUILD) tp5

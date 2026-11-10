@@ -1,0 +1,9 @@
+hostname=DESKTOP-GACI0TB
+platform=Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39
+machine=x86_64
+cpu_count=16
+cpu_model=AMD Ryzen 7 9800X3D 8-Core Processor
+python=3.12.3
+compiler=c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+cxxflags=-std=c++20 -O2 -Wall -Wextra -pedantic -Isrc/include
+date_utc=2026-11-10T13:21:07Z
