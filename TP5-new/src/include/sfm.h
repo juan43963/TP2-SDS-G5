@@ -71,6 +71,10 @@ struct EvacuationConfig {
     // Parametros del hibrido (D-26, D-28); solo --scheme hybrid.
     double hybridT = 0.5;      // [s] umbral T: TSDMD si tau_c < T (0 = EDMD puro, >= tmax = TSDMD puro)
     double hybridAlpha = 2.0;  // histeresis (D-28): vuelve a EDMD solo si tau_c > alpha*T
+    // El retorno TSDMD -> EDMD se evalua cada `returnStride` pasos dt. Es el lado seguro: quedarse en TSDMD
+    // de mas nunca pierde un contacto (lo resuelve el resorte). La promocion y el escaneo de pares
+    // mixtos siguen en cada limite. 1 = evaluar en todos los limites.
+    int returnStride = 20;
 };
 
 struct EvacuationResult {

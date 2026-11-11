@@ -1,0 +1,1 @@
+FIGURES out_dir=data/studies/figures figures=6 tables=6 bc_n=200 bc_n_ok=200 n_completed_min=14 warn_load_rows=8 skipped=none

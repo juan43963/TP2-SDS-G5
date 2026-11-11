@@ -12,7 +12,7 @@ Fuentes: `clase de consultas/` (transcripción + aviso del campus), `docs/TP5_En
 ## 2. Modelo
 - SFM **sin fuerza social y sin fricción tangencial** en los tres esquemas (solo deseo + contacto normal). Con fricción: solo apéndice, como comparación.
 - Verlet, dt=1e-4 s; test de convergencia (dt y dt/2 dan el mismo t_evac dentro del error). Condición `dt < 0.1·√(m/k) ≈ 2.6e-3 s`.
-- N=500 para (a), (b), (c); N=200 para el barrido de T (si se ve más claro, se agrega como figura extra).
+- ~~N=500 para (a), (b), (c); N=200 para el barrido de T~~ **Corregido (2026-11-10):** todos los estudios usan N=200 (alternativa permitida por el aviso (ii) del campus); N=500 no se corrió. Ver "Sensibilidad a Δt_c" más abajo.
 
 ## 3. EDMD: colisión y recuperación de v_d
 **Regla de colisión** (agente-agente, agente-pared y agente-esquina; en pared/esquina la normal apunta hacia afuera):
@@ -45,6 +45,7 @@ Es corrección geométrica del solape numérico, no física: hay que decirlo as�
 - Criterio: tiempo al próximo contacto τ_c. EDMD→TSDMD si `τ_c < T`; TSDMD→EDMD solo si `τ_c > α·T` (α=2). T es el parámetro principal; T→∞ = TSDMD puro, T=0 = EDMD puro (test de que los extremos reproducen los puros con la misma semilla).
 - Par mixto EDMD–TSDMD: resorte SFM + promoción anticipada a TSDMD antes del contacto. Un solo reloj, lazo con dt y eventos entre pasos.
 - **Arreglo (contacto perdido de `dense_n60`)**: dos agentes casi pegados fuera de la puerta (id 11 EDMD y id 52 que acababa de pasar a TSDMD) tenían un contacto previsto a 0,19 s < T, pero el vecino residente se promovía recién en el límite siguiente (0,1 ms después), porque el escaneo de pares mixtos corría una sola vez por límite. Ahora se repite hasta que no haya más promociones (punto fijo, tope de 16 vueltas). No era un contacto realmente perdido (faltaba 0,19 s), pero el auditor exige que todo contacto previsto dentro de T esté ya promovido en ese mismo límite. Se manifestó al cambiar el default a fricción 0 (otra trayectoria).
+- **Retorno TSDMD→EDMD (corregido 2026-11-11, ver sección al final):** se evalúa cada `returnStride` = 20 pasos (`--return-stride`) y su ventana de vecinos cubre el horizonte αT. La promoción y el escaneo de pares mixtos siguen en cada límite.
 - La regla nueva del EDMD no se usa dentro del híbrido (T>0 no resuelve contactos por colisión: los resuelve el resorte), así que `separateOverlaps` solo actúa en EDMD puro y en T=0.
 - Barrido de T rehecho a N=200 con la regla de colisión nueva.
 
@@ -88,3 +89,24 @@ Es corrección geométrica del solape numérico, no física: hay que decirlo as�
 - Comparación con/sin fricción tangencial (TSDMD, N=200, 10 semillas, `python/run_kappa.py`): κ=0 → 9/10, 79.6±0.8 s; κ=2.4e5 → 4/10, 364±13 s (solo 4 corridas; 6 terminan antes de tmax con 14-136 agentes en sala, causa no verificada). Va en el apéndice `apx_kappa`.
 - Apéndice nuevo `apx_dtc` y `apx_dt` (sensibilidad a Δt_c, convergencia en dt, reproducibilidad vs tmax); conclusiones de escalado en `concl`, sin números.
 - Pendiente antes de entregar: links reales de video en `presentacion/links.json` (hoy `PENDIENTE-*`), recompilar el PDF y copiarlo a `entrega/`; `build_pptx.py` para el .pptx en vivo.
+
+## Costo y oscilación del híbrido — 2026-11-11
+- **Síntoma:** el híbrido costaba 3.5× el TSDMD a T=0.5 y hasta 113 s a T=3 (TSDMD ≈ 6 s), aunque con T grande casi todos los agentes están en TSDMD.
+- **Perfil (gprof, N=200, semilla 1):** a T=0.5 casi la mitad del tiempo era evaluar el retorno de cada agente TSDMD en cada `dt` (`tryReturn` → `tsdmdContactTime`/`freeContactTime`). A T=3 había **213 907 promociones y 213 812 retornos** en una corrida: oscilación entre esquemas, no solo costo.
+- **Causa de la oscilación (defecto):** `tsdmdContactTime` recortaba la ventana de vecinos a 4 celdas (`clamp(..., 1, 4)`), pero el horizonte del retorno es αT y el escaneo de pares mixtos usa celdas EDMD, que crecen con T. Con T grande el retorno no veía vecinos TSDMD que el escaneo sí veía: devolvía el agente a EDMD y el escaneo lo volvía a promover. Medido: T=2 → 56 993 promociones (99.8% repromociones rápidas); N=60, L=10, T=2 → 2553 contra 111.
+- **Arreglos (`src/engine/hybrid.cpp`, `sfm.h`, `options.cpp`, `evacuation.cpp`):**
+  1. Ventana del retorno = ceil(α·celdaEDMD/celdaFuerzas) celdas, sin tope; si la ventana tiene más celdas que agentes TSDMD se recorren los agentes directamente.
+  2. `EvacuationConfig::returnStride = 20` (`--return-stride`, ≥ 1): el retorno se decide solo en límites múltiplos de 20 pasos. Es el lado seguro: volver tarde a EDMD no pierde contactos (en TSDMD los resuelve el resorte). Con `--return-stride 1` el resultado es idéntico al motor anterior (verificado N=200, semilla 2, T=0.1: t_evac 78.2410 s los dos).
+- **Verificación:** `make test` 537 verificaciones, 0 fallas (nuevos: `test_hybrid_oscillation.cpp`, que falla con el código anterior —2553 promociones contra el umbral 500—, y las opciones `--return-stride`); auditoría pesada `TP5_HEAVY=1` (N=200): `lost_contacts=0`, `oracle_violations=0`, `resident_overlaps=0`, `consecutive_flips=0`.
+- **Efecto (N=200, un hilo, semilla 2):** T=0.5: ~23 s → ~8.8 s; T=3: ~113 s → ~34 s; TSDMD ~5.9 s.
+- **Efecto sobre las trayectorias:** el paso del retorno cambia qué agente vuelve y cuándo, así que las trayectorias cambian (caos) y también qué semillas caen en atascos. Ejemplo: N=200, T=1, semilla 3, `tmax` 300 deja 27 agentes sin salir; mismos agentes con `tmax` 120 completa (dependencia ya documentada de la semilla con `tmax`). Los agentes que quedan en esos casos están todos en TSDMD, a < 3 m de la puerta y con rapidez 0 (arco físico, igual que el TSDMD puro), no es un bloqueo del esquema.
+- **Re-corrida (2026-11-11, datos viejos en `data/old_return_stride/`):** `bc-stat` del híbrido (target 10, 16 intentos); `bc-time`, `sweep` (10 semillas) y `scale` TSDMD+híbrido (3 semillas); `dt_conv` (`run_sensitivity.py --only dt`). El EDMD de `scale` **no** se re-corrió (no cambió; sus tiempos son de la sesión anterior). Los hilos/medición siguen en serie para wall-clock.
+- **Resultados nuevos (N=200):**
+  - t_evac: TSDMD 79.6 ± 0.5 s (14/16), EDMD 91 ± 11 s (14/16), híbrido 79.0 ± 0.7 s (15/16). z contra TSDMD: EDMD 1.0, híbrido −0.7.
+  - Barrido de T (10 semillas): \|z\| < 2 para todos los T > 0 contra el TSDMD.
+  - Wall-clock (10 semillas): TSDMD 5.9 s, EDMD 24 ± 5 s, híbrido T=0.5 8.8 ± 0.2 s (1.5×). Híbrido: T=0.1 6.8 s; T=1 12.2 s; T=2 21.6 s; T=3 32.5 s. Claramente menor que el EDMD solo hasta T=1 (T=2: z≈−0.6; T=3 más caro).
+  - Escalado (pendiente log-log): a) TSDMD 1.8, EDMD 3.5, híbrido 1.5; b) TSDMD 1.3, EDMD 5.6, híbrido 2.1. En b el híbrido tiene corridas atascadas a N=700 y 1000 (corren hasta `tmax` y suben la media): la pendiente del híbrido es tendencia, no exponente.
+  - `dt_conv` (híbrido T=0.5, 5 semillas): `dt` 79.4 ± 1.0 s (5/5); `dt/2` 84 ± 3 s (4/5); z = 1.6, no se distingue. El costo por corrida completa se duplica (9.2 → 18.5 s). TSDMD: 79.6 ± 0.8 s (9/10, falla la semilla 7) y 81.6 ± 1.6 s (9/10, falla la 4).
+- **Presentación:** nueva diapositiva `res_fraccion` (fracción por esquema; sin texto, solo parámetros); híbrido ampliado a tres diapositivas (`impl_hib_criterio`, `impl_hib_reloj`, `impl_hib_mixto`); conclusiones reescritas según |z|<2 (el EDMD no se distingue del TSDMD en la media, sí en la dispersión; los tres esquemas dejan corridas sin completar; "T grande reproduce el TSDMD" solo en t_evac, no en costo); z en `res_tevac`; `apx_dt` actualizada. Tiempos por diapositiva re-balanceados (suman 743 s). Regla del profe: las diapositivas **no llevan texto explicativo**, eso se dice oral.
+- **Herramientas:** `animate.py --zoom x0,x1,y0,y1` (recorte sin título; GIF/MP4 y PNG). Los GIF/MP4 y fotogramas del híbrido se regeneraron con el motor nuevo (semilla 1, `--every 6`, snapshot en t=20 s). `make_pres_figures.py` se corre con `--anim-seed 1`. `make_animations.py` ya no existe en el repo (el target `study-anim` del Makefile no funciona).
+- **Pendiente:** ε = 1e-6·v_d del EDMD (deja ~70 ticks de re-apuntado por choque, ≈ τ·ln(10⁶) s) → evaluar subirlo a 1e-2·v_d y re-correr EDMD/híbrido; links reales de video; recompilar PDF final y copiarlo a `entrega/`; regenerar `entrega/…Codigo.zip` (el motor cambió).

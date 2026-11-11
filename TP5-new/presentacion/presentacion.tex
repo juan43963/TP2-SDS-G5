@@ -452,7 +452,7 @@
 % SLIDE sim_rangos | V:C | T:15
 \begin{frame}{Qué se varía}
   \begin{itemize}
-    \item Esquema: TSDMD, EDMD, híbrido; $\geq 10$ realizaciones completas cada uno.
+    \item Esquema: TSDMD, EDMD, híbrido; $\geq 10$ realizaciones cada uno.
     \item Umbral del híbrido: $T\in\{0,\,0.1,\,0.25,\,0.5,\,1,\,2,\,3\}\un{s}$.
     \item Cantidad de agentes: $N$ con $L\propto\sqrt{N}$ (densidad fija) y con $L=50\un{m}$.
     \item Las corridas que no evacúan antes de $t_{max}$ no entran al promedio; se informa su cantidad.
@@ -564,7 +564,7 @@
         Sobre cada barra: corridas completas / intentadas.\\
         Puntos: cada realización.\\[4pt]
         $z$ respecto de TSDMD:\\
-        EDMD $1.0$, híbrido $2.1$.}
+        EDMD $1.0$, híbrido $-0.7$.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -640,9 +640,9 @@
   \begin{enumerate}
     \small
     \item El EDMD no se distingue del TSDMD en el tiempo medio de evacuación; sí en la dispersión, mucho mayor.
-    \item El híbrido y el TSDMD tienen tiempos de evacuación muy cercanos: no se distinguen con 10 realizaciones y con 16 quedan al borde del criterio.
+    \item El híbrido no se distingue del TSDMD en el tiempo de evacuación, para ningún $T$ evaluado.
     \item Los tres esquemas dejan corridas sin completar, en proporciones parecidas: los atascos no son propios del EDMD.
-    \item El costo de ejecución del híbrido no baja del TSDMD para ningún $T$ evaluado, y es menor que el del EDMD solo para $T$ chico.
+    \item El costo de ejecución del híbrido no baja del TSDMD para ningún $T$ evaluado, y es claramente menor que el del EDMD solo para $T$ chico.
     \item $T = 0$ reproduce el EDMD. Con $T$ grande el tiempo de evacuación no se distingue del TSDMD, pero el costo es mayor.
     \item El costo del EDMD crece con $N$ mucho más rápido que el de los otros dos; solo se midió hasta $N = 400$ y con 3 realizaciones: es una tendencia, no un exponente.
   \end{enumerate}
@@ -716,13 +716,13 @@
       \toprule
       & $dt = 10^{-4}\un{s}$ & $dt = 5\times10^{-5}\un{s}$ \\ \midrule
       TSDMD   & $79.6 \pm 0.8\un{s}$ & $81.6 \pm 1.6\un{s}$ \\
-      Híbrido & $80.4 \pm 1.2\un{s}$ & $81.0 \pm 0.7\un{s}$ \\
+      Híbrido & $79.4 \pm 1.0\un{s}$ & $84 \pm 3\un{s}$ \\
       \bottomrule
     \end{tabular}
   \end{center}
   \begin{itemize}
     \item Con $dt/2$ no se distingue el $t_{evac}$ (diferencias dentro del error); el costo se duplica.
-    \item Una de las 10 semillas del TSDMD no completa con ninguno de los dos $dt$.
+    \item Con cada $dt$ no completa una de las 10 semillas del TSDMD (semillas distintas); el híbrido con $dt/2$ completa 4 de 5.
     \item Reproducibilidad del EDMD: la misma semilla da trayectorias distintas con otro $t_{max}$
           (separación visible antes de $t = 10\un{s}$), pero idénticas con otro intervalo de salida.
     \item Causa probable (no aislada): la bisección del cruce de plano usa $t_{max}-t$ como intervalo;

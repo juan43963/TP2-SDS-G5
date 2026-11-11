@@ -102,7 +102,8 @@ void printUsage() {
         "  --hybrid-T <s>                 umbral T: un agente pasa a TSDMD si su tiempo al proximo\n"
         "                                 contacto es < T; 0 o >= 2*dt (0.5). T = 0: EDMD puro;\n"
         "                                 T >= tmax: TSDMD puro\n"
-        "  --hybrid-alpha <a>             histeresis: vuelve a EDMD si ese tiempo es > a*T, a >= 1 (2)\n\n"
+        "  --hybrid-alpha <a>             histeresis: vuelve a EDMD si ese tiempo es > a*T, a >= 1 (2)\n"
+        "  --return-stride <n>            evalua el retorno a EDMD cada n pasos dt, n >= 1 (20)\n\n"
         "Integracion:\n"
         "  --scheme <tsdmd|edmd|hybrid>   esquema (tsdmd)\n"
         "  --dt <s>                       paso de integracion, <= 0.1*sqrt(m/k) (1e-4)\n"
@@ -128,7 +129,7 @@ ProgramOptions parseOptions(int argc, char** argv) {
     enum LongOnly {
         kDoor = 1000, kRmin, kRmax, kVd, kK, kKappa, kMass, kTau, kExitDistance,
         kMaxPlacement, kScheme, kDt, kDt2, kNoOutput, kCsv,
-        kEventGap, kSteerDt, kNoSeparate, kMaxEvents, kHybridT, kHybridAlpha, kDoorAim
+        kEventGap, kSteerDt, kNoSeparate, kMaxEvents, kHybridT, kHybridAlpha, kDoorAim, kReturnStride
     };
     static option longOptions[] = {
         {"N", required_argument, nullptr, 'N'},
@@ -155,6 +156,7 @@ ProgramOptions parseOptions(int argc, char** argv) {
         {"max-events", required_argument, nullptr, kMaxEvents},
         {"hybrid-T", required_argument, nullptr, kHybridT},
         {"hybrid-alpha", required_argument, nullptr, kHybridAlpha},
+        {"return-stride", required_argument, nullptr, kReturnStride},
         {"out", required_argument, nullptr, 'o'},
         {"no-output", no_argument, nullptr, kNoOutput},
         {"csv", no_argument, nullptr, kCsv},
@@ -194,6 +196,7 @@ ProgramOptions parseOptions(int argc, char** argv) {
             case kMaxEvents: c.maxEvents = parseLongLong(optarg, "--max-events"); break;
             case kHybridT: c.hybridT = parseDouble(optarg, "--hybrid-T"); break;
             case kHybridAlpha: c.hybridAlpha = parseDouble(optarg, "--hybrid-alpha"); break;
+            case kReturnStride: c.returnStride = parseInt(optarg, "--return-stride"); break;
             case 'o': options.outputPath = optarg; break;
             case kNoOutput: options.writeOutput = false; break;
             case kCsv: options.csv = true; break;

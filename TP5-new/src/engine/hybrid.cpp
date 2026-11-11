@@ -242,10 +242,14 @@ void HybridEngine::runBoundary() {
     // se evaluan con el modelo del EDMD (relajacion de ambos), el mismo que usara el motor al
     // programar sus eventos; decidirlos a la vez con el vecino TSDMD a velocidad constante
     // reprogramaba un aviso Promote inmediato y los dos agentes oscilaban entre esquemas en cada paso.
+    // Se evalua cada `returnStride` limites: volver tarde a EDMD no pierde contactos (en TSDMD los
+    // resuelve el resorte), y evaluar en cada paso a todos los agentes dominaba el costo.
     std::vector<int> candidates;
-    candidates.reserve(s_.size());
-    for (const Agent& a : s_) {
-        if (!std::binary_search(promotedNow.begin(), promotedNow.end(), a.id)) candidates.push_back(a.id);
+    if (k % config_.returnStride == 0) {
+        candidates.reserve(s_.size());
+        for (const Agent& a : s_) {
+            if (!std::binary_search(promotedNow.begin(), promotedNow.end(), a.id)) candidates.push_back(a.id);
+        }
     }
     for (const int id : candidates) {
         const auto at = std::lower_bound(s_.begin(), s_.end(), id,
@@ -371,38 +375,51 @@ double HybridEngine::tsdmdContactTime(std::size_t index, double horizon) const {
     const double vd = config_.sfm.desiredSpeed;
     const Agent& a = s_[index];
     const int M = ws_.M;
-    const int rings = std::clamp(static_cast<int>(std::ceil(edmd_.cellSize() / ws_.cellSize)), 1, 4);
+    // La ventana tiene que cubrir el horizonte del retorno (alpha*T): una celda EDMD cubre T, asi que
+    // alpha celdas EDMD cubren alpha*T. Con la ventana recortada a 4 celdas (version anterior) el retorno
+    // no veia vecinos TSDMD que el escaneo de pares mixtos si veia: devolvia el agente a EDMD y el
+    // escaneo lo volvia a promover (cientos de miles de pasajes con T >= 2).
+    const int rings = std::max(1, static_cast<int>(std::ceil(config_.hybridAlpha * edmd_.cellSize() / ws_.cellSize)));
     const int cx0 = cellIndex(a.position.x, ws_.cellSize, M);
     const int cy0 = cellIndex(a.position.y, ws_.cellSize, M);
     const Vector2 wa = desiredOf(config_.sfm, room_, a);
     const double speedA = std::max(norm(a.velocity), vd);
 
     double best = kInfinity;
+    const auto visit = [&](std::size_t j) {
+        if (j == index) return;
+        const Agent& b = s_[j];
+        const double gap = norm(b.position - a.position) - (a.radius + b.radius);
+        const double speedB = std::max(norm(b.velocity), vd);
+        if (gap > (speedA + speedB) * std::min(horizon, best)) return;
+        Relaxation rel;
+        rel.x0 = b.position - a.position;
+        rel.v0 = b.velocity - a.velocity;
+        rel.w = b.velocity - wa;  // vecino a velocidad constante (w = v)
+        rel.t0 = 0.0;
+        best = std::min(best, firstBallApproach(rel, a.radius + b.radius, tau, 0.0,
+                                                std::min(horizon, best)));
+        // Tambien el vecino relajando a su velocidad deseada: es el modelo con el que el motor EDMD
+        // programa los avisos del par (los dos agentes en EDMD). Un retorno que solo viera el
+        // vecino a velocidad constante podia ver un par ya avisado como libre y el agente volvia
+        // a EDMD un limite despues de su promocion (oscilacion, HYB-02). El retorno exige que
+        // ambos modelos dejen el contacto mas alla de alpha*T.
+        rel.w = desiredOf(config_.sfm, room_, b) - wa;
+        best = std::min(best, firstBallApproach(rel, a.radius + b.radius, tau, 0.0,
+                                                std::min(horizon, best)));
+    };
+    const std::size_t windowCells = static_cast<std::size_t>(2 * rings + 1) * static_cast<std::size_t>(2 * rings + 1);
+    if (windowCells >= s_.size()) {
+        // Ventana mayor que el conjunto TSDMD (T grande): recorrer los vecinos directamente sale mas barato.
+        for (std::size_t j = 0; j < s_.size(); ++j) visit(j);
+        return best;
+    }
     for (int cy = std::max(0, cy0 - rings); cy <= std::min(M - 1, cy0 + rings); ++cy) {
         for (int cx = std::max(0, cx0 - rings); cx <= std::min(M - 1, cx0 + rings); ++cx) {
             const std::size_t cell = static_cast<std::size_t>(cy) * static_cast<std::size_t>(M) +
                                      static_cast<std::size_t>(cx);
             for (int j = ws_.head[cell]; j >= 0; j = ws_.next[static_cast<std::size_t>(j)]) {
-                if (static_cast<std::size_t>(j) == index) continue;
-                const Agent& b = s_[static_cast<std::size_t>(j)];
-                const double gap = norm(b.position - a.position) - (a.radius + b.radius);
-                const double speedB = std::max(norm(b.velocity), vd);
-                if (gap > (speedA + speedB) * std::min(horizon, best)) continue;
-                Relaxation rel;
-                rel.x0 = b.position - a.position;
-                rel.v0 = b.velocity - a.velocity;
-                rel.w = b.velocity - wa;  // vecino a velocidad constante (w = v)
-                rel.t0 = 0.0;
-                best = std::min(best, firstBallApproach(rel, a.radius + b.radius, tau, 0.0,
-                                                        std::min(horizon, best)));
-                // Tambien el vecino relajando a su velocidad deseada: es el modelo con el que el motor EDMD
-                // programa los avisos del par (los dos agentes en EDMD). Un retorno que solo viera el
-                // vecino a velocidad constante podia ver un par ya avisado como libre y el agente volvia
-                // a EDMD un limite despues de su promocion (oscilacion, HYB-02). El retorno exige que
-                // ambos modelos dejen el contacto mas alla de alpha*T.
-                rel.w = desiredOf(config_.sfm, room_, b) - wa;
-                best = std::min(best, firstBallApproach(rel, a.radius + b.radius, tau, 0.0,
-                                                        std::min(horizon, best)));
+                visit(static_cast<std::size_t>(j));
             }
         }
     }

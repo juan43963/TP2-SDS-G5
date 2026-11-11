@@ -1,0 +1,20 @@
+### 21:13:29 --mode bc-stat --N 200 --schemes hybrid --workers 8 --target-complete 10 --max-attempts 80 --run-timeout 7200 --data-dir data/studies
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=3 T=0.5 completed=1 status=ok t_evac=75.6594 simulation_ms=9814.820 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=7 T=0.5 completed=1 status=ok t_evac=77.1571 simulation_ms=10351.458 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=1 T=0.5 completed=1 status=ok t_evac=78.6397 simulation_ms=10588.782 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=5 T=0.5 completed=1 status=ok t_evac=81.0841 simulation_ms=10852.101 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=4 T=0.5 completed=1 status=ok t_evac=80.5418 simulation_ms=10962.014 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=2 T=0.5 completed=1 status=ok t_evac=80.9856 simulation_ms=10994.173 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=6 T=0.5 completed=1 status=ok t_evac=79.6465 simulation_ms=11009.520 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=8 T=0.5 completed=0 status=ok t_evac=49.6149 simulation_ms=225033.581 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=11 T=0.5 completed=1 status=ok t_evac=75.1532 simulation_ms=9169.248 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=16 T=0.5 completed=1 status=ok t_evac=77.3734 simulation_ms=9528.630 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=9 T=0.5 completed=1 status=ok t_evac=77.8364 simulation_ms=9624.318 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=10 T=0.5 completed=1 status=ok t_evac=79.4714 simulation_ms=9724.138 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=13 T=0.5 completed=1 status=ok t_evac=75.0707 simulation_ms=9798.920 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=12 T=0.5 completed=1 status=ok t_evac=79.7543 simulation_ms=9911.655 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=14 T=0.5 completed=1 status=ok t_evac=78.3752 simulation_ms=9919.326 skipped=0
+STUDY run study=bc mode=stat scheme=hybrid N=200 seed=15 T=0.5 completed=1 status=ok t_evac=86.3213 simulation_ms=10974.864 skipped=0
+STUDY mode=bc-stat N=200 scheme=hybrid attempted=16 completed=15 skipped=0 success_rate=0.9375 target_reached=1
+STUDY mode=bc-stat N=200 workers=8 executed=16 skipped=0 target_reached=1
+### rc=0 21:17:24

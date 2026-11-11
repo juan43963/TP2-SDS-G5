@@ -13,7 +13,9 @@
 //     celdas EDMD de cada agente TSDMD y promueve al que ya toca o va a tocar dentro de T (filtro de
 //     distancia solido + EdmdEngine::contactTimeWithBody con el agente TSDMD a velocidad constante).
 //   * El retorno usa las banderas de contacto del paso de fuerzas (ForceWorkspace::touching) y se
-//     decide un agente por vez, en orden de id, reconstruyendo las fuerzas tras cada retorno.
+//     decide un agente por vez, en orden de id, reconstruyendo las fuerzas tras cada retorno. Se evalua
+//     cada `returnStride` limites (volver tarde a EDMD no pierde contactos: en TSDMD los resuelve el
+//     resorte), y su ventana de vecinos cubre el horizonte alpha*T, la misma cobertura que el escaneo.
 //   * El contacto agente-agente / agente-pared / agente-esquina NUNCA lo resuelve EDMD con
 //     restitucion cuando T > 0: lo resuelve el resorte SFM del TSDMD, por promocion previa al
 //     contacto (D-24, D-25). T = 0 es el EDMD puro.

@@ -86,6 +86,7 @@ void validateConfig(const EvacuationConfig& c) {
                 "debe ser 0 o >= 2*dt: el pasaje ocurre en un limite de grilla y necesita al menos dos pasos de adelanto");
     }
     if (!(c.hybridAlpha >= 1.0)) invalid("--hybrid-alpha", c.hybridAlpha, "debe ser >= 1");
+    if (c.returnStride < 1) invalid("--return-stride", c.returnStride, "debe ser >= 1");
 }
 
 EvacuationResult runEvacuation(const EvacuationConfig& config, std::vector<Agent> agents,

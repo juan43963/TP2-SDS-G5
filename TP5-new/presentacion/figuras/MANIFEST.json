@@ -1,95 +1,95 @@
 {
   "figures": [
     {
-      "bytes": 89968,
+      "bytes": 84458,
       "generator": "TP5/presentacion/make_pres_figures.py",
       "height": 1440,
       "name": "frame_edmd.png",
-      "sha256": "d9862e1fae1d4a63f5d14ae44a3c05c52b4edd903cf7719723bbbde6d0e3fd3b",
+      "sha256": "60b70ddb4a9e90d41bac8f1633abb77f5d3cfe4d7e910288339c665a80214870",
       "source": "studies/anim/edmd_N200_s1.txt",
       "width": 1600
     },
     {
-      "bytes": 91497,
+      "bytes": 85998,
       "generator": "TP5/presentacion/make_pres_figures.py",
       "height": 1440,
       "name": "frame_hybrid.png",
-      "sha256": "969a2cd0904dd317c1146e66c1fce7c231f36f2ca5bee43e7616eb3d39cd909b",
+      "sha256": "f2dff1a53430384b68a3d6f7f29207c15fe6de741c7ee00c6d74ec926f530383",
       "source": "studies/anim/hybrid_N200_s1.txt",
       "width": 1600
     },
     {
-      "bytes": 90594,
+      "bytes": 85150,
       "generator": "TP5/presentacion/make_pres_figures.py",
       "height": 1440,
       "name": "frame_tsdmd.png",
-      "sha256": "5984c08418cff9f8096cf5744da2506b716a478130fde230850f661ec5e4b6de",
+      "sha256": "be682f75c5744f42447830f0acb81752111c5fe9c292e7c97ba5104e5e175f72",
       "source": "studies/anim/tsdmd_N200_s1.txt",
       "width": 1600
     },
     {
-      "bytes": 169191,
+      "bytes": 159554,
       "generator": "TP5/presentacion/make_pres_figures.py",
       "height": 1200,
       "name": "pres_fraction.png",
-      "sha256": "981869952e4e0e4c2501f72470c7233ed4d7f96457fd6ec7c2ae15916d0ee3eb",
+      "sha256": "8384d3342782dbc864caf35643704bb004bf36db2d4039d233c94e25cd66fd25",
       "source": "studies/anim/hybrid_N200_s1.txt",
       "width": 2200
     },
     {
-      "bytes": 144174,
+      "bytes": 129374,
       "generator": "TP5/presentacion/make_pres_figures.py",
       "height": 1200,
       "name": "pres_population.png",
-      "sha256": "d5a695cd10c711375d2350977f0c2f9b054c8e4df165755dfc1c4d94105ab842",
+      "sha256": "8cb5d1e4529b48852492eb9e4bf13eb6a5dad51797046bc1768941b11d2cf46b",
       "source": "studies/runs",
       "width": 1600
     },
     {
-      "bytes": 131181,
+      "bytes": 121877,
       "generator": "TP5/presentacion/make_pres_figures.py",
       "height": 1280,
       "name": "pres_scale_a.png",
-      "sha256": "321e0aaadcaf1632e68bc1ad1c5b1aba2b6ea5b1745c898be4c9afd2221bb63a",
+      "sha256": "073e46d17bc4e8f33c61b804e2a87b19d9fd63b79e933b280c713dd44298e695",
       "source": "studies/runs",
       "width": 1600
     },
     {
-      "bytes": 135965,
+      "bytes": 124799,
       "generator": "TP5/presentacion/make_pres_figures.py",
       "height": 1280,
       "name": "pres_scale_b.png",
-      "sha256": "c9347159ed15da4f8b4ff197efa2858293e6a168ee1ac4586a2ec04d19211ce5",
+      "sha256": "ea48f9cfa240a08f2dfcdf7d8e51e146dacec60dd824539803648028a3cbd014",
       "source": "studies/runs",
       "width": 1600
     },
     {
-      "bytes": 133951,
+      "bytes": 127884,
       "generator": "TP5/presentacion/make_pres_figures.py",
       "height": 1800,
       "name": "pres_sweep_T.png",
-      "sha256": "1067c2f03b305583cf6b231f65b47eb9fa4926ef1d3eeca9469b23bae141cb47",
+      "sha256": "e4f799023de1a23aab9520b4efb620f32dfc89c8449d4e731f4093094eb8483f",
       "source": "studies/runs",
       "width": 1600
     },
     {
-      "bytes": 85339,
+      "bytes": 76882,
       "generator": "TP5/presentacion/make_pres_figures.py",
       "height": 1240,
       "name": "pres_tevac.png",
-      "sha256": "2e8cd21f45b9c0a33ebbbd31dedb2338256ad20b5402f9cbbe1a256491b140da",
+      "sha256": "e9a744b73bc39990e08c36e9a4b4f66b1117940411105dda72003264bc71c6fe",
       "source": "studies/runs",
       "width": 1600
     },
     {
-      "bytes": 61085,
+      "bytes": 55967,
       "generator": "TP5/presentacion/make_pres_figures.py",
       "height": 1240,
       "name": "pres_walltime.png",
-      "sha256": "e58bd076ae8165bfbec359bb6e1f871819ae4c4876074994824f54867d1303a6",
+      "sha256": "38c483917b1246af7e7a8e7f5c2075732f29ea00b0c181b63596b4aafa32f4fc",
       "source": "studies/runs",
       "width": 1600
     }
   ],
-  "frame_t": 16.4
+  "frame_t": 17.1
 }

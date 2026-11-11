@@ -45,13 +45,18 @@ def main():
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--seeds", type=int, default=10)
     ap.add_argument("--out", default="data/sensitivity")
+    ap.add_argument("--only", choices=("all", "steer", "dt"), default="all",
+                    help="steer: solo steer_dt.csv (EDMD); dt: solo dt_conv.csv (TSDMD e hibrido)")
     a = ap.parse_args()
     base = ["--N", "200", "--L", "50"]
     f1 = ["scheme", "steer_dt", "seed", "t_evac", "completed", "sim_ms", "max_overlap", "in_room"]
     jobs = [(("edmd", sdt, s), [*base, "--scheme", "edmd", "--seed", str(s), "--tmax", "600",
                                 "--steer-dt", sdt]) for sdt in ("0.05", "0.1", "0.2")
             for s in range(1, a.seeds + 1)]
-    sweep(jobs, a.workers, os.path.join(a.out, "steer_dt.csv"), f1)
+    if a.only in ("all", "steer"):
+        sweep(jobs, a.workers, os.path.join(a.out, "steer_dt.csv"), f1)
+    if a.only == "steer":
+        return
     f2 = ["scheme", "dt", "seed", "t_evac", "completed", "sim_ms", "max_overlap", "in_room"]
     jobs = []
     for dt in ("1e-4", "5e-5"):

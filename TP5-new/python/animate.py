@@ -197,12 +197,35 @@ def _outfile_for_writer(out):
     return out
 
 
+def parse_zoom(text):
+    """'x0,x1,y0,y1' -> (x0, x1, y0, y1) en metros, o None si `text` es None."""
+    if text is None:
+        return None
+    try:
+        x0, x1, y0, y1 = (float(v) for v in text.split(","))
+    except ValueError:
+        raise ValueError(f"--zoom debe ser x0,x1,y0,y1 (se pidio {text!r})")
+    if not (x0 < x1 and y0 < y1):
+        raise ValueError(f"--zoom necesita x0 < x1 e y0 < y1 (se pidio {text!r})")
+    return x0, x1, y0, y1
+
+
+def _apply_zoom(ax, zoom):
+    """Encuadra la puerta y saca el titulo (la poblacion total no se ve en el recorte)."""
+    if zoom is None:
+        return
+    ax.set_xlim(zoom[0], zoom[1])
+    ax.set_ylim(zoom[2], zoom[3])
+    ax.set_title("")
+
+
 def render(inp, out, *, snapshot=None, t0=0.0, t1=math.inf, every=1, fps=10.0, max_frames=600,
-           target_frames=None, ffmpeg_path=None):
+           target_frames=None, ffmpeg_path=None, zoom=None):
     """Instantanea PNG (snapshot) o animacion GIF/MP4 segun la extension de `out`.
 
     Devuelve la linea `ANIMATE ...`; ValueError/OSError ante cualquier problema, sin dejar
     archivo de salida. Con `target_frames` el salto de frames se calcula solo (ignora `every`).
+    `zoom` = (x0, x1, y0, y1) recorta la vista (ver parse_zoom).
     """
     out_lower = out.lower()
     header = read_header(inp)
@@ -213,6 +236,7 @@ def render(inp, out, *, snapshot=None, t0=0.0, t1=math.inf, every=1, fps=10.0, m
         frame = pick_snapshot(inp, which)
         fig, ax = plt.subplots(figsize=(6.0, 6.5))
         n_ts, n_ed = draw_frame(ax, frame, header, inp)
+        _apply_zoom(ax, zoom)
         fig.tight_layout()
         _ensure_parent(out)
         fig.savefig(out, dpi=150)
@@ -235,6 +259,7 @@ def render(inp, out, *, snapshot=None, t0=0.0, t1=math.inf, every=1, fps=10.0, m
 
     def update(k):
         draw_frame(ax, frames[k], header, inp)
+        _apply_zoom(ax, zoom)
         return []
 
     anim = animation.FuncAnimation(fig, update, frames=len(frames), blit=False)
@@ -255,7 +280,8 @@ def render(inp, out, *, snapshot=None, t0=0.0, t1=math.inf, every=1, fps=10.0, m
 def run(args):
     return render(args.inp, args.out, snapshot=args.snapshot, t0=args.t0, t1=args.t1,
                   every=args.every, fps=args.fps, max_frames=args.max_frames,
-                  target_frames=args.target_frames, ffmpeg_path=args.ffmpeg_path)
+                  target_frames=args.target_frames, ffmpeg_path=args.ffmpeg_path,
+                  zoom=parse_zoom(args.zoom))
 
 
 def main(argv):
@@ -271,6 +297,7 @@ def main(argv):
     ap.add_argument("--target-frames", type=int, default=None,
                     help="cantidad objetivo de frames; calcula --every solo (ignora --every)")
     ap.add_argument("--ffmpeg-path", default=None, help="ruta de un ffmpeg que no esta en el PATH")
+    ap.add_argument("--zoom", default=None, help="recorte de la vista: x0,x1,y0,y1 en metros (sin titulo)")
     args = ap.parse_args(argv)
     try:
         print(run(args))

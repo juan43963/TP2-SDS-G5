@@ -1,0 +1,27 @@
+STUDY run study=scale_a mode=time scheme=tsdmd N=700 seed=1 T=na completed=1 status=ok t_evac=184.5260 simulation_ms=34690.139 skipped=0
+STUDY run study=scale_a mode=time scheme=tsdmd N=700 seed=2 T=na completed=1 status=ok t_evac=175.3368 simulation_ms=33479.205 skipped=0
+STUDY run study=scale_a mode=time scheme=tsdmd N=700 seed=3 T=na completed=1 status=ok t_evac=179.6540 simulation_ms=34027.922 skipped=0
+STUDY run study=scale_a mode=time scheme=hybrid N=700 seed=1 T=0.5 completed=1 status=ok t_evac=185.4867 simulation_ms=102895.407 skipped=0
+STUDY run study=scale_a mode=time scheme=hybrid N=700 seed=2 T=0.5 completed=1 status=ok t_evac=186.7500 simulation_ms=103098.620 skipped=0
+STUDY run study=scale_a mode=time scheme=hybrid N=700 seed=3 T=0.5 completed=1 status=ok t_evac=183.7956 simulation_ms=106719.098 skipped=0
+STUDY run study=scale_a mode=time scheme=tsdmd N=1000 seed=1 T=na completed=1 status=ok t_evac=231.5200 simulation_ms=63835.893 skipped=0
+STUDY run study=scale_a mode=time scheme=tsdmd N=1000 seed=2 T=na completed=1 status=ok t_evac=232.9178 simulation_ms=61711.995 skipped=0
+STUDY run study=scale_a mode=time scheme=tsdmd N=1000 seed=3 T=na completed=1 status=ok t_evac=237.8099 simulation_ms=63235.008 skipped=0
+STUDY run study=scale_a mode=time scheme=hybrid N=1000 seed=1 T=0.5 completed=1 status=ok t_evac=234.8928 simulation_ms=167212.600 skipped=0
+STUDY run study=scale_a mode=time scheme=hybrid N=1000 seed=2 T=0.5 completed=1 status=ok t_evac=227.7511 simulation_ms=160873.638 skipped=0
+STUDY run study=scale_a mode=time scheme=hybrid N=1000 seed=3 T=0.5 completed=1 status=ok t_evac=227.1381 simulation_ms=166391.250 skipped=0
+STUDY mode=scale variant=a runs=12 executed=12 skipped=0 completed=12 non_completed=0
+STUDY run study=scale_b mode=time scheme=tsdmd N=700 seed=1 T=na completed=1 status=ok t_evac=177.8151 simulation_ms=30383.171 skipped=0
+STUDY run study=scale_b mode=time scheme=tsdmd N=700 seed=2 T=na completed=1 status=ok t_evac=184.6080 simulation_ms=31688.577 skipped=0
+STUDY run study=scale_b mode=time scheme=tsdmd N=700 seed=3 T=na completed=1 status=ok t_evac=176.6094 simulation_ms=30554.944 skipped=0
+STUDY run study=scale_b mode=time scheme=hybrid N=700 seed=1 T=0.5 completed=1 status=ok t_evac=177.9681 simulation_ms=101868.616 skipped=0
+STUDY run study=scale_b mode=time scheme=hybrid N=700 seed=2 T=0.5 completed=0 status=ok t_evac=136.6761 simulation_ms=487825.328 skipped=0
+STUDY run study=scale_b mode=time scheme=hybrid N=700 seed=3 T=0.5 completed=1 status=ok t_evac=177.2851 simulation_ms=106574.445 skipped=0
+STUDY run study=scale_b mode=time scheme=tsdmd N=1000 seed=1 T=na completed=1 status=ok t_evac=222.6263 simulation_ms=52336.732 skipped=0
+STUDY run study=scale_b mode=time scheme=tsdmd N=1000 seed=2 T=na completed=1 status=ok t_evac=226.8173 simulation_ms=53142.758 skipped=0
+STUDY run study=scale_b mode=time scheme=tsdmd N=1000 seed=3 T=na completed=1 status=ok t_evac=226.6994 simulation_ms=53983.351 skipped=0
+STUDY run study=scale_b mode=time scheme=hybrid N=1000 seed=1 T=0.5 completed=1 status=ok t_evac=232.6462 simulation_ms=173231.864 skipped=0
+STUDY run study=scale_b mode=time scheme=hybrid N=1000 seed=2 T=0.5 completed=1 status=ok t_evac=220.0364 simulation_ms=166825.508 skipped=0
+STUDY run study=scale_b mode=time scheme=hybrid N=1000 seed=3 T=0.5 completed=0 status=ok t_evac=92.3792 simulation_ms=1976801.031 skipped=0
+STUDY mode=scale variant=b runs=12 executed=12 skipped=0 completed=10 non_completed=2
+exit=0

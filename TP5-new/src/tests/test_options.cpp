@@ -57,6 +57,7 @@ void testDefaults(TestSuite& suite) {
     suite.check(c.maxEvents == 1000000000LL, "default max-events = 1e9");
     suite.check(c.hybridT == 0.5, "default hybrid-T = 0.5");
     suite.check(c.hybridAlpha == 2.0, "default hybrid-alpha = 2");
+    suite.check(c.returnStride == 20, "default return-stride = 20");
     suite.check(c.scheme == Scheme::Tsdmd, "default scheme = tsdmd");
     suite.check(o.writeOutput, "writeOutput verdadero por defecto");
     suite.check(!o.csv, "csv falso por defecto");
@@ -104,6 +105,7 @@ void testEveryFlagParses(TestSuite& suite) {
 
     suite.check(parse({"--hybrid-T", "1.25"}).config.hybridT == 1.25, "--hybrid-T");
     suite.check(parse({"--hybrid-alpha", "3"}).config.hybridAlpha == 3.0, "--hybrid-alpha");
+    suite.check(parse({"--return-stride", "5"}).config.returnStride == 5, "--return-stride");
     suite.check(parse({"--scheme", "edmd"}).config.scheme == Scheme::Edmd, "--scheme edmd");
     suite.check(parse({"--scheme", "tsdmd"}).config.scheme == Scheme::Tsdmd, "--scheme tsdmd");
     suite.check(parse({"--help"}).help, "--help");
@@ -111,6 +113,7 @@ void testEveryFlagParses(TestSuite& suite) {
 }
 
 void testRejections(TestSuite& suite) {
+    suite.check(contains(rejection({"--return-stride", "0"}), "--return-stride"), "return-stride = 0 rechazado");
     suite.check(contains(rejection({"--N", "0"}), "--N"), "N = 0 rechazado");
     suite.check(contains(rejection({"--N", "100001"}), "--N"), "N = 100001 rechazado");
     suite.check(contains(rejection({"--dt2", "0.00015"}), "--dt2"), "dt2 no multiplo de dt rechazado (D-04)");
