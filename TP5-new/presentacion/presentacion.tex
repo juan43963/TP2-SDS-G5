@@ -82,7 +82,7 @@
 \section{Introducción}
 % =====================================================================
 
-% SLIDE intro_real | V:A | T:30
+% SLIDE intro_real | V:A | T:20
 \begin{frame}{Evacuación de una sala con una puerta estrecha}
   \begin{columns}[c]
     \begin{column}{0.56\textwidth}
@@ -110,7 +110,7 @@
   \end{columns}
 \end{frame}
 
-% SLIDE intro_sfm | V:A | T:35
+% SLIDE intro_sfm | V:A | T:25
 \begin{frame}{Modelo de fuerza social, sin fuerza social}
   \small
   \[
@@ -228,7 +228,7 @@
 \section{Implementación}
 % =====================================================================
 
-% SLIDE impl_uml | V:B | T:40
+% SLIDE impl_uml | V:B | T:20
 \begin{frame}{Diagrama de clases del motor}
   \centering
   \begin{tikzpicture}[scale=1.05,
@@ -258,7 +258,7 @@
   \texttt{ForceWorkspace} directamente.}
 \end{frame}
 
-% SLIDE impl_tsdmd | V:B | T:30
+% SLIDE impl_tsdmd | V:B | T:15
 \begin{frame}{TSDMD: Velocity Verlet}
   \small
   \begin{align*}
@@ -273,7 +273,7 @@
   \end{itemize}
 \end{frame}
 
-% SLIDE impl_edmd | V:B | T:40
+% SLIDE impl_edmd | V:B | T:25
 \begin{frame}{EDMD: cola de eventos}
   \small
   Entre eventos la trayectoria es exacta:
@@ -289,38 +289,121 @@
   \end{itemize}
 \end{frame}
 
-% SLIDE impl_hibrido | V:B | T:55
-\begin{frame}{Híbrido: criterio por tiempo al próximo contacto}
+% SLIDE impl_hib_criterio | V:B | T:45
+\begin{frame}{Híbrido: criterio de pasaje}
+  \centering
+  \begin{tikzpicture}[x=1cm,y=1cm]
+    \fill[tsdmdc!35] (0,0) rectangle (2.4,1);
+    \fill[gray!25]   (2.4,0) rectangle (4.8,1);
+    \fill[edmdc!35]  (4.8,0) rectangle (9.5,1);
+    \draw[thick] (0,0) rectangle (9.5,1);
+    \draw[thick] (2.4,0) -- (2.4,1);
+    \draw[thick] (4.8,0) -- (4.8,1);
+    \node at (1.2,0.5) {TSDMD};
+    \node at (3.6,0.5) {se mantiene};
+    \node at (7.15,0.5) {EDMD};
+    \node[below] at (0,0) {$0$};
+    \node[below] at (2.4,0) {$T$};
+    \node[below] at (4.8,0) {$\alpha T$};
+    \node[below] at (9.5,0) {$\tau_c$};
+  \end{tikzpicture}
+
+  \vspace{8pt}
+  \[
+    \tau_c(i)=\min\bigl\{t>0:\ |\vect x_i(t)-\vect x_c(t)| = r_i + r_c\bigr\},
+    \quad c\in\{\text{agentes, paredes, esquinas}\}
+  \]
+  \[
+    \text{EDMD}\to\text{TSDMD}:\ \tau_c < T
+    \qquad
+    \text{TSDMD}\to\text{EDMD}:\ \tau_c > \alpha T
+  \]
+  \vfill
+  \params{Retorno además sin contacto y sin colapso (huelgo $<2\un{cm}$ y acercamiento $>5\un{cm/s}$).
+          $\alpha = 2$.}
+\end{frame}
+
+% SLIDE impl_hib_reloj | V:B | T:55
+\begin{frame}{Híbrido: un solo reloj}
   \begin{columns}[c]
-    \begin{column}{0.52\textwidth}
+    \begin{column}{0.50\textwidth}
       \centering
-      \begin{tikzpicture}[scale=1.0,
-          st/.style={draw,rounded corners,thick,minimum width=2.6cm,minimum height=1.0cm,align=center},
-          arr/.style={-{Latex[length=2.2mm]},thick}]
-        \node[st,draw=edmdc,text=edmdc] (e) at (0,0) {EDMD};
-        \node[st,draw=tsdmdc,text=tsdmdc] (t) at (4,0) {TSDMD};
-        \draw[arr] (e.north east) to[bend left=25] node[above,font=\small] {$\tau_c < T$} (t.north west);
-        \draw[arr] (t.south west) to[bend left=25] node[below,font=\small] {$\tau_c > \alpha T$} (e.south east);
+      \begin{tikzpicture}[x=1cm,y=1cm,
+          arr/.style={-{Latex[length=2mm]},thick}]
+        \draw[thick] (0,0) -- (5.6,0);
+        \foreach \x/\lab in {0.4/{$(k{-}1)dt$}, 2.4/{$k\,dt$}, 4.4/{$(k{+}1)dt$}}{
+          \draw[thick] (\x,-0.15) -- (\x,0.15);
+          \node[below,font=\scriptsize] at (\x,-0.15) {\lab};
+        }
+        \draw[arr,tsdmdc] (0.4,0.55) -- node[above,font=\scriptsize] {Verlet} (2.4,0.55);
+        \draw[arr,tsdmdc] (2.4,0.55) -- node[above,font=\scriptsize] {Verlet} (4.4,0.55);
+        \foreach \x in {0.9,1.5,2.0,3.1,3.4,5.0}
+          \fill[edmdc] (\x,-1.25) circle (0.08);
+        \node[font=\scriptsize,edmdc,anchor=east] at (-0.1,-1.25) {eventos};
+        \node[font=\scriptsize,tsdmdc,anchor=east] at (-0.1,0.55) {TSDMD};
       \end{tikzpicture}
     \end{column}
     \begin{column}{0.46\textwidth}
-      \small
-      \begin{itemize}
-        \item $\tau_c$: tiempo al próximo contacto del agente.
-        \item $\alpha = 2$: histéresis para no oscilar.
-        \item Par mixto: resorte SFM, con promoción a TSDMD antes del contacto.
-        \item Un solo reloj: pasos de $dt$ y eventos entre pasos.
-        \item $T = 0$: EDMD puro. $T$ grande: TSDMD puro.
-      \end{itemize}
+      \centering
+      \begin{tikzpicture}[
+          bx/.style={draw,rounded corners,font=\footnotesize,minimum width=5.4cm,minimum height=0.62cm,
+                     align=center,inner sep=2pt},
+          arr/.style={-{Latex[length=1.8mm]},thick}]
+        \node[bx,draw=edmdc]  (a) at (0,0)    {1. eventos EDMD con $t<k\,dt$};
+        \node[bx,draw=tsdmdc] (b) at (0,-0.95){2. Verlet de TSDMD hasta $k\,dt$};
+        \node[bx]             (c) at (0,-1.9) {3. EDMD avanza a $k\,dt$};
+        \node[bx]             (d) at (0,-2.85){4. cruce de puerta y retiro};
+        \node[bx,draw=hybc]   (e) at (0,-3.8) {5. EDMD $\to$ TSDMD (y pares mixtos)};
+        \node[bx,draw=hybc]   (f) at (0,-4.75){6. TSDMD $\to$ EDMD};
+        \foreach \p/\q in {a/b,b/c,c/d,d/e,e/f} \draw[arr] (\p) -- (\q);
+      \end{tikzpicture}
     \end{column}
   \end{columns}
+  \vfill
+  \params{Sin agentes TSDMD no hay límites: el reloj salta de evento en evento.}
+\end{frame}
+
+% SLIDE impl_hib_mixto | V:B | T:50
+\begin{frame}{Híbrido: par EDMD--TSDMD sin perder contactos}
+  \begin{columns}[c]
+    \begin{column}{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=1.0,
+          arr/.style={-{Latex[length=2.2mm]},very thick}]
+        \draw[dashed,gray] (2.2,0) circle (1.0);
+        \fill[tsdmdc!70] (2.2,0) circle (0.38);
+        \fill[edmdc!70] (-1.2,1.0) circle (0.42);
+        \node[font=\scriptsize,white] at (2.2,0) {B};
+        \node[font=\scriptsize,white] at (-1.2,1.0) {A};
+        \draw[arr,edmdc] (-0.8,1.0) -- (0.0,0.75) node[above,font=\scriptsize] {$\vect v_A$};
+        \draw[arr,tsdmdc] (2.2,-0.45) -- (2.2,-1.35) node[right,font=\scriptsize] {$\vect v_B$};
+        \draw[edmdc,thick,dotted] (0.0,0.75) to[out=-15,in=150] (1.35,0.55);
+        \node[font=\scriptsize,gray!60!black] at (3.2,1.25) {$r_A+r_B$};
+        \draw[<->,thin] (-1.2,-0.95) -- node[below,font=\scriptsize] {$\tau_c < T$} (1.35,-0.95);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \small
+      \begin{align*}
+        \vect x_A(t) &= \vect x_A + v_d\hat{\vect e}\,t + (\vect v_A - v_d\hat{\vect e})\,\tau\,(1-e^{-t/\tau})\\
+        \vect x_B(t) &= \vect x_B + \vect v_B\,t\\
+        \tau_c &= \min\{t:\ |\vect x_B(t)-\vect x_A(t)| = r_A+r_B\}
+      \end{align*}
+      \[
+        \tau_c < T \;\Longrightarrow\; A \to \text{TSDMD antes del contacto}
+      \]
+    \end{column}
+  \end{columns}
+  \vfill
+  \params{El contacto lo resuelve el resorte SFM. El escaneo se repite en cada límite hasta que no haya
+          promociones nuevas.}
 \end{frame}
 
 % =====================================================================
 \section{Simulaciones}
 % =====================================================================
 
-% SLIDE sim_sistema | V:C | T:30
+% SLIDE sim_sistema | V:C | T:20
 \begin{frame}{Sistema simulado}
   \begin{columns}[c]
     \begin{column}{0.44\textwidth}
@@ -350,7 +433,7 @@
   \end{columns}
 \end{frame}
 
-% SLIDE sim_observables | V:C | T:40
+% SLIDE sim_observables | V:C | T:30
 \begin{frame}{Observables}
   \small
   Calculados en post-proceso, desde las trayectorias.
@@ -366,7 +449,7 @@
   \end{itemize}
 \end{frame}
 
-% SLIDE sim_rangos | V:C | T:25
+% SLIDE sim_rangos | V:C | T:15
 \begin{frame}{Qué se varía}
   \begin{itemize}
     \item Esquema: TSDMD, EDMD, híbrido; $\geq 10$ realizaciones completas cada uno.
@@ -409,7 +492,7 @@
   \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), $t = 20\un{s}$; $T = 0.5\un{s}$, $\alpha = 2$.}
 \end{frame}
 
-% SLIDE res_anim_zoom | V:C | T:35
+% SLIDE res_anim_zoom | V:C | T:25
 \begin{frame}{Esquema: animaciones, zoom a la puerta}
   \begin{columns}[T]
     \begin{column}{0.325\textwidth}
@@ -438,7 +521,22 @@
   \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), $t = 20\un{s}$; $T = 0.5\un{s}$, $\alpha = 2$.}
 \end{frame}
 
-% SLIDE res_poblacion | V:C | T:30
+% SLIDE res_fraccion | V:A | T:30
+\begin{frame}{Híbrido: fracción de agentes en cada esquema}
+  \begin{columns}[c]
+    \begin{column}{0.64\textwidth}
+      \includegraphics[width=\linewidth,height=0.84\textheight,keepaspectratio]{pres_fraction.png}
+    \end{column}
+    \begin{column}{0.34\textwidth}
+      \params{%
+        $N = 200$, $L = 50\un{m}$\\
+        $T = 0.5\un{s}$, $\alpha = 2$\\
+        Una realización (semilla 1).}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% SLIDE res_poblacion | V:C | T:25
 \begin{frame}{Esquema: población en la sala}
   \begin{columns}[c]
     \begin{column}{0.64\textwidth}
@@ -454,7 +552,7 @@
   \end{columns}
 \end{frame}
 
-% SLIDE res_tevac | V:C | T:35
+% SLIDE res_tevac | V:C | T:30
 \begin{frame}{Esquema: tiempo de evacuación}
   \begin{columns}[c]
     \begin{column}{0.64\textwidth}
@@ -464,12 +562,14 @@
       \params{%
         $N = 200$, $L = 50\un{m}$\\
         Sobre cada barra: corridas completas / intentadas.\\
-        Puntos: cada realización.}
+        Puntos: cada realización.\\[4pt]
+        $z$ respecto de TSDMD:\\
+        EDMD $1.0$, híbrido $2.1$.}
     \end{column}
   \end{columns}
 \end{frame}
 
-% SLIDE res_walltime | V:C | T:30
+% SLIDE res_walltime | V:C | T:20
 \begin{frame}{Esquema: tiempo de ejecución}
   \begin{columns}[c]
     \begin{column}{0.64\textwidth}
@@ -499,7 +599,7 @@
   \end{columns}
 \end{frame}
 
-% SLIDE res_escala_a | V:A | T:35
+% SLIDE res_escala_a | V:A | T:25
 \begin{frame}{Escalado con $N$: densidad fija}
   \begin{columns}[c]
     \begin{column}{0.64\textwidth}
@@ -515,7 +615,7 @@
   \end{columns}
 \end{frame}
 
-% SLIDE res_escala_b | V:A | T:30
+% SLIDE res_escala_b | V:A | T:20
 \begin{frame}{Escalado con $N$: $L$ fija}
   \begin{columns}[c]
     \begin{column}{0.64\textwidth}
@@ -533,16 +633,18 @@
 \section{Conclusiones}
 % =====================================================================
 
-% SLIDE concl | V:B | T:40
+% SLIDE concl | V:B | T:30
 \begin{frame}{Conclusiones}
-  % COMPLETAR/VERIFICAR con las corridas finales (sin valores numericos, Guia 2.5).
+  % Sin valores numericos (Guia 2.5). Cada afirmacion sale de z (|z|<2: no se distingue) o de las tasas
+  % de exito; los z estan en res_tevac y en res_sweep.
   \begin{enumerate}
-    \item El híbrido no se distingue del TSDMD en el tiempo de evacuación.
-    \item El EDMD con esta regla de colisión evacúa más lento y con mucha más dispersión; no siempre completa.
-    \item El costo de ejecución del híbrido no baja del TSDMD para ningún $T$ evaluado.
-    \item $T = 0$ reproduce el EDMD y $T$ grande el TSDMD.
-    \item El costo del EDMD crece con $N$ mucho más rápido que el del TSDMD y el del híbrido; solo se pudo medir hasta $N = 400$, y ahí no siempre completa. Con 3 realizaciones es una tendencia, no un exponente.
-    \item Con $L$ fija (densidad creciente) el híbrido y el TSDMD también dejan de completar algunas corridas a $N$ grande.
+    \small
+    \item El EDMD no se distingue del TSDMD en el tiempo medio de evacuación; sí en la dispersión, mucho mayor.
+    \item El híbrido y el TSDMD tienen tiempos de evacuación muy cercanos: no se distinguen con 10 realizaciones y con 16 quedan al borde del criterio.
+    \item Los tres esquemas dejan corridas sin completar, en proporciones parecidas: los atascos no son propios del EDMD.
+    \item El costo de ejecución del híbrido no baja del TSDMD para ningún $T$ evaluado, y es menor que el del EDMD solo para $T$ chico.
+    \item $T = 0$ reproduce el EDMD. Con $T$ grande el tiempo de evacuación no se distingue del TSDMD, pero el costo es mayor.
+    \item El costo del EDMD crece con $N$ mucho más rápido que el de los otros dos; solo se midió hasta $N = 400$ y con 3 realizaciones: es una tendencia, no un exponente.
   \end{enumerate}
 \end{frame}
 

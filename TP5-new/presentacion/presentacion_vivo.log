@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  10 NOV 2026 17:43
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  11 NOV 2026 17:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1284,7 +1284,7 @@ Overfull \hbox (0.54909pt too wide) in paragraph at lines 206--206
 [6
 
 ]
-<figuras/frame_two.png, id=509, 1254.6875pt x 682.55pt>
+<figuras/frame_two.png, id=548, 1254.6875pt x 682.55pt>
 File: figuras/frame_two.png Graphic file (type png)
 <use figuras/frame_two.png>
 Package pdftex.def Info: figuras/frame_two.png  used on input line 225.
@@ -1311,103 +1311,111 @@ Package pdftex.def Info: figuras/frame_two.png  used on input line 225.
 
 ] [17
 
+] [18
+
+] [19
+
 ]
-<figuras/frame_tsdmd_full.png, id=1180, 433.62pt x 469.755pt>
+<figuras/frame_tsdmd_full.png, id=1426, 433.62pt x 469.755pt>
 File: figuras/frame_tsdmd_full.png Graphic file (type png)
 <use figuras/frame_tsdmd_full.png>
-Package pdftex.def Info: figuras/frame_tsdmd_full.png  used on input line 410.
+Package pdftex.def Info: figuras/frame_tsdmd_full.png  used on input line 493.
 (pdftex.def)             Requested size: 104.21902pt x 112.9012pt.
-<figuras/frame_edmd_full.png, id=1182, 433.62pt x 469.755pt>
+<figuras/frame_edmd_full.png, id=1428, 433.62pt x 469.755pt>
 File: figuras/frame_edmd_full.png Graphic file (type png)
 <use figuras/frame_edmd_full.png>
-Package pdftex.def Info: figuras/frame_edmd_full.png  used on input line 410.
+Package pdftex.def Info: figuras/frame_edmd_full.png  used on input line 493.
 (pdftex.def)             Requested size: 104.21902pt x 112.9012pt.
-<figuras/frame_hybrid_full.png, id=1183, 433.62pt x 469.755pt>
+<figuras/frame_hybrid_full.png, id=1429, 433.62pt x 469.755pt>
 File: figuras/frame_hybrid_full.png Graphic file (type png)
 <use figuras/frame_hybrid_full.png>
-Package pdftex.def Info: figuras/frame_hybrid_full.png  used on input line 410.
+Package pdftex.def Info: figuras/frame_hybrid_full.png  used on input line 493.
 
 (pdftex.def)             Requested size: 104.21902pt x 112.9012pt.
- [18
-
-]
-<figuras/frame_tsdmd_zoom.png, id=1253, 433.62pt x 469.755pt>
-File: figuras/frame_tsdmd_zoom.png Graphic file (type png)
-<use figuras/frame_tsdmd_zoom.png>
-Package pdftex.def Info: figuras/frame_tsdmd_zoom.png  used on input line 439.
-(pdftex.def)             Requested size: 112.66881pt x 122.05457pt.
-<figuras/frame_edmd_zoom.png, id=1254, 433.62pt x 469.755pt>
-File: figuras/frame_edmd_zoom.png Graphic file (type png)
-<use figuras/frame_edmd_zoom.png>
-Package pdftex.def Info: figuras/frame_edmd_zoom.png  used on input line 439.
-(pdftex.def)             Requested size: 112.66881pt x 122.05457pt.
-<figuras/frame_hybrid_zoom.png, id=1255, 433.62pt x 469.755pt>
-File: figuras/frame_hybrid_zoom.png Graphic file (type png)
-<use figuras/frame_hybrid_zoom.png>
-Package pdftex.def Info: figuras/frame_hybrid_zoom.png  used on input line 439.
-
-(pdftex.def)             Requested size: 112.66881pt x 122.05457pt.
- [19
-
-]
-<figuras/pres_population.png, id=1325, 578.16pt x 433.62pt>
-File: figuras/pres_population.png Graphic file (type png)
-<use figuras/pres_population.png>
-Package pdftex.def Info: figuras/pres_population.png  used on input line 455.
-(pdftex.def)             Requested size: 245.51625pt x 184.13719pt.
  [20
 
- <./figuras/pres_population.png>]
-<figuras/pres_tevac.png, id=1395, 578.16pt x 448.074pt>
-File: figuras/pres_tevac.png Graphic file (type png)
-<use figuras/pres_tevac.png>
-Package pdftex.def Info: figuras/pres_tevac.png  used on input line 470.
-(pdftex.def)             Requested size: 237.5941pt x 184.13542pt.
+]
+<figuras/frame_tsdmd_zoom.png, id=1505, 433.62pt x 469.755pt>
+File: figuras/frame_tsdmd_zoom.png Graphic file (type png)
+<use figuras/frame_tsdmd_zoom.png>
+Package pdftex.def Info: figuras/frame_tsdmd_zoom.png  used on input line 522.
+(pdftex.def)             Requested size: 112.66881pt x 122.05457pt.
+<figuras/frame_edmd_zoom.png, id=1506, 433.62pt x 469.755pt>
+File: figuras/frame_edmd_zoom.png Graphic file (type png)
+<use figuras/frame_edmd_zoom.png>
+Package pdftex.def Info: figuras/frame_edmd_zoom.png  used on input line 522.
+(pdftex.def)             Requested size: 112.66881pt x 122.05457pt.
+<figuras/frame_hybrid_zoom.png, id=1507, 433.62pt x 469.755pt>
+File: figuras/frame_hybrid_zoom.png Graphic file (type png)
+<use figuras/frame_hybrid_zoom.png>
+Package pdftex.def Info: figuras/frame_hybrid_zoom.png  used on input line 522.
+
+(pdftex.def)             Requested size: 112.66881pt x 122.05457pt.
  [21
 
+]
+<figuras/pres_fraction.png, id=1582, 794.97pt x 433.62pt>
+File: figuras/pres_fraction.png Graphic file (type png)
+<use figuras/pres_fraction.png>
+Package pdftex.def Info: figuras/pres_fraction.png  used on input line 537.
+(pdftex.def)             Requested size: 277.34602pt x 151.27965pt.
+
+[22
+
+ <./figuras/pres_fraction.png>]
+<figuras/pres_population.png, id=1658, 578.16pt x 433.62pt>
+File: figuras/pres_population.png Graphic file (type png)
+<use figuras/pres_population.png>
+Package pdftex.def Info: figuras/pres_population.png  used on input line 553.
+(pdftex.def)             Requested size: 245.51625pt x 184.13719pt.
+ [23
+
+ <./figuras/pres_population.png>]
+<figuras/pres_tevac.png, id=1734, 578.16pt x 448.074pt>
+File: figuras/pres_tevac.png Graphic file (type png)
+<use figuras/pres_tevac.png>
+Package pdftex.def Info: figuras/pres_tevac.png  used on input line 570.
+(pdftex.def)             Requested size: 237.5941pt x 184.13542pt.
+
+[24
+
  <./figuras/pres_tevac.png>]
-<figuras/pres_walltime.png, id=1465, 578.16pt x 448.074pt>
+<figuras/pres_walltime.png, id=1810, 578.16pt x 448.074pt>
 File: figuras/pres_walltime.png Graphic file (type png)
 <use figuras/pres_walltime.png>
-Package pdftex.def Info: figuras/pres_walltime.png  used on input line 484.
+Package pdftex.def Info: figuras/pres_walltime.png  used on input line 584.
 (pdftex.def)             Requested size: 237.5941pt x 184.13542pt.
- [22
-
- <./figuras/pres_walltime.png>]
-<figuras/pres_sweep_T.png, id=1535, 578.16pt x 650.43pt>
-File: figuras/pres_sweep_T.png Graphic file (type png)
-<use figuras/pres_sweep_T.png>
-Package pdftex.def Info: figuras/pres_sweep_T.png  used on input line 500.
-(pdftex.def)             Requested size: 167.57388pt x 188.52061pt.
-
-Overfull \vbox (1.02347pt too high) detected at line 500
- []
-
-[23
-
- <./figuras/pres_sweep_T.png>]
-<figuras/pres_scale_a.png, id=1606, 578.16pt x 462.528pt>
-File: figuras/pres_scale_a.png Graphic file (type png)
-<use figuras/pres_scale_a.png>
-Package pdftex.def Info: figuras/pres_scale_a.png  used on input line 516.
-(pdftex.def)             Requested size: 230.16597pt x 184.13277pt.
- [24
-
- <./figuras/pres_scale_a.png>]
-<figuras/pres_scale_b.png, id=1677, 578.16pt x 462.528pt>
-File: figuras/pres_scale_b.png Graphic file (type png)
-<use figuras/pres_scale_b.png>
-Package pdftex.def Info: figuras/pres_scale_b.png  used on input line 530.
-(pdftex.def)             Requested size: 230.16597pt x 184.13277pt.
  [25
 
- <./figuras/pres_scale_b.png>] [26
+ <./figuras/pres_walltime.png>]
+<figuras/pres_sweep_T.png, id=1887, 578.16pt x 650.43pt>
+File: figuras/pres_sweep_T.png Graphic file (type png)
+<use figuras/pres_sweep_T.png>
+Package pdftex.def Info: figuras/pres_sweep_T.png  used on input line 600.
+(pdftex.def)             Requested size: 167.57388pt x 188.52061pt.
 
-] [27
+Overfull \vbox (1.02347pt too high) detected at line 600
+ []
 
-] [28
+[26
 
-] [29
+ <./figuras/pres_sweep_T.png>]
+<figuras/pres_scale_a.png, id=1964, 578.16pt x 462.528pt>
+File: figuras/pres_scale_a.png Graphic file (type png)
+<use figuras/pres_scale_a.png>
+Package pdftex.def Info: figuras/pres_scale_a.png  used on input line 616.
+(pdftex.def)             Requested size: 230.16597pt x 184.13277pt.
+ [27
+
+ <./figuras/pres_scale_a.png>]
+<figuras/pres_scale_b.png, id=2041, 578.16pt x 462.528pt>
+File: figuras/pres_scale_b.png Graphic file (type png)
+<use figuras/pres_scale_b.png>
+Package pdftex.def Info: figuras/pres_scale_b.png  used on input line 630.
+(pdftex.def)             Requested size: 230.16597pt x 184.13277pt.
+ [28
+
+ <./figuras/pres_scale_b.png>] [29
 
 ] [30
 
@@ -1415,14 +1423,20 @@ Package pdftex.def Info: figuras/pres_scale_b.png  used on input line 530.
 
 ] [32
 
+] [33
+
+] [34
+
+] [35
+
 ]
-Underfull \hbox (badness 2547) in paragraph at lines 664--664
+Underfull \hbox (badness 2547) in paragraph at lines 766--766
 []|\T1/cmss/b/n/9 Choque en ple-na
  []
 
-[33
+[36
 
-] [34
+] [37
 
 ]
 \tf@nav=\write6
@@ -1450,13 +1464,13 @@ Package rerunfilecheck Info: File `presentacion_vivo.out' has not changed.
 (rerunfilecheck)             Checksum: 79CA4A8A7EC16C9D42FB8187F9F65D58;605.
  ) 
 Here is how much of TeX's memory you used:
- 28395 strings out of 467871
- 581339 string characters out of 5413500
- 995495 words of memory out of 5000000
- 56614 multiletter control sequences out of 15000+600000
+ 28442 strings out of 467871
+ 582108 string characters out of 5413500
+ 1004537 words of memory out of 5000000
+ 56655 multiletter control sequences out of 15000+600000
  661087 words of font info for 117 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 132i,19n,126p,410b,1057s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 132i,19n,126p,410b,1039s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\Lucas Di Candia\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/d
 pi600\ectt0900.pk> <C:\Users\Lucas Di Candia\AppData\Local\MiKTeX\fonts/pk/ljfo
 ur/jknappen/ec/dpi600\ecsi0900.pk> <C:\Users\Lucas Di Candia\AppData\Local\MiKT
@@ -1506,11 +1520,12 @@ cas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy
 ic/amsfonts/cm/cmsy5.pfb><C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTe
 X/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/Lucas Di Candia/AppData/Lo
 cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Lucas Di
- Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb>
-
-Output written on presentacion_vivo.pdf (34 pages, 1115239 bytes).
+ Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
+<C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
+onts/cm/cmsy9.pfb>
+Output written on presentacion_vivo.pdf (37 pages, 1309125 bytes).
 PDF statistics:
- 2610 PDF objects out of 2984 (max. 8388607)
- 75 named destinations out of 1000 (max. 500000)
- 198 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 2999 PDF objects out of 3580 (max. 8388607)
+ 81 named destinations out of 1000 (max. 500000)
+ 203 words of extra memory for PDF output out of 10000 (max. 10000000)
 
