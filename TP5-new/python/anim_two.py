@@ -21,7 +21,12 @@ Escenas (cada una introduce UN concepto; las ecuaciones se escriben en sintaxis 
 
 Velocidad REAL en negro, DESEADA en verde.
 
-Uso: python anim_two.py data/two.txt out.gif
+Uso: python anim_two.py data/two.txt out.gif [parte]
+
+Sin `parte` se genera la animacion completa (~30 s). Con `parte` (1 o 2) solo esa porcion, un concepto por
+GIF y en loop (la regla paso a paso B1-B6 ya esta en la diapositiva de la regla de colision):
+  1) A, C   los agentes chocan y viajan 0.1 s en linea recta con la velocidad de salida
+  2) D, E   fin del pulso: la deseada vuelve a la puerta y la real la alcanza con inercia
 """
 import sys
 
@@ -77,7 +82,10 @@ def v2(v):
     return r"(%+.2f,\ %+.2f)" % (v[0] + 0.0, v[1] + 0.0)
 
 
-def main(path, out):
+PARTES = {1: {"A", "C"}, 2: {"D", "E"}}
+
+
+def main(path, out, parte=None):
     vd, pulse, tau, ts, xs, vs, rs = load(path)
     r = rs[0]
     x0, v0 = xs[0], vs[0]
@@ -180,9 +188,12 @@ def main(path, out):
     steps_c = 24
     seq += [("C", t_c + pulse * k / steps_c) for k in range(steps_c + 1)]
     seq += [("C", t_end)] * 30
-    seq += [("D", t_end)] * 90
+    seq += [("D", t_end)] * 60
     t_e1 = t_end + 2.0
     seq += [("E", ts[k]) for k in range(k_end + 1, len(ts), 3) if ts[k] <= t_e1]
+
+    if parte is not None:
+        seq = [it for it in seq if it[0] in PARTES[parte]]
 
     nA = r"$\hat n_{alejar}$"
 
@@ -393,6 +404,6 @@ def main(path, out):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        sys.exit("uso: python anim_two.py trayectoria.txt salida.gif")
-    main(sys.argv[1], sys.argv[2])
+    if len(sys.argv) not in (3, 4) or (len(sys.argv) == 4 and sys.argv[3] not in ("1", "2")):
+        sys.exit("uso: python anim_two.py trayectoria.txt salida.gif [1|2]")
+    main(sys.argv[1], sys.argv[2], int(sys.argv[3]) if len(sys.argv) == 4 else None)

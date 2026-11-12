@@ -165,6 +165,48 @@
   \end{columns}
 \end{frame}
 
+% SLIDE intro_solape | V:A | T:45
+\begin{frame}{Event-Driven: corrección de solape}
+  \begin{columns}[c]
+    \begin{column}{0.56\textwidth}
+      \centering
+      \animacion{overlap}{\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{frame_overlap.png}}
+
+      \soloentrega{\videolink{overlap}}
+    \end{column}
+    \begin{column}{0.41\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.85,transform shape,
+          ag/.style={draw,thick,circle,minimum size=1.4cm,inner sep=0pt},
+          arr/.style={-{Latex[length=1.8mm]},thick,tsdmdc}]
+        % antes: solapados
+        \node[ag] at (-0.45,0) {};
+        \node[ag] at (0.45,0) {};
+        \fill (-0.45,0) circle (0.04);
+        \fill (0.45,0) circle (0.04);
+        \draw[|-|,edmdc,thick] (-0.25,0) -- node[above,font=\scriptsize] {$\delta$} (0.25,0);
+        \draw[-{Latex[length=2mm]},very thick] (0,-0.95) -- (0,-1.55);
+        % despues: tangentes
+        \node[ag] at (-0.7,-2.5) {};
+        \node[ag] at (0.7,-2.5) {};
+        \fill (-0.7,-2.5) circle (0.04);
+        \fill (0.7,-2.5) circle (0.04);
+        \node[font=\scriptsize,gray] at (-0.45,-2.5) {$\times$};
+        \node[font=\scriptsize,gray] at (0.45,-2.5) {$\times$};
+        \draw[arr] (-0.45,-2.75) -- node[below,font=\scriptsize] {$\delta/2$} (-0.7,-2.75);
+        \draw[arr] (0.45,-2.75) -- node[below,font=\scriptsize] {$\delta/2$} (0.7,-2.75);
+      \end{tikzpicture}
+
+      \small
+      \[
+        \delta = r_i + r_j - |\vect x_i - \vect x_j|
+      \]
+      \params{Solo posiciones. Geométrica, no física.\
+        Si $\delta > 1\un{mm}$, se repite hasta $\delta \le 1\un{mm}$.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
 % SLIDE intro_recuperacion | V:A | T:45
 \begin{frame}{Event-Driven: recuperación de la velocidad deseada}
   \begin{columns}[c]
@@ -205,19 +247,36 @@
   \end{columns}
 \end{frame}
 
-% SLIDE intro_dos | V:A | T:30
+% SLIDE intro_dos_1 | V:A | T:10
 \begin{frame}{Dos agentes que chocan (corrida del motor)}
   \begin{columns}[c]
     \begin{column}{0.68\textwidth}
       \centering
-      \animacion{dos_particulas}{\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{frame_two.png}}
+      \animacion{dos_1}{\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{frame_two_1.png}}
 
-      \soloentrega{\videolink{dos}}
+      \soloentrega{\videolink{dos_1}}
     \end{column}
     \begin{column}{0.30\textwidth}
       \params{%
         $y = 4\un{m}$, $x = 5\pm(r+1\un{mm})$\\
         puerta en $x = 5\un{m}$\\[4pt]
+        Negro: velocidad real.\\
+        Verde: velocidad deseada.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% SLIDE intro_dos_2 | V:A | T:10
+\begin{frame}{Después del choque: la velocidad real alcanza a la deseada}
+  \begin{columns}[c]
+    \begin{column}{0.68\textwidth}
+      \centering
+      \animacion{dos_2}{\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{frame_two_2.png}}
+
+      \soloentrega{\videolink{dos_2}}
+    \end{column}
+    \begin{column}{0.30\textwidth}
+      \params{%
         Negro: velocidad real.\\
         Verde: velocidad deseada.}
     \end{column}

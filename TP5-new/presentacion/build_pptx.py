@@ -44,7 +44,9 @@ GIF_CACHE = PRES_DIR / "animaciones" / "gif_pptx"
 TP5_DIR = PRES_DIR.parent
 # id de nimacion -> GIF; los que faltan dejan el hueco en blanco (aviso por consola)
 GIFS = {
-    "dos_particulas": TP5_DIR / "data" / "anim_two.gif",
+    "dos_1": TP5_DIR / "data" / "anim_two_1.gif",
+    "dos_2": TP5_DIR / "data" / "anim_two_2.gif",
+    "overlap": TP5_DIR / "data" / "anim_overlap.gif",
     "tsdmd": TP5_DIR / "data" / "anim" / "tsdmd_N200_s1.gif",
     "edmd": TP5_DIR / "data" / "anim" / "edmd_N200_s1.gif",
     "hibrido": TP5_DIR / "data" / "anim" / "hybrid_N200_s1.gif",
