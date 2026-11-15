@@ -1,0 +1,34 @@
+### 00:40:47 --mode scale --variant both --seeds 3 --schemes edmd --run-timeout 7200 --data-dir data/studies
+STUDY run study=scale_a mode=time scheme=edmd N=100 seed=1 T=na completed=1 status=ok t_evac=27.2355 simulation_ms=410.870 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=100 seed=2 T=na completed=1 status=ok t_evac=27.2042 simulation_ms=364.488 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=100 seed=3 T=na completed=1 status=ok t_evac=25.9743 simulation_ms=436.284 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=200 seed=1 T=na completed=1 status=ok t_evac=44.2152 simulation_ms=2058.949 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=200 seed=2 T=na completed=1 status=ok t_evac=44.0944 simulation_ms=1927.988 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=200 seed=3 T=na completed=1 status=ok t_evac=44.5177 simulation_ms=1999.065 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=400 seed=1 T=na completed=1 status=ok t_evac=73.6580 simulation_ms=7825.413 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=400 seed=2 T=na completed=1 status=ok t_evac=69.7704 simulation_ms=7714.510 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=400 seed=3 T=na completed=1 status=ok t_evac=71.2688 simulation_ms=7352.070 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=700 seed=1 T=na completed=1 status=ok t_evac=97.5609 simulation_ms=20945.465 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=700 seed=2 T=na completed=1 status=ok t_evac=100.2725 simulation_ms=21040.943 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=700 seed=3 T=na completed=1 status=ok t_evac=101.5471 simulation_ms=20934.328 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=1000 seed=1 T=na completed=1 status=ok t_evac=120.6608 simulation_ms=37122.911 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=1000 seed=2 T=na completed=1 status=ok t_evac=120.0090 simulation_ms=37443.019 skipped=0
+STUDY run study=scale_a mode=time scheme=edmd N=1000 seed=3 T=na completed=1 status=ok t_evac=132.2710 simulation_ms=37089.223 skipped=0
+STUDY mode=scale variant=a runs=15 executed=15 skipped=0 completed=15 non_completed=0
+STUDY run study=scale_b mode=time scheme=edmd N=100 seed=1 T=na completed=1 status=ok t_evac=38.1692 simulation_ms=103.656 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=100 seed=2 T=na completed=1 status=ok t_evac=38.6805 simulation_ms=90.803 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=100 seed=3 T=na completed=1 status=ok t_evac=37.6328 simulation_ms=210.734 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=200 seed=1 T=na completed=1 status=ok t_evac=51.2045 simulation_ms=1541.459 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=200 seed=2 T=na completed=1 status=ok t_evac=53.9775 simulation_ms=1526.657 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=200 seed=3 T=na completed=1 status=ok t_evac=52.3542 simulation_ms=1383.715 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=400 seed=1 T=na completed=1 status=ok t_evac=76.4107 simulation_ms=8562.332 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=400 seed=2 T=na completed=1 status=ok t_evac=75.6335 simulation_ms=6936.287 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=400 seed=3 T=na completed=1 status=ok t_evac=75.5836 simulation_ms=7266.804 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=700 seed=1 T=na completed=1 status=ok t_evac=95.2656 simulation_ms=22677.691 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=700 seed=2 T=na completed=1 status=ok t_evac=98.7714 simulation_ms=21791.774 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=700 seed=3 T=na completed=1 status=ok t_evac=97.9994 simulation_ms=21591.439 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=1000 seed=1 T=na completed=1 status=ok t_evac=112.4353 simulation_ms=40668.398 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=1000 seed=2 T=na completed=1 status=ok t_evac=113.7934 simulation_ms=41430.497 skipped=0
+STUDY run study=scale_b mode=time scheme=edmd N=1000 seed=3 T=na completed=1 status=ok t_evac=111.7502 simulation_ms=39578.977 skipped=0
+STUDY mode=scale variant=b runs=15 executed=15 skipped=0 completed=15 non_completed=0
+### rc=0 00:47:48

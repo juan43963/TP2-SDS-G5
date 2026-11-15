@@ -1,0 +1,33 @@
+### 00:40:03 --mode bc-time --N 200 --timing-seeds 10 --run-timeout 7200 --data-dir data/studies
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=1 T=na completed=1 status=ok t_evac=77.5411 simulation_ms=5794.708 skipped=1
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=2 T=na completed=1 status=ok t_evac=80.1100 simulation_ms=6045.638 skipped=1
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=3 T=na completed=1 status=ok t_evac=79.0295 simulation_ms=5745.225 skipped=1
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=4 T=na completed=1 status=ok t_evac=82.1968 simulation_ms=6158.043 skipped=1
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=5 T=na completed=1 status=ok t_evac=75.8630 simulation_ms=5519.483 skipped=1
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=6 T=na completed=1 status=ok t_evac=78.4675 simulation_ms=5788.063 skipped=1
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=8 T=na completed=1 status=ok t_evac=81.9896 simulation_ms=6073.409 skipped=1
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=9 T=na completed=1 status=ok t_evac=79.0070 simulation_ms=5740.773 skipped=1
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=10 T=na completed=1 status=ok t_evac=82.5861 simulation_ms=6061.728 skipped=1
+STUDY run study=bc mode=time scheme=tsdmd N=200 seed=11 T=na completed=1 status=ok t_evac=79.8254 simulation_ms=5993.459 skipped=1
+STUDY run study=bc mode=time scheme=edmd N=200 seed=1 T=na completed=1 status=ok t_evac=53.0042 simulation_ms=1582.046 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=2 T=na completed=1 status=ok t_evac=52.9314 simulation_ms=1374.069 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=3 T=na completed=1 status=ok t_evac=51.3364 simulation_ms=1195.644 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=4 T=na completed=1 status=ok t_evac=55.3843 simulation_ms=1327.705 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=5 T=na completed=1 status=ok t_evac=50.9295 simulation_ms=1263.564 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=6 T=na completed=1 status=ok t_evac=52.6179 simulation_ms=1363.434 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=7 T=na completed=1 status=ok t_evac=52.6222 simulation_ms=1511.981 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=8 T=na completed=1 status=ok t_evac=50.8172 simulation_ms=1373.102 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=9 T=na completed=1 status=ok t_evac=50.3377 simulation_ms=1162.403 skipped=0
+STUDY run study=bc mode=time scheme=edmd N=200 seed=10 T=na completed=1 status=ok t_evac=53.1682 simulation_ms=1390.124 skipped=0
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=1 T=0.5 completed=1 status=ok t_evac=78.6397 simulation_ms=8843.799 skipped=1
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=2 T=0.5 completed=1 status=ok t_evac=80.9856 simulation_ms=9201.542 skipped=1
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=3 T=0.5 completed=1 status=ok t_evac=75.6594 simulation_ms=8247.811 skipped=1
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=4 T=0.5 completed=1 status=ok t_evac=80.5418 simulation_ms=9346.011 skipped=1
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=5 T=0.5 completed=1 status=ok t_evac=81.0841 simulation_ms=9002.998 skipped=1
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=6 T=0.5 completed=1 status=ok t_evac=79.6465 simulation_ms=9379.366 skipped=1
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=7 T=0.5 completed=1 status=ok t_evac=77.1571 simulation_ms=8546.547 skipped=1
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=9 T=0.5 completed=1 status=ok t_evac=77.8364 simulation_ms=8480.454 skipped=1
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=10 T=0.5 completed=1 status=ok t_evac=79.4714 simulation_ms=8598.916 skipped=1
+STUDY run study=bc mode=time scheme=hybrid N=200 seed=11 T=0.5 completed=1 status=ok t_evac=75.1532 simulation_ms=7925.203 skipped=1
+STUDY mode=bc-time N=200 runs=30 executed=10 skipped=20 mismatches=0
+### rc=0 00:40:18

@@ -128,8 +128,8 @@
   {\scriptsize (Helbing, Farkas y Vicsek, Nature, 2000)}
 \end{frame}
 
-% SLIDE intro_colision | V:A | T:45
-\begin{frame}{Event-Driven: regla de colisión}
+% SLIDE intro_colision | V:A | T:35
+\begin{frame}{Event-Driven: choque aislado}
   \begin{columns}[c]
     \begin{column}{0.50\textwidth}
       \centering
@@ -150,7 +150,7 @@
     \end{column}
     \begin{column}{0.48\textwidth}
       \small
-      Al chocar (agente, pared o esquina):
+      Choque aislado (agente, pared o esquina; ninguno de los dos toca a otro):
       \[
         \hat{\vect e}_{tmp} = \frac{\hat{\vect n}_{alejar}+\hat{\vect e}_{target}}
                                     {\bigl|\hat{\vect n}_{alejar}+\hat{\vect e}_{target}\bigr|},
@@ -165,49 +165,46 @@
   \end{columns}
 \end{frame}
 
-% SLIDE intro_solape | V:A | T:45
-\begin{frame}{Event-Driven: corrección de solape}
+% SLIDE intro_multitud | V:A | T:35
+\begin{frame}{Event-Driven: choque de multitud}
   \begin{columns}[c]
-    \begin{column}{0.56\textwidth}
+    \begin{column}{0.46\textwidth}
       \centering
-      \animacion{overlap}{\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{frame_overlap.png}}
-
-      \soloentrega{\videolink{overlap}}
-    \end{column}
-    \begin{column}{0.41\textwidth}
-      \centering
-      \begin{tikzpicture}[scale=0.85,transform shape,
-          ag/.style={draw,thick,circle,minimum size=1.4cm,inner sep=0pt},
-          arr/.style={-{Latex[length=1.8mm]},thick,tsdmdc}]
-        % antes: solapados
-        \node[ag] at (-0.45,0) {};
-        \node[ag] at (0.45,0) {};
-        \fill (-0.45,0) circle (0.04);
-        \fill (0.45,0) circle (0.04);
-        \draw[|-|,edmdc,thick] (-0.25,0) -- node[above,font=\scriptsize] {$\delta$} (0.25,0);
-        \draw[-{Latex[length=2mm]},very thick] (0,-0.95) -- (0,-1.55);
-        % despues: tangentes
-        \node[ag] at (-0.7,-2.5) {};
-        \node[ag] at (0.7,-2.5) {};
-        \fill (-0.7,-2.5) circle (0.04);
-        \fill (0.7,-2.5) circle (0.04);
-        \node[font=\scriptsize,gray] at (-0.45,-2.5) {$\times$};
-        \node[font=\scriptsize,gray] at (0.45,-2.5) {$\times$};
-        \draw[arr] (-0.45,-2.75) -- node[below,font=\scriptsize] {$\delta/2$} (-0.7,-2.75);
-        \draw[arr] (0.45,-2.75) -- node[below,font=\scriptsize] {$\delta/2$} (0.7,-2.75);
+      \begin{tikzpicture}[scale=1.1,
+          ag/.style={draw,thick,circle,minimum size=1.0cm,inner sep=0pt},
+          arr/.style={-{Latex[length=2.2mm]},very thick}]
+        \node[ag] (b) at (-1.0,0) {B};
+        \node[ag] (a) at (0.0,0) {A};
+        \node[ag] (c) at (1.0,0) {C};
+        \draw[arr,edmdc] (-1.0,-0.8) -- node[below,font=\scriptsize] {$\vect v_B$} (-0.35,-0.8);
+        \draw[arr,tsdmdc] (-0.3,0.8) -- node[above,font=\scriptsize] {$\vect v_B'$} (-1.3,0.8);
+        \draw[arr,tsdmdc] (0.0,-0.8) -- node[below,font=\scriptsize] {$\vect v_A'$} (0.55,-0.8);
+        \node[font=\scriptsize,gray!60!black] at (0.5,1.35) {A toca a C};
       \end{tikzpicture}
-
+    \end{column}
+    \begin{column}{0.52\textwidth}
       \small
+      Alguno de los dos toca a un tercero (o a una pared):
       \[
-        \delta = r_i + r_j - |\vect x_i - \vect x_j|
+        u = (\vect v_a - \vect v_b)\cdot\hat{\vect n}, \qquad s = \max\bigl(u,\ u_{min}\bigr)
       \]
-      \params{Solo posiciones. Geométrica, no física.\
-        Si $\delta > 1\un{mm}$, se repite hasta $\delta \le 1\un{mm}$.}
+      \[
+        \vect v_a' = \vect v_a - \tfrac{u+s}{2}\,\hat{\vect n}, \qquad
+        \vect v_b' = \vect v_b + \tfrac{u+s}{2}\,\hat{\vect n}
+      \]
+      \[
+        \text{pared o esquina:}\quad \vect v' = \vect v + (u+s)\,\hat{\vect n}
+      \]
+      \begin{itemize}
+        \item Rebote elástico de la componente normal; la tangencial no cambia.
+        \item La velocidad deseada no cambia.
+      \end{itemize}
+      \params{$u_{min} = 0.01\,v_d$; ``toca'': separación menor que $1\un{mm}$.}
     \end{column}
   \end{columns}
 \end{frame}
 
-% SLIDE intro_recuperacion | V:A | T:45
+% SLIDE intro_recuperacion | V:A | T:35
 \begin{frame}{Event-Driven: recuperación de la velocidad deseada}
   \begin{columns}[c]
     \begin{column}{0.52\textwidth}
@@ -241,44 +238,49 @@
       \]
       \begin{itemize}
         \item Cada $0.1\un{s}$ se re-apunta $\hat{\vect e}_{target}$ hasta $\vect v \approx v_d\,\hat{\vect e}$; después, vuelo libre.
-        \item Un choque antes de terminar reaplica la regla.
+        \item Un choque aislado antes de terminar reaplica la regla.
+        \item En un choque de multitud la deseada no cambia: la real relaja desde la velocidad del rebote.
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
 
-% SLIDE intro_dos_1 | V:A | T:10
-\begin{frame}{Dos agentes que chocan (corrida del motor)}
+% SLIDE intro_aislado | V:A | T:15
+\begin{frame}{Choque aislado (corrida del motor)}
   \begin{columns}[c]
-    \begin{column}{0.68\textwidth}
+    \begin{column}{0.60\textwidth}
       \centering
-      \animacion{dos_1}{\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{frame_two_1.png}}
+      \animacion{aislado}{\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{frame_eventos_aislado.png}}
 
-      \soloentrega{\videolink{dos_1}}
+      \soloentrega{\videolink{aislado}}
     \end{column}
-    \begin{column}{0.30\textwidth}
+    \begin{column}{0.36\textwidth}
       \params{%
-        $y = 4\un{m}$, $x = 5\pm(r+1\un{mm})$\\
-        puerta en $x = 5\un{m}$\\[4pt]
-        Negro: velocidad real.\\
-        Verde: velocidad deseada.}
+        EDMD, 2 agentes, $r = 0.2\un{m}$, separados $1\un{mm}$.\\
+        Un cuadro por evento procesado.\\[4pt]
+        Negro: velocidad real. Verde: deseada.\\
+        Punteado: evento anterior.\\
+        Contorno: naranja choque aislado, rojo multitud, verde cambio de la deseada.}
     \end{column}
   \end{columns}
 \end{frame}
 
-% SLIDE intro_dos_2 | V:A | T:10
-\begin{frame}{Después del choque: la velocidad real alcanza a la deseada}
+% SLIDE intro_multitud_anim | V:A | T:20
+\begin{frame}{Choque de multitud (corrida del motor)}
   \begin{columns}[c]
-    \begin{column}{0.68\textwidth}
+    \begin{column}{0.60\textwidth}
       \centering
-      \animacion{dos_2}{\includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{frame_two_2.png}}
+      \animacion{multitud}{\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{frame_eventos_multitud.png}}
 
-      \soloentrega{\videolink{dos_2}}
+      \soloentrega{\videolink{multitud}}
     \end{column}
-    \begin{column}{0.30\textwidth}
+    \begin{column}{0.36\textwidth}
       \params{%
-        Negro: velocidad real.\\
-        Verde: velocidad deseada.}
+        EDMD, 3 agentes, $r = 0.2\un{m}$, separados $1\un{mm}$; puerta de $0.8\un{m}$.\\
+        Un cuadro por evento procesado.\\[4pt]
+        Negro: velocidad real. Verde: deseada.\\
+        Punteado: evento anterior.\\
+        Contorno: naranja choque aislado, rojo multitud, verde cambio de la deseada, negro cruce de puerta.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -295,11 +297,11 @@
                   rectangle split parts=2,rectangle split part fill={gray!15,white}},
       comp/.style={-{Diamond[open,length=2.5mm]},thick},
       use/.style={-{Latex[length=2mm]},dashed,gray!70!black}]
-    \node[cls] (cfg) at (-4.6,1.6) {\textbf{EvacuationConfig}\nodepart{second}N, L, d, dt, dt$_2$, T, $\alpha$\\sfm: SfmParams};
+    \node[cls] (cfg) at (-4.6,1.6) {\textbf{EvacuationConfig}\nodepart{second}N, L, d, dt, dt$_2$, T\\sfm: SfmParams};
     \node[cls] (room) at (-4.6,-0.4) {\textbf{Room}\nodepart{second}doorCenter, exitTarget\\walls: WallSet};
     \node[cls] (ag) at (-4.6,-2.2) {\textbf{Agent}\nodepart{second}id, x, v, a, radio\\status, scheme};
     \node[cls] (ed) at (0,1.2) {\textbf{EdmdEngine}\nodepart{second}step(), nextEventTime()\\snapshot(t), release(), admit()};
-    \node[cls] (hy) at (0,-1.4) {\textbf{HybridEngine}\nodepart{second}step(), nextTime()\\criterio $\tau_c$, $T$, $\alpha T$};
+    \node[cls] (hy) at (0,-1.4) {\textbf{HybridEngine}\nodepart{second}step(), nextTime()\\criterio $\tau_c$, $T$};
     \node[cls] (rx) at (4.4,1.6) {\textbf{Relaxation}\nodepart{second}x$_0$, v$_0$, w, t$_0$\\relaxedPosition(t)};
     \node[cls] (fw) at (4.4,-0.2) {\textbf{ForceWorkspace}\nodepart{second}Cell Index Method\\fuerzas SFM (Verlet)};
     \node[cls] (tw) at (4.4,-2.0) {\textbf{TrajectoryWriter}\nodepart{second}writeFrame(t, agentes)\\finish()};
@@ -343,8 +345,8 @@
   \begin{itemize}
     \item Eventos: contacto (agente, pared, esquina), cruce de celda, puerta, fin del pulso de $0.1\un{s}$.
     \item Cola binaria por tiempo; cada agente tiene un contador de generación (los eventos viejos se descartan).
-    \item Tras un choque: se separan las posiciones solapadas más de $1\un{mm}$ (corrección geométrica, no física).
-    \item Piso de $5\times10^{-3}\un{s}$ entre choques de un mismo contacto.
+    \item Choque aislado: regla de deseo. Choque de multitud: rebote elástico.
+    \item Sin piso de tiempo ni corrección de posición: ningún choque se ignora.
   \end{itemize}
 \end{frame}
 
@@ -352,18 +354,14 @@
 \begin{frame}{Híbrido: criterio de pasaje}
   \centering
   \begin{tikzpicture}[x=1cm,y=1cm]
-    \fill[tsdmdc!35] (0,0) rectangle (2.4,1);
-    \fill[gray!25]   (2.4,0) rectangle (4.8,1);
-    \fill[edmdc!35]  (4.8,0) rectangle (9.5,1);
+    \fill[tsdmdc!35] (0,0) rectangle (3.6,1);
+    \fill[edmdc!35]  (3.6,0) rectangle (9.5,1);
     \draw[thick] (0,0) rectangle (9.5,1);
-    \draw[thick] (2.4,0) -- (2.4,1);
-    \draw[thick] (4.8,0) -- (4.8,1);
-    \node at (1.2,0.5) {TSDMD};
-    \node at (3.6,0.5) {se mantiene};
-    \node at (7.15,0.5) {EDMD};
+    \draw[thick] (3.6,0) -- (3.6,1);
+    \node at (1.8,0.5) {TSDMD};
+    \node at (6.55,0.5) {EDMD};
     \node[below] at (0,0) {$0$};
-    \node[below] at (2.4,0) {$T$};
-    \node[below] at (4.8,0) {$\alpha T$};
+    \node[below] at (3.6,0) {$T$};
     \node[below] at (9.5,0) {$\tau_c$};
   \end{tikzpicture}
 
@@ -375,14 +373,13 @@
   \[
     \text{EDMD}\to\text{TSDMD}:\ \tau_c < T
     \qquad
-    \text{TSDMD}\to\text{EDMD}:\ \tau_c > \alpha T
+    \text{TSDMD}\to\text{EDMD}:\ \tau_c > T
   \]
   \vfill
-  \params{Retorno además sin contacto y sin colapso (huelgo $<2\un{cm}$ y acercamiento $>5\un{cm/s}$).
-          $\alpha = 2$.}
+  \params{Retorno además sin contacto y sin colapso (huelgo $<2\un{cm}$ y acercamiento $>5\un{cm/s}$).}
 \end{frame}
 
-% SLIDE impl_hib_reloj | V:B | T:55
+% SLIDE impl_hib_reloj | V:B | T:45
 \begin{frame}{Híbrido: un solo reloj}
   \begin{columns}[c]
     \begin{column}{0.50\textwidth}
@@ -480,11 +477,12 @@
     \begin{column}{0.54\textwidth}
       \params{%
         $L = 50\un{m}$, $d = 0.8\un{m}$\\
-        $N = 200$ y $N = 500$\\
+        $N = 200$\\
         $r\in[0.18,\,0.25]\un{m}$, $v_d = 1.5\un{m/s}$\\
         $m = 80\un{kg}$, $\tau = 0.5\un{s}$, $k = 1.2\times10^{5}\un{kg/s^2}$\\
         $dt = 10^{-4}\un{s}$, pulso $0.1\un{s}$\\
-        híbrido: $T = 0.5\un{s}$, $\alpha = 2$}
+        EDMD: $u_{min} = 0.01\,v_d$, contacto: $1\un{mm}$\\
+        híbrido: $T = 0.5\un{s}$}
 
       \vspace{4pt}
       Inicio: agentes al azar sin solape, con velocidad $v_d$ hacia la puerta.
@@ -522,7 +520,7 @@
 \section{Resultados}
 % =====================================================================
 
-% SLIDE res_anim | V:C | T:35
+% SLIDE res_anim | V:C | T:30
 \begin{frame}{Esquema: animaciones, sala completa}
   \begin{columns}[T]
     \begin{column}{0.325\textwidth}
@@ -548,10 +546,10 @@
     \end{column}
   \end{columns}
   \vfill
-  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), $t = 20\un{s}$; $T = 0.5\un{s}$, $\alpha = 2$.}
+  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), $t = 20\un{s}$; $T = 0.5\un{s}$.}
 \end{frame}
 
-% SLIDE res_anim_zoom | V:C | T:25
+% SLIDE res_anim_zoom | V:C | T:20
 \begin{frame}{Esquema: animaciones, zoom a la puerta}
   \begin{columns}[T]
     \begin{column}{0.325\textwidth}
@@ -577,7 +575,7 @@
     \end{column}
   \end{columns}
   \vfill
-  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), $t = 20\un{s}$; $T = 0.5\un{s}$, $\alpha = 2$.}
+  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), $t = 20\un{s}$; $T = 0.5\un{s}$.}
 \end{frame}
 
 % SLIDE res_fraccion | V:A | T:30
@@ -589,7 +587,7 @@
     \begin{column}{0.34\textwidth}
       \params{%
         $N = 200$, $L = 50\un{m}$\\
-        $T = 0.5\un{s}$, $\alpha = 2$\\
+        $T = 0.5\un{s}$\\
         Una realización (semilla 1).}
     \end{column}
   \end{columns}
@@ -604,9 +602,10 @@
     \begin{column}{0.34\textwidth}
       \params{%
         $N = 200$, $L = 50\un{m}$\\
-        $T = 0.5\un{s}$, $\alpha = 2$\\[4pt]
+        $T = 0.5\un{s}$\\[4pt]
         Media sobre una grilla común de $t$; solo corridas completas.\\
-        Banda: SEM.}
+        Banda: SEM.\\[4pt]
+        EDMD, regla de multitud: solape máximo $2\times10^{-14}\un{m}$.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -623,7 +622,8 @@
         Sobre cada barra: corridas completas / intentadas.\\
         Puntos: cada realización.\\[4pt]
         $z$ respecto de TSDMD:\\
-        EDMD $1.0$, híbrido $-0.7$.}
+        EDMD $-12$, híbrido $+0.3$.\\[4pt]
+        EDMD, regla de multitud: solape máximo $2\times10^{-14}\un{m}$.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -637,12 +637,13 @@
     \begin{column}{0.34\textwidth}
       \params{%
         $N = 200$, $L = 50\un{m}$\\
-        Un hilo, misma máquina, corridas en serie.}
+        Un hilo, misma máquina, corridas en serie.\\[4pt]
+        EDMD: regla de multitud.}
     \end{column}
   \end{columns}
 \end{frame}
 
-% SLIDE res_sweep | V:A | T:50
+% SLIDE res_sweep | V:A | T:35
 \begin{frame}{Umbral $T$ del híbrido}
   \begin{columns}[c]
     \begin{column}{0.50\textwidth}
@@ -650,9 +651,9 @@
     \end{column}
     \begin{column}{0.46\textwidth}
       \params{%
-        $N = 200$, $L = 50\un{m}$, $\alpha = 2$\\
+        $N = 200$, $L = 50\un{m}$\\
         10 realizaciones por punto; $n$ bajo cada $T$: las completas.\\[4pt]
-        $T = 0$: reproduce el EDMD puro.\\
+        $T = 0$: reproduce el EDMD puro, regla de multitud.\\
         Franjas: SEM de TSDMD y EDMD.}
     \end{column}
   \end{columns}
@@ -683,7 +684,8 @@
     \begin{column}{0.34\textwidth}
       \params{%
         $L = 50\un{m}$ (la densidad crece con $N$).\\
-        \textbf{3 realizaciones por punto} (menos que las 10 del resto): el error es poco confiable; vale la tendencia, no el valor.}
+        \textbf{3 realizaciones por punto} (menos que las 10 del resto): el error es poco confiable; vale la tendencia, no el valor.\\
+        Hueco: alguna corrida no evacuó antes de $t_{max}$ (EDMD, $N = 1000$: 481 agentes en la sala).}
     \end{column}
   \end{columns}
 \end{frame}
@@ -692,18 +694,19 @@
 \section{Conclusiones}
 % =====================================================================
 
-% SLIDE concl | V:B | T:30
+% SLIDE concl | V:B | T:35
 \begin{frame}{Conclusiones}
   % Sin valores numericos (Guia 2.5). Cada afirmacion sale de z (|z|<2: no se distingue) o de las tasas
   % de exito; los z estan en res_tevac y en res_sweep.
   \begin{enumerate}
     \small
-    \item El EDMD no se distingue del TSDMD en el tiempo medio de evacuación; sí en la dispersión, mucho mayor.
-    \item El híbrido no se distingue del TSDMD en el tiempo de evacuación, para ningún $T$ evaluado.
-    \item Los tres esquemas dejan corridas sin completar, en proporciones parecidas: los atascos no son propios del EDMD.
-    \item El costo de ejecución del híbrido no baja del TSDMD para ningún $T$ evaluado, y es claramente menor que el del EDMD solo para $T$ chico.
-    \item $T = 0$ reproduce el EDMD. Con $T$ grande el tiempo de evacuación no se distingue del TSDMD, pero el costo es mayor.
-    \item El costo del EDMD crece con $N$ mucho más rápido que el de los otros dos; solo se midió hasta $N = 400$ y con 3 realizaciones: es una tendencia, no un exponente.
+    \item El EDMD evacúa sin superposición si el choque dentro de la multitud es elástico: ningún choque se ignora y no se corrigen posiciones.
+    \item Con esa regla evacúa antes que el TSDMD ($|z|>2$) y su tiempo de ejecución es mayor.
+    \item Al crecer $N$ el costo del EDMD crece más rápido que el del TSDMD y el del híbrido; con $L$ fija y $N$ grande una corrida no evacúa.
+    \item El híbrido no se distingue del TSDMD en el tiempo de evacuación, para ningún $T>0$ evaluado: los contactos los resuelve el resorte, no la regla del EDMD.
+    \item El costo de ejecución del híbrido no baja del TSDMD para ningún $T$ evaluado; con $T$ grande es mayor.
+    \item $T = 0$ reproduce el EDMD, ahora sin superposición.
+    \item TSDMD e híbrido dejan corridas sin completar con $N = 200$; el EDMD, con $N = 1000$ y $L$ fija.
   \end{enumerate}
 \end{frame}
 
@@ -719,6 +722,32 @@
 %  Apendice (T:0)
 % =====================================================================
 \appendix
+
+% SLIDE apx_variantes_v3 | V:A | T:0
+\begin{frame}{Apéndice: del piso de tiempo a la regla de multitud}
+  \footnotesize
+  \params{$N = 200$, $L = 50\un{m}$, $t_{max} = 600\un{s}$, semillas 1 a 16 (multitud con $10^{-3}\un{m}$: 12; con $10^{-6}\un{m}$: 8).
+          $t_{evac}$ solo de las completas.}
+  \begin{center}
+    \begin{tabular}{lccc}
+      \toprule
+      Regla & Solape máx. [m] & Completas & $t_{evac}$ [s] \\ \midrule
+      Rebote solo en choques repetidos, $t_c = 5\times10^{-3}\un{s}$ & $10^{-13}$        & 16/16 & $120\pm30$ \\
+      Rebote solo en choques repetidos, $t_c = 5\times10^{-2}\un{s}$ & $2\times10^{-14}$ & 16/16 & $69.0\pm0.6$ \\
+      Todos los choques elásticos, $u_{min} = 0.01\,v_d$             & $0$               & 10/16 & $98$ a $224$ \\
+      Todos los choques elásticos, $u_{min} = 0.05\,v_d$             & $0$               & 14/16 & $98$ a $128$ \\
+      Multitud, contacto $10^{-6}\un{m}$                             & ---               & 0/8   & no terminan en $15\un{min}$ \\
+      Multitud, contacto $10^{-4}\un{m}$                             & $2\times10^{-14}$ & 16/16 & $63\pm2$ \\
+      Multitud, contacto $10^{-3}\un{m}$ (usada)                     & $2\times10^{-14}$ & 12/12 & $61\pm1$ \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \begin{itemize}
+    \item El rebote solo en repetidos depende del tiempo $t_c$: con $5\times10^{-3}\un{s}$ dos corridas tardan $282\un{s}$ y $597\un{s}$.
+    \item Con todos los choques elásticos quedan agentes sin salir (causa no verificada).
+    \item Con contacto de $10^{-6}\un{m}$, dos agentes casi pegados cuentan como aislados y vuelve la cascada.
+  \end{itemize}
+\end{frame}
 
 % SLIDE apx_kappa | V:A | T:0
 \begin{frame}{Apéndice: con rozamiento tangencial}
@@ -741,31 +770,6 @@
   \end{itemize}
 \end{frame}
 
-% SLIDE apx_dtc | V:A | T:0
-\begin{frame}{Apéndice: duración del pulso}
-  \footnotesize
-  \params{EDMD, $N = 200$, $L = 50\un{m}$, 10 semillas iguales en las tres filas, $t_{max} = 600\un{s}$.}
-  \begin{center}
-    \begin{tabular}{rcc}
-      \toprule
-      $\Delta t_c$ & Evacuaciones completas & $t_{evac}$ (solo completas) \\ \midrule
-      $0.05\un{s}$ & 9/10  & $130 \pm 40\un{s}$ \\
-      $0.1\un{s}$  & 10/10 & $99 \pm 15\un{s}$ \\
-      $0.2\un{s}$  & 0/10  & --- \\
-      \bottomrule
-    \end{tabular}
-  \end{center}
-  \begin{itemize}
-    \item $t_{evac}$ depende de $\Delta t_c$: es un parámetro del modelo, no un paso numérico.
-    \item $0.2\un{s}$: en 9 de 10 corridas queda 1 agente sin cruzar y en la otra, 158.
-          Con la semilla 1 el agente rebota entre las dos esquinas de la puerta cada $\approx 0.8\un{s}$.
-    \item Hipótesis, sin probar: el pulso ($1.5\un{m/s}\times0.2\un{s}=0.3\un{m}$) es casi el hueco útil
-          ($2(0.4-0.25)=0.3\un{m}$) y lo lleva a la esquina opuesta.
-    \item $0.05\un{s}$: en 1 de 10 el EDMD se frena con 79 agentes en sala (cascada de choques).
-    \item Elegimos $0.1\un{s}$: es el único valor sin fallas en estas 10 semillas.
-  \end{itemize}
-\end{frame}
-
 % SLIDE apx_dt | V:A | T:0
 \begin{frame}{Apéndice: convergencia en $dt$ y reproducibilidad}
   \footnotesize
@@ -775,15 +779,16 @@
       \toprule
       & $dt = 10^{-4}\un{s}$ & $dt = 5\times10^{-5}\un{s}$ \\ \midrule
       TSDMD   & $79.6 \pm 0.8\un{s}$ & $81.6 \pm 1.6\un{s}$ \\
-      Híbrido & $79.4 \pm 1.0\un{s}$ & $84 \pm 3\un{s}$ \\
+      Híbrido & $80.1 \pm 1.3\un{s}$ & $78.4 \pm 1.2\un{s}$ \\
       \bottomrule
     \end{tabular}
   \end{center}
   \begin{itemize}
     \item Con $dt/2$ no se distingue el $t_{evac}$ (diferencias dentro del error); el costo se duplica.
-    \item Con cada $dt$ no completa una de las 10 semillas del TSDMD (semillas distintas); el híbrido con $dt/2$ completa 4 de 5.
-    \item Reproducibilidad del EDMD: la misma semilla da trayectorias distintas con otro $t_{max}$
-          (separación visible antes de $t = 10\un{s}$), pero idénticas con otro intervalo de salida.
+    \item Con cada $dt$ no completa una de las 10 semillas del TSDMD (semillas distintas); el híbrido con $dt$ completa 4 de 5.
+    \item Reproducibilidad del EDMD: la misma semilla da otro $t_{evac}$ con otro $t_{max}$
+          (semilla 1: $58.3\un{s}$ con $600\un{s}$, $67.6\un{s}$ con $1000\un{s}$, $60.7\un{s}$ con $3000\un{s}$),
+          pero idéntico con otro intervalo de salida.
     \item Causa probable (no aislada): la bisección del cruce de plano usa $t_{max}-t$ como intervalo;
           cambia la raíz en $\sim10^{-13}\un{s}$ y el caos de los choques lo amplifica.
     \item Todos los estudios usan el mismo $t_{max}$ por esquema; con $t_{max}$ fijo, las corridas se repiten dígito a dígito.
@@ -814,10 +819,10 @@
       & Pulso de $0.1\,\mathrm{s}$, relajación exacta con inercia y re-apuntado hasta $|\vect v-v_d\hat e|\le\varepsilon$; después vuelo libre sin eventos. \\
     Choque en plena relajación
       & No estaba definido.
-      & Se reaplica la regla con la velocidad actual y el pulso reinicia. \\
+      & Choque aislado: se reaplica la regla con la velocidad actual y el pulso reinicia. \\
     Solapes
-      & Parche \texttt{--overlap-cap} que además anulaba velocidades.
-      & Se corrigen solo posiciones, y lo decimos: es geométrico, no físico. \\
+      & Parche \texttt{--overlap-cap} que además anulaba velocidades; después, un piso de tiempo que ignoraba los choques repetidos.
+      & Sin parche ni piso: en la multitud el choque es un rebote elástico, y el solape medido es $\approx 0$ (apéndice). \\
     Verificación
       & Ninguna con casos simples.
       & Test y animación con $2$ partículas que muestra $\hat e$ deseada y real. \\

@@ -228,7 +228,9 @@ void testHeapStaysBounded(TestSuite& suite) {
         maxHeap = std::max(maxHeap, engine.heapSize());
         ++steps;
     }
-    suite.check(steps >= 20000, "heap: se recorrieron al menos 20000 eventos");
+    // Con la regla de multitud (v3) la corrida evacua en ~9000 eventos; lo que importa es que haya compactado.
+    suite.check(steps >= 5000 && engine.counters().compactions >= 1,
+                "heap: se recorrieron al menos 5000 eventos con al menos una compactacion");
     suite.check(maxHeap <= bound, "heap: tamanio acotado por 4*max(4096, 64*N)");
     suite.check(engine.counters().timeRegressions == 0, "heap: time_regressions == 0");
     std::printf("  heap: maximo=%zu cota=%zu eventos=%lld compactaciones=%lld\n", maxHeap, bound, steps,

@@ -28,6 +28,7 @@ EvacuationConfig baseConfig(int agents, double side, std::uint64_t seed) {
     c.agentCount = agents;
     c.side = side;
     c.seed = seed;
+    c.doorAimBelow = 0.01;  // como la CLI: sin el margen un agente EDMD queda sobre la linea de la puerta (Zeno)
     return c;
 }
 

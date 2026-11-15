@@ -41,7 +41,7 @@ SMOKE_TMAX = {"tsdmd": 3000.0, "edmd": 3000.0, "hybrid": 400.0}
 SMOKE_N = 60
 SMOKE_L = 10.0
 SMOKE_T = 0.5
-SMOKE_ALPHA = 2.0
+SMOKE_ALPHA = 1.0
 
 ENGINE_DT = 1e-4  # paso del motor: el hibrido rechaza 0 < T < 2*dt
 MAX_T = 3.0  # Fase 8: oscilacion de esquema con T >= 5 (D-36)

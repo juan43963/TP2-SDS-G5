@@ -93,16 +93,23 @@ void printUsage() {
         "  --mass <kg>                    masa del agente (80)\n"
         "  --tau <s>                      tiempo de relajacion (0.5)\n\n"
         "EDMD (solo --scheme edmd):\n"
-        "  --event-gap <s>                piso de tiempo entre colisiones de un agente, [1e-6,0.1] (5e-3)\n"
+        "  Regla de choque (default, regla de multitud): choque aislado -> v_d*normalizar(n_alejar + e_target)\n"
+        "  con pulso; si alguno de los dos toca a un tercero o a una pared -> rebote elastico.\n"
+        "  --crowd-band <m>               separacion que cuenta como 'toca', (0,0.05] (1e-3)\n"
+        "  --bounce-min <f>               rapidez normal minima de separacion del rebote, fraccion de v_d, (0,1] (0.01)\n"
+        "  --no-crowd                     regla v2: todos los choques con la regla de deseo y piso de tiempo\n"
+        "                                 --event-gap (los choques repetidos se ignoran: solapes)\n"
+        "  --event-gap <s>                piso de tiempo de la regla v2, [1e-6,0.1] (5e-3)\n"
         "  --steer-dt <s>                 periodo de re-apuntado de la direccion de deseo, [1e-3,10] (0.1)\n"
         "  --door-aim <m>                 los agentes en sala apuntan m por debajo del centro de la puerta (0.01)\n"
-        "  --no-separate                  sin correccion de posicion tras el choque (solo para mostrar el antes)\n"
+        "  --multi-contact                regla v2: el choque resuelve todos los contactos vigentes (suma de normales)\n"
+        "  --separate                     regla v2: correccion de posicion tras el choque\n"
         "  --max-events <int>             tope de eventos procesados (1e9)\n\n"
         "Hibrido (solo --scheme hybrid):\n"
         "  --hybrid-T <s>                 umbral T: un agente pasa a TSDMD si su tiempo al proximo\n"
         "                                 contacto es < T; 0 o >= 2*dt (0.5). T = 0: EDMD puro;\n"
         "                                 T >= tmax: TSDMD puro\n"
-        "  --hybrid-alpha <a>             histeresis: vuelve a EDMD si ese tiempo es > a*T, a >= 1 (2)\n"
+        "  --hybrid-alpha <a>             histeresis: vuelve a EDMD si ese tiempo es > a*T, a >= 1 (1 = umbral unico)\n"
         "  --return-stride <n>            evalua el retorno a EDMD cada n pasos dt, n >= 1 (20)\n\n"
         "Integracion:\n"
         "  --scheme <tsdmd|edmd|hybrid>   esquema (tsdmd)\n"
@@ -126,10 +133,11 @@ ProgramOptions parseOptions(int argc, char** argv) {
     ProgramOptions options;
     EvacuationConfig& c = options.config;
     c.doorAimBelow = 0.01;  // por defecto en el programa; los tests parten de 0 (target exacto)
+    c.separateOverlaps = false;  // por defecto en el programa: sin correccion de posicion (--separate la activa)
     enum LongOnly {
         kDoor = 1000, kRmin, kRmax, kVd, kK, kKappa, kMass, kTau, kExitDistance,
         kMaxPlacement, kScheme, kDt, kDt2, kNoOutput, kCsv,
-        kEventGap, kSteerDt, kNoSeparate, kMaxEvents, kHybridT, kHybridAlpha, kDoorAim, kReturnStride
+        kEventGap, kSteerDt, kNoSeparate, kMaxEvents, kHybridT, kHybridAlpha, kDoorAim, kReturnStride, kMultiContact, kSeparate, kBounceMin, kNoCrowd, kCrowdBand
     };
     static option longOptions[] = {
         {"N", required_argument, nullptr, 'N'},
@@ -152,7 +160,12 @@ ProgramOptions parseOptions(int argc, char** argv) {
         {"event-gap", required_argument, nullptr, kEventGap},
         {"steer-dt", required_argument, nullptr, kSteerDt},
         {"door-aim", required_argument, nullptr, kDoorAim},
+        {"separate", no_argument, nullptr, kSeparate},
         {"no-separate", no_argument, nullptr, kNoSeparate},
+        {"multi-contact", no_argument, nullptr, kMultiContact},
+        {"no-crowd", no_argument, nullptr, kNoCrowd},
+        {"crowd-band", required_argument, nullptr, kCrowdBand},
+        {"bounce-min", required_argument, nullptr, kBounceMin},
         {"max-events", required_argument, nullptr, kMaxEvents},
         {"hybrid-T", required_argument, nullptr, kHybridT},
         {"hybrid-alpha", required_argument, nullptr, kHybridAlpha},
@@ -190,7 +203,12 @@ ProgramOptions parseOptions(int argc, char** argv) {
                 break;
             case kScheme: c.scheme = parseScheme(optarg); break;
             case kEventGap: c.eventGap = parseDouble(optarg, "--event-gap"); break;
+            case kSeparate: c.separateOverlaps = true; break;
             case kNoSeparate: c.separateOverlaps = false; break;
+            case kMultiContact: c.multiContact = true; break;
+            case kNoCrowd: c.crowdRule = false; break;
+            case kCrowdBand: c.crowdBand = parseDouble(optarg, "--crowd-band"); break;
+            case kBounceMin: c.bounceMin = parseDouble(optarg, "--bounce-min"); break;
             case kSteerDt: c.steerInterval = parseDouble(optarg, "--steer-dt"); break;
             case kDoorAim: c.doorAimBelow = parseDouble(optarg, "--door-aim"); break;
             case kMaxEvents: c.maxEvents = parseLongLong(optarg, "--max-events"); break;

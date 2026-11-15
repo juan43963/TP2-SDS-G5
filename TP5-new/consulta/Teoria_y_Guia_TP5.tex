@@ -1,0 +1,488 @@
+\documentclass[10.5pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[table]{xcolor}
+\usepackage{booktabs,array,tikz}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{xspace}
+\usepackage[hidelinks]{hyperref}
+\usetikzlibrary{arrows.meta}
+\setlist{itemsep=1pt,topsep=2pt,parsep=0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+
+\definecolor{ana}{HTML}{E3F0FB}
+\definecolor{fml}{HTML}{FFF8DC}
+\definecolor{hipo}{HTML}{FFF3D6}
+\definecolor{deb}{HTML}{FBE3E3}
+\definecolor{tsdmdc}{HTML}{1F4E79}
+\definecolor{edmdc}{HTML}{C0392B}
+\definecolor{hybc}{HTML}{2E7D32}
+
+\newcommand{\pc}{\char37\xspace}
+\newcommand{\tn}[2]{\ensuremath{#1\times10^{#2}}}
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\un}[1]{\,\mathrm{#1}}
+\newcommand{\analogia}[1]{\par\colorbox{ana}{\parbox{\dimexpr\linewidth-2\fboxsep}{\textbf{En criollo:} #1}}\par}
+\newcommand{\formula}[1]{\par\colorbox{fml}{\parbox{\dimexpr\linewidth-2\fboxsep}{\textbf{Fórmula que hay que saber.} #1}}\par}
+\newcommand{\hipotesis}[1]{\par\colorbox{hipo}{\parbox{\dimexpr\linewidth-2\fboxsep}{\textbf{Hipótesis nuestra (no medida):} #1}}\par}
+\newcommand{\debil}[1]{\par\colorbox{deb}{\parbox{\dimexpr\linewidth-2\fboxsep}{\textbf{Punto débil, decirlo así:} #1}}\par}
+\newcommand{\pr}[1]{\par\textbf{P:} #1\par\nobreak}
+\newcommand{\rp}[1]{\textbf{R:} #1\par}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\cfoot{Teoría y guía TP5 \textbullet{} Grupo 5 \textbullet{} \thepage}
+
+\begin{document}
+
+{\LARGE\bfseries Teoría TP5 explicada simple + Guía TP5}\par
+{\large Dinámica peatonal: evacuación de una sala con un esquema híbrido EDMD + TSDMD \textbar{} Grupo 5, Comisión S}\par
+\vspace{4pt}
+
+\textbf{Para qué sirve esto.} La consigna del profe en la consulta fue clara: tienen que entender cada decisión como si la hubieran pensado en papel, no repetir lo que dice la diapositiva. Este documento está armado para eso. La Parte 1 explica cada concepto sin vueltas, con una analogía cotidiana y la fórmula que hay que saber. La Parte 2 recorre los puntos del enunciado (a, b, c, d) y dice qué mostrar y cómo responder. La Parte 3 son preguntas probables con respuesta modelo. La Parte 4 son los puntos débiles y cómo decirlos con honestidad. La Parte 5 es la hoja de números y fórmulas para repasar antes de exponer.
+
+Cómo leer los recuadros: \colorbox{ana}{celeste = analogía}, \colorbox{fml}{amarillo = fórmula}, \colorbox{hipo}{naranja = hipótesis no medida},\\ \colorbox{deb}{rojo = punto débil}. Una hipótesis se dice como hipótesis, nunca como resultado.
+
+\textbf{De dónde salen los números.} De \texttt{DECISIONES\_TP5\_v2.md}, de la presentación vigente (\texttt{presentacion.tex}), del código del motor (\texttt{src/}) y de la transcripción de la clase de consultas. Los estudios usan $N=200$ y $L=50$ m (el enunciado dice $N=500$, pero el aviso del campus permitió bajar a $N=200$; $N=500$ no se corrió). Si alguien rehace una corrida, los números de esta guía hay que revisarlos.
+
+%====================================================================
+\section*{Parte 0. El TP en un minuto}
+
+\textbf{Qué se pide (Problema 2).} Simular la evacuación de $N$ agentes de una sala cuadrada de lado $L=50$ m con una sola puerta de ancho $d=0{,}8$ m en el centro de una pared. Todos quieren llegar a la puerta con rapidez deseada $v_d=1{,}5$ m/s. Hay que implementar tres esquemas y compararlos:
+\begin{itemize}
+\item \textbf{TSDMD}: dinámica molecular por paso de tiempo (todos avanzan $dt$ a la vez).
+\item \textbf{EDMD}: dinámica molecular por eventos (se salta directo al próximo evento).
+\item \textbf{Híbrido}: cada agente usa uno u otro según lo cerca que esté de chocar.
+\end{itemize}
+\textbf{Qué modelo de personas.} Modelo de fuerza social (SFM, Helbing--Farkas--Vicsek 2000) \emph{sin} fuerza social: queda solo el deseo de ir a la puerta y el contacto. Nosotros además sin rozamiento tangencial.
+
+\textbf{Qué se mide.} Curvas de población $N_{in}(t)$, tiempo de evacuación $t_{evac}$ (con $\geq10$ realizaciones y barras de error), tiempo de ejecución (wall-clock), el efecto del umbral $T$ del híbrido y cómo escala todo con $N$.
+
+\textbf{La historia de los resultados en seis líneas.}
+\begin{enumerate}
+\item El TSDMD es la referencia: es el que resuelve el contacto de verdad (con resortes).
+\item El EDMD necesita una regla de colisión inventada; elegimos una simple y la explicamos (Sección 1.5).
+\item El tiempo medio de evacuación del EDMD y del híbrido \emph{no se distingue} del TSDMD ($|z|<2$); el EDMD tiene mucha más dispersión.
+\item En tiempo de ejecución el EDMD es el más caro (unas 4 veces el TSDMD a $N=200$) y el híbrido queda en el medio, siempre por encima del TSDMD.
+\item $T=0$ reproduce el EDMD; con $T$ grande el híbrido se parece al TSDMD en $t_{evac}$ pero es más caro.
+\item Con $N$ el EDMD escala mucho peor que los otros dos (tendencia, solo 3 realizaciones por punto).
+\end{enumerate}
+
+%====================================================================
+\section{Teoría explicada simple}
+
+\subsection{El sistema y por qué hay tres esquemas}
+Lejos de la puerta los agentes caminan casi en línea recta y casi no se tocan. En la puerta se forma un cuello de botella: contactos continuos, gente apretada. Esos dos regímenes piden herramientas distintas, y de ahí sale la idea del híbrido.
+
+\analogia{Una autopista. En ruta vacía no hace falta mirar el auto cada milisegundo: alcanza con calcular \emph{cuándo} se van a cruzar dos autos y saltar a ese momento (eso es EDMD). En un embotellamiento con paragolpes que se rozan sí hay que mirar cuadro a cuadro (eso es TSDMD). El híbrido es manejar con \emph{piloto automático} en ruta libre y pasar a \emph{manual} cuando te acercás al tapón.}
+
+\subsection{El modelo: SFM sin fuerza social}
+Cada agente $i$ tiene masa $m$, radio $r_i$ y un destino. Dos cosas lo mueven: querer ir a la puerta, y no atravesar a otros ni a las paredes.
+\formula{
+\[
+m\,\dot{\vect v}_i = m\,\frac{v_d\,\hat{\vect e}_i-\vect v_i}{\tau}
++ \sum_{j}k\,\xi_{ij}\,\hat{\vect n}_{ij} + \sum_{w}k\,\xi_{iw}\,\hat{\vect n}_{iw},
+\qquad \xi_{ij}=\max(r_i+r_j-d_{ij},\,0)
+\]
+$\hat{\vect e}_i$: versor hacia el objetivo (la puerta). $\tau$: tiempo de relajación. $k$: rigidez del resorte. $\xi$: cuánto se superponen (solape). $d_{ij}$: distancia entre centros. $\hat{\vect n}_{ij}$: versor que empuja a $i$ lejos de $j$.
+Parámetros: $m=80$ kg, $\tau=0{,}5$ s, $k=\tn{1{,}2}{5}$ kg/s$^2$, $v_d=1{,}5$ m/s, $r\in[0{,}18;0{,}25]$ m (uniforme).}
+
+\textbf{Término del deseo.} Es un freno/acelerador suave: si tu velocidad real no es la deseada, tu aceleración es proporcional a la diferencia. Si no hay obstáculos, la solución es exponencial: $\vect v(t)=v_d\hat{\vect e}+(\vect v_0-v_d\hat{\vect e})e^{-t/\tau}$. En un tiempo $\tau$ cerrás el 63\pc{} de la diferencia; en $3\tau$ (1,5 s), el 95\pc.
+\analogia{Un camión cargado: le pedís 54 km/h pero tarda en llegar; no pasa de 0 a 54 de golpe. $\tau$ mide esa ``pereza''.}
+
+\textbf{Término del contacto.} Si dos agentes se superponen $\xi$, un resorte los empuja con fuerza $k\xi$ a lo largo de la línea de centros. Si no se tocan, no hay fuerza. Paredes y bordes de la puerta se tratan como agentes de radio 0 (las esquinas de la puerta son puntos).
+\analogia{Los agentes llevan un paragolpes de goma: cuanto más se hunde, más empuja para atrás.}
+
+\textbf{Qué quiere decir ``sin fuerza social''.} Helbing agrega una repulsión de largo alcance (te alejás de la gente antes de tocarla). Acá el enunciado pide sacarla: los agentes solo se enteran del otro cuando lo tocan. Tampoco usamos el rozamiento tangencial del paper (decisión de la consulta: si se bloquea, se saca; a nosotros nos convenía sacarlo, ver Parte 3).
+
+\textbf{Por qué se menciona el CPM.} El enunciado deja elegir entre SFM sin fuerza social o CPM (Baglietto y Parisi, 2011, modelo de partículas contráctiles). Elegimos SFM. La regla de colisión del EDMD se inspira en la idea del CPM: al chocar, los agentes se \emph{alejan} un ratito y después retoman el rumbo.
+
+\subsection{TSDMD: avanzar de a pasitos}
+\textbf{Idea.} Se fija un paso $dt$. En cada paso se calculan todas las fuerzas, se actualizan posiciones y velocidades, y se repite hasta que todos salgan. Usamos Velocity Verlet.
+\formula{
+\begin{align*}
+\vect x(t+dt) &= \vect x(t)+\vect v(t)\,dt+\tfrac12\vect a(t)\,dt^2\\
+\vect v(t+dt) &= \vect v(t)+\tfrac12\bigl[\vect a(t)+\vect a(t+dt)\bigr]dt
+\end{align*}
+Con $dt=10^{-4}$ s. Cota de estabilidad que usamos: $dt<0{,}1\sqrt{m/k}\approx2{,}6\times10^{-3}$ s.}
+\analogia{Una película: se saca una foto cada $dt$ y se mueve todo un poquito. Si $dt$ es grande, entre foto y foto dos personas se atraviesan sin que el resorte se entere. Si es chico, ves todo bien pero gastás más tiempo de cómputo.}
+
+\textbf{Por qué $dt=10^{-4}$ s.} Un contacto entre dos agentes dura aproximadamente medio período del resorte: con masa reducida $\mu=m/2=40$ kg, $\omega=\sqrt{k/\mu}\approx55$ rad/s y dura $\pi/\omega\approx0{,}057$ s, es decir unos 570 pasos por contacto: el resorte se resuelve con holgura. Verificamos convergencia: con $dt$ y $dt/2$ el $t_{evac}$ no se distingue (TSDMD $79{,}6\pm0{,}8$ s contra $81{,}6\pm1{,}6$ s).
+
+\textbf{Cell Index Method (CIM).} Para saber quién toca a quién no se miran todos los pares ($N^2$): se divide la sala en celdas del tamaño del alcance de contacto y cada agente solo mira su celda y las vecinas. El costo por paso queda proporcional a $N$.
+\analogia{Para saber quién está pisándote los pies, no preguntás a los 200 de la sala: mirás a los de tu manzana y las manzanas de al lado.}
+
+\subsection{EDMD: saltar de evento en evento}
+\textbf{Idea.} Si nadie interactúa, la trayectoria de cada agente se conoce \emph{exacta} (una fórmula en el tiempo). Entonces no hace falta ir paso a paso: se calcula para cada agente cuál es su próximo evento y la simulación salta al más próximo en el tiempo.
+\analogia{Un despertador. En vez de mirar el reloj cada segundo, programás alarmas para cuando va a pasar algo y dormís en el medio. Si pasa algo que cambia un plan, cancelás las alarmas viejas de esa persona y programás nuevas.}
+
+\textbf{Eventos que manejamos.}
+\begin{itemize}
+\item contacto agente--agente, agente--pared, agente--esquina de la puerta;
+\item cruce de celda (para mantener la lista de candidatos a chocar);
+\item llegada a la puerta (el agente cruza $y<0$ y se retira cuando se aleja 1 m);
+\item fin del pulso post-choque (Sección 1.5);
+\item re-apuntado cada $0{,}1$ s mientras la velocidad real no alcanzó a la deseada.
+\end{itemize}
+\textbf{Cola de eventos.} Cola binaria ordenada por tiempo. Cada agente tiene un \emph{contador de generación}: cuando cambia su movimiento, sus eventos viejos quedan inválidos y se descartan cuando salen de la cola (en vez de buscarlos para borrarlos).
+
+\textbf{Trayectoria entre eventos.} Si el agente tiene velocidad deseada $v_d\hat{\vect e}$ y velocidad inicial $\vect v_0$, y no hay contactos:
+\formula{
+\[
+\vect x(t)=\vect x_0+v_d\hat{\vect e}\,t+(\vect v_0-v_d\hat{\vect e})\,\tau\,(1-e^{-t/\tau})
+\]
+Sale de integrar la relajación exponencial. Cuando $\vect v_0=v_d\hat{\vect e}$ es una recta.}
+\textbf{Tiempo de contacto de dos agentes.} Es el primer $t>0$ con $|\vect x_B(t)-\vect x_A(t)|=r_A+r_B$. Si los dos vuelan en recta sale de una ecuación de segundo grado; si alguno está relajando se resuelve por búsqueda numérica de raíz.
+
+\subsection{La colisión en EDMD (lo que más preguntó el profe)}
+\textbf{El problema.} En un gas de bolas rígidas (TP3) el choque conserva impulso y cada una sigue derecho. Acá los agentes tienen un destino, así que un choque ``físico'' los mandaría lejos de su rumbo. Además, el profe señaló que en un atasco la verdad física es el contacto resuelto con resortes (TSDMD); el EDMD necesita una \emph{regla inventada} de colisión, y eso hay que decirlo.
+
+\textbf{Nuestra regla (la pensamos en papel).} Tres cosas, en este orden:
+\begin{enumerate}
+\item \textbf{Alejarse del otro.} $\hat{\vect n}_{alejar}$: versor que apunta lejos de lo que choqué (agente, pared o esquina; en pared y esquina la normal apunta hacia afuera).
+\item \textbf{No perder el rumbo.} $\hat{\vect e}_{target}$: versor hacia la puerta.
+\item \textbf{Sumar las dos y normalizar.}
+\end{enumerate}
+\formula{
+\[
+\hat{\vect e}_{tmp}=\frac{\hat{\vect n}_{alejar}+\hat{\vect e}_{target}}{\bigl|\hat{\vect n}_{alejar}+\hat{\vect e}_{target}\bigr|},\qquad \vect v=v_d\,\hat{\vect e}_{tmp}
+\]
+Es una regla del modelo: \emph{no} conserva impulso ni energía.}
+\analogia{Chocás con alguien en el pasillo. Instintivamente das un paso al costado (alejarte) pero seguís mirando hacia la salida (rumbo); terminás yendo en diagonal. Tu rapidez de caminata no cambia: sigue siendo $v_d$.}
+
+\textbf{Recuperación de la velocidad deseada (pulso + relajación).}
+\begin{enumerate}
+\item \textbf{Pulso de $\Delta t_c=0{,}1$ s:} vuelo recto con $\hat{\vect e}_{tmp}$ (la velocidad deseada y la real coinciden; el agente se mueve $v_d\Delta t_c=0{,}15$ m).
+\item \textbf{Fin del pulso (evento):} la velocidad \emph{deseada} vuelve a apuntar a la puerta. La velocidad \emph{real} no puede saltar: relaja con inercia, con la solución exacta de arriba.
+\item \textbf{Re-apuntar:} mientras $|\vect v-v_d\hat{\vect e}|>\varepsilon$ ($\varepsilon=10^{-6}v_d$) se vuelve a apuntar la deseada hacia la puerta cada $0{,}1$ s. Sin esto, la trayectoria queda paralela a la recta a la puerta pero desplazada hasta $\sim$0,5 m.
+\item \textbf{Vuelo libre:} cuando $|\vect v-v_d\hat{\vect e}|\leq\varepsilon$ el agente va derecho \emph{sin eventos propios}. Un agente asentado no tiene ``ticks'': por eso EDMD no es un time step disfrazado.
+\item \textbf{Choque durante el pulso o la relajación:} se vuelve a aplicar la regla con la velocidad actual y el pulso reinicia.
+\end{enumerate}
+\analogia{Después del empujón te das vuelta a mirar al costado un instante ($0{,}1$ s). Cuando volvés a mirar la puerta querés acelerar hacia ella, pero tu cuerpo tarda en cambiar de dirección: eso es la inercia ($\tau$). Cada $0{,}1$ s te volvés a orientar hasta que ya vas bien encaminado, y ahí dejás de corregir.}
+
+\textbf{$\Delta t_c=0{,}1$ s es un parámetro del modelo, no un paso numérico.} Es arbitrario y lo decimos. Sensibilidad (EDMD, $N=200$, 10 semillas): $0{,}05$ s $\to$ 9/10 completas, $130\pm40$ s; $0{,}1$ s $\to$ 10/10, $99\pm15$ s; $0{,}2$ s $\to$ 0/10 (queda 1 agente rebotando entre las esquinas de la puerta).
+\hipotesis{con $\Delta t_c=0{,}2$ s el pulso mide $1{,}5\times0{,}2=0{,}3$ m, casi igual al hueco útil de la puerta para el agente más grande, $2(0{,}4-0{,}25)=0{,}3$ m, y lo lleva a la esquina opuesta.}
+
+\textbf{Corrección de solape.} Con la regla de colisión, y sin ninguna corrección, un atasco denso ($N=60$, $L=10$ m) dejaba agentes superpuestos hasta 0,15--0,4 m (casi medio cuerpo): los saltos de $0{,}1$ s los mandan encima de otros. Después de cada choque se hace lo siguiente, \emph{solo con posiciones}:
+\begin{enumerate}
+\item Se calcula el solape de cada par: $\delta=r_i+r_j-|\vect x_i-\vect x_j|$.
+\item Si $\delta>1$ mm, cada agente se mueve $\delta/2$ sobre la línea de centros, en sentido contrario al otro (masas iguales). Contra pared o esquina se mueve el agente entero.
+\item Se repite sobre los agentes movidos hasta que ningún solape supere 1 mm (tope de 128 vueltas).
+\end{enumerate}
+\formula{\[\delta=r_i+r_j-|\vect x_i-\vect x_j|,\qquad \vect x_i\leftarrow\vect x_i-\tfrac{\delta}{2}\hat{\vect n},\quad \vect x_j\leftarrow\vect x_j+\tfrac{\delta}{2}\hat{\vect n},\quad \hat{\vect n}=\tfrac{\vect x_j-\vect x_i}{|\vect x_j-\vect x_i|}\]}
+\analogia{Dos personas no pueden ocupar el mismo lugar. Si quedaron pisándose, se separa a cada una la mitad de lo que se pisaban, justo hasta que se tocan.}
+Resultado ($N=60$, $L=10$ m, 2 semillas): solape máximo 0,014 m (antes 0,19--0,41 m). \textbf{Hay que decir que es una corrección geométrica, no física}: la velocidad no se toca.
+
+\subsection{El híbrido: cuándo cambia cada agente de esquema}
+\textbf{Criterio.} Para cada agente se calcula el \emph{tiempo al próximo contacto} $\tau_c$ (con otro agente, pared o esquina, suponiendo que cada uno sigue su trayectoria libre).
+\formula{
+\[
+\tau_c(i)=\min\bigl\{t>0:\ |\vect x_i(t)-\vect x_c(t)|=r_i+r_c\bigr\}
+\]
+\[
+\text{EDMD}\to\text{TSDMD}:\ \tau_c<T
+\qquad\qquad
+\text{TSDMD}\to\text{EDMD}:\ \tau_c>\alpha\,T,\quad\alpha=2
+\]}
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\fill[tsdmdc!35] (0,0) rectangle (2.4,0.9);
+\fill[gray!25] (2.4,0) rectangle (4.8,0.9);
+\fill[edmdc!35] (4.8,0) rectangle (9.5,0.9);
+\draw[thick] (0,0) rectangle (9.5,0.9);
+\draw[thick] (2.4,0) -- (2.4,0.9);
+\draw[thick] (4.8,0) -- (4.8,0.9);
+\node at (1.2,0.45) {TSDMD};
+\node at (3.6,0.45) {se mantiene};
+\node at (7.15,0.45) {EDMD};
+\node[below] at (0,0) {$0$};
+\node[below] at (2.4,0) {$T$};
+\node[below] at (4.8,0) {$\alpha T$};
+\node[below] at (9.5,0) {$\tau_c$};
+\end{tikzpicture}
+\end{center}
+\analogia{Termostato. El calefón se prende a 18 grados y se apaga recién a 22, no a 18,01. Esa zona intermedia (histéresis) evita que prenda y apague sin parar. Acá: pasar a TSDMD si el choque está cerca ($\tau_c<T$) pero volver a EDMD recién cuando está \emph{bien} lejos ($\tau_c>2T$).}
+\textbf{Por qué la histéresis importa.} Un defecto real que encontramos: el retorno no veía a ciertos vecinos que el escaneo de promoción sí veía, y los agentes oscilaban entre esquemas (213\,907 promociones en una corrida con $T=3$). Se arregló alineando las ventanas de vecinos y evaluando el retorno cada $20$ pasos (\texttt{returnStride}); es del lado seguro porque volver tarde a EDMD no pierde contactos (en TSDMD los resuelve el resorte).
+
+\textbf{Extremos que sirven de test.} $T=0$: nadie pasa a TSDMD, es EDMD puro. $T\to\infty$ (o $T\geq t_{max}$): todos en TSDMD, es TSDMD puro. Los tests verifican que con la misma semilla los extremos reproducen los puros.
+
+\textbf{Un solo reloj.} Las dos mitades corren juntas. En cada paso $k\,dt$:
+\begin{enumerate}
+\item se procesan los eventos EDMD con tiempo $<k\,dt$;
+\item se avanza el TSDMD con Verlet hasta $k\,dt$;
+\item el EDMD avanza a $k\,dt$;
+\item se procesa cruce de puerta y retiro;
+\item se pasan EDMD$\to$TSDMD (incluyendo pares mixtos);
+\item se evalúa TSDMD$\to$EDMD.
+\end{enumerate}
+Si no hay agentes TSDMD no hay pasos: el reloj salta de evento en evento.
+
+\textbf{Par mixto EDMD--TSDMD.} Un agente A en EDMD y uno B en TSDMD. Se calcula el contacto previsto de A con B (A con su trayectoria exacta, B con la suya de Verlet extrapolada). Si $\tau_c<T$, A se \emph{promueve} a TSDMD \emph{antes} del contacto, y el choque lo resuelve el resorte. Esto garantiza que \emph{no se pierde ningún contacto}: todo contacto previsto dentro de $T$ ya está en TSDMD cuando llega. El escaneo se repite hasta que no haya más promociones (punto fijo, tope de 16 vueltas).
+
+\textbf{Consecuencia importante.} Dentro del híbrido con $T>0$ ninguna colisión se resuelve con la regla inventada del EDMD (llegan a TSDMD antes de tocarse), así que la corrección de solape solo actúa en EDMD puro y en $T=0$.
+
+\subsection{Cómo se mide todo}
+\formula{
+\begin{align*}
+N_{in}(t)&=\#\{i:\ y_i(t)\geq0\},\qquad t_{evac}=\min\{t:\ N_{in}(t)=0\}\\
+\langle t_{evac}\rangle&=\tfrac1n\textstyle\sum_m t^{(m)}_{evac},\qquad s^2=\tfrac1{n-1}\textstyle\sum_m\bigl(t^{(m)}_{evac}-\langle t\rangle\bigr)^2,\qquad \mathrm{SEM}=\tfrac{s}{\sqrt n}\\
+z&=\frac{\langle t\rangle-\langle t\rangle_{TSDMD}}{\sqrt{\mathrm{SEM}^2+\mathrm{SEM}_{TSDMD}^2}}\quad(|z|<2\Rightarrow\text{no se distingue})
+\end{align*}
+$W$: tiempo de ejecución (wall-clock) de la simulación completa, un hilo, misma máquina.}
+\textbf{Observable primario} (evolución temporal): $N_{in}(t)$, la población en la sala. \textbf{Observable escalar} (el que se grafica contra el parámetro): $t_{evac}$ (y $W$). El enunciado pide que digamos explícitamente cómo se calcula el escalar: es el primer instante en que $N_{in}$ llega a 0.
+
+\textbf{Honestidad estadística (regla de la cátedra y nuestra).}
+\begin{itemize}
+\item Se promedia solo sobre corridas \emph{completas} y se muestra al lado la tasa de éxito (cuántas completaron).
+\item Dos promedios con $|z|<2$ ``no se distinguen''; nunca ``son iguales''.
+\item El error se escribe con 1 cifra significativa (2 si empieza en 1).
+\item Una hipótesis de mecanismo se dice como hipótesis.
+\end{itemize}
+\analogia{Si dos grupos de alumnos sacan promedios 7,0 y 7,2 pero cada nota varía mucho, no podés decir que un grupo es mejor. $z$ mide si la diferencia es grande comparada con la incertidumbre de los promedios.}
+
+%====================================================================
+\section{Guía punto por punto del enunciado}
+
+\textbf{Reglas generales del enunciado.} Para \emph{cada} estudio hay que mostrar: (1) una animación característica, (2) la evolución temporal del observable primario, (3) cómo se calcula el observable escalar que luego se grafica contra el parámetro. La simulación escribe texto plano y el módulo de animación lo lee aparte. Hay que dedicarle más tiempo del habitual a la descripción matemática y computacional del híbrido.
+
+\subsection{Descripción matemática pedida (antes del punto a)}
+El enunciado pide describir matemáticamente cuatro cosas. Qué decir y dónde está en esta guía:
+\begin{center}\small
+\begin{tabular}{@{}p{5.2cm}p{10.8cm}@{}}
+\toprule
+Lo que piden & Cómo responder \\ \midrule
+Criterios de pasaje EDMD$\leftrightarrow$TSDMD & $\tau_c<T$ para ir a TSDMD y $\tau_c>\alpha T$ ($\alpha=2$) para volver; $T$ es el parámetro principal (Sección 1.6). \\
+Convivencia de ambos esquemas: sincronización de eventos y pasos $dt$ & Un solo reloj: los eventos con $t<k\,dt$ se procesan antes de cada Verlet (seis pasos de la Sección 1.6). \\
+Eventos de una partícula EDMD con una TSDMD & Par mixto: se calcula $\tau_c$ con la trayectoria exacta de A y la de B; si $\tau_c<T$ A se promueve antes del contacto. \\
+Cómo se garantiza no perder contactos ni superposiciones en el pasaje & Promoción anticipada + escaneo repetido hasta punto fijo + auditoría con oráculo (todo contacto previsto dentro de $T$ ya está en TSDMD). Superposiciones: contacto en TSDMD lo resuelve el resorte; en EDMD puro, corrección geométrica de solape. \\
+Colisión entre agentes y con paredes en EDMD y recuperación de $v_d$ & $\hat{\vect e}_{tmp}=\mathrm{norm}(\hat{\vect n}_{alejar}+\hat{\vect e}_{target})$, pulso de $0{,}1$ s, relajación exacta, re-apuntado hasta $|\vect v-v_d\hat{\vect e}|\leq\varepsilon$ (Sección 1.5). \\ \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Punto a) Implementar los tres esquemas, animaciones, fracción de partículas por esquema}
+\textbf{Qué piden.} Los tres esquemas funcionando; animación característica de cada uno; en el híbrido, colorear las partículas según el esquema que las resuelve en cada instante; graficar la evolución temporal de la fracción de partículas en cada esquema.
+
+\textbf{Qué mostramos.} Animaciones de sala completa y con zoom a la puerta (TSDMD, EDMD, híbrido), la animación de 2 partículas que choquen (la pidió el profe) y el gráfico de fracción de agentes en TSDMD/EDMD contra el tiempo en el híbrido.
+
+\textbf{Cómo responder.}
+\begin{itemize}
+\item Mientras están dispersos, casi todos en EDMD; a medida que se arma el cuello de botella, la fracción en TSDMD sube. Esa es la justificación del híbrido.
+\item La animación de 2 partículas es además el \emph{test del motor}: $y=4$ m, $x=5\pm(r+1\text{ mm})$, caminan hacia la puerta, chocan y se ven las flechas de velocidad deseada y real.
+\item Si preguntan por qué no se ve el cuello de botella en la animación completa: la sala es de 50 m y la puerta de 0,8 m; por eso hay zoom.
+\end{itemize}
+
+\subsection{Punto b) Curvas de población y tiempo de evacuación, $\geq10$ realizaciones}
+\textbf{Qué piden.} Para los tres esquemas: $N_{in}(t)$ y $t_{evac}$ promedio con barras de error, con $\geq10$ realizaciones; discutir los otros dos tomando TSDMD como referencia.
+
+\textbf{Qué mostramos.} Curvas de población con todas las corridas (hasta $t_{max}$), $t_{evac}$ medio $\pm$ SEM por esquema con la tasa de completas al lado y $z$ contra el TSDMD.
+
+\textbf{Resultados ($N=200$, $L=50$ m, objetivo de 10 corridas completas, hasta 16 intentos).}
+\begin{center}\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+ & $\langle t_{evac}\rangle$ & Completas (de 16 intentos) & $z$ contra TSDMD \\ \midrule
+TSDMD & $79{,}6\pm0{,}5$ s & 14/16 & --- \\
+EDMD & $91\pm11$ s & 14/16 & $1{,}0$ \\
+Híbrido ($T=0{,}5$ s) & $79{,}0\pm0{,}7$ s & 15/16 & $-0{,}7$ \\ \bottomrule
+\end{tabular}
+\end{center}
+\textbf{Cómo discutirlo.}
+\begin{itemize}
+\item EDMD y híbrido \emph{no se distinguen} del TSDMD en la media ($|z|<2$). El EDMD se distingue en la \emph{dispersión}: es mucho mayor.
+\item Los tres esquemas dejan algunas corridas sin completar y en proporciones parecidas: los atascos (arcos de agentes quietos contra la pared junto a la puerta, todos con rapidez 0 y a menos de 3 m) no son propios del EDMD.
+\end{itemize}
+\hipotesis{la mayor dispersión del EDMD viene de que su regla de colisión es discreta y sensible (un pequeño cambio de trayectoria cambia quién pasa primero por la puerta). No lo medimos.}
+
+\subsection{Punto c) Tiempo de ejecución y barrido del parámetro del híbrido}
+\textbf{Qué piden.} Wall-clock de la simulación completa para los tres esquemas, misma computadora, barras de error; para el híbrido, graficar tiempo de ejecución y tiempo de evacuación contra el parámetro principal del criterio, con TSDMD puro y EDMD puro como referencias.
+
+\textbf{Qué mostramos.} Barras de $W$ por esquema y el barrido de $T\in\{0;0{,}1;0{,}25;0{,}5;1;2;3\}$ s con 10 realizaciones por punto, con franjas de SEM del TSDMD y el EDMD.
+
+\textbf{Resultados ($N=200$, un hilo).}
+\begin{center}\small
+\begin{tabular}{@{}lc@{}}
+\toprule
+Esquema & $W$ \\ \midrule
+TSDMD & $5{,}9$ s \\
+EDMD & $24\pm5$ s \\
+Híbrido $T=0{,}1$ s & $6{,}8$ s \\
+Híbrido $T=0{,}5$ s & $8{,}8\pm0{,}2$ s (1,5$\times$ el TSDMD) \\
+Híbrido $T=1$ s & $12{,}2$ s \\
+Híbrido $T=2$ s & $21{,}6$ s \\
+Híbrido $T=3$ s & $32{,}5$ s \\ \bottomrule
+\end{tabular}
+\end{center}
+\textbf{Cómo discutirlo.}
+\begin{itemize}
+\item $t_{evac}$: $T=0$ reproduce el EDMD ($\sim$100 s, con la dispersión del EDMD); para todo $T>0$ evaluado, $|z|<2$ contra el TSDMD. Es decir, el híbrido no empeora ni mejora la evacuación.
+\item $W$ del híbrido \emph{crece} con $T$ (más agentes en TSDMD y más escaneo de pares mixtos) y es claramente menor que el del EDMD solo hasta $T\approx1$ s; $T=3$ s ya es más caro que el EDMD.
+\item \textbf{El híbrido no baja del costo del TSDMD para ningún $T$} a $N=200$. Esto es un resultado, no un fracaso: hay que decirlo así. El profe ya anticipó que con 500 aparentemente no mejoraba.
+\end{itemize}
+\debil{con $N=200$ y $L=50$ m la sala es poco densa y el TSDMD ya es barato (5,9 s); no hay mucho que ahorrar. El híbrido pagaría con más $N$ en el EDMD si el EDMD no escalara tan mal.}
+
+\subsection{Punto d) Escalado de los tiempos de ejecución con $N$}
+\textbf{Qué piden.} Cómo escalan los tiempos de los tres esquemas con $N$ (por ejemplo $N\in[100,1000]$) en dos variantes: (a) aumentar $L$ para mantener la densidad inicial constante; (b) $L$ constante, aumentando la densidad.
+
+\textbf{Qué hicimos.} $N\in\{100,200,400,700,1000\}$. Variante (a): $L=50\sqrt{N/500}$ m (misma densidad que $N=500$, $L=50$). Variante (b): $L=50$ m. Se grafica $W$ contra $N$ en log-log y se ajusta una pendiente.
+
+\textbf{Resultados (pendiente de $\log W$ contra $\log N$).}
+\begin{center}\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+ & (a) densidad fija & (b) $L$ fija \\ \midrule
+TSDMD & 1,8 & 1,3 \\
+EDMD & 3,5 & 5,6 \\
+Híbrido & 1,5 & 2,1 \\ \bottomrule
+\end{tabular}
+\end{center}
+\textbf{Cómo decirlo.} \textbf{3 realizaciones por punto} (10 hubieran tardado más de 6 h en serie); la pendiente es una \emph{tendencia}, no un exponente. En (b) el híbrido tiene corridas atascadas a $N=700$ y $N=1000$ que corren hasta $t_{max}$ y suben la media.
+\hipotesis{en (a) el TSDMD da cerca de 2 porque el costo por paso crece como $N$ (CIM) y el número de pasos como $t_{evac}$, que crece como $N$ porque la puerta deja pasar un caudal aproximadamente constante; $N\times N\approx N^2$. No lo verificamos aparte.}
+
+%====================================================================
+\section{Preguntas probables (con respuesta modelo)}
+
+\pr{¿Por qué el profe dice que el TSDMD es el ``verdadero'' y el EDMD es solo para comparar?}
+\rp{Porque en el cuello de botella los agentes están en contacto continuo y eso se resuelve bien con resortes (TSDMD). En EDMD no hay fuerza de contacto: hay que inventar una regla de colisión, que es arbitraria. Con otra regla podrían salir más fácil o quedarse trabados. Un esquema fiel resolvería cada contacto con TSDMD, que es lo que hace el híbrido.}
+
+\pr{Explicame la regla de colisión.}
+\rp{Cuando choco con algo, mi velocidad pasa a ser $v_d$ por el versor suma normalizada de ``alejarme de lo que choqué'' y ``ir hacia la puerta''. Es el promedio de dos intenciones: me aparto (como en el CPM) pero sin desviarme del destino. La rapidez es $v_d$ y no se conserva impulso: es una regla del modelo.}
+
+\pr{¿Por qué hay un pulso de $0{,}1$ s y después una relajación?}
+\rp{La velocidad real no puede cambiar de golpe en un modelo con inercia. Durante $0{,}1$ s dejo que el agente se aleje con $\hat{\vect e}_{tmp}$; después la velocidad \emph{deseada} vuelve a apuntar a la puerta y la real converge con la exponencial de constante $\tau=0{,}5$ s. Cada $0{,}1$ s se re-apunta hasta que $|\vect v-v_d\hat{\vect e}|\leq\varepsilon$; entonces el agente vuela derecho sin eventos.}
+
+\pr{¿El EDMD no se volvió un time step con paso $0{,}1$ s?}
+\rp{No: los eventos de $0{,}1$ s existen solo mientras la velocidad real no alcanzó a la deseada. Cuando coinciden (dentro de $\varepsilon$), el agente no genera más eventos propios, solo de contacto, de celda y de puerta. En un agente que ya está asentado no hay ticks.}
+
+\pr{¿Qué pasa si durante la relajación chocan con otro?}
+\rp{Se aplica de nuevo la regla de colisión con la velocidad actual y el pulso reinicia. Si los choques se vuelven muy frecuentes (con $\Delta t$ cada vez menores) el EDMD puede frenarse y no terminar; es un resultado válido y se reporta, el profe lo aceptó.}
+
+\pr{Si en $0{,}1$ s se superponen con otros que venían de un choque parecido al costado, ¿qué pasa?}
+\rp{Habría un evento de contacto antes de los $0{,}1$ s y se aplicaría la regla de nuevo. Además, después de cada choque separamos solo las posiciones que quedaron solapadas más de 1 mm.}
+
+\pr{¿Por qué hace falta separar los solapes? ¿Eso es físico?}
+\rp{No es físico: es una corrección geométrica del solape numérico. Sin ella, en atascos densos quedaban solapes de 0,15--0,4 m y la simulación era errática (tiempos de evacuación de 16 a 368 s). Con la corrección: solape máximo 0,014 m y 15--22 s. Solo se mueven posiciones, nunca velocidades.}
+
+\pr{¿Cómo garantizan que el híbrido no pierde contactos al pasar de un esquema al otro?}
+\rp{Con tres cosas: (1) un agente EDMD cuyo contacto previsto con un TSDMD está dentro de $T$ se promueve a TSDMD \emph{antes} del contacto, y el resorte resuelve el choque; (2) el escaneo de pares mixtos se repite hasta que no haya más promociones; (3) volver a EDMD solo si $\tau_c>\alpha T$ (histéresis) y se evalúa cada 20 pasos, lo que es el lado seguro. Se audita con un oráculo: todo contacto previsto dentro de $T$ está ya en TSDMD (\texttt{lost\_contacts=0}).}
+
+\pr{¿Por qué la histéresis $\alpha=2$?}
+\rp{Para que un agente no oscile entre esquemas en cada paso. Cuando el retorno y la promoción no veían los mismos vecinos, una corrida con $T=3$ tuvo 213\,907 promociones y 213\,812 retornos. Ahora son órdenes de magnitud menos. El valor 2 es una elección razonable, no está optimizado.}
+
+\pr{¿Por qué $T=0{,}5$ s como valor central?}
+\rp{Porque la evacuación no se distingue del TSDMD para ningún $T>0$ evaluado y el costo crece con $T$; $0{,}5$ s es un compromiso que aún es 1,5 veces el TSDMD y bastante menos que el EDMD. No lo presentamos como óptimo.}
+
+\pr{¿Por qué el híbrido no es más rápido que el TSDMD?}
+\rp{A $N=200$ y $L=50$ m el TSDMD ya cuesta 5,9 s y casi todo el tiempo de cómputo se va en la zona de la puerta, que es TSDMD en el híbrido también. El híbrido agrega el costo de la cola de eventos y del escaneo de pares mixtos. Hallazgo: en este rango no hay ganancia de costo.}
+
+\pr{¿Por qué $N=200$ y no $N=500$?}
+\rp{El enunciado propone $N=500$ pero el aviso del campus ofreció $N=200$ como alternativa; con $N=500$ el EDMD se frena mucho y las corridas serían demasiado largas para 10 realizaciones y un barrido de $T$.}
+
+\pr{¿Por qué sin rozamiento tangencial?}
+\rp{El profe lo sugirió: con puerta tan chica y sin fuerza social, a algunos grupos se les trababa. Nosotros hicimos la comparación: con rozamiento ($\kappa=\tn{2{,}4}{5}$) solo 4/10 corridas completan y $t_{evac}=364\pm13$ s; sin él, 9/10 y $79{,}6\pm0{,}8$ s. Elegimos sin rozamiento para los tres esquemas y dejamos la comparación en un apéndice.}
+
+\pr{¿Qué significa $|z|<2$?}
+\rp{La diferencia de medias es menor que dos errores combinados. No puedo afirmar que sean distintas con estos datos; no es lo mismo que decir que son iguales.}
+
+\pr{¿Por qué el SEM solo sobre corridas completas?}
+\rp{Porque una corrida cortada por $t_{max}$ no tiene $t_{evac}$. Por eso siempre se muestra la tasa de éxito al lado: quien mira el promedio tiene que ver cuántas corridas lo sostienen.}
+
+\pr{¿Cómo verificaron que $dt=10^{-4}$ s alcanza?}
+\rp{Comparando con $dt/2$: TSDMD $79{,}6\pm0{,}8$ s contra $81{,}6\pm1{,}6$ s; híbrido ($T=0{,}5$) $79{,}4\pm1{,}0$ s contra $84\pm3$ s ($z=1{,}6$, no se distingue). Además cumple $dt<0{,}1\sqrt{m/k}\approx2{,}6\times10^{-3}$ s.}
+
+\pr{¿Qué es el Cell Index Method y por qué lo usan?}
+\rp{Divide el dominio en celdas del tamaño del alcance de contacto y cada agente solo se compara con los de su celda y las vecinas. Baja el costo por paso de $O(N^2)$ a $O(N)$ con densidad acotada. Se reutilizó del TP1.}
+
+\pr{¿Cómo calculan el tiempo de ejecución?}
+\rp{Wall-clock de la simulación completa medido dentro del motor, en una sola máquina y con un hilo, para que los tres esquemas sean comparables.}
+
+\pr{El EDMD se frena si hay muchos choques; ¿es un error?}
+\rp{Es un fenómeno esperable: en un atasco hay choques a $\Delta t$ cada vez más chicos y el motor casi no avanza. Es un resultado válido y se reporta como corrida no completada. Pusimos un piso de $5\times10^{-3}$ s entre choques de un mismo contacto y un tope de wall-clock por corrida.}
+
+\pr{¿Por qué un agente EDMD se quedaba sin cruzar la puerta?}
+\rp{El objetivo es el centro de la puerta, que está \emph{sobre} la línea $y=0$. Con el pulso y el re-apuntado, un agente con $y\sim10^{-3}$ apuntaba casi en horizontal y se acercaba a $y=0$ sin cruzarla nunca (paradoja de Zenón). Ahora el agente apunta 1 cm por debajo del centro de la puerta (\texttt{--door-aim}).}
+
+\pr{¿Cuánto del código lo escribió la IA?}
+\rp{La implementación la hizo la IA bajo nuestras órdenes, pero las reglas (colisión, recuperación, criterio de pasaje, corrección de solape) las definimos y las podemos explicar y derivar en papel. Lo que la IA había puesto por su cuenta (restitución con impulso, un evento de $0{,}1$ s \emph{siempre}, un parche que anulaba velocidades) lo sacamos o corregimos (diapositivas del apéndice).}
+
+%====================================================================
+\section{Puntos débiles: cómo decirlos con honestidad}
+\debil{$\Delta t_c=0{,}1$ s es arbitrario y el $t_{evac}$ del EDMD depende de él. Es un parámetro del modelo; mostramos la sensibilidad ($0{,}05$ s con 9/10, $0{,}1$ s con 10/10, $0{,}2$ s con 0/10) y elegimos el único valor sin fallas en las 10 semillas.}
+\debil{El EDMD y el híbrido dependen de una regla de colisión inventada. Los resultados del EDMD valen para esa regla; el TSDMD es el que no tiene arbitrariedad en el contacto.}
+\debil{Escalado con 3 realizaciones por punto: la pendiente es tendencia, no exponente. En (b) el híbrido tiene corridas atascadas.}
+\debil{Todos los esquemas dejan corridas sin completar (14/16, 14/16, 15/16 a $N=200$). Los atascos en el TSDMD son arcos físicos de agentes quietos; no los investigamos más. En el barrido de $T$ (10 semillas) no completan el TSDMD con la semilla 7 y el híbrido con la semilla 10 para $T=0{,}5$ y $T=2$ s; causa no investigada.}
+\debil{Reproducibilidad: la misma semilla da trayectorias distintas con otro \texttt{--tmax} (no con otro \texttt{--dt2}). Causa probable, sin aislar: la tolerancia de la bisección del cruce de planos depende de $t_{max}$ y el sistema es caótico. Los estudios usan $t_{max}$ fijo por esquema y reproducen dígito a dígito.}
+\debil{$\varepsilon=10^{-6}v_d$ deja unos 70 ticks de re-apuntado por choque ($\approx\tau\ln10^6\approx6{,}9$ s); subirlo a $10^{-2}v_d$ es una mejora pendiente que obligaría a re-correr EDMD e híbrido.}
+\debil{$dt$ contra $dt/2$ del híbrido: $z=1{,}6$ ($79{,}4\pm1{,}0$ contra $84\pm3$). No se distingue, pero está cerca del límite.}
+\debil{Con $\Delta t_c=0{,}05$ s, la semilla 4 se frena con 79 agentes en sala (cascada de choques con piso de tiempo); posible tope de \texttt{--max-events}, no verificado.}
+
+\textbf{Qué NO decir.} ``Es igual'' (se dice ``no se distingue''). ``El híbrido es más rápido'' (no lo es a $N=200$). ``Demostramos que el mecanismo es X'' (son hipótesis). ``Lo hizo la IA'' (la regla es nuestra; decimos por qué).
+
+%====================================================================
+\section{Hoja de repaso: números y fórmulas}
+
+\subsection{Parámetros}
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Sala & $L=50$ m, puerta $d=0{,}8$ m, $N=200$ (enunciado: 500) & $\geq10$ realizaciones \\
+Agentes & $m=80$ kg, $r\in[0{,}18;0{,}25]$ m, $v_d=1{,}5$ m/s & radio puerta/esquinas 0 \\
+SFM & $k=\tn{1{,}2}{5}$ kg/s$^2$, $\tau=0{,}5$ s & sin fuerza social, $\kappa=0$ \\
+Tiempo & $dt=10^{-4}$ s, pulso $\Delta t_c=0{,}1$ s & piso entre choques $5\times10^{-3}$ s \\
+EDMD & $\varepsilon=10^{-6}v_d$, solape tolerado 1 mm & apunta 1 cm bajo la puerta \\
+Híbrido & $T=0{,}5$ s, $\alpha=2$, retorno cada 20 pasos & ventana vecinos $\lceil\alpha\,\mathrm{celda}_{EDMD}/\mathrm{celda}_{fuerzas}\rceil$ \\ \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Resultados clave ($N=200$)}
+\begin{center}\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+& TSDMD & EDMD & Híbrido ($T=0{,}5$) \\ \midrule
+$t_{evac}$ (s) & $79{,}6\pm0{,}5$ & $91\pm11$ & $79{,}0\pm0{,}7$ \\
+Completas & 14/16 & 14/16 & 15/16 \\
+$z$ vs TSDMD & --- & 1,0 & $-0{,}7$ \\
+$W$ (s) & 5,9 & $24\pm5$ & $8{,}8\pm0{,}2$ \\
+Pendiente (a) / (b) & 1,8 / 1,3 & 3,5 / 5,6 & 1,5 / 2,1 \\ \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Fórmulas}
+\begin{align*}
+&\text{SFM:}\quad m\dot{\vect v}_i=m\tfrac{v_d\hat{\vect e}_i-\vect v_i}{\tau}+\textstyle\sum k\xi\hat{\vect n},\quad\xi=\max(r_i+r_j-d_{ij},0)\\
+&\text{Velocity Verlet:}\quad \vect x(t{+}dt)=\vect x+\vect v\,dt+\tfrac12\vect a\,dt^2,\quad \vect v(t{+}dt)=\vect v+\tfrac12(\vect a(t)+\vect a(t{+}dt))dt\\
+&\text{Estabilidad:}\quad dt<0{,}1\sqrt{m/k}\approx2{,}6\times10^{-3}\text{ s};\qquad \text{contacto}\approx\pi\sqrt{\mu/k},\ \mu=m/2\\
+&\text{Relajación:}\quad \vect v(t')=v_d\hat{\vect e}+(\vect v_0-v_d\hat{\vect e})e^{-t'/\tau}\\
+&\phantom{\text{Relajación:}}\quad \vect x(t')=\vect x_0+v_d\hat{\vect e}t'+(\vect v_0-v_d\hat{\vect e})\tau(1-e^{-t'/\tau})\\
+&\text{Colisión:}\quad \hat{\vect e}_{tmp}=\tfrac{\hat{\vect n}_{alejar}+\hat{\vect e}_{target}}{|\hat{\vect n}_{alejar}+\hat{\vect e}_{target}|},\quad\vect v=v_d\hat{\vect e}_{tmp}\\
+&\text{Solape:}\quad\delta=r_i+r_j-|\vect x_i-\vect x_j|,\quad\text{mover }\delta/2\text{ cada uno sobre la línea de centros}\\
+&\text{Híbrido:}\quad \tau_c<T\Rightarrow\text{TSDMD};\quad\tau_c>\alpha T\Rightarrow\text{EDMD}\\
+&\text{Observables:}\quad t_{evac}=\min\{t:N_{in}(t)=0\},\quad\mathrm{SEM}=s/\sqrt n,\quad z=\tfrac{\Delta\langle t\rangle}{\sqrt{\mathrm{SEM}_1^2+\mathrm{SEM}_2^2}}
+\end{align*}
+
+\subsection{Entrega y formato}
+\begin{itemize}
+\item Fecha límite: \textbf{16/11/2026, 13 hs} por campus. Presentación oral (13 minutos) en la clase del mismo día.
+\item Archivos: \texttt{SdS\_TP5\_2026Q2G05CS\_Presentación.pdf} y \texttt{SdS\_TP5\_2026Q2G05CS\_Codigo.zip} (comisión S).
+\item PDF de la presentación \emph{sin animaciones embebidas}: solo links explícitos a YouTube o Vimeo (no Google Drive). Hoy los links están como \texttt{PENDIENTE-*}: subir los videos y reemplazarlos antes de entregar.
+\item Código en \texttt{.zip} de pocos kB: solo la versión final del motor; sin postproceso, historial, outputs, figuras ni documentos. El motor cambió: regenerar el zip.
+\item Las diapositivas no llevan texto explicativo (figura, ecuaciones y parámetros); lo demás se dice oral.
+\item Sección de la presentación: introducción, implementación, simulaciones, resultados, conclusiones. Más tiempo para el híbrido.
+\end{itemize}
+
+\subsection{Plan de ensayo}
+\begin{enumerate}
+\item Dibujar en papel, sin mirar: el sistema, la regla de colisión con los tres vectores, y la línea de tiempo del pulso y la relajación.
+\item Dibujar el criterio $T$, $\alpha T$ y explicar la histéresis con el termostato.
+\item Explicar con palabras propias por qué el EDMD necesita una regla inventada y el TSDMD no.
+\item Recitar los resultados: ``no se distingue'', con $z$, tasa de éxito y el costo del híbrido.
+\item Repasar los puntos débiles de la Parte 4 y decirlos sin que los pregunten.
+\end{enumerate}
+
+\end{document}

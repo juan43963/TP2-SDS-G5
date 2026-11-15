@@ -1,0 +1,5 @@
+== hybrid_audit ==
+HYBRID_AUDIT label=dense_n200 boundaries=738830 depth_checks=36942 tau_checks=4838 pairs_examined=229037239 mixed_pair_boundaries=29873 resident_overlaps=0 lost_contacts=0 oracle_violations=0 promotions=726 returns=624 mixed_promotions=464 quick_repromotions=511 consecutive_flips=0 max_resident_depth=0 max_pass_jump=0 min_dwell_s=-1 collisions=0 completed=1
+7 verificaciones, 0 fallas
+OK
+hybrid-audit OK

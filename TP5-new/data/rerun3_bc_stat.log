@@ -1,0 +1,16 @@
+### 15:28:58 --mode bc-stat --N 200 --schemes edmd --workers 4 --target-complete 10 --max-attempts 80 --run-timeout 7200 --data-dir data/studies
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=3 T=na completed=1 status=ok t_evac=59.9387 simulation_ms=6871.287 skipped=0
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=1 T=na completed=1 status=ok t_evac=58.3339 simulation_ms=7815.638 skipped=0
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=2 T=na completed=1 status=ok t_evac=65.9737 simulation_ms=9420.140 skipped=0
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=4 T=na completed=1 status=ok t_evac=73.6580 simulation_ms=10899.196 skipped=0
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=8 T=na completed=1 status=ok t_evac=55.3234 simulation_ms=6144.181 skipped=0
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=6 T=na completed=1 status=ok t_evac=58.6415 simulation_ms=6556.240 skipped=0
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=7 T=na completed=1 status=ok t_evac=59.2822 simulation_ms=7999.452 skipped=0
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=5 T=na completed=1 status=ok t_evac=61.8545 simulation_ms=8966.300 skipped=0
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=11 T=na completed=1 status=ok t_evac=57.6557 simulation_ms=5756.052 skipped=0
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=9 T=na completed=1 status=ok t_evac=57.3514 simulation_ms=6142.919 skipped=0
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=12 T=na completed=1 status=ok t_evac=61.6127 simulation_ms=7056.263 skipped=0
+STUDY run study=bc mode=stat scheme=edmd N=200 seed=10 T=na completed=1 status=ok t_evac=61.9189 simulation_ms=7190.115 skipped=0
+STUDY mode=bc-stat N=200 scheme=edmd attempted=12 completed=12 skipped=0 success_rate=1.0000 target_reached=1
+STUDY mode=bc-stat N=200 workers=4 executed=12 skipped=0 target_reached=1
+### rc=0 15:29:26

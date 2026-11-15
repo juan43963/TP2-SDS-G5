@@ -1,8 +1,8 @@
-"""Animacion "antes / despues" de la correccion de posicion del EDMD.
+"""Animacion "antes / despues" del solape del EDMD: regla anterior (piso de tiempo) y regla de multitud.
 
 Lee SOLO dos archivos de trayectoria TP5_TRAJECTORY (misma semilla, mismas condiciones iniciales):
-  - sin correccion: `tp5 --scheme edmd --N 8 --L 3 --seed 2 --dt2 0.02 --no-separate`
-  - con correccion: `tp5 --scheme edmd --N 8 --L 3 --seed 2 --dt2 0.02`
+  - regla anterior (piso de tiempo, ignora choques repetidos): `tp5 --scheme edmd --N 8 --L 3 --seed 2 --dt2 0.02 --no-crowd`
+  - regla de multitud (default): `tp5 --scheme edmd --N 8 --L 3 --seed 2 --dt2 0.02`
 
 El solape dura una fraccion de segundo, asi que la animacion:
   - muestra solo la ventana de tiempo alrededor del solape (detectada sola, o t0 t1 a mano),
@@ -152,10 +152,10 @@ def main(path_sin, path_con, out, t0=None, t1=None):
         b = f_con[min(k, len(f_con) - 1)]
         for ax in (ax1, ax2, ax4):
             ax.clear()
-        draw_room(ax1, side, door, a, "SIN corrección   (t = %.2f s)" % a[0], cam)
-        draw_room(ax2, side, door, b, "CON corrección   (t = %.2f s)" % b[0], cam)
-        ax4.plot(t_sin, 100 * w_sin, color=RED, lw=2, label="sin corrección (máx %.1f cm)" % (100 * w_sin.max()))
-        ax4.plot(t_con, 100 * w_con, color=BLUE, lw=2, label="con corrección (máx %.1f cm)" % (100 * w_con.max()))
+        draw_room(ax1, side, door, a, "REGLA ANTERIOR, piso   (t = %.2f s)" % a[0], cam)
+        draw_room(ax2, side, door, b, "REGLA DE MULTITUD   (t = %.2f s)" % b[0], cam)
+        ax4.plot(t_sin, 100 * w_sin, color=RED, lw=2, label="regla anterior (máx %.1f cm)" % (100 * w_sin.max()))
+        ax4.plot(t_con, 100 * w_con, color=BLUE, lw=2, label="regla de multitud (máx %.3f cm)" % (100 * w_con.max()))
         ax4.axvline(a[0], color="k", lw=1.2, ls="--")
         ax4.set_xlim(t0, t1)
         ax4.set_xlabel("t [s]")
@@ -171,8 +171,13 @@ def main(path_sin, path_con, out, t0=None, t1=None):
     frames = (k1 - k0) // step + 1
     anim = FuncAnimation(fig, draw, frames=frames, interval=80)
     anim.save(out, writer=PillowWriter(fps=10))
+    # fotograma del pico de solape de la regla anterior, para la diapositiva fija
+    kpeak = int(np.argmax(w_sin))
+    n_peak = min(max((kpeak - k0) // step, 0), frames - 1)
+    draw(n_peak)
+    fig.savefig(out.rsplit(".", 1)[0] + ".png", dpi=150)
     print("escrito", out, "ventana %.2f-%.2f s" % (t0, t1), "cuadros:", frames,
-          "solape max sin/con (cm): %.1f / %.1f" % (100 * w_sin.max(), 100 * w_con.max()))
+          "solape max anterior/multitud (cm): %.1f / %.1f" % (100 * w_sin.max(), 100 * w_con.max()))
 
 
 if __name__ == "__main__":

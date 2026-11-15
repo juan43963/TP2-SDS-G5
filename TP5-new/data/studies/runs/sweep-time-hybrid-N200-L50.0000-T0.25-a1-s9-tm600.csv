@@ -1,0 +1,2 @@
+study,mode,scheme,N,L,seed,hybrid_T,hybrid_alpha,tmax,dt2,completed,status,t_evac,t_clear,crossed,in_room_final,simulation_ms,steps,events,collisions,promotions,returns,wall_breaches,max_agent_overlap,max_wall_overlap,load1,workers
+sweep,time,hybrid,200,50.0,9,0.25,1.0,600.0,0.25,1,ok,78.877,79.7451,200,0,7308.262,757477,12993,0,1537,1473,0,0.0579063,0.0594541,1.39697265625,1

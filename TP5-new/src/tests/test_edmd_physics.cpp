@@ -36,6 +36,7 @@ void runOverlapTests(TestSuite& suite) {
     config.side = 10.0;
     config.seed = 5;
     config.dt2 = 0.25;
+    config.doorAimBelow = 0.01;  // como la CLI: sin el margen un agente queda sobre la linea de la puerta (Zeno)
     config.maxTime = 3000.0;
     const std::vector<Agent> agents = generateAgents(config);
 
@@ -118,6 +119,7 @@ GapRun runGap(double eventGap) {
     config.side = 10.0;
     config.seed = 5;  // completa con eventGap 0.005 y 0.02
     config.eventGap = eventGap;
+    config.crowdRule = false;  // esta suite verifica el piso de tiempo de la regla v2 (--no-crowd)
     config.maxTime = 3000.0;
     EdmdEngine engine(config, generateAgents(config));
 

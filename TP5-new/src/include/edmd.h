@@ -164,6 +164,8 @@ private:
     Vector2 doorAim() const { return {room_.doorCenter.x, room_.doorCenter.y - config_.doorAimBelow}; }
     Vector2 desiredFrom(const Record& r, Vector2 position, Vector2 fallback) const;
     void applyCollisionState(std::size_t index, Vector2 position, Vector2 velocity);
+    // Rebote elastico de un choque de multitud: cambia x0/v0, conserva la deseada w y el pulso vigente.
+    void applyBounceState(std::size_t index, Vector2 position, Vector2 velocity);
 
     // celdas
     void cellInsert(std::size_t index);
@@ -190,12 +192,20 @@ private:
     void scheduleMoved(const std::vector<std::size_t>& moved);
 
     // procesamiento
+    // Suma de normales unitarias que alejan al agente i de todo lo que toca en now_ (agentes, paredes);
+    // `partner` (o -1) se evalua en `partnerPosition` (ya separado).
+    Vector2 contactNormalSum(std::size_t i, Vector2 xi, long partner, Vector2 partnerPosition) const;
+    // Choque de multitud: en now_ el agente i (en xi) toca a otro agente distinto de `exclude` o, si
+    // countWalls, a una pared (separacion < crowdBand).
+    bool touchesOther(std::size_t i, Vector2 xi, long exclude, bool countWalls) const;
     void processPair(const EdmdEvent& event);
     void processWall(const EdmdEvent& event);
     void processCorner(const EdmdEvent& event);
     // Correccion de posicion tras un choque (solo posiciones, v2): devuelve los agentes movidos
     // (incluye first y second).
     std::vector<std::size_t> separateOverlaps(std::size_t first, std::size_t second);
+    void bounceFixed(std::size_t i, int key, Vector2 position, Vector2 velocity, Vector2 n, double u,
+                     double depth);
     void finishFixedCollision(std::size_t i, int key, Vector2 position, Vector2 velocity, double depth);
 
     EvacuationConfig config_;

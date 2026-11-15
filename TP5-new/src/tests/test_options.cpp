@@ -56,8 +56,10 @@ void testDefaults(TestSuite& suite) {
     suite.check(c.steerInterval == 0.1, "default steer-dt = 0.1");
     suite.check(c.maxEvents == 1000000000LL, "default max-events = 1e9");
     suite.check(c.hybridT == 0.5, "default hybrid-T = 0.5");
-    suite.check(c.hybridAlpha == 2.0, "default hybrid-alpha = 2");
+    suite.check(c.hybridAlpha == 1.0, "default hybrid-alpha = 1");
     suite.check(c.returnStride == 20, "default return-stride = 20");
+    suite.check(c.crowdRule && c.crowdBand == 1e-3 && c.bounceMin == 0.01,
+                "default: regla de multitud, crowd-band = 1e-3, bounce-min = 0.01");
     suite.check(c.scheme == Scheme::Tsdmd, "default scheme = tsdmd");
     suite.check(o.writeOutput, "writeOutput verdadero por defecto");
     suite.check(!o.csv, "csv falso por defecto");
@@ -106,6 +108,9 @@ void testEveryFlagParses(TestSuite& suite) {
     suite.check(parse({"--hybrid-T", "1.25"}).config.hybridT == 1.25, "--hybrid-T");
     suite.check(parse({"--hybrid-alpha", "3"}).config.hybridAlpha == 3.0, "--hybrid-alpha");
     suite.check(parse({"--return-stride", "5"}).config.returnStride == 5, "--return-stride");
+    suite.check(!parse({"--no-crowd"}).config.crowdRule, "--no-crowd");
+    suite.check(parse({"--crowd-band", "2e-4"}).config.crowdBand == 2e-4, "--crowd-band");
+    suite.check(parse({"--bounce-min", "0.05"}).config.bounceMin == 0.05, "--bounce-min");
     suite.check(parse({"--scheme", "edmd"}).config.scheme == Scheme::Edmd, "--scheme edmd");
     suite.check(parse({"--scheme", "tsdmd"}).config.scheme == Scheme::Tsdmd, "--scheme tsdmd");
     suite.check(parse({"--help"}).help, "--help");
@@ -140,6 +145,8 @@ void testRejections(TestSuite& suite) {
     suite.check(contains(rejection({"--event-gap", "0"}), "--event-gap"), "event-gap 0 rechazado");
     suite.check(contains(rejection({"--event-gap", "1e-7"}), "--event-gap"), "event-gap 1e-7 rechazado");
     suite.check(contains(rejection({"--event-gap", "0.5"}), "--event-gap"), "event-gap 0.5 rechazado");
+    suite.check(contains(rejection({"--crowd-band", "0"}), "--crowd-band"), "crowd-band 0 rechazado");
+    suite.check(contains(rejection({"--bounce-min", "0"}), "--bounce-min"), "bounce-min 0 rechazado");
     suite.check(contains(rejection({"--steer-dt", "0"}), "--steer-dt"), "steer-dt 0 rechazado");
     suite.check(contains(rejection({"--max-events", "0"}), "--max-events"), "max-events 0 rechazado");
     suite.check(contains(rejection({"--max-events", "abc"}), "--max-events"), "max-events no numerico rechazado");

@@ -205,6 +205,15 @@ void EdmdEngine::applyCollisionState(std::size_t index, Vector2 position, Vector
     cellRelocate(index);
 }
 
+void EdmdEngine::applyBounceState(std::size_t index, Vector2 position, Vector2 velocity) {
+    Record& r = records_[index];
+    r.motion.x0 = position;
+    r.motion.v0 = velocity;
+    r.motion.t0 = now_;
+    ++r.collisionCount;
+    cellRelocate(index);
+}
+
 // ---------------------------------------------------------------- celdas
 
 int EdmdEngine::cellCoordX(double x) const {
@@ -273,6 +282,8 @@ void EdmdEngine::markContact(std::size_t i, int key) {
 }
 
 double EdmdEngine::floorStart(std::size_t i, int key) const {
+    // Regla de multitud: no hay piso, ningun contacto se demora ni se ignora.
+    if (config_.crowdRule) return -kInfinity;
     return lastContact(i, key) + config_.eventGap;
 }
 
@@ -438,6 +449,72 @@ void EdmdEngine::scheduleAgent(std::size_t i, int skip, bool onlyHigher) {
 
 // ---------------------------------------------------------------- procesamiento
 
+Vector2 EdmdEngine::contactNormalSum(std::size_t i, Vector2 xi, long partner, Vector2 partnerPosition) const {
+    constexpr double kContactBand = 1e-4;  // [m] "toca" = separacion menor que esto
+    const double tau = config_.sfm.tau;
+    const Record& ri = records_[i];
+    Vector2 sum{0.0, 0.0};
+    for (int dy = -1; dy <= 1; ++dy) {
+        const int cy = ri.cellY + dy;
+        if (cy < 0 || cy >= rows_) continue;
+        for (int dx = -1; dx <= 1; ++dx) {
+            const int cx = ri.cellX + dx;
+            if (cx < 0 || cx >= cols_) continue;
+            for (const int jj : cells_[static_cast<std::size_t>(cy) * static_cast<std::size_t>(cols_) +
+                                       static_cast<std::size_t>(cx)]) {
+                const std::size_t j = static_cast<std::size_t>(jj);
+                if (j == i || !records_[j].alive) continue;
+                const Vector2 xj = (static_cast<long>(j) == partner)
+                                       ? partnerPosition
+                                       : relaxedPosition(records_[j].motion, now_, tau);
+                const Vector2 delta = xi - xj;
+                const double distance = norm(delta);
+                if (distance < 1e-12 || distance > ri.radius + records_[j].radius + kContactBand) continue;
+                sum = sum + delta * (1.0 / distance);
+            }
+        }
+    }
+    for (const WallSegment& wall : room_.walls.segments) {
+        const Vector2 along = wall.b - wall.a;
+        const double s = std::clamp(dot(xi - wall.a, along) / dot(along, along), 0.0, 1.0);
+        const Vector2 delta = xi - (wall.a + along * s);
+        const double distance = norm(delta);
+        if (distance < 1e-12 || distance > ri.radius + kContactBand) continue;
+        sum = sum + delta * (1.0 / distance);
+    }
+    return sum;
+}
+
+// Choque de multitud: en now_ el agente i (en xi) toca a otro agente distinto de `exclude` (separacion <
+// crowdBand) o, si countWalls, a una pared. Las esquinas son extremos de los tramos de pared.
+bool EdmdEngine::touchesOther(std::size_t i, Vector2 xi, long exclude, bool countWalls) const {
+    const double tau = config_.sfm.tau;
+    const double band = config_.crowdBand;
+    const Record& ri = records_[i];
+    for (int dy = -1; dy <= 1; ++dy) {
+        const int cy = ri.cellY + dy;
+        if (cy < 0 || cy >= rows_) continue;
+        for (int dx = -1; dx <= 1; ++dx) {
+            const int cx = ri.cellX + dx;
+            if (cx < 0 || cx >= cols_) continue;
+            for (const int jj : cells_[static_cast<std::size_t>(cy) * static_cast<std::size_t>(cols_) +
+                                       static_cast<std::size_t>(cx)]) {
+                const std::size_t j = static_cast<std::size_t>(jj);
+                if (j == i || static_cast<long>(j) == exclude || !records_[j].alive) continue;
+                const Vector2 xj = relaxedPosition(records_[j].motion, now_, tau);
+                if (norm(xi - xj) < ri.radius + records_[j].radius + band) return true;
+            }
+        }
+    }
+    if (!countWalls) return false;
+    for (const WallSegment& wall : room_.walls.segments) {
+        const Vector2 along = wall.b - wall.a;
+        const double s = std::clamp(dot(xi - wall.a, along) / dot(along, along), 0.0, 1.0);
+        if (norm(xi - (wall.a + along * s)) < ri.radius + band) return true;
+    }
+    return false;
+}
+
 void EdmdEngine::processPair(const EdmdEvent& event) {
     const std::size_t a = static_cast<std::size_t>(event.a);
     const std::size_t b = static_cast<std::size_t>(event.b);
@@ -458,18 +535,41 @@ void EdmdEngine::processPair(const EdmdEvent& event) {
     const double u = dot(va - vb, n);
     if (degenerate || u < -kRestingSlack || distance > contact + kProcessSlack) {
         ++counters_.inapplicable;
-        pushPair(a, b, now_ + config_.eventGap);
+        pushPair(a, b, now_ + (config_.crowdRule ? 1e-6 : config_.eventGap));
         return;
     }
 
     const double previous = lastContact(a, event.b);
+    if (config_.crowdRule && (touchesOther(a, xa, static_cast<long>(b), true) ||
+                              touchesOther(b, xb, static_cast<long>(a), true))) {
+        // Choque de multitud: rebote elastico (masas iguales), se invierte la velocidad normal relativa con
+        // rapidez de separacion minima bounceMin*v_d. floorCollisions cuenta estos choques.
+        const double s = std::max(u, config_.bounceMin * config_.sfm.desiredSpeed);
+        const double half = 0.5 * (u + s);
+        va = va - n * half;
+        vb = vb + n * half;
+        const double depth = separatePair(xa, xb, n, contact, mass, mass);
+        result_.maxAgentOverlap = std::max(result_.maxAgentOverlap, depth);
+        ++counters_.collisions;
+        ++counters_.floorCollisions;
+        markContact(a, event.b);
+        markContact(b, event.a);
+        applyBounceState(a, xa, va);
+        applyBounceState(b, xb, vb);
+        scheduleMoved({a, b});
+        return;
+    }
     // Regla de colision: A sale alejandose de B (-n) y B de A (+n), mezclado con su target.
     va = escapeVelocity(config_.sfm, n * -1.0, xa, ra.target);
     vb = escapeVelocity(config_.sfm, n, xb, rb.target);
     const double depth = separatePair(xa, xb, n, contact, mass, mass);
+    if (config_.multiContact) {
+        va = escapeVelocity(config_.sfm, contactNormalSum(a, xa, static_cast<long>(b), xb), xa, ra.target);
+        vb = escapeVelocity(config_.sfm, contactNormalSum(b, xb, static_cast<long>(a), xa), xb, rb.target);
+    }
     result_.maxAgentOverlap = std::max(result_.maxAgentOverlap, depth);
     ++counters_.collisions;
-    if (now_ - previous < config_.eventGap + 1e-12) ++counters_.floorCollisions;
+    if (!config_.crowdRule && now_ - previous < config_.eventGap + 1e-12) ++counters_.floorCollisions;
 
     markContact(a, event.b);
     markContact(b, event.a);
@@ -579,10 +679,23 @@ void EdmdEngine::finishFixedCollision(std::size_t i, int key, Vector2 position, 
                                       double depth) {
     result_.maxWallOverlap = std::max(result_.maxWallOverlap, depth);
     ++counters_.collisions;
-    if (now_ - lastContact(i, key) < config_.eventGap + 1e-12) ++counters_.floorCollisions;
+    if (!config_.crowdRule && now_ - lastContact(i, key) < config_.eventGap + 1e-12) ++counters_.floorCollisions;
     markContact(i, key);
     applyCollisionState(i, position, velocity);
     scheduleMoved(config_.separateOverlaps ? separateOverlaps(i, i) : std::vector<std::size_t>{i});
+}
+
+// Choque de multitud contra pared/esquina (el agente toca ademas a otro agente): rebote elastico con
+// rapidez normal de separacion >= bounceMin*v_d (n hacia el agente, u = rapidez de aproximacion).
+void EdmdEngine::bounceFixed(std::size_t i, int key, Vector2 position, Vector2 velocity, Vector2 n, double u,
+                             double depth) {
+    const double s = std::max(u, config_.bounceMin * config_.sfm.desiredSpeed);
+    result_.maxWallOverlap = std::max(result_.maxWallOverlap, depth);
+    ++counters_.collisions;
+    ++counters_.floorCollisions;
+    markContact(i, key);
+    applyBounceState(i, position, velocity + n * (u + s));
+    scheduleMoved({i});
 }
 
 void EdmdEngine::processWall(const EdmdEvent& event) {
@@ -607,8 +720,13 @@ void EdmdEngine::processWall(const EdmdEvent& event) {
         scheduleAgent(i, -1, false);
         return;
     }
+    if (config_.crowdRule && touchesOther(i, x, -1, false)) {
+        bounceFixed(i, -1 - event.b, x, v, n, u, separateFixed(x, n, s, r.radius));
+        return;
+    }
     v = escapeVelocity(config_.sfm, n, x, r.target);
     const double depth = separateFixed(x, n, s, r.radius);
+    if (config_.multiContact) v = escapeVelocity(config_.sfm, contactNormalSum(i, x, -1, x), x, r.target);
     finishFixedCollision(i, -1 - event.b, x, v, depth);
 }
 
@@ -633,8 +751,13 @@ void EdmdEngine::processCorner(const EdmdEvent& event) {
         scheduleAgent(i, -1, false);
         return;
     }
+    if (config_.crowdRule && touchesOther(i, x, -1, false)) {
+        bounceFixed(i, -100 - event.b, x, v, n, u, separateFixed(x, n, distance, r.radius));
+        return;
+    }
     v = escapeVelocity(config_.sfm, n, x, r.target);
     const double depth = separateFixed(x, n, distance, r.radius);
+    if (config_.multiContact) v = escapeVelocity(config_.sfm, contactNormalSum(i, x, -1, x), x, r.target);
     finishFixedCollision(i, -100 - event.b, x, v, depth);
 }
 

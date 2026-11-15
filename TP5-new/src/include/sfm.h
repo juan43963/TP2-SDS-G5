@@ -66,11 +66,20 @@ struct EvacuationConfig {
     double eventGap = 5e-3;         // [s] piso de tiempo entre colisiones de un agente
     double steerInterval = 0.1;     // [s] duracion del pulso post-colision y periodo de re-apuntado
     double doorAimBelow = 0.0;      // [m] el agente en sala apunta a la puerta desplazada hacia afuera (la CLI usa 0.01; evita Zeno sobre la linea)
+    bool multiContact = false;      // regla de colision con TODOS los contactos vigentes del agente (suma de normales)
     bool separateOverlaps = true;   // correccion de posicion tras un choque (false = solo para mostrar el "antes")
+    // Regla de multitud (v3): choque AISLADO -> regla de deseo (n_alejar + e_target, pulso); si en el instante
+    // del choque alguno de los dos toca a un tercero (separacion < crowdBand) o a una pared -> choque DE
+    // MULTITUD: rebote elastico (se invierte la velocidad normal relativa, con rapidez de separacion minima
+    // bounceMin*v_d). Ningun choque se ignora y no se mueven posiciones: no hay piso de tiempo (eventGap no se
+    // usa). false = regla v2 con piso eventGap (los choques repetidos se ignoran: solapes).
+    bool crowdRule = true;
+    double crowdBand = 1e-3;        // [m] "toca" = separacion menor que esto
+    double bounceMin = 0.01;        // rapidez normal minima de separacion del rebote, en unidades de v_d
     long long maxEvents = 1000000000LL;  // valvula de seguridad del lazo de eventos
     // Parametros del hibrido (D-26, D-28); solo --scheme hybrid.
     double hybridT = 0.5;      // [s] umbral T: TSDMD si tau_c < T (0 = EDMD puro, >= tmax = TSDMD puro)
-    double hybridAlpha = 2.0;  // histeresis (D-28): vuelve a EDMD solo si tau_c > alpha*T
+    double hybridAlpha = 1.0;  // histeresis (D-28): vuelve a EDMD solo si tau_c > alpha*T (1 = umbral unico T, sin banda)
     // El retorno TSDMD -> EDMD se evalua cada `returnStride` pasos dt. Es el lado seguro: quedarse en TSDMD
     // de mas nunca pierde un contacto (lo resuelve el resorte). La promocion y el escaneo de pares
     // mixtos siguen en cada limite. 1 = evaluar en todos los limites.

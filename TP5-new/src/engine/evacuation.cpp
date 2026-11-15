@@ -75,6 +75,12 @@ void validateConfig(const EvacuationConfig& c) {
     if (!(c.eventGap >= 1e-6 && c.eventGap <= 0.1)) {
         invalid("--event-gap", c.eventGap, "debe estar en [1e-6, 0.1]");
     }
+    if (!(c.bounceMin > 0.0 && c.bounceMin <= 1.0)) {
+        invalid("--bounce-min", c.bounceMin, "debe estar en (0, 1]");
+    }
+    if (!(c.crowdBand > 0.0 && c.crowdBand <= 0.05)) {
+        invalid("--crowd-band", c.crowdBand, "debe estar en (0, 0.05]");
+    }
     if (!(c.steerInterval >= 1e-3 && c.steerInterval <= 10.0)) {
         invalid("--steer-dt", c.steerInterval, "debe estar en [1e-3, 10]");
     }
