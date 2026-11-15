@@ -111,9 +111,9 @@ void writeEventState(std::FILE* f, double t, const char* type, const char* with,
 }
 
 // EDMD avanzado evento a evento: solo los instantes que procesa el motor, sin cuadros intermedios.
-int runRowEvents(const std::string& path, int count, double maxTime) {
+int runRowEvents(const std::string& path, int count, double maxTime, bool diagonal = false) {
     const EvacuationConfig c = rowConfig(Scheme::Edmd, count, maxTime);
-    std::vector<Agent> agents = rowAgents(c, count);
+    std::vector<Agent> agents = diagonal ? diagonalAgents(c) : rowAgents(c, count);
     EdmdEngine engine(c, agents);
     std::FILE* f = std::fopen(path.c_str(), "w");
     if (f == nullptr) throw std::runtime_error("no se pudo abrir '" + path + "'");
@@ -179,9 +179,13 @@ int runRowEvents(const std::string& path, int count, double maxTime) {
 }  // namespace
 
 int main(int argc, char** argv) try {
+    if (argc == 4 && std::strcmp(argv[1], "diag") == 0 && std::strcmp(argv[3], "events") == 0) {
+        return runRowEvents(argv[2], 2, 2.5, true);
+    }
     const bool known = argc >= 2 && (std::strcmp(argv[1], "two") == 0 || std::strcmp(argv[1], "crowd") == 0);
     if ((argc != 3 && argc != 4) || !known) {
-        std::fprintf(stderr, "uso: tp5_scenario two|crowd <salida.txt> [tsdmd|edmd|hybrid|events]\n");
+        std::fprintf(stderr, "uso: tp5_scenario two|crowd <salida.txt> [tsdmd|edmd|hybrid|events]\n"
+                             "     tp5_scenario diag <salida.txt> events\n");
         return 2;
     }
     const bool two = std::strcmp(argv[1], "two") == 0;
