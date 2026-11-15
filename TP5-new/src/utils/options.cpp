@@ -115,7 +115,9 @@ void printUsage() {
         "  --scheme <tsdmd|edmd|hybrid>   esquema (tsdmd)\n"
         "  --dt <s>                       paso de integracion, <= 0.1*sqrt(m/k) (1e-4)\n"
         "  --dt2 <s>                      intervalo de salida, multiplo entero de dt (0.1)\n"
-        "  --tmax <s>                     tiempo fisico maximo (3000)\n\n"
+        "  --frame-stride <n>             un frame cada n pasos (TSDMD), eventos (EDMD) o pasos del reloj\n"
+        "                                 (hibrido); 0 = un frame cada dt2 (0)\n"
+        "  --frame-event-stride <m>       hibrido: n del reloj de eventos mientras los TSDMD son < 3/4; 0 = --frame-stride (0)\n"        "  --tmax <s>                     tiempo fisico maximo (3000)\n\n"
         "Salida:\n"
         "  --out <path>                   archivo de trayectoria TP5_TRAJECTORY (data/trajectory.txt)\n"
         "  --no-output                    no escribir el archivo de trayectoria\n"
@@ -137,7 +139,7 @@ ProgramOptions parseOptions(int argc, char** argv) {
     enum LongOnly {
         kDoor = 1000, kRmin, kRmax, kVd, kK, kKappa, kMass, kTau, kExitDistance,
         kMaxPlacement, kScheme, kDt, kDt2, kNoOutput, kCsv,
-        kEventGap, kSteerDt, kNoSeparate, kMaxEvents, kHybridT, kHybridAlpha, kDoorAim, kReturnStride, kMultiContact, kSeparate, kBounceMin, kNoCrowd, kCrowdBand
+        kEventGap, kSteerDt, kNoSeparate, kMaxEvents, kHybridT, kHybridAlpha, kDoorAim, kReturnStride, kMultiContact, kSeparate, kBounceMin, kNoCrowd, kCrowdBand, kFrameStride, kFrameEventStride
     };
     static option longOptions[] = {
         {"N", required_argument, nullptr, 'N'},
@@ -146,6 +148,8 @@ ProgramOptions parseOptions(int argc, char** argv) {
         {"seed", required_argument, nullptr, 's'},
         {"dt", required_argument, nullptr, kDt},
         {"dt2", required_argument, nullptr, kDt2},
+        {"frame-stride", required_argument, nullptr, kFrameStride},
+        {"frame-event-stride", required_argument, nullptr, kFrameEventStride},
         {"tmax", required_argument, nullptr, 't'},
         {"rmin", required_argument, nullptr, kRmin},
         {"rmax", required_argument, nullptr, kRmax},
@@ -189,6 +193,8 @@ ProgramOptions parseOptions(int argc, char** argv) {
             case 's': c.seed = parseUnsigned(optarg, "--seed"); break;
             case kDt: c.dt = parseDouble(optarg, "--dt"); break;
             case kDt2: c.dt2 = parseDouble(optarg, "--dt2"); break;
+            case kFrameStride: c.frameStride = parseInt(optarg, "--frame-stride"); break;
+            case kFrameEventStride: c.frameEventStride = parseInt(optarg, "--frame-event-stride"); break;
             case 't': c.maxTime = parseDouble(optarg, "--tmax"); break;
             case kRmin: c.radiusMin = parseDouble(optarg, "--rmin"); break;
             case kRmax: c.radiusMax = parseDouble(optarg, "--rmax"); break;

@@ -501,7 +501,8 @@ EvacuationResult runHybrid(const EvacuationConfig& config, std::vector<Agent> ag
     if (config.hybridT >= config.maxTime) return runEvacuation(config, std::move(agents), sink);
 
     HybridEngine engine(config, std::move(agents));
-    const long long stepsPerFrame = std::llround(config.dt2 / config.dt);
+    const long long stepsPerFrame =
+        config.frameStride > 0 ? config.frameStride : std::llround(config.dt2 / config.dt);
     double outputSeconds = 0.0;
     const auto emit = [&](double label, double evalTime) {
         if (!sink) return;
@@ -528,14 +529,31 @@ EvacuationResult runHybrid(const EvacuationConfig& config, std::vector<Agent> ag
     };
 
     const auto loopStart = Clock::now();
+    long long sinceSteps = 0, sinceEvents = 0;
     emit(0.0, 0.0);
     while (!engine.finished()) {
         const double next = engine.nextTime();
         if (!std::isfinite(next) || next > config.maxTime) break;
-        if (engine.tsdmdCount() == 0) {
+        if (config.frameStride == 0 && engine.tsdmdCount() == 0) {
             flush(next, false, engine.nextIsBoundary() ? engine.nextBoundaryIndex() : -1);
         }
         if (!engine.step()) break;
+        // --frame-stride: el reloj del cuadro depende de quien domina. Mientras los TSDMD son menos de 3/4 de
+        // los agentes vivos, un cuadro cada frameEventStride eventos EDMD (el tiempo salta como en EDMD puro);
+        // desde 3/4 en TSDMD, un cuadro cada frameStride pasos de grilla (dt fijo, como en TSDMD puro).
+        if (config.frameStride > 0) {
+            ++(engine.lastStepWasBoundary() ? sinceSteps : sinceEvents);
+            const long long ts = static_cast<long long>(engine.tsdmdCount());
+            const long long alive = ts + static_cast<long long>(engine.edmd().residentCount());
+            const bool stepClock = 4 * ts >= 3 * alive;
+            const long long eventStride = config.frameEventStride > 0 ? config.frameEventStride : config.frameStride;
+            if (stepClock ? sinceSteps >= config.frameStride : sinceEvents >= eventStride) {
+                sinceSteps = sinceEvents = 0;
+                lastEmitted = engine.now();
+                emit(lastEmitted, lastEmitted);
+            }
+            continue;
+        }
         if (engine.lastStepWasBoundary() && engine.boundaryIndex() % stepsPerFrame == 0) {
             const long long frame = engine.boundaryIndex() / stepsPerFrame;
             const double f = static_cast<double>(frame) * config.dt2;
@@ -546,7 +564,7 @@ EvacuationResult runHybrid(const EvacuationConfig& config, std::vector<Agent> ag
     }
 
     EvacuationResult result = engine.result();
-    if (engine.tsdmdCount() == 0) {
+    if (config.frameStride == 0 && engine.tsdmdCount() == 0) {
         flush(result.finalTime, true, -1);
         if (lastEmitted < result.finalTime) emit(result.finalTime, result.finalTime);
     } else if (lastEmitted < result.finalTime) {

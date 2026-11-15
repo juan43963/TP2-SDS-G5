@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  14 NOV 2026 21:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  15 NOV 2026 11:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1433,7 +1433,7 @@ Package pdftex.def Info: figuras/pres_scale_b.png  used on input line 691.
 ] [33
 
 ]
-Overfull \hbox (0.54045pt too wide) in paragraph at lines 750--750
+Overfull \hbox (0.54045pt too wide) in paragraph at lines 749--749
  [] 
  []
 
@@ -1446,7 +1446,7 @@ Overfull \hbox (0.54045pt too wide) in paragraph at lines 750--750
 ] [37
 
 ]
-Underfull \hbox (badness 2547) in paragraph at lines 830--830
+Underfull \hbox (badness 2547) in paragraph at lines 829--829
 []|\T1/cmss/b/n/9 Choque en ple-na
  []
 
@@ -1539,9 +1539,9 @@ cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Lucas Di
  Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
 <C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
 onts/cm/cmsy9.pfb>
-Output written on presentacion_vivo.pdf (39 pages, 1351838 bytes).
+Output written on presentacion_vivo.pdf (39 pages, 1352855 bytes).
 PDF statistics:
- 3269 PDF objects out of 3580 (max. 8388607)
+ 3271 PDF objects out of 3580 (max. 8388607)
  85 named destinations out of 1000 (max. 500000)
  208 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -58,6 +58,11 @@ struct EvacuationConfig {
     SfmParams sfm;
     double dt = 1e-4;
     double dt2 = 0.1;
+    // Salida por avance del motor (0 = cada dt2): un frame cada frameStride pasos de tiempo (TSDMD), eventos
+    // procesados (EDMD) o pasos del reloj unico (hibrido: limite de grilla o evento EDMD).
+    long long frameStride = 0;
+    // Solo hibrido: stride del reloj de eventos (mientras los TSDMD son menos de 3/4); 0 = usa frameStride.
+    long long frameEventStride = 0;
     double maxTime = 3000.0;
     std::uint64_t seed = 1;
     Scheme scheme = Scheme::Tsdmd;

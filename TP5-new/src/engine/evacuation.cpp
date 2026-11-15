@@ -67,6 +67,8 @@ void validateConfig(const EvacuationConfig& c) {
     if (!(std::abs(ratio - rounded) / rounded < 1e-9)) {
         invalid("--dt2", c.dt2, "debe ser multiplo entero de dt");
     }
+    if (c.frameStride < 0) invalid("--frame-stride", c.frameStride, "debe ser >= 0");
+    if (c.frameEventStride < 0) invalid("--frame-event-stride", c.frameEventStride, "debe ser >= 0");
     if (!(c.maxTime > 0.0)) invalid("--tmax", c.maxTime, "debe ser > 0");
     if (!(c.maxTime / c.dt <= 2e9)) invalid("--tmax", c.maxTime, "excede 2e9 pasos con este dt");
     if (c.maxPlacementAttemptsPerAgent <= 0) {
@@ -109,7 +111,8 @@ EvacuationResult runEvacuation(const EvacuationConfig& config, std::vector<Agent
         if (a.status == AgentStatus::InRoom) a.target = room.doorCenter;
     }
 
-    const long long stepsPerFrame = std::llround(config.dt2 / config.dt);
+    const long long stepsPerFrame =
+        config.frameStride > 0 ? config.frameStride : std::llround(config.dt2 / config.dt);
     const long long maxSteps = std::llround(config.maxTime / config.dt);
     const double halfDoor = config.doorWidth / 2.0;
 

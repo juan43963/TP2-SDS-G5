@@ -219,8 +219,24 @@ def _apply_zoom(ax, zoom):
     ax.set_title("")
 
 
+def step_title(frames, k, stride, kind):
+    """Titulo de avance por motor: indice de paso/evento, t y salto de tiempo desde el cuadro anterior.
+
+    El cuadro k de un archivo escrito con --frame-stride n es el paso/evento n*k (el cuadro 0 es el
+    inicio).
+    """
+    t = frames[k].t
+    dt = t - frames[k - 1].t if k > 0 else 0.0
+    if kind == "hibrido":  # reloj mixto: el indice no es unico, se muestra la composicion del cuadro
+        n_ts = int(sum(1 for v in frames[k].rows[:, 6] if v == 0.0))
+        head = f"TSDMD {n_ts} | EDMD {frames[k].rows.shape[0] - n_ts}"
+    else:
+        head = f"{kind} {k * stride:,}".replace(",", " ")
+    return head + f"\nt = {t:.3f} s | $\\Delta t$ = {dt:.4f} s"
+
+
 def render(inp, out, *, snapshot=None, t0=0.0, t1=math.inf, every=1, fps=10.0, max_frames=600,
-           target_frames=None, ffmpeg_path=None, zoom=None):
+           target_frames=None, ffmpeg_path=None, zoom=None, stride=0, kind="paso"):
     """Instantanea PNG (snapshot) o animacion GIF/MP4 segun la extension de `out`.
 
     Devuelve la linea `ANIMATE ...`; ValueError/OSError ante cualquier problema, sin dejar
@@ -260,6 +276,8 @@ def render(inp, out, *, snapshot=None, t0=0.0, t1=math.inf, every=1, fps=10.0, m
     def update(k):
         draw_frame(ax, frames[k], header, inp)
         _apply_zoom(ax, zoom)
+        if stride > 0:
+            ax.set_title(step_title(frames, k, stride, kind), fontsize=9)
         return []
 
     anim = animation.FuncAnimation(fig, update, frames=len(frames), blit=False)
@@ -281,7 +299,7 @@ def run(args):
     return render(args.inp, args.out, snapshot=args.snapshot, t0=args.t0, t1=args.t1,
                   every=args.every, fps=args.fps, max_frames=args.max_frames,
                   target_frames=args.target_frames, ffmpeg_path=args.ffmpeg_path,
-                  zoom=parse_zoom(args.zoom))
+                  zoom=parse_zoom(args.zoom), stride=args.stride, kind=args.kind)
 
 
 def main(argv):
@@ -298,6 +316,11 @@ def main(argv):
                     help="cantidad objetivo de frames; calcula --every solo (ignora --every)")
     ap.add_argument("--ffmpeg-path", default=None, help="ruta de un ffmpeg que no esta en el PATH")
     ap.add_argument("--zoom", default=None, help="recorte de la vista: x0,x1,y0,y1 en metros (sin titulo)")
+    ap.add_argument("--stride", type=int, default=0,
+                    help="--frame-stride con el que se escribio el archivo (0 = muestreo por tiempo); "
+                         "activa el titulo con el indice de paso/evento")
+    ap.add_argument("--kind", default="paso", choices=("paso", "evento", "hibrido"),
+                    help="que cuenta el stride: pasos de tiempo (TSDMD, hibrido) o eventos (EDMD)")
     args = ap.parse_args(argv)
     try:
         print(run(args))

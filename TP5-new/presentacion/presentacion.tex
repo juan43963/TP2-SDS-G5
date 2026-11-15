@@ -546,7 +546,7 @@
     \end{column}
   \end{columns}
   \vfill
-  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), $t = 20\un{s}$; $T = 0.5\un{s}$.}
+  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), hasta evacuar; $T = 0.5\un{s}$. Un cuadro cada 5000 pasos (TSDMD) o 5000 eventos (EDMD); híbrido: cada 1000 eventos hasta que 3/4 de los agentes están en TSDMD, y desde ahí cada 5000 pasos.}
 \end{frame}
 
 % SLIDE res_anim_zoom | V:C | T:20
@@ -575,7 +575,7 @@
     \end{column}
   \end{columns}
   \vfill
-  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), $t = 20\un{s}$; $T = 0.5\un{s}$.}
+  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), hasta evacuar; $T = 0.5\un{s}$. Un cuadro cada 5000 pasos (TSDMD) o 5000 eventos (EDMD); híbrido: cada 1000 eventos hasta que 3/4 de los agentes están en TSDMD, y desde ahí cada 5000 pasos.}
 \end{frame}
 
 % SLIDE res_fraccion | V:A | T:30
@@ -701,12 +701,11 @@
   \begin{enumerate}
     \small
     \item El EDMD evacúa sin superposición si el choque dentro de la multitud es elástico: ningún choque se ignora y no se corrigen posiciones.
-    \item Con esa regla evacúa antes que el TSDMD ($|z|>2$) y su tiempo de ejecución es mayor.
-    \item Al crecer $N$ el costo del EDMD crece más rápido que el del TSDMD y el del híbrido; con $L$ fija y $N$ grande una corrida no evacúa.
-    \item El híbrido no se distingue del TSDMD en el tiempo de evacuación, para ningún $T>0$ evaluado: los contactos los resuelve el resorte, no la regla del EDMD.
-    \item El costo de ejecución del híbrido no baja del TSDMD para ningún $T$ evaluado; con $T$ grande es mayor.
-    \item $T = 0$ reproduce el EDMD, ahora sin superposición.
-    \item TSDMD e híbrido dejan corridas sin completar con $N = 200$; el EDMD, con $N = 1000$ y $L$ fija.
+    \item Con esa regla evacúa antes que el TSDMD ($|z|>2$), con mayor tiempo de ejecución.
+    \item El híbrido no se distingue del TSDMD en el tiempo de evacuación para ningún $T>0$: los contactos los resuelve el resorte, no la regla del EDMD. $T = 0$ reproduce el EDMD.
+    \item Con $N = 200$ el híbrido nunca cuesta menos que el TSDMD; con $T$ chico no se distingue del EDMD y con $T$ grande cuesta más que ambos.
+    \item Al crecer $N$ el costo del EDMD crece más rápido que el del TSDMD y el del híbrido: con $N$ grande el híbrido es más barato que el EDMD (tendencia, 3 realizaciones).
+    \item Ningún esquema completa siempre: TSDMD e híbrido fallan ya con $N = 200$, el EDMD solo con $L$ fija y $N$ grande; al crecer $N$ el híbrido es el que más corridas deja sin completar.
   \end{enumerate}
 \end{frame}
 

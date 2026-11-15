@@ -1129,16 +1129,22 @@ EvacuationResult runEdmd(const EvacuationConfig& config, std::vector<Agent> agen
     };
 
     const auto loopStart = Clock::now();
+    long long processed = 0;
     emit(0.0);
     while (!engine.finished()) {
         const double next = engine.nextEventTime();
         if (!std::isfinite(next) || next > config.maxTime) break;
-        flush(next, false);
+        if (config.frameStride == 0) flush(next, false);
         if (!engine.step()) break;
+        // --frame-stride: un frame cada frameStride eventos procesados, en el instante del evento.
+        if (config.frameStride > 0 && ++processed % config.frameStride == 0) {
+            lastEmitted = engine.lastEvent().time;
+            emit(lastEmitted);
+        }
     }
 
     EvacuationResult result = engine.result();
-    flush(result.finalTime, true);
+    if (config.frameStride == 0) flush(result.finalTime, true);
     if (lastEmitted < result.finalTime) emit(result.finalTime);
     const double totalSeconds = std::chrono::duration<double>(Clock::now() - loopStart).count();
 

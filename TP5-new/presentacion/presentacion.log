@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  14 NOV 2026 21:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  15 NOV 2026 11:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1356,7 +1356,11 @@ File: figuras/frame_hybrid_full.png Graphic file (type png)
 Package pdftex.def Info: figuras/frame_hybrid_full.png  used on input line 550.
 
 (pdftex.def)             Requested size: 104.21902pt x 112.9012pt.
- [22
+
+Overfull \vbox (12.38141pt too high) detected at line 550
+ []
+
+[22
 
  <./figuras/frame_tsdmd_full.png> <./figuras/frame_edmd_full.png> <./figuras/fr
 ame_hybrid_full.png>]
@@ -1376,7 +1380,11 @@ File: figuras/frame_hybrid_zoom.png Graphic file (type png)
 Package pdftex.def Info: figuras/frame_hybrid_zoom.png  used on input line 579.
 
 (pdftex.def)             Requested size: 112.66881pt x 122.05457pt.
- [23
+
+Overfull \vbox (21.53477pt too high) detected at line 579
+ []
+
+[23
 
  <./figuras/frame_tsdmd_zoom.png> <./figuras/frame_edmd_zoom.png> <./figuras/fr
 ame_hybrid_zoom.png>]
@@ -1385,7 +1393,7 @@ File: figuras/pres_fraction.png Graphic file (type png)
 <use figuras/pres_fraction.png>
 Package pdftex.def Info: figuras/pres_fraction.png  used on input line 594.
 (pdftex.def)             Requested size: 277.34602pt x 151.27965pt.
-[24
+ [24
 
  <./figuras/pres_fraction.png>]
 <figuras/pres_population.png, id=1919, 578.16pt x 433.62pt>
@@ -1401,8 +1409,7 @@ File: figuras/pres_tevac.png Graphic file (type png)
 <use figuras/pres_tevac.png>
 Package pdftex.def Info: figuras/pres_tevac.png  used on input line 629.
 (pdftex.def)             Requested size: 237.5941pt x 184.13542pt.
-
-[26
+ [26
 
  <./figuras/pres_tevac.png>]
 <figuras/pres_walltime.png, id=2080, 578.16pt x 448.074pt>
@@ -1447,7 +1454,7 @@ Package pdftex.def Info: figuras/pres_scale_b.png  used on input line 691.
 ] [33
 
 ]
-Overfull \hbox (0.54045pt too wide) in paragraph at lines 750--750
+Overfull \hbox (0.54045pt too wide) in paragraph at lines 749--749
  [] 
  []
 
@@ -1460,7 +1467,7 @@ Overfull \hbox (0.54045pt too wide) in paragraph at lines 750--750
 ] [37
 
 ]
-Underfull \hbox (badness 2547) in paragraph at lines 830--830
+Underfull \hbox (badness 2547) in paragraph at lines 829--829
 []|\T1/cmss/b/n/9 Choque en ple-na
  []
 
@@ -1553,9 +1560,9 @@ cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Lucas Di
  Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
 <C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
 onts/cm/cmsy9.pfb>
-Output written on presentacion.pdf (39 pages, 1763674 bytes).
+Output written on presentacion.pdf (39 pages, 1764678 bytes).
 PDF statistics:
- 3306 PDF objects out of 3580 (max. 8388607)
+ 3308 PDF objects out of 3580 (max. 8388607)
  85 named destinations out of 1000 (max. 500000)
  208 words of extra memory for PDF output out of 10000 (max. 10000000)
 
