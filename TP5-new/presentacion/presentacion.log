@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  14 NOV 2026 21:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  14 NOV 2026 21:22
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1302,7 +1302,7 @@ Overfull \vbox (3.2455pt too high) detected at line 266
 [8
 
  <./figuras/frame_eventos_aislado.png>]
-<figuras/frame_eventos_multitud.png, id=742, 390.258pt x 688.0104pt>
+<figuras/frame_eventos_multitud.png, id=743, 390.258pt x 688.0104pt>
 File: figuras/frame_eventos_multitud.png Graphic file (type png)
 <use figuras/frame_eventos_multitud.png>
 Package pdftex.def Info: figuras/frame_eventos_multitud.png  used on input line
@@ -1553,7 +1553,7 @@ cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Lucas Di
  Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
 <C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
 onts/cm/cmsy9.pfb>
-Output written on presentacion.pdf (39 pages, 1760412 bytes).
+Output written on presentacion.pdf (39 pages, 1763674 bytes).
 PDF statistics:
  3306 PDF objects out of 3580 (max. 8388607)
  85 named destinations out of 1000 (max. 500000)

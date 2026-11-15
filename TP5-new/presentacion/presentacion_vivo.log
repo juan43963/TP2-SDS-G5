@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  14 NOV 2026 21:19
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.8.19)  14 NOV 2026 21:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1295,7 +1295,7 @@ Package pdftex.def Info: figuras/frame_eventos_aislado.png  used on input line
  [8
 
 ]
-<figuras/frame_eventos_multitud.png, id=739, 390.258pt x 688.0104pt>
+<figuras/frame_eventos_multitud.png, id=740, 390.258pt x 688.0104pt>
 File: figuras/frame_eventos_multitud.png Graphic file (type png)
 <use figuras/frame_eventos_multitud.png>
 Package pdftex.def Info: figuras/frame_eventos_multitud.png  used on input line
@@ -1539,7 +1539,7 @@ cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/Lucas Di
  Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
 <C:/Users/Lucas Di Candia/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
 onts/cm/cmsy9.pfb>
-Output written on presentacion_vivo.pdf (39 pages, 1351252 bytes).
+Output written on presentacion_vivo.pdf (39 pages, 1351838 bytes).
 PDF statistics:
  3269 PDF objects out of 3580 (max. 8388607)
  85 named destinations out of 1000 (max. 500000)

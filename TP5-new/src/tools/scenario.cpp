@@ -4,6 +4,7 @@
 //   tp5_scenario two   <salida.txt> [tsdmd|edmd|hybrid]   caso de las dos particulas (consulta del profe)
 //   tp5_scenario crowd <salida.txt> [tsdmd|edmd|hybrid]   tres en fila: choque de multitud y atasco en la puerta
 //   tp5_scenario two|crowd <salida.txt> events              EDMD, un registro por evento procesado
+//   tp5_scenario diag <salida.txt> events                   dos agentes que se acercan en diagonal (choque aislado)
 //
 // Salida: archivo TP5_TRAJECTORY 1 con dt2 fino, para que la animacion (Python) lo lea aparte.
 // Con `events`: archivo TP5_EVENTS 1. El EDMD se avanza con EdmdEngine::step() y despues de cada evento que
@@ -76,14 +77,14 @@ std::vector<Agent> rowAgents(const EvacuationConfig& c, int count) {
     return agents;
 }
 
-// Dos agentes a x = 5 -/+ 1 m, y = 3 m, con velocidad inicial v_d a 45 grados uno hacia el otro (la deseada
+// Dos agentes a x = 5 -/+ 0.7 m, y = 3.6 m, con velocidad inicial v_d a 45 grados uno hacia el otro (la deseada
 // apunta a la puerta, asi que la real relaja hacia ella): se acercan en diagonal y chocan lejos de la puerta.
 std::vector<Agent> diagonalAgents(const EvacuationConfig& c) {
     const double r = 0.2;
     const Vector2 door{5.0, 0.0};
     const double s = c.sfm.desiredSpeed / std::sqrt(2.0);
-    std::vector<Agent> agents{makeAgent(0, {4.0, 3.0}, door, r, c.sfm.desiredSpeed),
-                              makeAgent(1, {6.0, 3.0}, door, r, c.sfm.desiredSpeed)};
+    std::vector<Agent> agents{makeAgent(0, {4.3, 3.6}, door, r, c.sfm.desiredSpeed),
+                              makeAgent(1, {5.7, 3.6}, door, r, c.sfm.desiredSpeed)};
     agents[0].velocity = {s, -s};
     agents[1].velocity = {-s, -s};
     return agents;
@@ -180,7 +181,7 @@ int runRowEvents(const std::string& path, int count, double maxTime, bool diagon
 
 int main(int argc, char** argv) try {
     if (argc == 4 && std::strcmp(argv[1], "diag") == 0 && std::strcmp(argv[3], "events") == 0) {
-        return runRowEvents(argv[2], 2, 2.5, true);
+        return runRowEvents(argv[2], 2, 1.6, true);
     }
     const bool known = argc >= 2 && (std::strcmp(argv[1], "two") == 0 || std::strcmp(argv[1], "crowd") == 0);
     if ((argc != 3 && argc != 4) || !known) {
