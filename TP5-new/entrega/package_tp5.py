@@ -293,12 +293,16 @@ def _smoke_scheme(tmp, scheme, ref_abs, emit):
     if res is None:
         return [f"{scheme}: no hay linea RESULT"]
     problems = []
-    for key, want in (("completed", "1"), ("in_room_final", "0"), ("wall_breaches", "0")):
-        if res.get(key) != want:
-            problems.append(f"{scheme}: {key}={res.get(key)} (se esperaba {want})")
-    first = zip_out.read_text(encoding="utf-8", errors="replace").splitlines()[:1]
-    if first != ["TP5_TRAJECTORY 1"]:
-        problems.append(f"{scheme}: la primera linea del archivo es {first!r}")
+    lines = zip_out.read_text(encoding="utf-8", errors="replace").splitlines()
+    if lines[:1] != ["TP5_TRAJECTORY 1"]:
+        problems.append(f"{scheme}: la primera linea del archivo es {lines[:1]!r}")
+    # El motor no informa observables: la evacuacion completa se lee de la trayectoria
+    # (el ultimo FRAME no tiene agentes).
+    frames = [ln.split() for ln in lines if ln.startswith("FRAME ")]
+    evacuated = bool(frames) and frames[-1][2] == "0"
+    t_evac = next((f[1] for f in frames if f[2] == "0"), None)
+    if not evacuated:
+        problems.append(f"{scheme}: el ultimo FRAME de la trayectoria todavia tiene agentes")
     identical = "skipped"
     if ref_abs is not None:
         refdir = Path(tempfile.mkdtemp(prefix="tp5_ref_"))
@@ -324,8 +328,7 @@ def _smoke_scheme(tmp, scheme, ref_abs, emit):
                     problems.append(f"{scheme}: el RESULT del zip difiere del del repo en {diff}")
         finally:
             shutil.rmtree(refdir, ignore_errors=True)
-    emit(f"SMOKE scheme={scheme} completed={res.get('completed')} t_evac={res.get('t_evac')} "
-         f"identical={identical}")
+    emit(f"SMOKE scheme={scheme} evacuated={int(evacuated)} t_empty={t_evac} identical={identical}")
     return problems
 
 

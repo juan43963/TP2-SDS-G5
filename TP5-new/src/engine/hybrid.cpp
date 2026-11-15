@@ -186,28 +186,25 @@ void HybridEngine::runBoundary() {
     now_ = tb;
 
     // c) cruce de la puerta y retiro del subconjunto TSDMD, igual que runEvacuation.
-    const double halfDoor = config_.doorWidth / 2.0;
     for (Agent& a : s_) {
         if (a.status == AgentStatus::InRoom && a.position.y < 0.0) {
             a.status = AgentStatus::Exiting;
             a.target = room_.exitTarget;
-            ++crossed_;
-            evacuationTime_ = tb;
-            if (std::abs(a.position.x - room_.doorCenter.x) > halfDoor) ++wallBreaches_;
+            doorCrossings_.push_back({a.id, tb, a.position.x});
         }
     }
     const std::size_t before = s_.size();
     std::erase_if(s_, [&](const Agent& a) {
         const bool gone = a.status == AgentStatus::Exiting &&
                           norm(a.position - room_.doorCenter) >= room_.exitDistance;
-        if (gone) inTsdmd_[static_cast<std::size_t>(a.id)] = 0;
+        if (gone) {
+            inTsdmd_[static_cast<std::size_t>(a.id)] = 0;
+            removals_.push_back({a.id, tb, a.position.x});
+            lastRemovalTime_ = tb;
+        }
         return gone;
     });
     bool membershipChanged = s_.size() != before;
-    if (membershipChanged) {
-        removed_ += static_cast<int>(before - s_.size());
-        clearTime_ = tb;
-    }
 
     // d) pasajes EDMD -> TSDMD.
     gatherPromotions();
@@ -467,18 +464,20 @@ std::vector<Agent> HybridEngine::snapshot(double time) const {
 
 EvacuationResult HybridEngine::result() const {
     EvacuationResult r = edmd_.result();
-    r.crossed += crossed_;
-    r.removed += removed_;
-    r.wallBreaches += wallBreaches_;
-    r.evacuationTime = std::max(r.evacuationTime, evacuationTime_);
-    r.clearTime = std::max(r.clearTime, clearTime_);
+    // Ultimo retiro de los dos subconjuntos (EDMD y TSDMD), para el instante final.
+    double lastRemoval = lastRemovalTime_;
+    for (const ExitRecord& e : r.removals) lastRemoval = std::max(lastRemoval, e.time);
+    const auto merge = [](std::vector<ExitRecord>& into, const std::vector<ExitRecord>& from) {
+        into.insert(into.end(), from.begin(), from.end());
+        std::stable_sort(into.begin(), into.end(),
+                         [](const ExitRecord& a, const ExitRecord& b) { return a.time < b.time; });
+    };
+    merge(r.doorCrossings, doorCrossings_);
+    merge(r.removals, removals_);
     r.maxAgentOverlap = std::max(r.maxAgentOverlap, stats_.maxAgentOverlap);
     r.maxWallOverlap = std::max(r.maxWallOverlap, stats_.maxWallOverlap);
-    for (const Agent& a : s_) {
-        if (a.status == AgentStatus::InRoom) ++r.inRoomFinal;
-    }
-    r.completed = edmd_.residentCount() == 0 && s_.empty();
-    r.finalTime = r.completed ? r.clearTime : (capped_ ? now_ : config_.maxTime);
+    const bool roomEmpty = edmd_.residentCount() == 0 && s_.empty();
+    r.finalTime = roomEmpty ? lastRemoval : (capped_ ? now_ : config_.maxTime);
     r.steps = counters_.gridSteps;
     r.hybridPromotions = counters_.promotions;
     r.hybridReturns = counters_.returns;

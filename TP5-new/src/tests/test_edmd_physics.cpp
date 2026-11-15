@@ -14,6 +14,7 @@
 #include "generator.h"
 #include "overlap_oracle.h"
 #include "relaxation.h"
+#include "run_observables.h"
 #include "test_support.h"
 
 namespace {
@@ -55,7 +56,7 @@ void runOverlapTests(TestSuite& suite) {
         population.push_back(inRoom);
         frames.push_back(frame);
     };
-    const EvacuationResult result = runEdmd(config, agents, sink);
+    const ObservedRun result = observe(runEdmd(config, agents, sink), config, config.agentCount);
 
     suite.check(result.completed && result.crossed == 60 && result.removed == 60,
                 "overlap: la corrida de 60 agentes completa");
@@ -165,7 +166,7 @@ GapRun runGap(double eventGap) {
             lastAgent[id] = e.time;
         }
     }
-    const EvacuationResult result = engine.result();
+    const ObservedRun result = observe(engine.result(), config, config.agentCount);
     run.completed = result.completed;
     run.events = engine.counters().processed;
     run.collisions = engine.counters().collisions;

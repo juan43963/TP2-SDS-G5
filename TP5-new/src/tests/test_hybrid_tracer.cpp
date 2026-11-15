@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "hybrid.h"
+#include "run_observables.h"
 #include "test_support.h"
 
 namespace {
@@ -113,7 +114,7 @@ void testRearEndFullRun(TestSuite& suite) {
     const FrameSink sink = [&frames](double time, const std::vector<Agent>& frame) {
         frames.emplace_back(time, frame);
     };
-    const EvacuationResult r = runHybrid(c, rearEndAgents(), sink);
+    const ObservedRun r = observe(runHybrid(c, rearEndAgents(), sink), c, 2);
     suite.check(r.completed, "corrida completa: completed");
     suite.check(r.crossed == 2 && r.removed == 2 && r.inRoomFinal == 0, "crossed == 2, removed == 2, inRoomFinal == 0");
     suite.check(r.collisions == 0 && r.wallBreaches == 0, "sin colisiones duras ni brechas");

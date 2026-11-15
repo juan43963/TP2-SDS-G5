@@ -63,9 +63,7 @@ smoke: tp5
 	@mkdir -p $(BUILD)
 	./tp5 --N 30 --L 10 --seed 1 --tmax 200 --out $(BUILD)/smoke.txt > $(BUILD)/smoke.out
 	@cat $(BUILD)/smoke.out
-	@grep -q 'in_room_final=0' $(BUILD)/smoke.out \
-	  && grep -q 'completed=1' $(BUILD)/smoke.out \
-	  && grep -q 'wall_breaches=0' $(BUILD)/smoke.out \
+	@[ "$$(grep '^FRAME ' $(BUILD)/smoke.txt | tail -1 | cut -d' ' -f3)" = "0" ] \
 	  && [ "$$(head -1 $(BUILD)/smoke.txt)" = "TP5_TRAJECTORY 1" ] \
 	  && [ "$$(grep -c '^FRAME ' $(BUILD)/smoke.txt)" -ge 3 ] \
 	  && tail -1 $(BUILD)/smoke.txt | grep -q '^END' \

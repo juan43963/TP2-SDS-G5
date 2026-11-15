@@ -8,6 +8,7 @@
 #include "evacuation.h"
 #include "generator.h"
 #include "overlap_oracle.h"
+#include "run_observables.h"
 #include "test_support.h"
 
 namespace {
@@ -112,7 +113,7 @@ void testRealCrowdHasNoViolations(TestSuite& suite) {
         mergeReports(total, checkOverlaps(rows, room));
         population.push_back(inRoom);
     };
-    const EvacuationResult result = runEvacuation(config, agents, sink);
+    const ObservedRun result = observe(runEvacuation(config, agents, sink), config, static_cast<int>(agents.size()));
 
     suite.check(result.completed, "corrida real: completa dentro de maxTime");
     suite.check(result.crossed == 60, "corrida real: cruzaron los 60");

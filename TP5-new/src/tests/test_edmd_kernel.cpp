@@ -10,6 +10,7 @@
 
 #include "edmd.h"
 #include "edmd_kernel.h"
+#include "run_observables.h"
 #include "test_support.h"
 
 namespace {
@@ -423,7 +424,7 @@ void testTracer(TestSuite& suite) {
         const FrameSink sink = [&frames](double time, const std::vector<Agent>& rows) {
             frames.push_back({time, rows});
         };
-        const EvacuationResult r = runEdmd(config, {tracerAgent({5.0, 5.0}, {0.0, -1.5})}, sink);
+        const ObservedRun r = observe(runEdmd(config, {tracerAgent({5.0, 5.0}, {0.0, -1.5})}, sink), config, 1);
         suite.check(r.completed && r.crossed == 1 && r.removed == 1 && r.inRoomFinal == 0,
                     "agente libre: completa, cruza y se retira");
         suite.check(near(r.evacuationTime, 5.0 / 1.5, 1e-9), "evacuationTime = 5/1.5 a 1e-9");
@@ -467,7 +468,7 @@ void testTracer(TestSuite& suite) {
         const Vector2 start{2.0, 5.0};
         const Vector2 toDoor = Vector2{5.0, 0.0} - start;
         const Vector2 velocity = toDoor * (config.sfm.desiredSpeed / norm(toDoor));
-        const EvacuationResult r = runEdmd(config, {tracerAgent(start, velocity)}, FrameSink{});
+        const ObservedRun r = observe(runEdmd(config, {tracerAgent(start, velocity)}, FrameSink{}), config, 1);
         suite.check(r.completed && r.crossed == 1 && r.removed == 1, "agente en diagonal: completa");
         suite.check(near(r.evacuationTime, norm(toDoor) / config.sfm.desiredSpeed, 1e-9),
                     "el cruce de la puerta ocurre al llegar al centro");
@@ -500,7 +501,8 @@ void testTracer(TestSuite& suite) {
                     "la copia es independiente del original");
         suite.check(engine.counters().collisions == 0 && engine.counters().floorCollisions == 0,
                     "counters().collisions = 0 en el camino libre");
-        suite.check(engine.result().wallBreaches == 0 && engine.result().completed,
+        const ObservedRun done = observe(engine.result(), config, 1);
+        suite.check(done.wallBreaches == 0 && done.completed,
                     "wallBreaches = 0 y evacuacion completa desde el reposo");
         suite.check(engine.counters().inapplicable == 0 && engine.counters().timeRegressions == 0 &&
                         engine.counters().processed >= 2,

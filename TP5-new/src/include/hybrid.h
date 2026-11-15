@@ -86,11 +86,11 @@ public:
     // devuelven en su estado vigente, el del ultimo limite).
     std::vector<Agent> snapshot(double time) const;
 
-    // Ganchos de prueba (Plan 02): pide que el agente `id` pase a TSDMD en el proximo limite (como un
+    // Ganchos de prueba: pide que el agente `id` pase a TSDMD en el proximo limite (como un
     // aviso Promote) y activa/desactiva el escaneo de pares mixtos (control negativo de D-25).
     void requestPromotionForTesting(int id);
     void setMixedScanEnabledForTesting(bool enabled) { mixedScanEnabled_ = enabled; }
-    // Control negativo de D-29 (Plan 04): con falso el retorno ignora el contacto, el huelgo y la
+    // Control negativo de D-29: con falso el retorno ignora el contacto, el huelgo y la
     // velocidad de acercamiento (touching = false, minGap = kInfinity, closingSpeed = 0); el resto del
     // criterio (tau_c > alpha*T) no cambia. Por defecto verdadero.
     void setReturnGuardEnabledForTesting(bool enabled) { returnGuard_ = enabled; }
@@ -131,11 +131,9 @@ private:
     HybridCounters counters_;
 
     // Contadores del lado TSDMD para result().
-    int crossed_ = 0;
-    int removed_ = 0;
-    int wallBreaches_ = 0;
-    double evacuationTime_ = -1.0;
-    double clearTime_ = -1.0;
+    std::vector<ExitRecord> doorCrossings_;  // registro crudo del subconjunto TSDMD
+    std::vector<ExitRecord> removals_;
+    double lastRemovalTime_ = -1.0;
 
     long long nextBoundary_ = 0;
     long long lastBoundary_ = 0;

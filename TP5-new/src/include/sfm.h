@@ -91,20 +91,25 @@ struct EvacuationConfig {
     int returnStride = 20;
 };
 
+// Registro crudo de un agente que cruza la linea de la puerta o se retira: id, instante y x.
+// El motor no calcula observables (t_evac, agentes en sala, si la evacuacion se completo):
+// se obtienen en el post-proceso, de la trayectoria o de este registro.
+struct ExitRecord {
+    int id = 0;
+    double time = 0.0;
+    double x = 0.0;
+};
+
 struct EvacuationResult {
     long long steps = 0;
-    double finalTime = 0.0;
-    double evacuationTime = -1.0;  // instante en que el ultimo agente cruza la puerta
-    double clearTime = -1.0;       // instante del ultimo retiro
-    int crossed = 0;
-    int removed = 0;
-    int inRoomFinal = 0;
-    int wallBreaches = 0;
+    double finalTime = 0.0;  // instante en que termina la simulacion (sala vacia o tmax)
+    std::vector<ExitRecord> doorCrossings;
+    std::vector<ExitRecord> removals;
+    // Diagnostico numerico del motor (no es un observable del sistema).
     double maxAgentOverlap = 0.0;
     double maxWallOverlap = 0.0;
     double simulationMs = 0.0;
     double outputMs = 0.0;
-    bool completed = false;
     // Contadores del motor EDMD (0 en TSDMD).
     long long events = 0;
     long long staleEvents = 0;
@@ -116,8 +121,8 @@ struct EvacuationResult {
     long long hybridReturns = 0;             // pasajes TSDMD -> EDMD
     long long hybridSteps = 0;               // pasos dt del subconjunto TSDMD
     long long tsdmdAgentSteps = 0;           // suma de agentes TSDMD por paso (costo del lado TSDMD)
-    long long hybridMixedPromotions = 0;     // promociones por par mixto (las llena el Plan 02)
-    long long hybridQuickRepromotions = 0;   // re-promociones tras un retorno rapido (Plan 02)
+    long long hybridMixedPromotions = 0;     // promociones por par mixto
+    long long hybridQuickRepromotions = 0;   // re-promociones tras un retorno rapido
 };
 
 // Sala [0,side]^2 con puerta centrada en la pared inferior (D-07).

@@ -801,11 +801,7 @@ bool EdmdEngine::step() {
             sync(i);
             r.status = AgentStatus::Exiting;
             retarget(i, room_.exitTarget);
-            ++result_.crossed;
-            result_.evacuationTime = now_;
-            if (std::abs(r.motion.x0.x - room_.doorCenter.x) > config_.doorWidth / 2.0) {
-                ++result_.wallBreaches;
-            }
+            result_.doorCrossings.push_back({r.id, now_, r.motion.x0.x});
             ++r.collisionCount;
             scheduleAgent(i, -1, false);
             break;
@@ -814,8 +810,7 @@ bool EdmdEngine::step() {
             cellErase(i);
             r.alive = false;
             --alive_;
-            ++result_.removed;
-            result_.clearTime = now_;
+            result_.removals.push_back({r.id, now_, stateOf(i, now_).x0.x});
             ++r.collisionCount;
             break;
         }
@@ -1001,11 +996,6 @@ const std::vector<int>& EdmdEngine::cellResidents(int cx, int cy) const {
 
 // ---------------------------------------------------------------- observabilidad
 
-std::optional<EdmdEvent> EdmdEngine::peekNext() {
-    if (!std::isfinite(nextEventTime())) return std::nullopt;
-    return heap_.front();
-}
-
 std::optional<EdmdEvent> EdmdEngine::peekNextPhysical() const {
     std::optional<EdmdEvent> best;
     for (const EdmdEvent& e : heap_) {
@@ -1092,12 +1082,8 @@ EvacuationResult EdmdEngine::result() const {
     r.collisions = counters_.collisions;
     r.floorCollisions = counters_.floorCollisions;
     r.timeRegressions = counters_.timeRegressions;
-    r.completed = alive_ == 0;
-    r.finalTime = r.completed ? lastEventTime_ : (capped_ ? now_ : config_.maxTime);
-    r.inRoomFinal = 0;
-    for (const Record& rec : records_) {
-        if (rec.alive && rec.status == AgentStatus::InRoom) ++r.inRoomFinal;
-    }
+    // Fin de la simulacion: ultimo evento si la sala quedo vacia, si no el tope.
+    r.finalTime = alive_ == 0 ? lastEventTime_ : (capped_ ? now_ : config_.maxTime);
     return r;
 }
 

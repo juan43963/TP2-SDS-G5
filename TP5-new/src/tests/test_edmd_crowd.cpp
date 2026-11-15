@@ -12,6 +12,7 @@
 #include "edmd.h"
 #include "generator.h"
 #include "overlap_oracle.h"
+#include "run_observables.h"
 #include "test_support.h"
 
 namespace {
@@ -109,7 +110,7 @@ std::vector<OracleRow> toRows(const std::vector<Agent>& frame) {
 
 // Atasco denso (N = 60, L = 10): con la regla de multitud no hay solape (oraculo con tolerancia de 1e-6
 // del menor radio) ni cascada; con la regla v2 (--no-crowd) el mismo escenario solapa > 1 cm.
-OverlapReport runDense(bool crowd, EvacuationResult& result) {
+OverlapReport runDense(bool crowd, ObservedRun& result) {
     EvacuationConfig config;
     config.scheme = Scheme::Edmd;
     config.agentCount = 60;
@@ -125,12 +126,12 @@ OverlapReport runDense(bool crowd, EvacuationResult& result) {
     const FrameSink sink = [&](double, const std::vector<Agent>& frame) {
         mergeReports(total, checkOverlaps(toRows(frame), room, 1e-6));
     };
-    result = runEdmd(config, generateAgents(config), sink);
+    result = observe(runEdmd(config, generateAgents(config), sink), config, config.agentCount);
     return total;
 }
 
 void testDenseNoOverlap(TestSuite& suite) {
-    EvacuationResult crowd;
+    ObservedRun crowd;
     const OverlapReport withCrowd = runDense(true, crowd);
     suite.check(crowd.completed && crowd.removed == 60, "denso: la corrida de 60 agentes completa");
     suite.check(withCrowd.violations == 0,
@@ -141,7 +142,7 @@ void testDenseNoOverlap(TestSuite& suite) {
                 "denso: sin cascada (< 1e5 eventos por segundo simulado)");
     suite.check(crowd.floorCollisions > 0, "denso: hay choques de multitud");
 
-    EvacuationResult v2;
+    ObservedRun v2;
     const OverlapReport withoutCrowd = runDense(false, v2);
     suite.check(withoutCrowd.maxAgentDepth > 0.01,
                 "denso (control negativo): la regla v2 con piso solapa mas de 1 cm en el mismo escenario");

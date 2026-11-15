@@ -477,7 +477,7 @@
     \begin{column}{0.54\textwidth}
       \params{%
         $L = 50\un{m}$, $d = 0.8\un{m}$\\
-        $N = 200$\\
+        $N = 200$ (alternativa a $N = 500$ del aviso del campus)\\
         $r\in[0.18,\,0.25]\un{m}$, $v_d = 1.5\un{m/s}$\\
         $m = 80\un{kg}$, $\tau = 0.5\un{s}$, $k = 1.2\times10^{5}\un{kg/s^2}$\\
         $dt = 10^{-4}\un{s}$, pulso $0.1\un{s}$\\
@@ -511,7 +511,7 @@
   \begin{itemize}
     \item Esquema: TSDMD, EDMD, híbrido; $\geq 10$ realizaciones cada uno.
     \item Umbral del híbrido: $T\in\{0,\,0.1,\,0.25,\,0.5,\,1,\,2,\,3\}\un{s}$.
-    \item Cantidad de agentes: $N$ con $L\propto\sqrt{N}$ (densidad fija) y con $L=50\un{m}$.
+    \item Cantidad de agentes: $N\in\{100,\,200,\,400,\,700,\,1000\}$ con $L\propto\sqrt{N}$ (densidad fija) y con $L=50\un{m}$.
     \item Las corridas que no evacúan antes de $t_{max}$ no entran al promedio; se informa su cantidad.
   \end{itemize}
 \end{frame}
@@ -546,7 +546,7 @@
     \end{column}
   \end{columns}
   \vfill
-  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), hasta evacuar; $T = 0.5\un{s}$. Un cuadro cada 5000 pasos (TSDMD) o 5000 eventos (EDMD); híbrido: cada 1000 eventos hasta que 3/4 de los agentes están en TSDMD, y desde ahí cada 5000 pasos.}
+  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), hasta evacuar; $T = 0.5\un{s}$. Un cuadro cada $0.5\un{s}$ simulados en los tres esquemas (video a 10 cuadros/s: $5\times$ el tiempo real).}
 \end{frame}
 
 % SLIDE res_anim_zoom | V:C | T:20
@@ -575,7 +575,7 @@
     \end{column}
   \end{columns}
   \vfill
-  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), hasta evacuar; $T = 0.5\un{s}$. Un cuadro cada 5000 pasos (TSDMD) o 5000 eventos (EDMD); híbrido: cada 1000 eventos hasta que 3/4 de los agentes están en TSDMD, y desde ahí cada 5000 pasos.}
+  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), hasta evacuar; $T = 0.5\un{s}$. Un cuadro cada $0.5\un{s}$ simulados en los tres esquemas (video a 10 cuadros/s: $5\times$ el tiempo real).}
 \end{frame}
 
 % SLIDE res_fraccion | V:A | T:30
@@ -685,7 +685,8 @@
       \params{%
         $L = 50\un{m}$ (la densidad crece con $N$).\\
         \textbf{3 realizaciones por punto} (menos que las 10 del resto): el error es poco confiable; vale la tendencia, no el valor.\\
-        Hueco: alguna corrida no evacuó antes de $t_{max}$ (EDMD, $N = 1000$: 481 agentes en la sala).}
+        Hueco: alguna corrida no evacuó antes de $t_{max}$ (EDMD, $N = 1000$: 481 agentes en la sala).\\
+        Pendiente: ajuste lineal de $\log W$ contra $\log N$ sobre todos los puntos.}
     \end{column}
   \end{columns}
 \end{frame}

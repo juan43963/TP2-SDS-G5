@@ -112,11 +112,9 @@ public:
     int gridCols() const { return cols_; }
     int gridRows() const { return rows_; }
 
-    // ---- Soporte de verificacion (Plan 03, D-19): el motor no usa nada de lo que sigue. ----
+    // ---- Soporte de verificacion (D-19): el motor no usa nada de lo que sigue. ----
     // Recorrer la cola sin consumirla.
     const std::vector<EdmdEvent>& queue() const { return heap_; }
-    // Primer evento valido de la cola de cualquier tipo (descarta obsoletos de la cima).
-    std::optional<EdmdEvent> peekNext();
     // Evento valido de menor tiempo entre los tipos fisicos (par, pared, esquina, puerta,
     // retiro) recorriendo todo el heap; no modifica la cola. CellCross y Steer no cuentan.
     std::optional<EdmdEvent> peekNextPhysical() const;

@@ -7,6 +7,7 @@
 #include "evacuation.h"
 #include "generator.h"
 #include "hybrid.h"
+#include "run_observables.h"
 #include "test_support.h"
 
 namespace {
@@ -15,7 +16,7 @@ constexpr int kAgents = 60;
 constexpr double kSide = 10.0;
 constexpr long long kPromotionCeiling = 500;  // defecto: 2553; correcto: 111
 
-EvacuationResult runDense(double T, int returnStride) {
+ObservedRun runDense(double T, int returnStride) {
     EvacuationConfig c;
     c.scheme = Scheme::Hybrid;
     c.agentCount = kAgents;
@@ -25,12 +26,12 @@ EvacuationResult runDense(double T, int returnStride) {
     c.hybridT = T;
     c.hybridAlpha = 2.0;
     c.returnStride = returnStride;
-    return runHybrid(c, generateAgents(c), [](double, const std::vector<Agent>&) {});
+    return observe(runHybrid(c, generateAgents(c), [](double, const std::vector<Agent>&) {}), c, c.agentCount);
 }
 
 void testNoPingPong(TestSuite& suite) {
     for (const double T : {2.0, 3.0}) {
-        const EvacuationResult r = runDense(T, 20);
+        const ObservedRun r = runDense(T, 20);
         std::printf("  T = %.1f: promotions=%lld returns=%lld quick=%lld completed=%d\n", T,
                     r.hybridPromotions, r.hybridReturns, r.hybridQuickRepromotions, r.completed ? 1 : 0);
         suite.check(r.completed, "T grande: la corrida completa");
@@ -40,8 +41,8 @@ void testNoPingPong(TestSuite& suite) {
 
 // Evaluar el retorno cada n pasos solo lo demora: promociones, contactos y solapes no empeoran.
 void testStrideKeepsSafety(TestSuite& suite) {
-    const EvacuationResult every = runDense(0.5, 1);
-    const EvacuationResult strided = runDense(0.5, 20);
+    const ObservedRun every = runDense(0.5, 1);
+    const ObservedRun strided = runDense(0.5, 20);
     std::printf("  stride 1: collisions=%lld overlap=%.4f; stride 20: collisions=%lld overlap=%.4f\n",
                 every.collisions, every.maxAgentOverlap, strided.collisions, strided.maxAgentOverlap);
     suite.check(every.completed && strided.completed, "stride: ambas corridas completan");

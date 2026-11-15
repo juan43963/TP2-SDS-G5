@@ -30,6 +30,7 @@
 #include "hybrid.h"
 #include "overlap_oracle.h"
 #include "relaxation.h"
+#include "run_observables.h"
 #include "test_support.h"
 
 namespace {
@@ -275,8 +276,9 @@ struct Hooks {
     std::vector<int> promoteAtStart;
 };
 
-EvacuationResult runAudited(const EvacuationConfig& config, std::vector<Agent> agents, const AuditParams& params,
-                            AuditTotals& totals, const Hooks& hooks) {
+ObservedRun runAudited(const EvacuationConfig& config, std::vector<Agent> agents, const AuditParams& params,
+                       AuditTotals& totals, const Hooks& hooks) {
+    const int agentCount = static_cast<int>(agents.size());
     int maxId = 0;
     for (const Agent& a : agents) maxId = std::max(maxId, a.id);
     const std::size_t n = static_cast<std::size_t>(maxId) + 1;
@@ -316,10 +318,10 @@ EvacuationResult runAudited(const EvacuationConfig& config, std::vector<Agent> a
         if (!engine.step()) break;
         if (engine.lastStepWasBoundary()) auditBoundary(engine, params, state, totals);
     }
-    return engine.result();
+    return observe(engine.result(), config, agentCount);
 }
 
-void printAudit(const char* label, const AuditTotals& t, const EvacuationResult& r) {
+void printAudit(const char* label, const AuditTotals& t, const ObservedRun& r) {
     std::printf("HYBRID_AUDIT label=%s boundaries=%lld depth_checks=%lld tau_checks=%lld pairs_examined=%lld "
                 "mixed_pair_boundaries=%lld resident_overlaps=%lld lost_contacts=%lld oracle_violations=%lld "
                 "promotions=%lld returns=%lld mixed_promotions=%lld quick_repromotions=%lld "
@@ -362,7 +364,7 @@ void checkZeros(TestSuite& suite, const char* label, const AuditTotals& t) {
 void testRearEnd(TestSuite& suite) {
     const EvacuationConfig c = scenarioConfig(2, kLead, 2.0);
     AuditTotals totals;
-    const EvacuationResult r = runAudited(c, rearEndAgents(), makeParams(c, 1, 1, true), totals, Hooks{});
+    const ObservedRun r = runAudited(c, rearEndAgents(), makeParams(c, 1, 1, true), totals, Hooks{});
     printAudit("rear_end", totals, r);
     checkZeros(suite, "rear_end", totals);
     suite.check(r.completed, "rear_end: la corrida completa");
@@ -377,7 +379,7 @@ void testMixed(TestSuite& suite) {
     AuditTotals totals;
     Hooks hooks;
     hooks.promoteAtStart = {0};
-    const EvacuationResult r = runAudited(c, mixedAgents(), makeParams(c, 1, 1, true), totals, hooks);
+    const ObservedRun r = runAudited(c, mixedAgents(), makeParams(c, 1, 1, true), totals, hooks);
     printAudit("mixed", totals, r);
     checkZeros(suite, "mixed", totals);
     suite.check(r.hybridMixedPromotions == 1, "mixed: mixed_promotions == 1");
@@ -400,7 +402,7 @@ EvacuationConfig denseConfig(int agents, double side, unsigned long long seed, d
 void testDense60(TestSuite& suite) {
     const EvacuationConfig c = denseConfig(kDenseAgents, kDenseSide, kDenseSeed, kDenseMaxTime);
     AuditTotals totals;
-    const EvacuationResult r = runAudited(c, generateAgents(c), makeParams(c, 1, kTauStride, true), totals, Hooks{});
+    const ObservedRun r = runAudited(c, generateAgents(c), makeParams(c, 1, kTauStride, true), totals, Hooks{});
     printAudit("dense_n60", totals, r);
     checkZeros(suite, "dense_n60", totals);
     suite.check(r.completed, "dense_n60: la corrida completa");
@@ -423,7 +425,7 @@ void testControls(TestSuite& suite) {
         Hooks hooks;
         hooks.mixedScan = false;
         hooks.promoteAtStart = {0};
-        const EvacuationResult r = runAudited(c, mixedAgents(), makeParams(c, 1, 1, false), totals, hooks);
+        const ObservedRun r = runAudited(c, mixedAgents(), makeParams(c, 1, 1, false), totals, hooks);
         printAudit("control_A", totals, r);
         const bool detected = totals.lostContacts > 0 && totals.residentOverlaps > 0 && totals.oracleViolations > 0;
         printControl("scan_off", detected);
@@ -437,7 +439,7 @@ void testControls(TestSuite& suite) {
         AuditTotals totals;
         Hooks hooks;
         hooks.returnGuard = false;
-        const EvacuationResult r = runAudited(c, rearEndAgents(), makeParams(c, 1, 1, false), totals, hooks);
+        const ObservedRun r = runAudited(c, rearEndAgents(), makeParams(c, 1, 1, false), totals, hooks);
         printAudit("control_B", totals, r);
         printControl("return_guard_off", totals.residentOverlaps > 0);
         suite.check(totals.residentOverlaps > 0, "control B: sin guarda de retorno el auditor reporta solape de residente");
@@ -453,7 +455,7 @@ void testControls(TestSuite& suite) {
         AuditTotals totals;
         Hooks hooks;
         hooks.promoteAtStart = {0};
-        const EvacuationResult r = runAudited(c, mixedAgents(), params, totals, hooks);
+        const ObservedRun r = runAudited(c, mixedAgents(), params, totals, hooks);
         printAudit("control_C", totals, r);
         printControl("horizon_gt_T", totals.lostContacts > 0);
         suite.check(totals.lostContacts > 0, "control C: con horizonte 0.6 > T = 0.3 el auditor reporta contactos previstos");
@@ -478,7 +480,7 @@ void runHybridAuditTests(TestSuite& suite) {
     }
     const EvacuationConfig c = denseConfig(kHeavyAgents, kHeavySide, kHeavySeed, kHeavyMaxTime);
     AuditTotals totals;
-    const EvacuationResult r = runAudited(c, generateAgents(c), makeParams(c, 20, 200, false), totals, Hooks{});
+    const ObservedRun r = runAudited(c, generateAgents(c), makeParams(c, 20, 200, false), totals, Hooks{});
     printAudit("dense_n200", totals, r);
     checkZeros(suite, "dense_n200", totals);
     suite.check(r.completed, "dense_n200: la corrida completa");

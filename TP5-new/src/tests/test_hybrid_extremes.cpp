@@ -9,6 +9,7 @@
 #include "evacuation.h"
 #include "generator.h"
 #include "hybrid.h"
+#include "run_observables.h"
 #include "test_support.h"
 
 namespace {
@@ -17,7 +18,7 @@ using Frames = std::vector<std::pair<double, std::vector<Agent>>>;
 
 struct Run {
     Frames frames;
-    EvacuationResult result;
+    ObservedRun result;
 };
 
 enum class Runner { Hybrid, Edmd, Tsdmd };
@@ -41,15 +42,15 @@ Run run(Runner runner, EvacuationConfig config) {
     switch (runner) {
         case Runner::Hybrid:
             config.scheme = Scheme::Hybrid;
-            out.result = runHybrid(config, std::move(agents), sink);
+            out.result = observe(runHybrid(config, std::move(agents), sink), config, config.agentCount);
             break;
         case Runner::Edmd:
             config.scheme = Scheme::Edmd;
-            out.result = runEdmd(config, std::move(agents), sink);
+            out.result = observe(runEdmd(config, std::move(agents), sink), config, config.agentCount);
             break;
         case Runner::Tsdmd:
             config.scheme = Scheme::Tsdmd;
-            out.result = runEvacuation(config, std::move(agents), sink);
+            out.result = observe(runEvacuation(config, std::move(agents), sink), config, config.agentCount);
             break;
     }
     return out;
@@ -72,9 +73,17 @@ bool sameFrames(const Frames& a, const Frames& b) {
     return true;
 }
 
+bool sameLog(const std::vector<ExitRecord>& a, const std::vector<ExitRecord>& b) {
+    if (a.size() != b.size()) return false;
+    for (std::size_t k = 0; k < a.size(); ++k) {
+        if (a[k].id != b[k].id || a[k].time != b[k].time || a[k].x != b[k].x) return false;
+    }
+    return true;
+}
+
 // Todos los campos salvo los relojes (simulationMs, outputMs).
-bool sameResult(const EvacuationResult& a, const EvacuationResult& b) {
-    return a.steps == b.steps && a.finalTime == b.finalTime && a.evacuationTime == b.evacuationTime &&
+bool sameResult(const ObservedRun& a, const ObservedRun& b) {
+    return sameLog(a.doorCrossings, b.doorCrossings) && sameLog(a.removals, b.removals) && a.steps == b.steps && a.finalTime == b.finalTime && a.evacuationTime == b.evacuationTime &&
            a.clearTime == b.clearTime && a.crossed == b.crossed && a.removed == b.removed &&
            a.inRoomFinal == b.inRoomFinal && a.wallBreaches == b.wallBreaches &&
            a.maxAgentOverlap == b.maxAgentOverlap && a.maxWallOverlap == b.maxWallOverlap &&

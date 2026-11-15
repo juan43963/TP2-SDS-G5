@@ -114,7 +114,6 @@ EvacuationResult runEvacuation(const EvacuationConfig& config, std::vector<Agent
     const long long stepsPerFrame =
         config.frameStride > 0 ? config.frameStride : std::llround(config.dt2 / config.dt);
     const long long maxSteps = std::llround(config.maxTime / config.dt);
-    const double halfDoor = config.doorWidth / 2.0;
 
     double outputSeconds = 0.0;
     const auto emit = [&](double time) {
@@ -140,23 +139,17 @@ EvacuationResult runEvacuation(const EvacuationConfig& config, std::vector<Agent
             if (a.status == AgentStatus::InRoom && a.position.y < 0.0) {
                 a.status = AgentStatus::Exiting;
                 a.target = room.exitTarget;
-                ++result.crossed;
-                result.evacuationTime = time;
-                if (std::abs(a.position.x - room.doorCenter.x) > halfDoor) ++result.wallBreaches;
+                result.doorCrossings.push_back({a.id, time, a.position.x});
             }
         }
 
         // (b) retiro a exitDistance de la puerta; borrado estable (orden por id).
-        const std::size_t before = agents.size();
         std::erase_if(agents, [&](const Agent& a) {
-            return a.status == AgentStatus::Exiting &&
-                   norm(a.position - room.doorCenter) >= room.exitDistance;
+            const bool gone = a.status == AgentStatus::Exiting &&
+                              norm(a.position - room.doorCenter) >= room.exitDistance;
+            if (gone) result.removals.push_back({a.id, time, a.position.x});
+            return gone;
         });
-        const std::size_t removedNow = before - agents.size();
-        if (removedNow > 0) {
-            result.removed += static_cast<int>(removedNow);
-            result.clearTime = time;
-        }
 
         if (k % stepsPerFrame == 0) {
             emit(time);
@@ -170,13 +163,9 @@ EvacuationResult runEvacuation(const EvacuationConfig& config, std::vector<Agent
 
     result.steps = k;
     result.finalTime = static_cast<double>(k) * config.dt;
-    for (const Agent& a : agents) {
-        if (a.status == AgentStatus::InRoom) ++result.inRoomFinal;
-    }
     result.maxAgentOverlap = stats.maxAgentOverlap;
     result.maxWallOverlap = stats.maxWallOverlap;
     result.outputMs = outputSeconds * 1e3;
     result.simulationMs = (totalSeconds - outputSeconds) * 1e3;
-    result.completed = agents.empty();
     return result;
 }
