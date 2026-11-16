@@ -28,13 +28,13 @@
       "width": 1600
     },
     {
-      "bytes": 169338,
+      "bytes": 119151,
       "generator": "TP5/presentacion/make_pres_figures.py",
       "height": 1200,
       "name": "pres_fraction.png",
-      "sha256": "48483d75f4a1a11d71ad06a7ee6ff953456d28a01d6679a07bc7c3709086cc2c",
+      "sha256": "bbfba28d69955f5a929a3fa43bd90fe03e3ed43b77c290a591f04794eb33fbd2",
       "source": "studies/anim/hybrid_N200_s1.txt",
-      "width": 2200
+      "width": 1600
     },
     {
       "bytes": 161085,

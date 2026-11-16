@@ -44,7 +44,7 @@ import trajectory_stream as ts  # noqa: E402
 DEFAULT_DATA_DIR = os.path.join(TP5_DIR, "data", "studies")
 DEFAULT_OUT_DIR = os.path.join(HERE, "figuras")
 GENERATOR = "TP5/presentacion/make_pres_figures.py"
-ANIM_SEED = 18
+ANIM_SEED = 1
 FRAME_WINDOW = (5.0, 60.0)
 MIN_FONT = 20.0
 
@@ -285,24 +285,22 @@ def build_scale(rows, variant):
 # --------------------------------------------------------------------------- fraccion y fotogramas
 
 def build_fraction(path):
-    """Fraccion de agentes TSDMD y EDMD de la corrida de la semilla 18: completa y primeros 60 s."""
+    """Fraccion de agentes TSDMD y EDMD de la corrida completa del hibrido."""
     apply_style()
     series = scheme_fraction.scheme_series(path)
     t = series["t"]
     n = series["n"].astype(float)
     f_ts = series["n_tsdmd"] / n
     f_ed = series["n_edmd"] / n
-    fig, axes = plt.subplots(1, 2, figsize=(11.0, 6.0), sharey=True)
-    for ax, t_max in zip(axes, (None, FRAME_WINDOW[1])):
-        sel = np.ones(t.shape, dtype=bool) if t_max is None else t <= t_max
-        ax.step(t[sel], f_ts[sel], where="post", color=ts.SCHEME_COLORS[0],
-                ls=sc.STUDY_LINESTYLES["tsdmd"], label="TSDMD")
-        ax.step(t[sel], f_ed[sel], where="post", color=ts.SCHEME_COLORS[1],
-                ls=sc.STUDY_LINESTYLES["edmd"], label="EDMD")
-        ax.set_ylim(-0.03, 1.05)
-        ax.set_xlabel("Tiempo (s)")
-    axes[0].set_ylabel("Fracción de agentes")
-    axes[0].legend(loc="center")
+    fig, ax = plt.subplots(figsize=(8.0, 6.0))
+    ax.step(t, f_ts, where="post", color=ts.SCHEME_COLORS[0],
+            ls=sc.STUDY_LINESTYLES["tsdmd"], label="TSDMD")
+    ax.step(t, f_ed, where="post", color=ts.SCHEME_COLORS[1],
+            ls=sc.STUDY_LINESTYLES["edmd"], label="EDMD")
+    ax.set_ylim(-0.03, 1.05)
+    ax.set_xlabel("Tiempo (s)")
+    ax.set_ylabel("Fracción de agentes")
+    ax.legend(loc="center")
     fig.tight_layout()
     return fig
 

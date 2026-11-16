@@ -546,7 +546,7 @@
     \end{column}
   \end{columns}
   \vfill
-  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), hasta evacuar; $T = 0.5\un{s}$. Un cuadro cada $0.5\un{s}$ simulados en los tres esquemas (video a 10 cuadros/s: $5\times$ el tiempo real).}
+  \params{$N = 200$, $L = 50\un{m}$, $T = 0.5\un{s}$, semilla 1. Video: $5\times$ el tiempo real.}
 \end{frame}
 
 % SLIDE res_anim_zoom | V:C | T:20
@@ -575,7 +575,7 @@
     \end{column}
   \end{columns}
   \vfill
-  \params{$N = 200$, $L = 50\un{m}$, una realización (semilla 1), hasta evacuar; $T = 0.5\un{s}$. Un cuadro cada $0.5\un{s}$ simulados en los tres esquemas (video a 10 cuadros/s: $5\times$ el tiempo real).}
+  \params{$N = 200$, $L = 50\un{m}$, $T = 0.5\un{s}$, semilla 1. Video: $5\times$ el tiempo real.}
 \end{frame}
 
 % SLIDE res_fraccion | V:A | T:30
@@ -602,10 +602,8 @@
     \begin{column}{0.34\textwidth}
       \params{%
         $N = 200$, $L = 50\un{m}$\\
-        $T = 0.5\un{s}$\\[4pt]
-        Media sobre una grilla común de $t$; solo corridas completas.\\
-        Banda: SEM.\\[4pt]
-        EDMD, regla de multitud: solape máximo $2\times10^{-14}\un{m}$.}
+        $T = 0.5\un{s}$\\
+        Banda: SEM.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -619,11 +617,9 @@
     \begin{column}{0.34\textwidth}
       \params{%
         $N = 200$, $L = 50\un{m}$\\
-        Sobre cada barra: corridas completas / intentadas.\\
-        Puntos: cada realización.\\[4pt]
+        $T = 0.5\un{s}$\\[4pt]
         $z$ respecto de TSDMD:\\
-        EDMD $-12$, híbrido $+0.3$.\\[4pt]
-        EDMD, regla de multitud: solape máximo $2\times10^{-14}\un{m}$.}
+        EDMD $-12$, híbrido $+0.3$.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -637,8 +633,7 @@
     \begin{column}{0.34\textwidth}
       \params{%
         $N = 200$, $L = 50\un{m}$\\
-        Un hilo, misma máquina, corridas en serie.\\[4pt]
-        EDMD: regla de multitud.}
+        $T = 0.5\un{s}$}
     \end{column}
   \end{columns}
 \end{frame}
@@ -652,9 +647,7 @@
     \begin{column}{0.46\textwidth}
       \params{%
         $N = 200$, $L = 50\un{m}$\\
-        10 realizaciones por punto; $n$ bajo cada $T$: las completas.\\[4pt]
-        $T = 0$: reproduce el EDMD puro, regla de multitud.\\
-        Franjas: SEM de TSDMD y EDMD.}
+        10 realizaciones por punto.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -668,9 +661,7 @@
     \begin{column}{0.34\textwidth}
       \params{%
         $L = 50\sqrt{N/500}\un{m}$\\
-        \textbf{3 realizaciones por punto} (menos que las 10 del resto): el error es poco confiable; vale la tendencia, no el valor.\\
-        Hueco: alguna corrida no evacuó antes de $t_{max}$.\\
-        Pendiente: ajuste lineal de $\log W$ contra $\log N$ sobre todos los puntos.}
+        3 realizaciones por punto.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -683,10 +674,8 @@
     \end{column}
     \begin{column}{0.34\textwidth}
       \params{%
-        $L = 50\un{m}$ (la densidad crece con $N$).\\
-        \textbf{3 realizaciones por punto} (menos que las 10 del resto): el error es poco confiable; vale la tendencia, no el valor.\\
-        Hueco: alguna corrida no evacuó antes de $t_{max}$ (EDMD, $N = 1000$: 481 agentes en la sala).\\
-        Pendiente: ajuste lineal de $\log W$ contra $\log N$ sobre todos los puntos.}
+        $L = 50\un{m}$\\
+        3 realizaciones por punto.}
     \end{column}
   \end{columns}
 \end{frame}
